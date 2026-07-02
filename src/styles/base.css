@@ -1,0 +1,68 @@
+/* themes/am-mindmeld/assets/css/fonts.css */
+@font-face {
+  font-family: 'VT323';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/VT323-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/JetBrainsMono-Medium.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+}
+
+* { box-sizing: border-box; margin: 0; }
+
+:root {
+  --measure: 68ch; /* gate 2: 60-70ch body cap */
+  --radius: 2px;   /* principle 5 */
+}
+
+html { background: var(--carbon); }
+
+body {
+  font-family: var(--font-body);
+  font-size: 16px;            /* JBM Regular body */
+  line-height: 1.6;
+  color: var(--bone);
+}
+
+.vt {                          /* the ONLY route to VT323 */
+  font-family: var(--font-display);
+  text-transform: uppercase;
+  font-size: clamp(2.2rem, 6vw, 4rem);
+  line-height: 1.05;
+}
+
+.subhead {                     /* JBM Bold ~20-24px step */
+  font-family: var(--font-body);
+  font-weight: 700;
+  font-size: 1.375rem;
+}
+
+.prose { max-width: var(--measure); }
+
+section { padding: 4.5rem 1.5rem; max-width: 72rem; margin: 0 auto; }
+
+a { color: var(--plasma); }
+a:hover { color: var(--plasma-dim); }
