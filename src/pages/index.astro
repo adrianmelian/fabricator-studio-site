@@ -39,6 +39,36 @@ const DOWNLOAD_URL = 'https://github.com/adrianmelian/KinematicSolutions/release
     </div>
     <BracketButton kind="hard" href={DOWNLOAD_URL} label="Download the toolset" />
   </section>
+
+  <section id="services">
+    <FieldLabel text="Services" />
+    <h2 class="subhead">The toolset is free. The TA behind it is for hire.</h2>
+    <p class="prose">Fixed-scope packages, priced up front. Every engagement is delivered by the person who built the tools, not a team you have never met.</p>
+    <div class="services__grid">
+      <div class="service">
+        <h3>Pipeline Health Audit</h3>
+        <p>One week. Rigs, skinning, export path, naming, versioning. You get a findings doc, a prioritized fix list, and a quote. The fee credits 100% toward the first fix package signed within 30 days.</p>
+        <p class="service__price">from $1,500</p>
+      </div>
+      <div class="service">
+        <h3>Export Contract Fix</h3>
+        <p>Two to three days. One named character exporting clean into Unreal, end to end.</p>
+        <p class="service__price">from $1,500</p>
+      </div>
+      <div class="service">
+        <h3>Character Rig and Export Setup</h3>
+        <p>Hero characters rigged with Fabricator and wired into your Maya-to-Unreal export contract. Scoped by roster size.</p>
+        <p class="service__price">from $2,500</p>
+      </div>
+      <div class="service">
+        <h3>Custom Tool Sprint</h3>
+        <p>One scoped Maya tool built to spec in two to three weeks, docs included.</p>
+        <p class="service__price">from $5,000</p>
+      </div>
+    </div>
+    <p class="prose">Ongoing support runs as a monthly retainer, from $2,500 a month. Embedded contract work and advisory are quoted per engagement.</p>
+    <BracketButton kind="soft" href="mailto:adrianmelian123@gmail.com?subject=FabricatorStudio%20discovery%20call" label="Book a discovery call" />
+  </section>
 </BaseLayout>
 <style>
   .hero { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; text-align: center; padding-top: 6rem; }
@@ -48,4 +78,12 @@ const DOWNLOAD_URL = 'https://github.com/adrianmelian/KinematicSolutions/release
   #toolset { text-align: center; }
   #toolset .subhead { margin-inline: auto; }
   .toolset__rows { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0 2rem; text-align: left; }
+
+  #services { text-align: center; }
+  #services .prose { margin-inline: auto; }
+  .services__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.75rem; margin: 1.5rem 0; text-align: left; }
+  .service { border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.625rem; }
+  .service h3 { font-size: 1rem; }
+  .service p { color: var(--bone-dim); font-size: 0.9375rem; }
+  .service__price { margin-top: auto; color: var(--bone); font-weight: 700; }
 </style>
