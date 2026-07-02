@@ -3,8 +3,10 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FieldLabel from '../components/FieldLabel.astro';
 import BracketButton from '../components/BracketButton.astro';
 import TermFrame from '../components/TermFrame.astro';
+import ModuleRow from '../components/ModuleRow.astro';
 import { Image } from 'astro:assets';
 import lockup from '../assets/fabricatorstudio-lockup.png';
+import { tools } from '../data/tools';
 
 const demoStills = Object.values(import.meta.glob('../assets/demo/*.{png,jpg,webp}', { eager: true }));
 const DOWNLOAD_URL = 'https://github.com/adrianmelian/KinematicSolutions/releases/latest';
@@ -28,9 +30,22 @@ const DOWNLOAD_URL = 'https://github.com/adrianmelian/KinematicSolutions/release
       </TermFrame>
     )}
   </section>
+
+  <section id="toolset">
+    <FieldLabel text="Toolset" />
+    <h2 class="subhead">Every tool in the kit. Free, no tiers, no license keys.</h2>
+    <div class="toolset__rows">
+      {tools.map((t) => <ModuleRow name={t.name} line={t.line} pill={t.pill} pillTone={t.pillTone} />)}
+    </div>
+    <BracketButton kind="hard" href={DOWNLOAD_URL} label="Download the toolset" />
+  </section>
 </BaseLayout>
 <style>
   .hero { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; text-align: center; padding-top: 6rem; }
   .hero__ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin: 0.5rem 0 1.5rem; }
   .hero .subhead { margin-inline: auto; }
+
+  #toolset { text-align: center; }
+  #toolset .subhead { margin-inline: auto; }
+  .toolset__rows { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0 2rem; text-align: left; }
 </style>
