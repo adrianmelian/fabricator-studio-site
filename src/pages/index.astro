@@ -14,7 +14,7 @@ const DOWNLOAD_URL = 'https://github.com/adrianmelian/KinematicSolutions/release
   description="Free Maya rigging toolset built by a 14-year AAA technical artist. Download Fabricator, and hire the TA who built it when you need him."
 >
   <section class="hero">
-    <Image src={lockup} alt="FabricatorStudio" width={420} densities={[1, 2]} />
+    <Image src={lockup} alt="FabricatorStudio" width={420} densities={[1, 2]} loading="eager" fetchpriority="high" />
     <FieldLabel text="The Artist-Friendly Toolset" />
     <h1 class="vt">AAA character pipeline, free on your desk.</h1>
     <p class="subhead prose">The TA who built it, on call.</p>
@@ -30,6 +30,7 @@ const DOWNLOAD_URL = 'https://github.com/adrianmelian/KinematicSolutions/release
   </section>
 </BaseLayout>
 <style>
-  .hero { display: flex; flex-direction: column; gap: 1.25rem; align-items: flex-start; padding-top: 6rem; }
-  .hero__ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin: 0.5rem 0 1.5rem; }
+  .hero { display: flex; flex-direction: column; gap: 1.25rem; align-items: center; text-align: center; padding-top: 6rem; }
+  .hero__ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin: 0.5rem 0 1.5rem; }
+  .hero .subhead { margin-inline: auto; }
 </style>
