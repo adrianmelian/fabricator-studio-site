@@ -10,7 +10,6 @@ import lockup from '../assets/fabricatorstudio-lockup.png';
 import { tools } from '../data/tools';
 import { getCollection } from 'astro:content';
 
-const demoStills = Object.values(import.meta.glob('../assets/demo/*.{png,jpg,webp}', { eager: true }));
 const DOWNLOAD_URL = 'https://github.com/adrianmelian/KinematicSolutions/releases/latest';
 const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
 ---
@@ -27,11 +26,14 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
       <BracketButton kind="hard" href={DOWNLOAD_URL} label="Download Fabricator" />
       <BracketButton kind="soft" href="#services" label="Services" />
     </div>
-    {demoStills.length > 0 && (
-      <TermFrame title="Fabricator" meta="persp | Fabricator">
-        <img src={(demoStills[0] as any).default.src} alt="Fabricator building a character rig in Maya" />
-      </TermFrame>
-    )}
+    <TermFrame title="Fabricator" meta="persp | Fabricator">
+      <video autoplay muted loop playsinline
+        poster="/demo/fs_hero_poster.jpg"
+        src="/demo/fs_hero.mp4"
+        width="1024" height="300"
+        aria-label="Ten times speed montage of Fabricator building a character rig in Maya">
+      </video>
+    </TermFrame>
   </section>
 
   <section id="toolset">
