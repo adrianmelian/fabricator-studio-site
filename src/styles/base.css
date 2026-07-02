@@ -1,4 +1,4 @@
-/* themes/am-mindmeld/assets/css/fonts.css */
+/* base.css - fabricator.studio type system; @font-face block ported from am-mindmeld fonts.css */
 @font-face {
   font-family: 'VT323';
   font-style: normal;
@@ -43,7 +43,7 @@ html { background: var(--carbon); }
 body {
   font-family: var(--font-body);
   font-size: 16px;            /* JBM Regular body */
-  line-height: 1.6;
+  line-height: var(--lh-body);
   color: var(--bone);
 }
 
