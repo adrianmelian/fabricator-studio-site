@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FieldLabel from '../../components/FieldLabel.astro';
+import Footer from '../../components/Footer.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -19,6 +20,8 @@ const { Content } = await render(post);
       <div class="prose post-body"><Content /></div>
     </section>
   </article>
+
+  <Footer />
 </BaseLayout>
 <style>
   .post { text-align: center; }
