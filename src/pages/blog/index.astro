@@ -2,12 +2,12 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FieldLabel from '../../components/FieldLabel.astro';
 import Footer from '../../components/Footer.astro';
-import BackHome from '../../components/BackHome.astro';
+import NavBar from '../../components/NavBar.astro';
 import { getCollection } from 'astro:content';
 const posts = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 ---
 <BaseLayout title="Devlog | FabricatorStudio" description="Development log for Fabricator and the FabricatorStudio toolset.">
-  <BackHome />
+  <NavBar />
   <section class="devlog-index">
     <FieldLabel text="Devlog" />
     <h1 class="vt">Devlog</h1>

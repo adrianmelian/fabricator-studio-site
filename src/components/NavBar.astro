@@ -1,0 +1,90 @@
+---
+import { LINKS } from '../data/links';
+import BracketButton from './BracketButton.astro';
+---
+<nav class="navbar">
+  <a class="navbar__brand" href="/">
+    <img src="/favicon-64.png" width="28" height="28" alt="" />
+    <span>FabricatorStudio</span>
+  </a>
+  <div class="navbar__tabs">
+    <a class="navbar__tab" href={LINKS.tutorialsChannel} target="_blank" rel="noopener">Tutorials</a>
+    <a class="navbar__tab" href={LINKS.wiki} target="_blank" rel="noopener">Wiki</a>
+    <a class="navbar__tab" href="/services/">Services</a>
+    <details class="navbar__dropdown">
+      <summary class="navbar__tab">Community</summary>
+      <div class="navbar__panel">
+        {LINKS.community.map((c) => (
+          <a href={c.href} target="_blank" rel="noopener">{`[ ${c.label.toUpperCase()} ]`}</a>
+        ))}
+      </div>
+    </details>
+  </div>
+  <BracketButton kind="hard" href={LINKS.download} label="Download" />
+</nav>
+<style>
+  .navbar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    height: var(--header-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0 1.5rem;
+    background: var(--carbon);
+    border-bottom: 1px solid var(--iron-2);
+  }
+  .navbar__brand {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    text-decoration: none;
+    color: var(--bone);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .navbar__brand img { display: block; }
+  .navbar__tabs {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  .navbar__tab {
+    text-decoration: none;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    cursor: pointer;
+    list-style: none;
+  }
+  .navbar__tab:hover { color: var(--bone); }
+  .navbar__dropdown { position: relative; }
+  .navbar__dropdown summary { list-style: none; }
+  .navbar__dropdown summary::-webkit-details-marker { display: none; }
+  .navbar__panel {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.75rem;
+    background: var(--iron);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    min-width: 10rem;
+  }
+  .navbar__panel a {
+    text-decoration: none;
+    color: var(--bone-dim);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+  .navbar__panel a:hover { color: var(--plasma); }
+</style>

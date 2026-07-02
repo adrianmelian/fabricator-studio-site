@@ -1,5 +1,5 @@
 ---
-interface Props { href: string; label: string; kind?: 'hard' | 'soft' }
+interface Props { href: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline' }
 const { href, label, kind = 'soft' } = Astro.props;
 ---
 <a class={`btn cta-${kind}`} href={href}>[ {label.toUpperCase()} ]</a>
@@ -16,4 +16,6 @@ const { href, label, kind = 'soft' } = Astro.props;
   .cta-hard:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); color: var(--carbon); }
   .cta-soft { color: var(--bone); background: transparent; border-color: var(--bone-faint); }
   .cta-soft:hover { color: var(--bone); border-color: var(--bone); }
+  .cta-plasma-outline { color: var(--plasma); background: transparent; border-color: var(--plasma); }
+  .cta-plasma-outline:hover { color: var(--plasma-dim); border-color: var(--plasma-dim); }
 </style>

@@ -5,6 +5,7 @@ import BracketButton from '../components/BracketButton.astro';
 import TermFrame from '../components/TermFrame.astro';
 import ModuleRow from '../components/ModuleRow.astro';
 import Footer from '../components/Footer.astro';
+import NavBar from '../components/NavBar.astro';
 import { Image } from 'astro:assets';
 import lockup from '../assets/fabricatorstudio-lockup.png';
 import { tools } from '../data/tools';
@@ -17,13 +18,14 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
   title="FabricatorStudio | The Artist-Friendly Toolset"
   description="Free Maya rigging toolset built by a 14-year AAA technical artist. Download Fabricator, and hire the TA who built it when you need him."
 >
+  <NavBar />
   <section class="hero">
     <Image src={lockup} alt="FabricatorStudio" width={420} densities={[1, 2]} loading="eager" fetchpriority="high" />
     <FieldLabel text="The Artist-Friendly Toolset" />
     <h1 class="vt">AAA character pipeline, free on your desk.</h1>
     <p class="subhead prose">The TA who built it, on call.</p>
     <div class="hero__ctas">
-      <BracketButton kind="hard" href={DOWNLOAD_URL} label="Download Fabricator" />
+      <BracketButton kind="plasma-outline" href={DOWNLOAD_URL} label="Download Fabricator" />
       <BracketButton kind="soft" href="#services" label="Services" />
     </div>
     <TermFrame title="Fabricator" meta="persp | Fabricator">
@@ -42,7 +44,7 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
     <div class="toolset__rows">
       {tools.map((t) => <ModuleRow name={t.name} line={t.line} pill={t.pill} pillTone={t.pillTone} />)}
     </div>
-    <BracketButton kind="hard" href={DOWNLOAD_URL} label="Download the toolset" />
+    <BracketButton kind="plasma-outline" href={DOWNLOAD_URL} label="Download the toolset" />
   </section>
 
   <section id="services">
