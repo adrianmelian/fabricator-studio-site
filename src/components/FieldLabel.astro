@@ -1,0 +1,14 @@
+---
+interface Props { text: string }
+const { text } = Astro.props;
+---
+<div class="field-label">{'// '}{text.toUpperCase()}</div>
+<style>
+  .field-label {
+    color: var(--ember);
+    font-weight: 700;
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+</style>

@@ -1,0 +1,19 @@
+---
+interface Props { href: string; label: string; kind?: 'hard' | 'soft' }
+const { href, label, kind = 'soft' } = Astro.props;
+---
+<a class={`btn cta-${kind}`} href={href}>[ {label.toUpperCase()} ]</a>
+<style>
+  .btn {
+    display: inline-block;
+    font-weight: 700;
+    padding: 0.75rem 1.25rem;
+    border: 1px solid;
+    border-radius: var(--radius);
+    text-decoration: none;
+  }
+  .cta-hard { color: var(--carbon); background: var(--plasma); border-color: var(--plasma); }
+  .cta-hard:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); color: var(--carbon); }
+  .cta-soft { color: var(--bone); background: transparent; border-color: var(--bone-faint); }
+  .cta-soft:hover { color: var(--bone); border-color: var(--bone); }
+</style>

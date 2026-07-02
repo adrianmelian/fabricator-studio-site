@@ -1,0 +1,11 @@
+---
+interface Props { text: string; tone?: 'plasma' | 'ember' | 'bone' }
+const { text, tone = 'bone' } = Astro.props;
+---
+<span class={`pill pill--${tone}`}>[ {text.toUpperCase()} ]</span>
+<style>
+  .pill { font-size: 0.8125rem; letter-spacing: 0.06em; white-space: nowrap; }
+  .pill--plasma { color: var(--plasma); }
+  .pill--ember { color: var(--ember); }
+  .pill--bone { color: var(--bone-dim); }
+</style>
