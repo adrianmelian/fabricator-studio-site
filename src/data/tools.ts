@@ -3,11 +3,10 @@ import { LINKS } from './links';
 import fabricatorCard from '../assets/cards/fabricator_card.png';
 import animlibCard from '../assets/cards/animlib.png';
 import skinSkelCard from '../assets/cards/skin_skel_io.png';
+import toolbarCard from '../assets/cards/toolbar_card.png';
 
-// Stub note (Adrian 2026-07-02, updated 2026-07-02): Fabricator, Pose & Anim
-// Library, and Skin & Skeleton IO have their own dedicated card art now. The
-// remaining two flagship cards (ToolBar, Exporter) still reuse
-// fabricator_card.png as a placeholder until per-tool art lands; alt text
+// Stub note (Adrian 2026-07-02, updated 2026-07-02): only Exporter still
+// reuses fabricator_card.png as a placeholder until its art lands; alt text
 // stays truthful to what the image shows.
 const STUB_ALT = 'Fabricator rig authoring in Maya';
 
@@ -31,8 +30,8 @@ export const flagshipTools: FlagshipTool[] = [
       'Built for the way technical artists actually work.',
     ],
     href: LINKS.wiki,
-    image: fabricatorCard,
-    alt: STUB_ALT,
+    image: toolbarCard,
+    alt: 'The FabricatorStudio toolbar docked under a character wireframe in Maya',
   },
   {
     name: 'Skin & Skeleton IO',
