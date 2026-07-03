@@ -1,0 +1,100 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FieldLabel from '../../components/FieldLabel.astro';
+import BracketButton from '../../components/BracketButton.astro';
+import Footer from '../../components/Footer.astro';
+import NavBar from '../../components/NavBar.astro';
+---
+<BaseLayout
+  title="Services | FabricatorStudio"
+  description="Rigging and pipeline services from the technical artist behind Fabricator: audits, rig and export setup, custom tools, and retainers."
+>
+  <NavBar />
+
+  <section class="services-intro">
+    <h1 class="vt">Services</h1>
+    <p class="prose">The toolset is free. The person behind it is for hire. Every engagement is delivered by the technical artist who built Fabricator, not a team you have never met. Scope and pricing depend on your team, your characters, and your deadline, so everything below is quoted after a short discovery call.</p>
+  </section>
+
+  <section class="services-lead">
+    <FieldLabel text="The Lead Offer" />
+    <div class="service service--lead">
+      <h3>Pipeline Health Audit</h3>
+      <p>About a week. I review your rigs, skinning, export path, naming, and versioning, and you get a findings document, a prioritized fix list, and a quote for the fixes. If you sign a fix package within thirty days, the audit fee credits toward it in full.</p>
+    </div>
+  </section>
+
+  <section class="services-packages">
+    <FieldLabel text="Fixed-Scope Packages" />
+    <div class="services__grid">
+      <div class="service">
+        <h3>Export Contract Fix</h3>
+        <p>Two to three days. One named character exporting clean into Unreal, end to end. The outcome-shaped opener for teams that already know their pain.</p>
+      </div>
+      <div class="service">
+        <h3>Character Rig and Export Setup</h3>
+        <p>Hero characters rigged with Fabricator and wired into your Maya-to-Unreal export contract. Scoped by roster size.</p>
+      </div>
+      <div class="service">
+        <h3>Custom Tool Sprint</h3>
+        <p>One scoped Maya tool built to spec, two to three weeks, documentation included.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="services-retainers">
+    <FieldLabel text="Ongoing" />
+    <h2 class="subhead">Retainers</h2>
+    <p class="prose">Monthly retainers cover fixes, questions, tool patches, and pipeline ownership at whatever cadence your production needs, from a couple of days a month to a fractional TA lead role. Embedded contract work and advisory calls are also available.</p>
+  </section>
+
+  <section class="services-process">
+    <FieldLabel text="How It Works" />
+    <ol class="steps">
+      <li>A discovery call: your team, your characters, your pain points.</li>
+      <li>A written scope with deliverables and a quote.</li>
+      <li>Delivery in a focused burst, with everything documented.</li>
+    </ol>
+  </section>
+
+  <section class="services-cta">
+    <p class="prose">Tell me what is breaking and I will tell you what it takes to fix it.</p>
+    <BracketButton kind="plasma-outline" label="Book a discovery call" href="mailto:adrianmelian123@gmail.com?subject=FabricatorStudio%20discovery%20call" />
+  </section>
+
+  <Footer />
+</BaseLayout>
+<style>
+  .services-intro { text-align: center; }
+  .services-intro .prose { margin-inline: auto; text-align: left; margin-top: 1rem; }
+
+  .services-lead { text-align: center; }
+  .service--lead { margin-inline: auto; max-width: 36rem; text-align: left; }
+
+  .services-packages { text-align: center; }
+  .services__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.75rem; margin: 2rem 0; text-align: left; }
+
+  .service { border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.625rem; }
+  .service h3 { font-size: 1rem; }
+  .service p { color: var(--bone-dim); font-size: 0.9375rem; }
+
+  .services-retainers { text-align: center; }
+  .services-retainers .prose { margin-inline: auto; text-align: left; margin-top: 1rem; }
+
+  .services-process { text-align: center; }
+  .steps {
+    max-width: var(--measure);
+    margin: 1.5rem auto 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    padding-left: 1.25rem;
+    color: var(--bone-dim);
+  }
+  .steps li { padding-left: 0.25rem; }
+
+  .services-cta { text-align: center; }
+  .services-cta .prose { margin-inline: auto; text-align: left; }
+  .services-cta .btn { margin-top: 1.5rem; }
+</style>
