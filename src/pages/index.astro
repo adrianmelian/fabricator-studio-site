@@ -44,8 +44,10 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
 
   <section id="tools">
     <FieldLabel text="The Artist-Friendly Toolset" />
-    <div class="tools__grid">
-      {flagshipTools.map((t) => <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} />)}
+    <div class="tools__stack">
+      {flagshipTools.map((t, i) => (
+        <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} />
+      ))}
     </div>
   </section>
 
@@ -174,7 +176,7 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   }
 
   #tools { text-align: center; }
-  .tools__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; margin: 2rem 0; text-align: left; }
+  .tools__stack { display: flex; flex-direction: column; gap: 1rem; margin: 2rem 0; text-align: left; }
 
   #features { text-align: center; }
   #features .subhead { margin-inline: auto; }

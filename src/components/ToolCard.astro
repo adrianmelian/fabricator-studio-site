@@ -1,85 +1,112 @@
 ---
 // Flagship tool card (RESTYLE-RULING.md ruling 2 + 3). No plasma at card scale;
 // Learn More always renders BracketButton kind="soft".
+//
+// CP-D restyle (Adrian 2026-07-02): the card is now a full-width banner, image
+// as the entire card with copy over it, same language as the hero. `align`
+// picks which side the copy sits on ('left' | 'right'); the page alternates
+// this per card down the flagshipTools order.
 import { Image } from 'astro:assets';
 import BracketButton from './BracketButton.astro';
 
-interface Props { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string }
-const { name, paras, href, image, alt } = Astro.props;
+interface Props { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string; align?: 'left' | 'right' }
+const { name, paras, href, image, alt, align = 'left' } = Astro.props;
 
 // Ruling 2: the scrim is only ever emitted when real media exists beneath it.
 // Kept inline (not a static CSS rule) so a card with no image ships with zero
-// gradient anywhere in the output, per guardrail 2d.
-const scrimStyle = 'background: linear-gradient(to top, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0) 55%);';
+// gradient anywhere in the output, per guardrail 2d. Horizontal axis carbon
+// scrim, direction follows the copy side so the art stays legible under the
+// text and open on the far side (gate 13: carbon stops only, see
+// scripts/check-brand-gates.mjs G13 which already accepts to left/to right).
+const scrimStyle = align === 'right'
+  ? 'background: linear-gradient(to left, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0.55) 45%, rgba(11, 14, 16, 0) 75%);'
+  : 'background: linear-gradient(to right, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0.55) 45%, rgba(11, 14, 16, 0) 75%);';
 ---
-<div class="tool-card">
+<div class={`tool-banner tool-banner--${align}`}>
   {image ? (
-    <div class="tool-card__media">
-      <Image class="tool-card__image" src={image} alt={alt ?? ''} widths={[640, 1280]} sizes="(min-width: 64rem) 640px, 100vw" />
-      <div class="tool-card__scrim" aria-hidden="true" style={scrimStyle}></div>
-      <h3 class="tool-card__name tool-card__name--over">{name}</h3>
+    <div class="tool-banner__media">
+      <Image class="tool-banner__image" src={image} alt={alt ?? ''} widths={[1024, 2048]} sizes="100vw" />
+      <div class="tool-banner__scrim" aria-hidden="true" style={scrimStyle}></div>
     </div>
-  ) : (
-    <h3 class="tool-card__name">{name}</h3>
-  )}
-  <div class="tool-card__body">
-    {paras.map((p) => <p class="tool-card__para prose">{p}</p>)}
-  </div>
-  <div class="tool-card__footer">
-    <BracketButton kind="soft" href={href} label="Learn More" />
+  ) : null}
+  <div class="tool-banner__copy">
+    <h3 class="tool-banner__name">{name}</h3>
+    {paras.map((p) => <p class="tool-banner__para prose">{p}</p>)}
+    <div class="tool-banner__footer">
+      <BracketButton kind="soft" href={href} label="Learn More" />
+    </div>
   </div>
 </div>
 <style>
-  .tool-card {
-    display: flex;
-    flex-direction: column;
+  .tool-banner {
+    position: relative;
+    overflow: hidden;
     border: 1px solid var(--iron-2);
     border-radius: var(--radius);
     background: var(--iron);
-    overflow: hidden;
+    min-height: clamp(280px, 32vw, 400px);
+    display: flex;
+    align-items: center;
   }
-  .tool-card__media {
-    position: relative;
-    aspect-ratio: 16 / 9;
+  .tool-banner--left { justify-content: flex-start; }
+  .tool-banner--right { justify-content: flex-end; }
+  .tool-banner__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
   }
-  .tool-card__image {
+  .tool-banner__image {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
   }
-  .tool-card__scrim {
+  .tool-banner__scrim {
     position: absolute;
     inset: 0;
   }
-  .tool-card__name {
-    font-family: var(--font-body);
-    font-weight: 700;
-    font-size: 1.125rem;
-    color: var(--bone);
-    padding: 1.25rem 1.25rem 0;
-  }
-  .tool-card__name--over {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
+  .tool-banner__copy {
+    position: relative;
     z-index: 1;
-    padding: 1rem 1.25rem;
-  }
-  .tool-card__body {
+    max-width: 34rem;
+    padding: 2.5rem;
     display: flex;
     flex-direction: column;
-    gap: 0.625rem;
-    padding: 1.25rem;
+    gap: 0.75rem;
+    text-align: left;
   }
-  .tool-card__para {
-    color: var(--bone-dim);
+  .tool-banner__name {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1.375rem;
+    color: var(--bone);
+  }
+  .tool-banner__para {
+    /* Bumped from bone-dim: over photographic art the dimmer token loses too
+       much contrast even under the carbon scrim. Bone matches the hero's
+       body copy treatment. */
+    color: var(--bone);
     font-size: 0.9375rem;
   }
-  .tool-card__footer {
-    margin-top: auto;
-    padding: 0 1.25rem 1.25rem;
+  .tool-banner__footer {
+    margin-top: 0.5rem;
+  }
+  @media (max-width: 720px) {
+    .tool-banner {
+      align-items: flex-end;
+    }
+    .tool-banner__copy {
+      max-width: none;
+      width: 100%;
+      padding: 1.5rem;
+    }
+    /* Mobile: bottom-anchored to-top scrim (same shape as the pre-restyle
+       card) reads cleaner at narrow widths than a horizontal scrim stretched
+       to cover a full-width copy block. !important overrides the inline
+       left/right gradient set above. */
+    .tool-banner__scrim {
+      background: linear-gradient(to top, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0.55) 40%, rgba(11, 14, 16, 0) 65%) !important;
+    }
   }
 </style>
