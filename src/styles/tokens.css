@@ -17,7 +17,8 @@
 
   /* ===== typography ===== */
   --font-display: 'VT323', 'Courier New', monospace;
-  --font-body:    'JetBrains Mono', 'Consolas', monospace;
+  --font-mono:    'JetBrains Mono', 'Consolas', monospace;
+  --font-body:    'Geist', 'Helvetica Neue', Arial, sans-serif;
 
   --fs-11: 0.6875rem;  /* 11px */
   --fs-12: 0.75rem;    /* 12px */

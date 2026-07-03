@@ -31,8 +31,8 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
       <h1 class="hero-wordmark">
         <Image src={wordmark} alt="FabricatorStudio" width={620} densities={[1, 2]} loading="eager" fetchpriority="high" />
       </h1>
-      <p class="hero-tagline">\\ For Artists, By Artists \\</p>
-      <p class="hero-sub">Free, Artist-Friendly Game Developer Pipeline.</p>
+      <p class="hero-tagline">\\ FOR ARTISTS, BY ARTISTS \\</p>
+      <p class="hero-sub">Free, Artist-Friendly Game Developer Pipeline. Tools that support asset creation at every step, from concept to in-engine.</p>
       <p class="hero-strip">Concept • Modeling • Texturing • Rigging • Animation • Unreal</p>
       <div class="hero-ctas">
         <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
@@ -51,11 +51,9 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
 
   <section id="features">
     <FieldLabel text="Key Features" />
-    <h2 class="subhead">Why teams pick this kit.</h2>
     <div class="features__grid">
       {features.map((f) => (
         <div class="feature-tile">
-          <span class="feature-tile__glyph" aria-hidden="true">▪</span>
           <h3 class="feature-tile__name">{f.name}</h3>
           <p class="feature-tile__line">{f.line}</p>
         </div>
@@ -68,7 +66,6 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     <img class="download-media" src="/demo/fs_hero_poster.jpg" alt="" aria-hidden="true" />
     <div class="download-scrim" aria-hidden="true"></div>
     <div class="download-copy">
-      <p class="download-line">The whole kit. Free for commercial work.</p>
       <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
     </div>
   </section>
@@ -157,13 +154,14 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     gap: 0.75rem;
     text-align: center;
     max-width: 44rem;
+    text-shadow: 0 1px 2px rgba(11, 14, 16, 0.9), 0 2px 12px rgba(11, 14, 16, 0.55);
   }
   .hero-wordmark { display: block; max-width: min(90vw, 40rem); margin: 0 auto; }
-  .hero-wordmark img { display: block; width: 100%; height: auto; }
+  .hero-wordmark img { display: block; width: 100%; height: auto; filter: drop-shadow(0 2px 12px rgba(11, 14, 16, 0.55)); }
   /* ember per Adrian 2026-07-02; ruling-5c delta (advised bone/plasma) recorded in workspace */
-  .hero-tagline { font-family: var(--font-body); font-weight: 700; font-size: 1.5rem; color: var(--ember); }
+  .hero-tagline { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--ember); }
   .hero-sub { font-family: var(--font-body); font-size: 1.0625rem; color: var(--bone); }
-  .hero-strip { font-family: var(--font-body); font-size: 0.9375rem; color: var(--bone-dim); letter-spacing: 0.06em; }
+  .hero-strip { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--bone-dim); letter-spacing: 0.06em; }
   .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; }
 
   /* CP-D: seamless full-bleed band stack, edge to edge with the hero above,
@@ -179,10 +177,11 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
 
   #features { text-align: center; }
   #features .subhead { margin-inline: auto; }
-  .features__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.75rem; margin: 2rem 0; text-align: left; }
+  .features__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 2rem 0; text-align: left; }
+  @media (max-width: 900px) { .features__grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .features__grid { grid-template-columns: 1fr; } }
   .feature-tile { border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
-  .feature-tile__glyph { color: var(--bone-faint); }
-  .feature-tile__name { font-family: var(--font-body); font-weight: 700; font-size: 1rem; }
+  .feature-tile__name { font-family: var(--font-mono); font-weight: 700; font-size: 1.125rem; line-height: 1.1; color: var(--bone); }
   .feature-tile__line { color: var(--bone-dim); font-size: 0.9375rem; }
 
   .download-v2 {
@@ -220,14 +219,14 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     gap: 1.25rem;
     text-align: center;
   }
-  .download-line { font-family: var(--font-body); font-weight: 700; font-size: 1.5rem; color: var(--bone); }
+  .download-line { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--bone); }
 
   #tutorials { text-align: center; }
   #tutorials .subhead { margin-inline: auto; }
   .tutorials__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.75rem; margin: 2rem 0; text-align: left; }
   .tutorial-card { display: flex; flex-direction: column; border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); overflow: hidden; text-decoration: none; color: inherit; }
   .tutorial-card__thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-  .tutorial-card__title { font-family: var(--font-body); font-weight: 700; font-size: 1rem; color: var(--bone); padding: 1.25rem; }
+  .tutorial-card__title { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); padding: 1.25rem; }
 
   #rigs { text-align: center; }
   #rigs .prose { margin-inline: auto; }

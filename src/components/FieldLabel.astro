@@ -5,9 +5,10 @@ const { text } = Astro.props;
 <div class="field-label">{'// '}{text.toUpperCase()}</div>
 <style>
   .field-label {
+    font-family: var(--font-mono);
     color: var(--ember);
     font-weight: 700;
-    font-size: 0.875rem;
+    font-size: 1.5rem;
     letter-spacing: 0.08em;
     margin-bottom: 1rem;
   }

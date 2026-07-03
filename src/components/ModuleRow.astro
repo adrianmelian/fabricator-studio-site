@@ -12,7 +12,7 @@ const { name, line, pill, pillTone = 'bone' } = Astro.props;
 <style>
   .module-row { display: grid; grid-template-columns: 1.25rem 14rem 1fr auto; gap: 1rem; align-items: baseline; padding: 0.875rem 0.75rem; border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); }
   .module-row__glyph { color: var(--bone-faint); }
-  .module-row__name { font-weight: 700; }
+  .module-row__name { font-family: var(--font-mono); font-weight: 700; }
   .module-row__line { color: var(--bone-dim); font-size: 0.9375rem; }
   @media (max-width: 720px) { .module-row { grid-template-columns: 1rem 1fr auto; } .module-row__line { grid-column: 2 / -1; } }
 </style>

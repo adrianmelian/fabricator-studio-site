@@ -39,11 +39,13 @@ for (const f of htmlFiles) {
   if (readFileSync(f, 'utf8').includes('Fabricator.Studio')) failures.push(`G9 "Fabricator.Studio" rendering in ${f}`);
 }
 
-// Gates 1+4 (principle 4): no third typeface family in shipped CSS.
+// Gates 1+4 (principle 4, Mindmeld 2.0): two-font system. Geist is the body
+// (reading) face; JetBrains Mono is the accent for all terminal chrome, labels,
+// dividers, and titles; VT323 stays the legacy display face. No fourth family.
 // Astro 7 inlines small stylesheets into <style> blocks in the HTML (observed
 // in this repo's build output), so scan those blocks with the same allowlist
 // in addition to any emitted .css files.
-const allowed = /vt323|jetbrains mono|courier new|consolas|monospace/i;
+const allowed = /vt323|jetbrains mono|geist|helvetica neue|arial|courier new|consolas|monospace|sans-serif/i;
 function checkFontFamilies(css, f) {
   for (const decl of css.matchAll(/font-family\s*:\s*([^;}]+)/gi)) {
     const bad = decl[1].split(',').map((s) => s.replace(/['"]/g, '').trim())
