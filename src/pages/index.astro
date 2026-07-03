@@ -9,6 +9,7 @@ import NavBar from '../components/NavBar.astro';
 import { LINKS } from '../data/links';
 import { flagshipTools, kitModules } from '../data/tools';
 import { features } from '../data/features';
+import { TUTORIALS, CHANNEL } from '../data/tutorials';
 import { getCollection } from 'astro:content';
 
 const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
@@ -76,6 +77,22 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
       <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
     </div>
   </section>
+
+  {TUTORIALS.length > 0 && (
+    <section id="tutorials">
+      <FieldLabel text="Tutorials" />
+      <h2 class="subhead">Learn the kit.</h2>
+      <div class="tutorials__grid">
+        {TUTORIALS.map((t) => (
+          <a class="tutorial-card" href={t.href}>
+            {t.thumb && <img class="tutorial-card__thumb" src={t.thumb} alt="" />}
+            <span class="tutorial-card__title">{t.title}</span>
+          </a>
+        ))}
+      </div>
+      <BracketButton kind="soft" href={CHANNEL} label="All Tutorials" />
+    </section>
+  )}
 
   <section id="services">
     <FieldLabel text="Services" />
@@ -236,6 +253,13 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
     text-align: center;
   }
   .download-line { font-family: var(--font-body); font-weight: 700; font-size: 1.5rem; color: var(--bone); }
+
+  #tutorials { text-align: center; }
+  #tutorials .subhead { margin-inline: auto; }
+  .tutorials__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.75rem; margin: 2rem 0; text-align: left; }
+  .tutorial-card { display: flex; flex-direction: column; border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); overflow: hidden; text-decoration: none; color: inherit; }
+  .tutorial-card__thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .tutorial-card__title { font-family: var(--font-body); font-weight: 700; font-size: 1rem; color: var(--bone); padding: 1.25rem; }
 
   #services { text-align: center; }
   #services .prose { margin-inline: auto; }
