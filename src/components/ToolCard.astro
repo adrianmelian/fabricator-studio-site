@@ -39,10 +39,10 @@ const scrimStyle = align === 'right'
 </div>
 <style>
   .tool-banner {
+    /* CP-D: border/radius removed, band sits full-bleed edge to edge with no
+       frame (see index.astro #tools 100vw breakout). */
     position: relative;
     overflow: hidden;
-    border: 1px solid var(--iron-2);
-    border-radius: var(--radius);
     background: var(--iron);
     min-height: clamp(280px, 32vw, 400px);
     display: flex;
