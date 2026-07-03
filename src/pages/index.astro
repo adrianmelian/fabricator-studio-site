@@ -8,6 +8,7 @@ import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
 import { LINKS } from '../data/links';
 import { flagshipTools, kitModules } from '../data/tools';
+import { features } from '../data/features';
 import { getCollection } from 'astro:content';
 
 const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
@@ -49,6 +50,20 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
       <div class="tools__kit-rows">
         {kitModules.map((m) => <ModuleRow name={m.name} line={m.line} />)}
       </div>
+    </div>
+  </section>
+
+  <section id="features">
+    <FieldLabel text="Key Features" />
+    <h2 class="subhead">Why teams pick this kit.</h2>
+    <div class="features__grid">
+      {features.map((f) => (
+        <div class="feature-tile">
+          <span class="feature-tile__glyph" aria-hidden="true">▪</span>
+          <h3 class="feature-tile__name">{f.name}</h3>
+          <p class="feature-tile__line">{f.line}</p>
+        </div>
+      ))}
     </div>
   </section>
 
@@ -166,6 +181,14 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
   .tools__kit { margin-top: 1rem; text-align: left; }
   .tools__kit-heading { font-weight: 700; font-size: 0.9375rem; color: var(--bone-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; }
   .tools__kit-rows { display: flex; flex-direction: column; gap: 0.5rem; }
+
+  #features { text-align: center; }
+  #features .subhead { margin-inline: auto; }
+  .features__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.75rem; margin: 2rem 0; text-align: left; }
+  .feature-tile { border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
+  .feature-tile__glyph { color: var(--bone-faint); }
+  .feature-tile__name { font-family: var(--font-body); font-weight: 700; font-size: 1rem; }
+  .feature-tile__line { color: var(--bone-dim); font-size: 0.9375rem; }
 
   #services { text-align: center; }
   #services .prose { margin-inline: auto; }
