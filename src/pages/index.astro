@@ -13,6 +13,7 @@ import { TUTORIALS, CHANNEL } from '../data/tutorials';
 import { getCollection } from 'astro:content';
 
 const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
+const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,png,webp}', { eager: true }))[0];
 ---
 <BaseLayout
   title="FabricatorStudio | The Artist-Friendly Toolset"
@@ -134,13 +135,16 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
     <BracketButton kind="soft" href="mailto:adrianmelian123@gmail.com?subject=FabricatorStudio%20discovery%20call" label="Book a discovery call" />
   </section>
 
-  <section id="who">
-    <FieldLabel text="Who Built This" />
-    <h2 class="subhead">Adrian Melian. 14 years of AAA character pipelines.</h2>
-    <div class="prose who__body">
-      <p>I led the Character Tech Art team at Sledgehammer Games across three Call of Duty titles, including Vanguard and Modern Warfare III, and shipped work at Meta, Double Fine, and Ubisoft along the way. Rigs, skinning, export contracts, and the tools artists ship through have been my whole career.</p>
-      <p>Fabricator and this toolset are independent rebuilds, written from scratch for indie teams. No employer code, no legacy baggage. The same pipeline thinking, sized for a team that does not have a TA on staff.</p>
-      <p><a href="https://adrianmelian.com">Portfolio and full history at adrianmelian.com</a></p>
+  <section id="about">
+    <FieldLabel text="About Me" />
+    <div class={`about__grid${aboutPhoto ? ' about__grid--photo' : ''}`}>
+      {aboutPhoto && (
+        <img class="about__photo" src={(aboutPhoto as any).default.src} alt="Adrian Melian" />
+      )}
+      <div class="prose about__body">
+        <p>Hello, my name is Adrian Melian and I've been in AAA Game Development for over 15 years. As a Technical Artist, I've worked on games like Call of Duty: MW3, South Park: Fractured but Whole, Broken Age and others, with great studios like Double Fine, Ubisoft, Sledgehammer, Camouflaj, Meta, and more.</p>
+        <p>With a quickly changing game dev environment I thought I would share my toolbox, so other developers in the community can build faster and at a higher quality. The pipeline is built for easy AI integration and to speed up the parts inbetween. At FabricatorStudio we know AI is the future and are embracing it, but a human touch is what brings the extra layer of personalization to your art. FabricatorStudio tools are the best, easy to use, artist-friendly, and most powerful AAA quality pipeline around. And it's free.</p>
+      </div>
     </div>
   </section>
 
@@ -283,8 +287,27 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
   .service p { color: var(--bone-dim); font-size: 0.9375rem; }
   .service__price { margin-top: auto; color: var(--bone); font-weight: 700; }
 
-  #who { text-align: center; }
-  #who .who__body { margin-inline: auto; text-align: left; display: flex; flex-direction: column; gap: 1rem; }
+  #about { text-align: center; }
+  #about .about__grid {
+    margin-inline: auto;
+    max-width: 56rem;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    text-align: left;
+  }
+  #about .about__grid--photo { grid-template-columns: 240px 1fr; align-items: start; }
+  #about .about__photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+  }
+  #about .about__body { display: flex; flex-direction: column; gap: 1rem; }
+  @media (max-width: 720px) {
+    #about .about__grid--photo { grid-template-columns: 1fr; }
+  }
 
   #devlog { text-align: center; }
   .devlog__rows { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0 2rem; text-align: left; }
