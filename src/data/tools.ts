@@ -2,10 +2,11 @@
 import { LINKS } from './links';
 import fabricatorCard from '../assets/cards/fabricator_card.png';
 import animlibCard from '../assets/cards/animlib.png';
+import skinSkelCard from '../assets/cards/skin_skel_io.png';
 
-// Stub note (Adrian 2026-07-02, updated 2026-07-02): Fabricator and Pose &
-// Anim Library have their own dedicated card art now. The remaining three
-// flagship cards (ToolBar, Skin & Skeleton IO, Exporter) still reuse
+// Stub note (Adrian 2026-07-02, updated 2026-07-02): Fabricator, Pose & Anim
+// Library, and Skin & Skeleton IO have their own dedicated card art now. The
+// remaining two flagship cards (ToolBar, Exporter) still reuse
 // fabricator_card.png as a placeholder until per-tool art lands; alt text
 // stays truthful to what the image shows.
 const STUB_ALT = 'Fabricator rig authoring in Maya';
@@ -39,8 +40,8 @@ export const flagshipTools: FlagshipTool[] = [
       'Skeletons and skin weights saved as data, not scenes. Move them between meshes, restore them after topology changes, stop rebuilding by hand.',
     ],
     href: LINKS.wiki,
-    image: fabricatorCard,
-    alt: STUB_ALT,
+    image: skinSkelCard,
+    alt: 'Skeleton IO and Skin IO panels over a wireframe character in Maya',
   },
   {
     name: 'Pose & Anim Library',
