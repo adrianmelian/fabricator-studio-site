@@ -66,14 +66,15 @@ for (const f of htmlFiles) {
   if (count > 2) failures.push(`G3 ${count} vt uses in ${f} (max 2)`);
 }
 
-// Gate 5: exactly one filled (plasma) CTA per page (class attribute count,
+// Gate 5: exactly zero filled (plasma) CTAs per page (class attribute count,
 // not a raw substring match, so this cannot be tripped by the string
-// "cta-hard" appearing outside a class attribute). Every page carries the
-// nav, and the nav's [ DOWNLOAD ] is the one filled-plasma element on the
-// page, so the count must be exactly 1, not merely "at most 1".
+// "cta-hard" appearing outside a class attribute).
+// Ruling-4 delta (Adrian 2026-07-02): no filled-plasma elements anywhere; nav
+// download is plasma text (.nav-download), downloads elsewhere are
+// plasma-outline.
 for (const f of htmlFiles) {
   const n = (readFileSync(f, 'utf8').match(/class="[^"]*\bcta-hard\b[^"]*"/g) ?? []).length;
-  if (n !== 1) failures.push(`G5 ${n} cta-hard in ${f} (want exactly 1)`);
+  if (n !== 0) failures.push(`G5 ${n} cta-hard in ${f} (want exactly 0)`);
 }
 
 // Gate 13: gradients are carbon-scrims only. Every linear-gradient(...) found

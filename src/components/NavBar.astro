@@ -1,6 +1,5 @@
 ---
 import { LINKS } from '../data/links';
-import BracketButton from './BracketButton.astro';
 ---
 <nav class="navbar">
   <a class="navbar__brand" href="/">
@@ -20,7 +19,7 @@ import BracketButton from './BracketButton.astro';
       </div>
     </details>
   </div>
-  <BracketButton kind="hard" href={LINKS.download} label="Download" />
+  <a class="nav-download" href={LINKS.download}>[ DOWNLOAD ]</a>
 </nav>
 <style>
   .navbar {
@@ -87,4 +86,16 @@ import BracketButton from './BracketButton.astro';
     white-space: nowrap;
   }
   .navbar__panel a:hover { color: var(--plasma); }
+  .nav-download {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--plasma);
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 0;
+  }
+  .nav-download:hover { color: var(--plasma-dim); }
 </style>

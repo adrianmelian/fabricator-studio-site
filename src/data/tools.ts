@@ -1,8 +1,13 @@
 // src/data/tools.ts — display copy only; the release manifest is truth for what ships.
 import { LINKS } from './links';
+import fabricatorCard from '../assets/cards/fabricator_card.png';
 
-export interface FlagshipTool { name: string; paras: string[]; href: string; image?: string }
-export interface KitModule { name: string; line: string }
+// Stub note (Adrian 2026-07-02): only Fabricator has dedicated card art so far.
+// The other four flagship cards reuse fabricator_card.png as a placeholder
+// until per-tool art lands; alt text stays truthful to what the image shows.
+const STUB_ALT = 'Fabricator rig authoring in Maya';
+
+export interface FlagshipTool { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string }
 
 export const flagshipTools: FlagshipTool[] = [
   {
@@ -12,6 +17,8 @@ export const flagshipTools: FlagshipTool[] = [
       'Animator-friendly modules, working IK and FK switches, and poses that survive a rebuild.',
     ],
     href: LINKS.wiki,
+    image: fabricatorCard,
+    alt: STUB_ALT,
   },
   {
     name: 'ToolBar',
@@ -20,6 +27,8 @@ export const flagshipTools: FlagshipTool[] = [
       'Built for the way technical artists actually work.',
     ],
     href: LINKS.wiki,
+    image: fabricatorCard,
+    alt: STUB_ALT,
   },
   {
     name: 'Skin & Skeleton IO',
@@ -27,6 +36,8 @@ export const flagshipTools: FlagshipTool[] = [
       'Skeletons and skin weights saved as data, not scenes. Move them between meshes, restore them after topology changes, stop rebuilding by hand.',
     ],
     href: LINKS.wiki,
+    image: fabricatorCard,
+    alt: STUB_ALT,
   },
   {
     name: 'Pose & Anim Library',
@@ -34,6 +45,8 @@ export const flagshipTools: FlagshipTool[] = [
       'Portable poses and clips that travel across rigs built with Fabricator. Save once, reuse on the next character.',
     ],
     href: LINKS.wiki,
+    image: fabricatorCard,
+    alt: STUB_ALT,
   },
   {
     name: 'Exporter',
@@ -41,13 +54,7 @@ export const flagshipTools: FlagshipTool[] = [
       'Static, skeletal, and animation FBX exports that keep Maya and Unreal agreeing with each other. The engine contract, enforced.',
     ],
     href: LINKS.wiki,
+    image: fabricatorCard,
+    alt: STUB_ALT,
   },
-];
-
-export const kitModules: KitModule[] = [
-  { name: 'Curve-O-Matic', line: 'Control curve library. Save, load, mirror, and swap control shapes.' },
-  { name: 'Joint Orient', line: 'Interactive joint aiming and orientation without guesswork.' },
-  { name: 'Smart Joint Mirror', line: 'Mirrors joint chains with orientation intent preserved.' },
-  { name: 'ksRenamer', line: 'Batch renaming with rig-aware tokens.' },
-  { name: 'Scene Cleanup', line: 'Validators that catch broken references and dirty scenes before export.' },
 ];

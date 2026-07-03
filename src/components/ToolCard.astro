@@ -1,10 +1,11 @@
 ---
 // Flagship tool card (RESTYLE-RULING.md ruling 2 + 3). No plasma at card scale;
 // Learn More always renders BracketButton kind="soft".
+import { Image } from 'astro:assets';
 import BracketButton from './BracketButton.astro';
 
-interface Props { name: string; paras: string[]; href: string; image?: string }
-const { name, paras, href, image } = Astro.props;
+interface Props { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string }
+const { name, paras, href, image, alt } = Astro.props;
 
 // Ruling 2: the scrim is only ever emitted when real media exists beneath it.
 // Kept inline (not a static CSS rule) so a card with no image ships with zero
@@ -14,7 +15,7 @@ const scrimStyle = 'background: linear-gradient(to top, rgba(11, 14, 16, 0.92) 0
 <div class="tool-card">
   {image ? (
     <div class="tool-card__media">
-      <img class="tool-card__image" src={image} alt="" />
+      <Image class="tool-card__image" src={image} alt={alt ?? ''} widths={[640, 1280]} sizes="(min-width: 64rem) 640px, 100vw" />
       <div class="tool-card__scrim" aria-hidden="true" style={scrimStyle}></div>
       <h3 class="tool-card__name tool-card__name--over">{name}</h3>
     </div>
