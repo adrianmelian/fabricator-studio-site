@@ -3,13 +3,13 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FieldLabel from '../components/FieldLabel.astro';
 import BracketButton from '../components/BracketButton.astro';
 import ModuleRow from '../components/ModuleRow.astro';
+import ToolCard from '../components/ToolCard.astro';
 import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
 import { LINKS } from '../data/links';
-import { tools } from '../data/tools';
+import { flagshipTools, kitModules } from '../data/tools';
 import { getCollection } from 'astro:content';
 
-const DOWNLOAD_URL = LINKS.download;
 const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
 ---
 <BaseLayout
@@ -38,13 +38,18 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
     <span class="hero-viewport-tag">persp | Fabricator</span>
   </section>
 
-  <section id="toolset">
-    <FieldLabel text="Toolset" />
-    <h2 class="subhead">Every tool in the kit. Free, no tiers, no license keys.</h2>
-    <div class="toolset__rows">
-      {tools.map((t) => <ModuleRow name={t.name} line={t.line} pill={t.pill} pillTone={t.pillTone} />)}
+  <section id="tools">
+    <FieldLabel text="The Artist-Friendly Toolset" />
+    <h2 class="subhead">Five tools. One pipeline. Free.</h2>
+    <div class="tools__grid">
+      {flagshipTools.map((t) => <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} />)}
     </div>
-    <BracketButton kind="plasma-outline" href={DOWNLOAD_URL} label="Download the toolset" />
+    <div class="tools__kit">
+      <p class="tools__kit-heading">Everything else in the kit</p>
+      <div class="tools__kit-rows">
+        {kitModules.map((m) => <ModuleRow name={m.name} line={m.line} />)}
+      </div>
+    </div>
   </section>
 
   <section id="services">
@@ -155,9 +160,12 @@ const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf(
     font-size: 0.8125rem;
   }
 
-  #toolset { text-align: center; }
-  #toolset .subhead { margin-inline: auto; }
-  .toolset__rows { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0 2rem; text-align: left; }
+  #tools { text-align: center; }
+  #tools .subhead { margin-inline: auto; }
+  .tools__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr)); gap: 1rem; margin: 2rem 0; text-align: left; }
+  .tools__kit { margin-top: 1rem; text-align: left; }
+  .tools__kit-heading { font-weight: 700; font-size: 0.9375rem; color: var(--bone-dim); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 0.75rem; }
+  .tools__kit-rows { display: flex; flex-direction: column; gap: 0.5rem; }
 
   #services { text-align: center; }
   #services .prose { margin-inline: auto; }

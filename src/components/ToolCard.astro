@@ -1,0 +1,84 @@
+---
+// Flagship tool card (RESTYLE-RULING.md ruling 2 + 3). No plasma at card scale;
+// Learn More always renders BracketButton kind="soft".
+import BracketButton from './BracketButton.astro';
+
+interface Props { name: string; paras: string[]; href: string; image?: string }
+const { name, paras, href, image } = Astro.props;
+
+// Ruling 2: the scrim is only ever emitted when real media exists beneath it.
+// Kept inline (not a static CSS rule) so a card with no image ships with zero
+// gradient anywhere in the output, per guardrail 2d.
+const scrimStyle = 'background: linear-gradient(to top, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0) 55%);';
+---
+<div class="tool-card">
+  {image ? (
+    <div class="tool-card__media">
+      <img class="tool-card__image" src={image} alt="" />
+      <div class="tool-card__scrim" aria-hidden="true" style={scrimStyle}></div>
+      <h3 class="tool-card__name tool-card__name--over">{name}</h3>
+    </div>
+  ) : (
+    <h3 class="tool-card__name">{name}</h3>
+  )}
+  <div class="tool-card__body">
+    {paras.map((p) => <p class="tool-card__para prose">{p}</p>)}
+  </div>
+  <div class="tool-card__footer">
+    <BracketButton kind="soft" href={href} label="Learn More" />
+  </div>
+</div>
+<style>
+  .tool-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--iron-2);
+    border-radius: var(--radius);
+    background: var(--iron);
+    overflow: hidden;
+  }
+  .tool-card__media {
+    position: relative;
+    aspect-ratio: 16 / 9;
+  }
+  .tool-card__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .tool-card__scrim {
+    position: absolute;
+    inset: 0;
+  }
+  .tool-card__name {
+    font-family: var(--font-body);
+    font-weight: 700;
+    font-size: 1.125rem;
+    color: var(--bone);
+    padding: 1.25rem 1.25rem 0;
+  }
+  .tool-card__name--over {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    padding: 1rem 1.25rem;
+  }
+  .tool-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.625rem;
+    padding: 1.25rem;
+  }
+  .tool-card__para {
+    color: var(--bone-dim);
+    font-size: 0.9375rem;
+  }
+  .tool-card__footer {
+    margin-top: auto;
+    padding: 0 1.25rem 1.25rem;
+  }
+</style>
