@@ -4,11 +4,7 @@ import fabricatorCard from '../assets/cards/fabricator_card.png';
 import animlibCard from '../assets/cards/animlib.png';
 import skinSkelCard from '../assets/cards/skin_skel_io.png';
 import toolbarCard from '../assets/cards/toolbar_card.png';
-
-// Stub note (Adrian 2026-07-02, updated 2026-07-02): only Exporter still
-// reuses fabricator_card.png as a placeholder until its art lands; alt text
-// stays truthful to what the image shows.
-const STUB_ALT = 'Fabricator rig authoring in Maya';
+import exporterCard from '../assets/cards/exporter_card.png';
 
 export interface FlagshipTool { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string }
 
@@ -21,7 +17,7 @@ export const flagshipTools: FlagshipTool[] = [
     ],
     href: LINKS.wiki,
     image: fabricatorCard,
-    alt: STUB_ALT,
+    alt: 'Fabricator rig authoring in Maya',
   },
   {
     name: 'ToolBar',
@@ -57,7 +53,7 @@ export const flagshipTools: FlagshipTool[] = [
       'Static, skeletal, and animation FBX exports that keep Maya and Unreal agreeing with each other. The engine contract, enforced.',
     ],
     href: LINKS.wiki,
-    image: fabricatorCard,
-    alt: STUB_ALT,
+    image: exporterCard,
+    alt: 'The ksAnimExporter clip table beside a boar wireframe in Maya',
   },
 ];
