@@ -66,13 +66,89 @@ for (const f of htmlFiles) {
   if (count > 2) failures.push(`G3 ${count} vt uses in ${f} (max 2)`);
 }
 
-// Gate 5: at most one hard (plasma) CTA per <section>.
+// Gate 5: exactly one filled (plasma) CTA per page (class attribute count,
+// not a raw substring match, so this cannot be tripped by the string
+// "cta-hard" appearing outside a class attribute). Every page carries the
+// nav, and the nav's [ DOWNLOAD ] is the one filled-plasma element on the
+// page, so the count must be exactly 1, not merely "at most 1".
 for (const f of htmlFiles) {
-  const sections = readFileSync(f, 'utf8').split(/<section\b/).slice(1);
-  sections.forEach((s, i) => {
-    const n = (s.split(/<\/section>/)[0].match(/\bcta-hard\b/g) ?? []).length;
-    if (n > 1) failures.push(`G5 ${n} cta-hard in section ${i + 1} of ${f} (max 1)`);
-  });
+  const n = (readFileSync(f, 'utf8').match(/class="[^"]*\bcta-hard\b[^"]*"/g) ?? []).length;
+  if (n !== 1) failures.push(`G5 ${n} cta-hard in ${f} (want exactly 1)`);
+}
+
+// Gate 13: gradients are carbon-scrims only. Every linear-gradient(...) found
+// in shipped CSS (external stylesheets or Astro's inlined <style> blocks)
+// must have every color stop in {transparent, rgba(11, 14, 16, X), #0B0E10
+// (+ optional alpha)}. Any other color token in a gradient fails, and so
+// does any non-linear gradient function (radial-gradient, conic-gradient).
+const CARBON_STOP = /^(transparent|rgba?\(\s*11\s*,\s*14\s*,\s*16\s*(,\s*[\d.]+\s*)?\)|#0b0e10([0-9a-f]{2})?)$/i;
+const DIRECTION = /^(to\s+(top|bottom|left|right)(\s+(left|right|top|bottom))?|-?[\d.]+(deg|grad|rad|turn))$/i;
+
+function extractBalanced(text, openParenIdx) {
+  let depth = 0;
+  for (let i = openParenIdx; i < text.length; i++) {
+    if (text[i] === '(') depth++;
+    else if (text[i] === ')') {
+      depth--;
+      if (depth === 0) return text.slice(openParenIdx + 1, i);
+    }
+  }
+  return null; // unbalanced; ignore rather than false-fail
+}
+
+function findGradientBodies(css, fnName) {
+  const bodies = [];
+  const re = new RegExp(`${fnName}\\s*\\(`, 'gi');
+  let m;
+  while ((m = re.exec(css))) {
+    const body = extractBalanced(css, m.index + m[0].length - 1);
+    if (body != null) bodies.push(body);
+  }
+  return bodies;
+}
+
+function splitTopLevel(str) {
+  const parts = [];
+  let depth = 0;
+  let cur = '';
+  for (const ch of str) {
+    if (ch === '(') depth++;
+    if (ch === ')') depth--;
+    if (ch === ',' && depth === 0) {
+      parts.push(cur.trim());
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  if (cur.trim()) parts.push(cur.trim());
+  return parts;
+}
+
+function checkGradients(css, f) {
+  for (const bad of ['radial-gradient', 'conic-gradient']) {
+    if (findGradientBodies(css, bad).length) failures.push(`G13 ${bad}(...) present in ${f} (linear-gradient only)`);
+  }
+  for (const body of findGradientBodies(css, 'linear-gradient')) {
+    for (const part of splitTopLevel(body)) {
+      if (!part || DIRECTION.test(part)) continue;
+      const colorMatch = part.match(/^(rgba?\([^)]*\)|#[0-9a-fA-F]{3,8}|transparent|[a-zA-Z-]+)/);
+      const color = colorMatch ? colorMatch[1] : part;
+      if (!CARBON_STOP.test(color)) failures.push(`G13 non-carbon stop "${color}" in linear-gradient(${body}) in ${f}`);
+    }
+  }
+}
+for (const f of cssFiles) {
+  checkGradients(readFileSync(f, 'utf8'), f);
+}
+for (const f of htmlFiles) {
+  const html = readFileSync(f, 'utf8');
+  for (const block of html.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/gi)) {
+    checkGradients(block[1], `${f} (inline <style>)`);
+  }
+  for (const m of html.matchAll(/style="([^"]*)"/gi)) {
+    checkGradients(m[1], `${f} (inline style attr)`);
+  }
 }
 
 if (failures.length) {

@@ -10,9 +10,7 @@ import { LINKS } from '../data/links';
 import { flagshipTools, kitModules } from '../data/tools';
 import { features } from '../data/features';
 import { TUTORIALS, CHANNEL } from '../data/tutorials';
-import { getCollection } from 'astro:content';
 
-const latest = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf()).slice(0, 3);
 const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,png,webp}', { eager: true }))[0];
 ---
 <BaseLayout
@@ -116,15 +114,6 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
         <p>With a quickly changing game dev environment I thought I would share my toolbox, so other developers in the community can build faster and at a higher quality. The pipeline is built for easy AI integration and to speed up the parts inbetween. At FabricatorStudio we know AI is the future and are embracing it, but a human touch is what brings the extra layer of personalization to your art. FabricatorStudio tools are the best, easy to use, artist-friendly, and most powerful AAA quality pipeline around. And it's free.</p>
       </div>
     </div>
-  </section>
-
-  <section id="devlog">
-    <FieldLabel text="Devlog" />
-    <h2 class="subhead">Built in the open. The log is public.</h2>
-    <div class="devlog__rows">
-      {latest.map((p) => <a class="devlog-link" href={`/blog/${p.id}/`}><ModuleRow name={p.data.date.toISOString().slice(0, 10)} line={p.data.title} /></a>)}
-    </div>
-    <BracketButton kind="soft" href="/blog/" label="All posts" />
   </section>
 
   <Footer />
@@ -270,8 +259,4 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   @media (max-width: 720px) {
     #about .about__grid--photo { grid-template-columns: 1fr; }
   }
-
-  #devlog { text-align: center; }
-  .devlog__rows { display: flex; flex-direction: column; gap: 0.5rem; margin: 1.5rem 0 2rem; text-align: left; }
-  .devlog-link { text-decoration: none; color: inherit; }
 </style>
