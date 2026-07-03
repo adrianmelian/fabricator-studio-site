@@ -38,7 +38,10 @@
   --radius: 2px;   /* principle 5 */
 }
 
-html { background: var(--carbon); }
+html {
+  background: var(--carbon);
+  overflow-x: hidden; /* guards full-bleed breakout sections (e.g. .hero-v2) from scrollbar-width rounding */
+}
 
 body {
   font-family: var(--font-body);
@@ -46,6 +49,7 @@ body {
   line-height: var(--lh-body);
   color: var(--bone);
   padding-top: var(--header-h); /* clears the fixed NavBar on every page */
+  overflow-x: hidden;
 }
 
 .vt {                          /* the ONLY route to VT323 */
