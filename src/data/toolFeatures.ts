@@ -6,13 +6,12 @@ export interface ToolFeatureBlock {
   name: string;
   blurb: string;
   features: string[];
-  coming?: boolean;
 }
 
 export const toolFeatureBlocks: ToolFeatureBlock[] = [
   {
     name: 'Fabricator',
-    blurb: 'The flagship. A template-driven modular rigging system: drag and drop components, build in three explicit phases (guides, skeleton, modules), and never lose work to a rebuild.',
+    blurb: 'The flagship. A template-driven modular rigging system: drag and drop components, then build the whole rig in one pass, and never lose work to a rebuild.',
     features: [
       'Template-driven builds: start from a blueprint, assemble components on the canvas, build the whole rig in one pass. Save Template snapshots your rig back to a reusable recipe.',
       'A production component set: FK chains with space switching, IK arms and legs, follow joints, spline FK, and flip-proof ribbon components with layered dynamics (sine, jiggle, volume). More landing regularly.',
@@ -61,7 +60,6 @@ export const toolFeatureBlocks: ToolFeatureBlock[] = [
       'Cross-rig portable: poses address controls by component identity, not node names. Save on one character, load on another.',
       'Search and user-authored sets keep big libraries usable.',
       'Selection sets mask a pose down to just the parts you choose.',
-      'Coming: load mirrored and mirror in place.',
     ],
   },
   {
@@ -69,7 +67,6 @@ export const toolFeatureBlocks: ToolFeatureBlock[] = [
     blurb: 'Animation clips with the same cross-rig portability as poses.',
     features: [
       'Save and load clips across rigs built with Fabricator.',
-      'Selection-set masking applies a clip to just the controls you choose.',
       'Library locations resolve per project, so a team shares one place.',
     ],
   },
@@ -88,7 +85,7 @@ export const toolFeatureBlocks: ToolFeatureBlock[] = [
     name: 'Curve-O-Matic',
     blurb: 'A control curve library.',
     features: [
-      '19 shapes shipped; save your own to the library.',
+      'A library of ready-made control shapes; add your own.',
       'Multi-shape curves handled correctly, so complex controls swap cleanly.',
       'Consistent control shapes across every rig you build.',
     ],

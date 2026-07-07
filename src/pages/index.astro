@@ -7,7 +7,6 @@ import ToolCard from '../components/ToolCard.astro';
 import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
 import { LINKS } from '../data/links';
-import Pill from '../components/Pill.astro';
 import { flagshipTools } from '../data/tools';
 import { features } from '../data/features';
 import { toolFeatureBlocks } from '../data/toolFeatures';
@@ -83,10 +82,7 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     <div class="toolbox__grid">
       {toolFeatureBlocks.map((t) => (
         <div class="toolbox-block">
-          <div class="toolbox-block__head">
-            <h3 class="toolbox-block__name">{t.name}</h3>
-            {t.coming && <Pill text="Coming" tone="ember" />}
-          </div>
+          <h3 class="toolbox-block__name">{t.name}</h3>
           <p class="toolbox-block__blurb">{t.blurb}</p>
           <ul class="toolbox-block__list">
             {t.features.map((f) => <li>{f}</li>)}
@@ -263,7 +259,6 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   .toolbox__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin: 2rem 0; text-align: left; }
   @media (max-width: 800px) { .toolbox__grid { grid-template-columns: 1fr; } }
   .toolbox-block { border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
-  .toolbox-block__head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
   .toolbox-block__name { font-family: var(--font-mono); font-weight: 700; font-size: 1.125rem; line-height: 1.1; color: var(--bone); }
   .toolbox-block__blurb { color: var(--bone); font-size: 0.9375rem; }
   .toolbox-block__list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; }

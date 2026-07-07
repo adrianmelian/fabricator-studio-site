@@ -41,7 +41,7 @@ export const flagshipTools: FlagshipTool[] = [
   {
     name: 'Pose & Anim Library',
     paras: [
-      'Poses and clips that travel across every rig built with Fabricator. Save once, reuse on the next character, mirror in a click. Selection sets filter your controls and mask a pose or clip down to just the parts you choose.',
+      'Poses and clips that travel across every rig built with Fabricator. Save once, reuse on the next character. Selection sets filter your controls and mask a pose down to just the parts you choose.',
     ],
     href: LINKS.wiki,
     image: animlibCard,
