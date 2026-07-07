@@ -2,11 +2,12 @@
 // HONESTY RULE: only links that exist ship. Discord/X get added when created.
 export const LINKS = {
   download: 'https://github.com/adrianmelian/KinematicSolutions/releases/latest',
-  tutorialsChannel: 'https://www.youtube.com/@age914',
+  tutorialsChannel: 'https://www.youtube.com/@Fabricator.Studio',
   wiki: 'https://github.com/adrianmelian/KinematicSolutions',
   repo: 'https://github.com/adrianmelian/KinematicSolutions',
   community: [
     { label: 'GitHub', href: 'https://github.com/adrianmelian/KinematicSolutions' },
+    { label: 'YouTube', href: 'https://www.youtube.com/@Fabricator.Studio' },
     { label: 'Instagram', href: 'https://www.instagram.com/fabricator.studio' },
   ],
 };
