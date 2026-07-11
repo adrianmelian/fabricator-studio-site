@@ -14,15 +14,35 @@ export const DOC_CATEGORY_LABELS: Record<string, string> = {
   component: 'Component',
 };
 
-// Order the Core Concepts group high-to-low granularity (full rig -> part -> block),
-// the way a newcomer descends into the system, rather than alphabetically.
-export const CONCEPT_ORDER = ['concepts/templates', 'concepts/limbs', 'concepts/components'];
+// Docs navigation taxonomy (Adrian, 2026-07-11). Four top-level groups; every doc is
+// listed by its collection id under exactly one group. The sidebar and the /docs landing
+// both render from this, and it drives the ordering. Concepts open the Rigging group as
+// the onboarding path; the rig-component reference docs nest in a collapsible subgroup.
+export interface DocNavSubgroup { label: string; ids: string[] }
+export interface DocNavGroup { key: string; label: string; ids: string[]; subgroups?: DocNavSubgroup[] }
 
-// Tool docs are grouped under these category headings, in this order, on /docs.
-export const TOOL_CATEGORY_ORDER: { key: string; label: string }[] = [
-  { key: 'framework', label: 'Framework' },
-  { key: 'rigging', label: 'Rigging' },
-  { key: 'skinning', label: 'Skinning' },
-  { key: 'animation', label: 'Animation' },
-  { key: 'export', label: 'Export' },
+export const DOCS_NAV: DocNavGroup[] = [
+  {
+    key: 'rigging',
+    label: 'Rigging',
+    ids: [
+      'tools/fabricator',
+      'concepts/templates', 'concepts/limbs', 'concepts/components',
+      'tools/skeleton-io', 'tools/joint-aimer', 'tools/smart-joint-mirror',
+      'tools/curve-o-matic', 'tools/skin-io', 'tools/skinning-utilities', 'tools/ml-auto-skin',
+    ],
+    subgroups: [
+      {
+        label: 'Rig Components',
+        ids: [
+          'components/world', 'components/fk-chain', 'components/simple-fk', 'components/advanced-fk',
+          'components/fk-aim', 'components/simple-ik', 'components/ik-leg', 'components/spline-fk',
+          'components/follow-joint', 'components/ribbon', 'components/ribbon-spine',
+        ],
+      },
+    ],
+  },
+  { key: 'animation', label: 'Animation', ids: ['tools/pose-anim-studio'] },
+  { key: 'engine', label: 'Engine', ids: ['tools/exporter', 'tools/project-setup'] },
+  { key: 'utility', label: 'Utility', ids: ['tools/devbot', 'tools/your-ai-ta', 'tools/renamer', 'tools/scene-cleanup'] },
 ];

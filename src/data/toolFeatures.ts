@@ -10,7 +10,7 @@ export interface ToolFeatureBlock {
 
 export const toolFeatureBlocks: ToolFeatureBlock[] = [
   {
-    name: 'Fabricator',
+    name: 'Rig Fabricator',
     blurb: 'The flagship. A template-driven modular rigging system: drag and drop components, then build the whole rig in one pass, and never lose work to a rebuild.',
     features: [
       'Template-driven builds: start from a blueprint, assemble components on the canvas, build the whole rig in one pass. Save Template snapshots your rig back to a reusable recipe.',

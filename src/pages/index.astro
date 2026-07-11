@@ -9,7 +9,6 @@ import NavBar from '../components/NavBar.astro';
 import { LINKS } from '../data/links';
 import { flagshipTools } from '../data/tools';
 import { features } from '../data/features';
-import { toolFeatureBlocks } from '../data/toolFeatures';
 import { TUTORIALS, CHANNEL } from '../data/tutorials';
 import wordmark from '../assets/hero/fabricatorstudio_wordmark.png';
 
@@ -33,19 +32,12 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
         <Image src={wordmark} alt="FabricatorStudio" width={620} densities={[1, 2]} loading="eager" fetchpriority="high" />
       </h1>
       <p class="hero-tagline">\\ FOR ARTISTS, BY ARTISTS \\</p>
-      <p class="hero-sub">The toolset for artists who still want a level of control. However you make your characters, these tools get them animation-ready and into engine fast.</p>
+      <p class="hero-sub">Built for solo developers and small teams. Free, open source, Maya-to-Unreal full pipeline tools. Rigging, skinning, animation, and export, and an AI Technical Artist built in. The kit is made for the asset generation era. Generated or hand-built, these tools help you put the final touch on your art and get it in engine fast. Ready for all the next-gen features, like Control Rig and MetaHuman.</p>
       <p class="hero-strip">Concept • Modeling • Texturing • Rigging • Animation • Unreal</p>
       <div class="hero-ctas">
         <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
         <BracketButton kind="soft" href="#rigs" label="Free Rigs" />
       </div>
-    </div>
-  </section>
-
-  <section id="mission">
-    <div class="mission__box">
-      <p class="mission__copy">Built for solo developers and small teams. Free, open source, Maya-to-Unreal rigging, skinning, animation, and export tools. The kit is made for the asset generation era. Generated, hand-built, or a standard engine skeleton, these tools don't care where your character came from. They help you put the final touch on your art and get it in engine fast.</p>
-      <p class="mission__copy">Connect your own AI to the toolset and it becomes your own personal Technical Artist, integrated directly into the tools. Your AI TA proposes the fix and walks you through it. It can also report bugs directly to FabricatorStudio, pre-filled and ready to submit. All of it is read-only, enforced in code: your AI can see your scene, never touch it. Your model, your key, your machine.</p>
     </div>
   </section>
 
@@ -75,22 +67,6 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     <div class="download-scrim" aria-hidden="true"></div>
     <div class="download-copy">
       <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
-    </div>
-  </section>
-
-  <section id="toolbox">
-    <FieldLabel text="The Toolbox" />
-    <h2 class="subhead">Every tool in the kit.</h2>
-    <div class="toolbox__grid">
-      {toolFeatureBlocks.map((t) => (
-        <div class="toolbox-block">
-          <h3 class="toolbox-block__name">{t.name}</h3>
-          <p class="toolbox-block__blurb">{t.blurb}</p>
-          <ul class="toolbox-block__list">
-            {t.features.map((f) => <li>{f}</li>)}
-          </ul>
-        </div>
-      ))}
     </div>
   </section>
 
@@ -188,34 +164,7 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   .hero-strip { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--bone-dim); letter-spacing: 0.06em; }
   .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; }
 
-  #mission { text-align: center; }
-  .mission__copy {
-    max-width: 46rem;
-    margin-inline: auto;
-    font-family: var(--font-body);
-    font-size: 1.125rem;
-    line-height: 1.7;
-    color: var(--bone);
-  }
-  /* Mission sits in one wide iron panel spanning the section, both paragraphs as
-     two columns (they stack on narrow screens), matching the text-only cards below. */
-  .mission__box {
-    margin-inline: auto;
-    border: 1px solid var(--iron-2);
-    border-radius: var(--radius);
-    background: var(--iron);
-    padding: 1.75rem 2rem;
-    text-align: left;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2rem;
-  }
-  .mission__box .mission__copy { max-width: none; margin: 0; }
-  @media (max-width: 760px) {
-    .mission__box { grid-template-columns: 1fr; gap: 1.25rem; }
-  }
-
-  /* CP-D: full-bleed band stack, edge to edge below the mission band,
+  /* CP-D: full-bleed band stack, edge to edge below the hero,
      no gap between cards. Same 100vw breakout technique as .hero-v2. */
   #tools {
     position: relative;
@@ -272,15 +221,6 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   }
   .download-line { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--bone); }
 
-  #toolbox { text-align: center; }
-  #toolbox .subhead { margin-inline: auto; }
-  .toolbox__grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; margin: 2rem 0; text-align: left; }
-  @media (max-width: 800px) { .toolbox__grid { grid-template-columns: 1fr; } }
-  .toolbox-block { border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
-  .toolbox-block__name { font-family: var(--font-mono); font-weight: 700; font-size: 1.125rem; line-height: 1.1; color: var(--bone); }
-  .toolbox-block__blurb { color: var(--bone); font-size: 0.9375rem; }
-  .toolbox-block__list { margin: 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.35rem; }
-  .toolbox-block__list li { color: var(--bone-dim); font-size: 0.9rem; line-height: 1.55; }
 
   #tutorials { text-align: center; }
   #tutorials .subhead { margin-inline: auto; }

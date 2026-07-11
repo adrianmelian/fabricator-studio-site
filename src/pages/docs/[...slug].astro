@@ -1,10 +1,16 @@
 ---
-import BaseLayout from '../../layouts/BaseLayout.astro';
-import Footer from '../../components/Footer.astro';
-import NavBar from '../../components/NavBar.astro';
+import DocsLayout from '../../layouts/DocsLayout.astro';
 import Pill from '../../components/Pill.astro';
+import FabricatorHero from '../../components/FabricatorHero.astro';
+import BridgeHero from '../../components/BridgeHero.astro';
 import { getCollection, render } from 'astro:content';
 import { PAID_DOC_IDS, PAID_PACK_LABEL, DOC_CATEGORY_LABELS } from '../../data/docs';
+
+// Docs that render a bespoke animated hero component instead of the static image.
+const HERO_COMPONENTS: Record<string, any> = {
+  'tools/fabricator': FabricatorHero,
+  'tools/devbot': BridgeHero,
+};
 
 export async function getStaticPaths() {
   const entries = await getCollection('docs');
@@ -13,12 +19,15 @@ export async function getStaticPaths() {
 
 const { entry } = Astro.props;
 const { Content } = await render(entry);
+const HeroComponent = HERO_COMPONENTS[entry.id];
 const isPaid = PAID_DOC_IDS.has(entry.id);
 const categoryLabel = DOC_CATEGORY_LABELS[entry.data.category] ?? entry.data.category;
 ---
-<BaseLayout title={`${entry.data.title} | FabricatorStudio Docs`} description={entry.data.summary.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()}>
-  <NavBar />
+<DocsLayout title={`${entry.data.title} | FabricatorStudio Docs`} description={entry.data.summary.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()}>
   <article class="doc-article">
+    {HeroComponent && (
+      <div class="doc-article__hero"><HeroComponent /></div>
+    )}
     <a class="doc-breadcrumb" href="/docs/">{'// DOCS'}</a>
     <header class="doc-article__header">
       <h1 class="subhead">{entry.data.title}</h1>
@@ -29,7 +38,7 @@ const categoryLabel = DOC_CATEGORY_LABELS[entry.data.category] ?? entry.data.cat
       <p class="doc-article__summary prose" set:html={entry.data.summary} />
     </header>
 
-    {entry.data.gif && (
+    {!HeroComponent && entry.data.gif && (
       <div class="doc-article__media">
         <img src={entry.data.gif} alt={`${entry.data.title} demo`} loading="lazy" />
       </div>
@@ -37,11 +46,9 @@ const categoryLabel = DOC_CATEGORY_LABELS[entry.data.category] ?? entry.data.cat
 
     <div class="doc-body prose"><Content /></div>
   </article>
-
-  <Footer />
-</BaseLayout>
+</DocsLayout>
 <style>
-  .doc-article { max-width: var(--measure); margin: 0 auto; text-align: left; }
+  .doc-article { max-width: var(--measure); margin: 0; text-align: left; }
   .doc-breadcrumb {
     display: inline-block;
     font-family: var(--font-mono);
@@ -58,6 +65,8 @@ const categoryLabel = DOC_CATEGORY_LABELS[entry.data.category] ?? entry.data.cat
   .doc-article__summary :global(b) { color: var(--bone); font-weight: 700; }
   .doc-article__media { margin: 1.5rem 0; border: 1px solid var(--iron-3); border-radius: var(--radius); overflow: hidden; }
   .doc-article__media img { display: block; width: 100%; height: auto; }
+  /* Contained hero banner at the top of the article (sits at the article measure). */
+  .doc-article__hero { margin: 0 0 2rem; }
 
   .doc-body { margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem; }
   .doc-body :global(h1) { display: none; } /* the doc's own H1 duplicates the article title above */
