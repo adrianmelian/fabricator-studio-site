@@ -11,4 +11,20 @@ const blog = defineCollection({
   }),
 });
 
-export const collections = { blog };
+// Populated by `npm run sync-docs` from the maya_tools source checkout, see
+// scripts/sync-docs.mjs. Entry ids are "tools/<slug>" or "components/<slug>"; that
+// prefix is what src/pages/docs/index.astro groups on, not a separate schema field.
+const docs = defineCollection({
+  loader: glob({ pattern: '{concepts,tools,components}/*.md', base: './src/content/docs' }),
+  schema: z.object({
+    title: z.string(),
+    // Front matter carries basic inline HTML (<b>, <br>) in some source docs; rendered
+    // with set:html rather than escaped.
+    summary: z.string(),
+    category: z.enum(['concept', 'framework', 'rigging', 'skinning', 'animation', 'export', 'component']),
+    gif: z.string().optional(),
+    video: z.string().optional(),
+  }),
+});
+
+export const collections = { blog, docs };

@@ -33,7 +33,7 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
         <Image src={wordmark} alt="FabricatorStudio" width={620} densities={[1, 2]} loading="eager" fetchpriority="high" />
       </h1>
       <p class="hero-tagline">\\ FOR ARTISTS, BY ARTISTS \\</p>
-      <p class="hero-sub">Free, Artist-Friendly Game Developer Pipeline. Tools that support asset creation at every step, from concept to in-engine.</p>
+      <p class="hero-sub">The toolset for artists who still want a level of control. However you make your characters, these tools get them animation-ready and into engine fast.</p>
       <p class="hero-strip">Concept • Modeling • Texturing • Rigging • Animation • Unreal</p>
       <div class="hero-ctas">
         <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
@@ -43,8 +43,10 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   </section>
 
   <section id="mission">
-    <p class="mission__copy">Built for solo developers and small teams. Free, open source, Maya-to-Unreal rigging, skinning, animation, and export tools. Production-grade tools allow for much faster development. The kit is made for the asset generation era. These tools help you put the final touch on your art and get it in engine fast.</p>
-    <p class="mission__copy">Connect your own AI to the toolset and it becomes your own personal Technical Artist, integrated directly into the tools. Your AI TA proposes the fix and walks you through it. It can also report bugs directly to FabricatorStudio, pre-filled and ready to submit. All of it is read-only, enforced in code: your AI can see your scene, never touch it. Your model, your key, your machine.</p>
+    <div class="mission__box">
+      <p class="mission__copy">Built for solo developers and small teams. Free, open source, Maya-to-Unreal rigging, skinning, animation, and export tools. The kit is made for the asset generation era. Generated, hand-built, or a standard engine skeleton, these tools don't care where your character came from. They help you put the final touch on your art and get it in engine fast.</p>
+      <p class="mission__copy">Connect your own AI to the toolset and it becomes your own personal Technical Artist, integrated directly into the tools. Your AI TA proposes the fix and walks you through it. It can also report bugs directly to FabricatorStudio, pre-filled and ready to submit. All of it is read-only, enforced in code: your AI can see your scene, never touch it. Your model, your key, your machine.</p>
+    </div>
   </section>
 
   <section id="tools">
@@ -125,8 +127,8 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
         <img class="about__photo" src={(aboutPhoto as any).default.src} alt="Adrian Melian" />
       )}
       <div class="prose about__body">
-        <p>Hello, my name is Adrian Melian and I've been in AAA Game Development for over 15 years. As a Technical Artist, I've worked on games like Call of Duty: MW3, South Park: Fractured but Whole, Broken Age and others, with great studios like Double Fine, Ubisoft, Sledgehammer, Camouflaj, Meta, and more.</p>
-        <p>With a quickly changing game dev environment I thought I would share my toolbox, so other developers in the community can build faster and at a higher quality. The pipeline is built for easy AI integration and to speed up the parts in between. At FabricatorStudio we know AI is the future and are embracing it, but a human touch is what brings the extra layer of personalization to your art. FabricatorStudio tools are easy to use, artist-friendly, and built to the standard I held on AAA productions. And it's free. I can't wait to see what the community can build with a professional toolset.</p>
+        <p>Hi, I'm Adrian Melian. I've spent 14 years as a technical artist in AAA games, and I led the Character and Weapons Tech Art teams on Call of Duty at Sledgehammer Games. I've also worked with Double Fine, Ubisoft, Camouflaj, and Meta, on games like Call of Duty: Modern Warfare III and South Park: The Fractured But Whole.</p>
+        <p>Game dev is changing fast, so I'm sharing my toolbox. FabricatorStudio is a set of independent rebuilds, made from scratch for indie teams and small studios, to the standard I held on AAA productions. The tools are free and open source. AI is part of the pipeline now, and these tools embrace it, but a human touch is what makes the art yours. The business is simple: the toolset is free, and the TA who built it is available on contract, retainer, or consult. I can't wait to see what you build with it.</p>
       </div>
     </div>
   </section>
@@ -195,7 +197,23 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     line-height: 1.7;
     color: var(--bone);
   }
-  .mission__copy + .mission__copy { margin-top: 1.25rem; }
+  /* Mission sits in one wide iron panel spanning the section, both paragraphs as
+     two columns (they stack on narrow screens), matching the text-only cards below. */
+  .mission__box {
+    margin-inline: auto;
+    border: 1px solid var(--iron-2);
+    border-radius: var(--radius);
+    background: var(--iron);
+    padding: 1.75rem 2rem;
+    text-align: left;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+  }
+  .mission__box .mission__copy { max-width: none; margin: 0; }
+  @media (max-width: 760px) {
+    .mission__box { grid-template-columns: 1fr; gap: 1.25rem; }
+  }
 
   /* CP-D: full-bleed band stack, edge to edge below the mission band,
      no gap between cards. Same 100vw breakout technique as .hero-v2. */

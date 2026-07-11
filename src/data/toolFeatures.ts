@@ -14,7 +14,8 @@ export const toolFeatureBlocks: ToolFeatureBlock[] = [
     blurb: 'The flagship. A template-driven modular rigging system: drag and drop components, then build the whole rig in one pass, and never lose work to a rebuild.',
     features: [
       'Template-driven builds: start from a blueprint, assemble components on the canvas, build the whole rig in one pass. Save Template snapshots your rig back to a reusable recipe.',
-      'A production component set: FK chains with space switching, IK arms and legs, follow joints, spline FK, and flip-proof ribbon components with layered dynamics (sine, jiggle, volume). More landing regularly.',
+      'A production component set: FK chains with space switching, IK arms and legs, follow joints, spline FK, and more landing regularly.',
+      'Ribbon components add flip-proof ribbon deformation with layered dynamics (sine, jiggle, volume) for tails, tentacles, and ribbon-driven arms, legs, and spines. They are the [ ADVANCED RIBBON PACK ], a paid add-on that requires the free core.',
       'Edit Rig round trip: unbuild, restructure, rebuild. Non-destructive and non-linear; rig edits can run while animation is already in production.',
       'Scene is truth: rig state lives in your Maya scene as network nodes joined by message connections, not name strings. Rename anything; nothing breaks.',
       'Animator features built in: IK/FK matching that holds the pose through the switch, space switching, a marking menu on every control, smart pole vector placement, rig-native selection sets.',

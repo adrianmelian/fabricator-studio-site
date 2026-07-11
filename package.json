@@ -11,10 +11,17 @@
     "preview": "astro preview",
     "astro": "astro",
     "gates": "node scripts/check-brand-gates.mjs",
+    "sync-docs": "node scripts/sync-docs.mjs",
+    "typecheck": "astro check",
     "test": "astro build && node scripts/check-brand-gates.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
-    "astro": "^7.0.5"
+    "astro": "^7.0.5",
+    "js-yaml": "^4.3.0"
+  },
+  "devDependencies": {
+    "@astrojs/check": "^0.9.9",
+    "typescript": "^6.0.3"
   }
 }

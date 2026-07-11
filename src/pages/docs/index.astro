@@ -1,0 +1,130 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FieldLabel from '../../components/FieldLabel.astro';
+import Footer from '../../components/Footer.astro';
+import NavBar from '../../components/NavBar.astro';
+import Pill from '../../components/Pill.astro';
+import { getCollection } from 'astro:content';
+import { PAID_DOC_IDS, PAID_PACK_LABEL, CONCEPT_ORDER, TOOL_CATEGORY_ORDER } from '../../data/docs';
+
+type Doc = Awaited<ReturnType<typeof getCollection<'docs'>>>[number];
+const allDocs = await getCollection('docs');
+const byTitle = (a: Doc, b: Doc) => a.data.title.localeCompare(b.data.title);
+
+// Core Concepts: authored intros, ordered full-rig -> part -> block (see CONCEPT_ORDER).
+const concepts = allDocs
+  .filter((d) => d.id.startsWith('concepts/'))
+  .sort((a, b) => CONCEPT_ORDER.indexOf(a.id) - CONCEPT_ORDER.indexOf(b.id));
+
+// Tools, sub-grouped by their category field (framework/rigging/skinning/animation/export).
+const tools = allDocs.filter((d) => d.id.startsWith('tools/'));
+const toolSubgroups = TOOL_CATEGORY_ORDER
+  .map(({ key, label }) => ({ label, entries: tools.filter((d) => d.data.category === key).sort(byTitle) }))
+  .filter((g) => g.entries.length > 0);
+
+const components = allDocs.filter((d) => d.id.startsWith('components/')).sort(byTitle);
+---
+<BaseLayout
+  title="Docs | FabricatorStudio"
+  description="Reference docs for every tool and rig component in the FabricatorStudio toolset."
+>
+  <NavBar />
+  <section class="docs-index">
+    <FieldLabel text="Docs" />
+    <h1 class="vt">Docs</h1>
+    <p class="prose docs-index__intro">Start with the core concepts, then reference every tool and rig component that ships with the toolset.</p>
+
+    {concepts.length > 0 && (
+      <div class="docs-group">
+        <FieldLabel text="Core Concepts" />
+        <ul class="docs-list">
+          {concepts.map((entry) => (
+            <li>
+              <a class="doc-entry" href={`/docs/${entry.id}/`}>
+                <span class="doc-entry__head">
+                  <span class="doc-entry__title">{entry.data.title}</span>
+                </span>
+                <span class="doc-entry__summary prose" set:html={entry.data.summary} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+
+    <div class="docs-group">
+      <FieldLabel text="Tools" />
+      {toolSubgroups.map((sub) => (
+        <div class="docs-subgroup">
+          <h2 class="docs-subgroup__label">{sub.label}</h2>
+          <ul class="docs-list">
+            {sub.entries.map((entry) => (
+              <li>
+                <a class="doc-entry" href={`/docs/${entry.id}/`}>
+                  <span class="doc-entry__head">
+                    <span class="doc-entry__title">{entry.data.title}</span>
+                    {PAID_DOC_IDS.has(entry.id) && <Pill text={PAID_PACK_LABEL} tone="ember" />}
+                  </span>
+                  <span class="doc-entry__summary prose" set:html={entry.data.summary} />
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+    {components.length > 0 && (
+      <div class="docs-group">
+        <FieldLabel text="Components" />
+        <ul class="docs-list">
+          {components.map((entry) => (
+            <li>
+              <a class="doc-entry" href={`/docs/${entry.id}/`}>
+                <span class="doc-entry__head">
+                  <span class="doc-entry__title">{entry.data.title}</span>
+                  {PAID_DOC_IDS.has(entry.id) && <Pill text={PAID_PACK_LABEL} tone="ember" />}
+                </span>
+                <span class="doc-entry__summary prose" set:html={entry.data.summary} />
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+    )}
+  </section>
+
+  <Footer />
+</BaseLayout>
+<style>
+  .docs-index { text-align: center; }
+  .docs-index__intro { margin: 0 auto 2rem; }
+  .docs-group { text-align: left; max-width: var(--measure); margin: 0 auto 2.5rem; }
+  .docs-group :global(.field-label) { margin-bottom: 0.75rem; }
+  .docs-subgroup { margin-top: 1.5rem; }
+  .docs-subgroup:first-of-type { margin-top: 0; }
+  .docs-subgroup__label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--ember);
+    margin-bottom: 0.75rem;
+  }
+  .docs-list { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 0.75rem; }
+  .doc-entry {
+    display: block;
+    border: 1px solid var(--iron-2);
+    border-radius: var(--radius);
+    background: var(--iron);
+    padding: 1rem 1.25rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .doc-entry:hover { border-color: var(--iron-3); }
+  .doc-entry__head { display: flex; align-items: baseline; gap: 0.75rem; flex-wrap: wrap; }
+  .doc-entry__title { font-family: var(--font-mono); font-weight: 700; color: var(--bone); }
+  .doc-entry__summary { display: block; margin-top: 0.375rem; color: var(--bone-dim); font-size: 0.9375rem; }
+  .doc-entry__summary :global(b) { color: var(--bone); font-weight: 700; }
+</style>
