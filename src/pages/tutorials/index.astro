@@ -1,0 +1,128 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import FieldLabel from '../../components/FieldLabel.astro';
+import Footer from '../../components/Footer.astro';
+import NavBar from '../../components/NavBar.astro';
+import { TUTORIALS, CHANNEL } from '../../data/tutorials';
+---
+<BaseLayout
+  title="Tutorials | FabricatorStudio"
+  description="Video tutorials for the FabricatorStudio toolset: tool walkthroughs, pipeline deep-dives, and the full path from concept to in-engine."
+>
+  <NavBar />
+
+  <section class="tut-intro">
+    <FieldLabel text="Tutorials" />
+    <h1 class="vt">Tutorials</h1>
+    <p class="prose tut-intro__sub">Learn the kit, from install to in-engine.</p>
+  </section>
+
+  <section class="tut-banner-wrap">
+    <a class="tut-banner" href={CHANNEL} target="_blank" rel="noopener">
+      <span class="tut-banner__eyebrow">// FABRICATORSTUDIO ON YOUTUBE</span>
+      <span class="tut-banner__title">Watch on YouTube</span>
+      <span class="tut-banner__sub">Every tutorial lives on the channel: tool walkthroughs, pipeline deep-dives, and the full path from concept to in-engine. Subscribe to catch new ones the day they land.</span>
+      <span class="tut-banner__cta">[ VISIT THE CHANNEL ]</span>
+    </a>
+  </section>
+
+  {TUTORIALS.length > 0 ? (
+    <section class="tut-list">
+      <FieldLabel text="Start Here" />
+      <div class="tut-grid">
+        {TUTORIALS.map((t) => (
+          <a class="tut-card" href={t.href} target="_blank" rel="noopener">
+            {t.thumb && <img class="tut-card__thumb" src={t.thumb} alt="" loading="lazy" />}
+            <span class="tut-card__title">{t.title}</span>
+          </a>
+        ))}
+      </div>
+    </section>
+  ) : (
+    <section class="tut-empty">
+      <FieldLabel text="Coming Soon" />
+      <p class="prose">The first tutorials are in production. They will show up here as they publish, so subscribe on the channel to catch them.</p>
+    </section>
+  )}
+
+  <Footer />
+</BaseLayout>
+<style>
+  section { max-width: 60rem; }
+
+  .tut-intro { text-align: center; }
+  .tut-intro .vt { margin-top: 0.25rem; }
+  .tut-intro__sub { margin: 0.75rem auto 0; }
+
+  .tut-banner-wrap { max-width: 60rem; }
+  .tut-banner {
+    display: block;
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    background: var(--iron);
+    padding: 2rem 2.25rem;
+    text-decoration: none;
+    color: inherit;
+  }
+  .tut-banner:hover { border-color: var(--plasma-dim); }
+  .tut-banner__eyebrow {
+    display: block;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    color: var(--bone-dim);
+  }
+  .tut-banner__title {
+    display: block;
+    margin-top: 0.5rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--bone);
+  }
+  .tut-banner__sub {
+    display: block;
+    margin-top: 0.625rem;
+    max-width: 42rem;
+    color: var(--bone-dim);
+    font-size: 0.9375rem;
+    line-height: 1.6;
+  }
+  .tut-banner__cta {
+    display: inline-block;
+    margin-top: 1.25rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+    color: var(--plasma);
+  }
+  .tut-banner:hover .tut-banner__cta { color: var(--plasma-dim); }
+
+  .tut-list { text-align: center; }
+  .tut-list :global(.field-label) { margin-bottom: 1rem; }
+  .tut-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+    gap: 0.75rem;
+    text-align: left;
+  }
+  .tut-card {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--iron-2);
+    border-radius: var(--radius);
+    background: var(--iron);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+  }
+  .tut-card:hover { border-color: var(--iron-3); }
+  .tut-card__thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+  .tut-card__title { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); padding: 1rem 1.25rem; }
+
+  .tut-empty { text-align: center; }
+  .tut-empty :global(.field-label) { margin-bottom: 1rem; }
+  .tut-empty .prose { margin: 0 auto; }
+</style>

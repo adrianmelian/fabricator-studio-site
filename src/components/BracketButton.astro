@@ -1,17 +1,26 @@
 ---
-interface Props { href: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline' }
-const { href, label, kind = 'soft' } = Astro.props;
+// Renders an <a> link by default, or a modal-trigger <button> when `dialogTarget`
+// is set (used by the flagship cards' Learn More to open a product popover).
+interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline'; dialogTarget?: string }
+const { href, label, kind = 'soft', dialogTarget } = Astro.props;
 ---
-<a class={`btn cta-${kind}`} href={href}>[ {label.toUpperCase()} ]</a>
+{dialogTarget ? (
+  <button type="button" class={`btn cta-${kind}`} data-dialog-open={dialogTarget}>[ {label.toUpperCase()} ]</button>
+) : (
+  <a class={`btn cta-${kind}`} href={href}>[ {label.toUpperCase()} ]</a>
+)}
 <style>
   .btn {
     display: inline-block;
     font-family: var(--font-mono);
     font-weight: 700;
+    font-size: inherit;
+    line-height: normal;
     padding: 0.75rem 1.25rem;
     border: 1px solid;
     border-radius: var(--radius);
     text-decoration: none;
+    cursor: pointer;
   }
   .cta-hard { color: var(--carbon); background: var(--plasma); border-color: var(--plasma); }
   .cta-hard:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); color: var(--carbon); }

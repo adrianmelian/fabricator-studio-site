@@ -3,6 +3,8 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
 import Pill from '../../components/Pill.astro';
 import FabricatorHero from '../../components/FabricatorHero.astro';
 import BridgeHero from '../../components/BridgeHero.astro';
+import AnimStudioHero from '../../components/AnimStudioHero.astro';
+import ReggieHero from '../../components/ReggieHero.astro';
 import { getCollection, render } from 'astro:content';
 import { PAID_DOC_IDS, PAID_PACK_LABEL, DOC_CATEGORY_LABELS } from '../../data/docs';
 
@@ -10,6 +12,8 @@ import { PAID_DOC_IDS, PAID_PACK_LABEL, DOC_CATEGORY_LABELS } from '../../data/d
 const HERO_COMPONENTS: Record<string, any> = {
   'tools/fabricator': FabricatorHero,
   'tools/devbot': BridgeHero,
+  'tools/pose-anim-studio': AnimStudioHero,
+  'tools/your-ai-ta': ReggieHero,
 };
 
 export async function getStaticPaths() {

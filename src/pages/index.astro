@@ -4,6 +4,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import FieldLabel from '../components/FieldLabel.astro';
 import BracketButton from '../components/BracketButton.astro';
 import ToolCard from '../components/ToolCard.astro';
+import FabricatorHero from '../components/FabricatorHero.astro';
+import BridgeHero from '../components/BridgeHero.astro';
+import AnimStudioHero from '../components/AnimStudioHero.astro';
+import ReggieHero from '../components/ReggieHero.astro';
+import downloadBanner from '../assets/download/download_card.png';
 import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
 import { LINKS } from '../data/links';
@@ -44,10 +49,101 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   <section id="tools">
     <div class="tools__stack">
       {flagshipTools.map((t, i) => (
-        <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} />
+        <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId} />
       ))}
     </div>
   </section>
+
+  <dialog id="pop-fabricator" class="product-pop">
+    <div class="product-pop__inner">
+      <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
+      <FabricatorHero />
+      <div class="product-pop__body">
+        <h2 class="product-pop__headline">Rigging, the fast part of your pipeline.</h2>
+        <p>Fabricator is a template-driven, network-based rigging system for solo devs and small teams. Drag components onto your skeleton, build the whole rig in one pass, and never lose work to a rebuild.</p>
+        <ul>
+          <li>Non-destructive and non-linear. Unbuild, restructure, and rebuild, even while animation is already in production.</li>
+          <li>Rename anything. Rig state lives in your scene as network connections, not name strings, so nothing breaks.</li>
+          <li>Animator-ready out of the box: IK/FK matching that holds the pose, space switching, smart pole vectors, and a marking menu on every control.</li>
+          <li>Save a rig as a template and reuse it across your whole cast, even at different proportions.</li>
+        </ul>
+        <p class="product-pop__free">Free and open source. Pure Python, nothing to compile, nothing hidden.</p>
+        <a class="product-pop__docs" href="/docs/tools/fabricator/">Read the full docs →</a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="pop-studio" class="product-pop">
+    <div class="product-pop__inner">
+      <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
+      <AnimStudioHero />
+      <div class="product-pop__body">
+        <h2 class="product-pop__headline">Animate once. Reuse everywhere.</h2>
+        <p>Animation Studio saves poses and clips to a library that travels across every rig built with Fabricator. Capture a hero pose or a walk cycle once, then drop it onto the next character, even one built at different proportions.</p>
+        <ul>
+          <li>Poses and clips address controls by component identity, not node names, so they resolve onto any Fabricator rig.</li>
+          <li>Place, insert, or replace clips on the timeline, with start and end anchors and root-motion control.</li>
+          <li>Selection sets mask a pose down to just the parts you want.</li>
+          <li>Thumbnails and hover previews keep a big library scannable.</li>
+        </ul>
+        <p class="product-pop__free">Build your library once, and every new character starts ahead.</p>
+        <a class="product-pop__docs" href="/docs/tools/pose-anim-studio/">Read the full docs →</a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="pop-bridge" class="product-pop">
+    <div class="product-pop__inner">
+      <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
+      <BridgeHero />
+      <div class="product-pop__body">
+        <h2 class="product-pop__headline">Your whole toolset, two clicks away.</h2>
+        <p>Bridge puts the entire FabricatorStudio toolbox into one compact, dockable toolbar inside Maya. Launch the big tools, fire the everyday utilities, and stop hunting through shelves and menus.</p>
+        <ul>
+          <li>Every tool two clicks away, in a single dockable strip.</li>
+          <li>Popover launchers keep it compact, no shelf sprawl, no menu digging.</li>
+          <li>Versioned builds, so "what version are you on" always has an answer.</li>
+          <li>Connect your own AI right from the strip: start the read-only bridge and copy the setup snippet for your client.</li>
+        </ul>
+        <p class="product-pop__free">Built for the way technical artists actually work.</p>
+        <a class="product-pop__docs" href="/docs/tools/devbot/">Read the full docs →</a>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="pop-reggie" class="product-pop">
+    <div class="product-pop__inner">
+      <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
+      <ReggieHero />
+      <div class="product-pop__body">
+        <h2 class="product-pop__headline">A senior TA on call, inside Maya.</h2>
+        <p>Reggie is an AI technical artist that reads your actual scene and your Fabricator rig, then helps you fix what broke. Ask why a build failed, where a rig went wrong, or how a tool works, and get answers grounded in what is really in your file.</p>
+        <ul>
+          <li>Connect your own AI: Claude Code, Claude Desktop, Cursor, any MCP client. Your model, your key, your machine.</li>
+          <li>Read-only, enforced in code. Reggie can see everything and change nothing. When something needs fixing, it hands you the script to run.</li>
+          <li>Trained on the FabricatorStudio pipeline: it troubleshoots from the docs, proposes the documented fix, and files a clean bug report only when a real bug remains.</li>
+        </ul>
+        <p class="product-pop__free">Like having a senior TA on call, minus the coffee runs.</p>
+        <a class="product-pop__docs" href="/docs/tools/your-ai-ta/">Read the full docs →</a>
+      </div>
+    </div>
+  </dialog>
+  <script is:inline>
+    (function () {
+      document.querySelectorAll('[data-dialog-open]').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var d = document.getElementById(btn.getAttribute('data-dialog-open'));
+          if (d && d.showModal) d.showModal();
+        });
+      });
+      document.querySelectorAll('dialog.product-pop').forEach(function (d) {
+        d.querySelectorAll('[data-dialog-close]').forEach(function (b) {
+          b.addEventListener('click', function () { d.close(); });
+        });
+        d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
+      });
+    })();
+  </script>
 
   <section id="features">
     <FieldLabel text="Key Features" />
@@ -62,8 +158,7 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   </section>
 
   <section id="download" class="download-v2">
-    <!-- Interim background: reusing the hero poster until Adrian delivers dedicated media for this banner. -->
-    <img class="download-media" src="/demo/fs_hero_poster.jpg" alt="" aria-hidden="true" />
+    <Image class="download-media" src={downloadBanner} alt="" aria-hidden="true" width={2048} loading="lazy" />
     <div class="download-scrim" aria-hidden="true"></div>
     <div class="download-copy">
       <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
@@ -100,11 +195,11 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     <FieldLabel text="About Me" />
     <div class={`about__grid${aboutPhoto ? ' about__grid--photo' : ''}`}>
       {aboutPhoto && (
-        <img class="about__photo" src={(aboutPhoto as any).default.src} alt="Adrian Melian" />
+        <Image class="about__photo" src={(aboutPhoto as any).default} alt="Adrian Melian" width={480} densities={[1, 2]} />
       )}
       <div class="prose about__body">
-        <p>Hi, I'm Adrian Melian. I've spent 14 years as a technical artist in AAA games, and I led the Character and Weapons Tech Art teams on Call of Duty at Sledgehammer Games. I've also worked with Double Fine, Ubisoft, Camouflaj, and Meta, on games like Call of Duty: Modern Warfare III and South Park: The Fractured But Whole.</p>
-        <p>Game dev is changing fast, so I'm sharing my toolbox. FabricatorStudio is a set of independent rebuilds, made from scratch for indie teams and small studios, to the standard I held on AAA productions. The tools are free and open source. AI is part of the pipeline now, and these tools embrace it, but a human touch is what makes the art yours. The business is simple: the toolset is free, and the TA who built it is available on contract, retainer, or consult. I can't wait to see what you build with it.</p>
+        <p>Hi, I'm Adrian Melian. I've spent 14 years as a Technical Artist in AAA games, most recently leading the Tech Art team at Sledgehammer Games. Along the way I've worked with Double Fine, Ubisoft, Camouflaj, and Meta, on games like Broken Age, Modern Warfare III, and South Park: The Fractured But Whole.</p>
+        <p>Game dev is changing fast, and a new era of generative AI is here. Avoiding generic slop still takes good tools, ones that put the layers of polish where you want them. So I'm sharing my toolbox. FabricatorStudio is the rigging, skinning, animation, and export kit I built for indie teams and small studios, to the standard I held on AAA productions. The tools are free and open source.</p>
       </div>
     </div>
   </section>
@@ -174,6 +269,56 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     padding: 0;
   }
   .tools__stack { display: flex; flex-direction: column; gap: 0; text-align: left; }
+
+  /* Product popover (flagship Learn More) */
+  .product-pop {
+    margin: auto; /* restore the centering a global margin reset strips off the modal */
+    padding: 0;
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    background: #0B0E10;
+    color: var(--bone);
+    width: min(900px, 92vw);
+    max-width: 92vw;
+    max-height: 90vh;
+    overflow: hidden auto;
+  }
+  .product-pop::backdrop { background: rgba(11, 14, 16, 0.82); }
+  .product-pop__inner { position: relative; }
+  .product-pop__img { display: block; width: 100%; height: auto; }
+  .product-pop__close {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    z-index: 10;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1;
+    color: var(--bone);
+    background: rgba(11, 14, 16, 0.6);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    padding: 0.35rem 0.55rem;
+    cursor: pointer;
+  }
+  .product-pop__close:hover { color: var(--ember); border-color: var(--ember); }
+  .product-pop__body { padding: 1.75rem 2rem 2rem; text-align: left; }
+  .product-pop__headline { font-family: var(--font-mono); font-weight: 700; font-size: 1.375rem; color: var(--bone); }
+  .product-pop__body p { color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; margin-top: 0.75rem; }
+  .product-pop__body ul { margin: 1rem 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+  .product-pop__body li { color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.5; }
+  .product-pop__free { color: var(--bone); }
+  .product-pop__docs {
+    display: inline-block;
+    margin-top: 1.25rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: var(--plasma);
+    text-decoration: none;
+  }
+  .product-pop__docs:hover { color: var(--plasma-dim); }
 
   #features { text-align: center; }
   #features .subhead { margin-inline: auto; }

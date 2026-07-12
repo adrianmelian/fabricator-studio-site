@@ -5,7 +5,7 @@ import studioCard from '../assets/cards/studio_card.png';
 import reggieCard from '../assets/cards/reggie_card.png';
 import bridgeCard from '../assets/cards/bridge_card.png';
 
-export interface FlagshipTool { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string }
+export interface FlagshipTool { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string; dialogId?: string }
 
 // The flagship lineup: strongest tools only, in order. href maps to /docs/tools/<slug>
 // (see scripts/sync-docs.mjs / src/content/docs/tools). The Reggie card ships imageless
@@ -20,6 +20,7 @@ export const flagshipTools: FlagshipTool[] = [
     href: '/docs/tools/fabricator/',
     image: fabricatorCard,
     alt: 'Fabricator rig authoring in Maya',
+    dialogId: 'pop-fabricator',
   },
   {
     name: 'Animation Studio',
@@ -30,6 +31,7 @@ export const flagshipTools: FlagshipTool[] = [
     href: '/docs/tools/pose-anim-studio/',
     image: studioCard,
     alt: 'Animation Studio clip library beside a character in Maya',
+    dialogId: 'pop-studio',
   },
   {
     name: 'AI Technical Artist (Reggie)',
@@ -40,6 +42,7 @@ export const flagshipTools: FlagshipTool[] = [
     href: '/docs/tools/your-ai-ta/',
     image: reggieCard,
     alt: 'Reggie, the AI TA, answering a question in a docked Maya chat panel',
+    dialogId: 'pop-reggie',
   },
   {
     name: 'Bridge',
@@ -50,5 +53,6 @@ export const flagshipTools: FlagshipTool[] = [
     href: '/docs/tools/devbot/',
     image: bridgeCard,
     alt: 'The Bridge toolbar docked under a wireframe character in Maya',
+    dialogId: 'pop-bridge',
   },
 ];

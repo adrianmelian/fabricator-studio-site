@@ -9,8 +9,8 @@
 import { Image } from 'astro:assets';
 import BracketButton from './BracketButton.astro';
 
-interface Props { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string; align?: 'left' | 'right' }
-const { name, paras, href, image, alt, align = 'left' } = Astro.props;
+interface Props { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string; align?: 'left' | 'right'; dialogId?: string }
+const { name, paras, href, image, alt, align = 'left', dialogId } = Astro.props;
 
 // Ruling 2: the scrim is only ever emitted when real media exists beneath it.
 // Kept inline (not a static CSS rule) so a card with no image ships with zero
@@ -33,7 +33,7 @@ const scrimStyle = align === 'right'
     <h3 class="tool-banner__name">{name}</h3>
     {paras.map((p) => <p class="tool-banner__para prose">{p}</p>)}
     <div class="tool-banner__footer">
-      <BracketButton kind="soft" href={href} label="Learn More" />
+      <BracketButton kind="soft" href={href} label="Learn More" dialogTarget={dialogId} />
     </div>
   </div>
 </div>
