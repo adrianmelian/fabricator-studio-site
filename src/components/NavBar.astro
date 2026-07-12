@@ -7,7 +7,10 @@ import DownloadGate from './DownloadGate.astro';
     <img src="/nav-mark.png" width="28" height="28" alt="" />
     <span>FabricatorStudio</span>
   </a>
-  <div class="navbar__tabs">
+  <button class="navbar__burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
+    <span></span><span></span><span></span>
+  </button>
+  <div class="navbar__menu" id="nav-menu">
     <a class="navbar__tab" href="/tutorials/">Tutorials</a>
     <a class="navbar__tab" href="/docs/">Docs</a>
     <a class="navbar__tab" href="/services/">Services</a>
@@ -19,10 +22,28 @@ import DownloadGate from './DownloadGate.astro';
         ))}
       </div>
     </details>
+    <button type="button" class="nav-download" data-download-open>[ DOWNLOAD ]</button>
   </div>
-  <button type="button" class="nav-download" data-download-open>[ DOWNLOAD ]</button>
 </nav>
 <DownloadGate />
+<script is:inline>
+  (function () {
+    var burger = document.querySelector('.navbar__burger');
+    var menu = document.getElementById('nav-menu');
+    if (!burger || !menu) return;
+    function setOpen(open) {
+      menu.classList.toggle('is-open', open);
+      burger.classList.toggle('is-open', open);
+      burger.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    burger.addEventListener('click', function () { setOpen(!menu.classList.contains('is-open')); });
+    // Tapping a link (or Download) closes the menu so navigation feels right.
+    menu.addEventListener('click', function (e) {
+      if (e.target.closest && e.target.closest('a, .nav-download')) setOpen(false);
+    });
+    document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+  })();
+</script>
 <style>
   .navbar {
     font-family: var(--font-mono);
@@ -50,7 +71,7 @@ import DownloadGate from './DownloadGate.astro';
     white-space: nowrap;
   }
   .navbar__brand img { display: block; }
-  .navbar__tabs {
+  .navbar__menu {
     display: flex;
     align-items: center;
     gap: 1.5rem;
@@ -102,4 +123,58 @@ import DownloadGate from './DownloadGate.astro';
     cursor: pointer;
   }
   .nav-download:hover { color: var(--plasma-dim); }
+
+  /* Hamburger: hidden on desktop, shown on narrow screens. */
+  .navbar__burger { display: none; }
+
+  @media (max-width: 720px) {
+    .navbar__burger {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 5px;
+      width: 40px;
+      height: 40px;
+      padding: 8px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      z-index: 2;
+    }
+    .navbar__burger span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background: var(--bone);
+      transition: transform 0.2s ease, opacity 0.2s ease;
+    }
+    .navbar__burger.is-open span:nth-child(1) { transform: translateY(7px) rotate(45deg); }
+    .navbar__burger.is-open span:nth-child(2) { opacity: 0; }
+    .navbar__burger.is-open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); }
+
+    .navbar__menu {
+      display: none;
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 0;
+      background: var(--carbon);
+      border-bottom: 1px solid var(--iron-2);
+      padding: 0.25rem 1.5rem 1rem;
+    }
+    .navbar__menu.is-open { display: flex; }
+    .navbar__menu .navbar__tab { padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
+    .navbar__dropdown { width: 100%; padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
+    .navbar__panel {
+      position: static;
+      border: none;
+      background: none;
+      padding: 0.5rem 0 0 0.75rem;
+      min-width: 0;
+    }
+    .nav-download { padding: 1rem 0 0.25rem; align-self: flex-start; }
+  }
 </style>
