@@ -11,7 +11,7 @@ FabricatorStudio ships with an AI technical artist that can actually read your o
 
 It comes two ways, over the same read-only bridge:
 
-- **Reggie** is the assistant built into the DevBot toolbar. He is docked and ready in the AI.TA panel, no setup.
+- **Reggie** is the assistant built into the Bridge toolbar. He is docked and ready in the AI.TA panel, no setup.
 - **Connect Your AI** points your own client (Claude Code, Claude Desktop, Cursor, or any MCP client) at the same bridge, so you bring your own model and key.
 
 Either way it is read-only by construction: it can see everything and touch nothing. When something needs changing it gives you the fix to run, so every edit to your scene stays in your hands. Your model, your key, your machine.
@@ -27,11 +27,11 @@ Reach for your AI TA when:
 It reads scene summaries, build reports, component details, and node state through a read-only operation registry, so it grounds every answer in what is really in your file.
 
 ## How
-Reggie needs no setup: open the DevBot toolbar and use the AI.TA panel.
+Reggie needs no setup: open the Bridge toolbar and use the AI.TA panel.
 
 To connect your own client, use **Connect AI** under Settings on the toolbar strip. It starts a small local bridge that listens on loopback only (`127.0.0.1`, default port 6292) and never talks to any server but the one on your own machine.
 
-1. In Maya, open the DevBot toolbar's Settings zone and click **Connect AI** to open its popover.
+1. In Maya, open the Bridge toolbar's Settings zone and click **Connect AI** to open its popover.
 2. Click **Start**. The status pill switches from `[ STOPPED ]` to `[ LISTENING ON <port> ]`.
 3. Pick your client from the **Client** dropdown (claude-code, claude-desktop, cursor) and click **Copy** to grab that client's config snippet.
 4. Set up your client: for Claude Code, run the copied command (`claude mcp add fabricator -- uvx fabricator-mcp`); for Claude Desktop or Cursor, paste the copied `mcpServers` block into that client's own MCP config file.
@@ -53,7 +53,7 @@ Your client reaches the bridge through a small package, `fabricator-mcp` (instal
 - A burst of many requests is capped so a heavy session doesn't stall Maya's main thread; anything past the cap waits for the next tick rather than failing.
 
 ## Troubleshooting
-**"Maya isn't listening..."** The bridge isn't started, or it's listening on a different port than your client is configured for. Open the DevBot toolbar's Connect AI popover and click Start; if you changed the port, pass `--port <n>` on both sides.
+**"Maya isn't listening..."** The bridge isn't started, or it's listening on a different port than your client is configured for. Open the Bridge toolbar's Connect AI popover and click Start; if you changed the port, pass `--port <n>` on both sides.
 
 **Status pill reads `[ ERROR ]`.** Hover it: the tooltip carries the actual failure text (for example, the port is already in use). Click Stop, then Start again, or set a different port.
 
