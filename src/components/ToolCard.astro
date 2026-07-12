@@ -22,10 +22,10 @@ const scrimStyle = align === 'right'
   ? 'background: linear-gradient(to left, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0.55) 45%, rgba(11, 14, 16, 0) 75%);'
   : 'background: linear-gradient(to right, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0.55) 45%, rgba(11, 14, 16, 0) 75%);';
 ---
-<div class={`tool-banner tool-banner--${align}`}>
+<div class={`tool-banner tool-banner--${align}`} data-parallax-window>
   {image ? (
     <div class="tool-banner__media">
-      <Image class="tool-banner__image" src={image} alt={alt ?? ''} widths={[1024, 2048]} sizes="100vw" />
+      <Image class="tool-banner__image" src={image} alt={alt ?? ''} widths={[1024, 2048]} sizes="100vw" data-parallax />
       <div class="tool-banner__scrim" aria-hidden="true" style={scrimStyle}></div>
     </div>
   ) : null}
@@ -47,6 +47,8 @@ const scrimStyle = align === 'right'
     min-height: clamp(280px, 32vw, 400px);
     display: flex;
     align-items: center;
+    /* the image is this much taller than the card; it drifts through on scroll */
+    --card-travel: clamp(90px, 14vw, 220px);
   }
   .tool-banner--left { justify-content: flex-start; }
   .tool-banner--right { justify-content: flex-end; }
@@ -57,10 +59,14 @@ const scrimStyle = align === 'right'
   }
   .tool-banner__image {
     position: absolute;
-    inset: 0;
+    top: 0;
+    left: 0;
     width: 100%;
-    height: 100%;
+    height: calc(100% + var(--card-travel));
     object-fit: cover;
+    /* rest position is centered; the parallax script drives it from here */
+    transform: translateY(calc(var(--card-travel) / -2));
+    will-change: transform;
   }
   .tool-banner__scrim {
     position: absolute;

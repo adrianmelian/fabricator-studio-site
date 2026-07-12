@@ -157,39 +157,13 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     </div>
   </section>
 
-  <section id="download" class="download-v2">
-    <Image class="download-media" src={downloadBanner} alt="" aria-hidden="true" width={2048} loading="lazy" />
+  <section id="download" class="download-v2" data-parallax-window>
+    <Image class="download-media" src={downloadBanner} alt="" aria-hidden="true" width={2048} loading="lazy" data-parallax />
     <div class="download-scrim" aria-hidden="true"></div>
     <div class="download-copy">
       <BracketButton kind="plasma-outline" downloadGate label="Download" />
     </div>
   </section>
-  <script is:inline>
-    (function () {
-      var section = document.getElementById('download');
-      if (!section) return;
-      var media = section.querySelector('.download-media');
-      if (!media) return;
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      var ticking = false;
-      function update() {
-        ticking = false;
-        var overflow = media.offsetHeight - section.offsetHeight;
-        if (overflow <= 0) { media.style.transform = ''; return; }
-        var rect = section.getBoundingClientRect();
-        var vh = window.innerHeight || document.documentElement.clientHeight;
-        var p = (vh - rect.top) / (vh + rect.height);
-        p = p < 0 ? 0 : p > 1 ? 1 : p;
-        media.style.transform = 'translateY(' + (-overflow * (1 - p)).toFixed(1) + 'px)';
-      }
-      function onScroll() {
-        if (!ticking) { ticking = true; requestAnimationFrame(update); }
-      }
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll);
-      update();
-    })();
-  </script>
 
   {TUTORIALS.length > 0 && (
     <section id="tutorials">
@@ -231,6 +205,34 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   </section>
 
   <Footer />
+
+  <script is:inline>
+    (function () {
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var pairs = [].slice.call(document.querySelectorAll('[data-parallax]'))
+        .map(function (img) { return { img: img, win: img.closest('[data-parallax-window]') }; })
+        .filter(function (pr) { return pr.win; });
+      if (!pairs.length) return;
+      var ticking = false;
+      function update() {
+        ticking = false;
+        var vh = window.innerHeight || document.documentElement.clientHeight;
+        for (var i = 0; i < pairs.length; i++) {
+          var img = pairs[i].img, win = pairs[i].win;
+          var overflow = img.offsetHeight - win.offsetHeight;
+          if (overflow <= 0) { img.style.transform = ''; continue; }
+          var rect = win.getBoundingClientRect();
+          var p = (vh - rect.top) / (vh + rect.height);
+          p = p < 0 ? 0 : p > 1 ? 1 : p;
+          img.style.transform = 'translateY(' + (-overflow * (1 - p)).toFixed(1) + 'px)';
+        }
+      }
+      function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      window.addEventListener('resize', onScroll);
+      update();
+    })();
+  </script>
 </BaseLayout>
 <style>
   .hero-v2 {
