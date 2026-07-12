@@ -42,8 +42,11 @@ const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192
       if (dlg.showModal) dlg.showModal(); else goDownload();
     }
 
-    document.querySelectorAll('[data-download-open]').forEach(function (b) {
-      b.addEventListener('click', function (e) { e.preventDefault(); openGate(); });
+    // Delegated so it catches every Download trigger on the page, including ones
+    // that appear in the DOM after this script runs (hero, download banner, etc.).
+    document.addEventListener('click', function (e) {
+      var trigger = e.target.closest && e.target.closest('[data-download-open]');
+      if (trigger) { e.preventDefault(); openGate(); }
     });
     dlg.querySelectorAll('[data-dl-close]').forEach(function (b) {
       b.addEventListener('click', function () { dlg.close(); });
