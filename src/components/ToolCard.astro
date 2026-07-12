@@ -64,7 +64,8 @@ const scrimStyle = align === 'right'
     width: 100%;
     height: calc(100% + var(--card-travel));
     object-fit: cover;
-    /* rest position is centered; the parallax script drives it from here */
+    /* rest position is centered; the scroll-driven animation (or JS fallback) drives it */
+    --parallax-travel: var(--card-travel);
     transform: translateY(calc(var(--card-travel) / -2));
     will-change: transform;
   }

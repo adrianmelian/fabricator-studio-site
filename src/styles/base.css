@@ -95,3 +95,22 @@ section { padding: 2.5rem 1.5rem; max-width: 72rem; margin: 0 auto; }
 
 a { color: var(--plasma); }
 a:hover { color: var(--plasma-dim); }
+
+/* Scroll-driven parallax for [data-parallax] banners (download card + tool cards).
+   Runs on the compositor via a view() timeline, so it stays smooth on mobile, where a JS
+   scroll handler stalls during touch/momentum scrolling. The JS in index.astro is only a
+   fallback for browsers without scroll-driven-animation support. Each parallax image sets
+   --parallax-travel to how far it overflows its window; the drift direction matches the JS
+   (bottom of the art on entry, top on exit). Honors reduce-motion. */
+@keyframes fs-parallax-drift {
+  from { transform: translateY(calc(-1 * var(--parallax-travel, 0px))); }
+  to { transform: translateY(0); }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-parallax] {
+      animation: fs-parallax-drift linear both;
+      animation-timeline: view();
+    }
+  }
+}

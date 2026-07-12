@@ -197,6 +197,9 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   <script is:inline>
     (function () {
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      // Modern browsers (incl. mobile) get smooth compositor parallax from CSS (base.css).
+      // This JS only runs as a fallback where scroll-driven animations are unsupported.
+      if (window.CSS && CSS.supports && CSS.supports('animation-timeline: view()')) return;
       var pairs = [].slice.call(document.querySelectorAll('[data-parallax]'))
         .map(function (img) { return { img: img, win: img.closest('[data-parallax-window]') }; })
         .filter(function (pr) { return pr.win; });
@@ -367,7 +370,8 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     height: calc(100% + var(--dl-travel));
     object-fit: cover;
     z-index: 0;
-    /* rest position is centered; the parallax script drives it from here */
+    /* rest position is centered; the scroll-driven animation (or JS fallback) drives it */
+    --parallax-travel: var(--dl-travel);
     transform: translateY(calc(var(--dl-travel) / -2));
     will-change: transform;
   }
