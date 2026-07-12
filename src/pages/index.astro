@@ -40,7 +40,7 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
       <p class="hero-sub">Built for solo developers and small teams. Free, open source, Maya-to-Unreal full pipeline tools. Rigging, skinning, animation, and export, and an AI Technical Artist built in. The kit is made for the asset generation era. Generated or hand-built, these tools help you put the final touch on your art and get it in engine fast. Ready for all the next-gen features, like Control Rig and MetaHuman.</p>
       <p class="hero-strip">Concept • Modeling • Texturing • Rigging • Animation • Unreal</p>
       <div class="hero-ctas">
-        <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
+        <BracketButton kind="plasma-outline" downloadGate label="Download" />
         <BracketButton kind="soft" href="#rigs" label="Free Rigs" />
       </div>
     </div>
@@ -106,7 +106,7 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
           <li>Connect your own AI right from the strip: start the read-only bridge and copy the setup snippet for your client.</li>
         </ul>
         <p class="product-pop__free">Built for the way technical artists actually work.</p>
-        <a class="product-pop__docs" href="/docs/tools/devbot/">Read the full docs →</a>
+        <a class="product-pop__docs" href="/docs/tools/bridge/">Read the full docs →</a>
       </div>
     </div>
   </dialog>
@@ -161,7 +161,7 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
     <Image class="download-media" src={downloadBanner} alt="" aria-hidden="true" width={2048} loading="lazy" />
     <div class="download-scrim" aria-hidden="true"></div>
     <div class="download-copy">
-      <BracketButton kind="plasma-outline" href={LINKS.download} label="Download" />
+      <BracketButton kind="plasma-outline" downloadGate label="Download" />
     </div>
   </section>
 

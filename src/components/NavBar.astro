@@ -1,5 +1,6 @@
 ---
 import { LINKS } from '../data/links';
+import DownloadGate from './DownloadGate.astro';
 ---
 <nav class="navbar">
   <a class="navbar__brand" href="/">
@@ -19,8 +20,9 @@ import { LINKS } from '../data/links';
       </div>
     </details>
   </div>
-  <a class="nav-download" href={LINKS.download}>[ DOWNLOAD ]</a>
+  <button type="button" class="nav-download" data-download-open>[ DOWNLOAD ]</button>
 </nav>
+<DownloadGate />
 <style>
   .navbar {
     font-family: var(--font-mono);
@@ -97,6 +99,7 @@ import { LINKS } from '../data/links';
     background: none;
     border: none;
     padding: 0;
+    cursor: pointer;
   }
   .nav-download:hover { color: var(--plasma-dim); }
 </style>

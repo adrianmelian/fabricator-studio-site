@@ -1,9 +1,9 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import FieldLabel from '../../components/FieldLabel.astro';
-import BracketButton from '../../components/BracketButton.astro';
 import Footer from '../../components/Footer.astro';
 import NavBar from '../../components/NavBar.astro';
+import ContactForm from '../../components/ContactForm.astro';
 
 const values = [
   {
@@ -96,8 +96,10 @@ const help = [
   </section>
 
   <section class="svc-cta">
+    <FieldLabel text="Get In Touch" />
     <p class="prose">Tell me what is slowing your pipeline down. I will tell you honestly whether I am the right person to fix it, and what it would take.</p>
-    <BracketButton kind="plasma-outline" label="Book a discovery call" href="mailto:adrian@fabricator.studio?subject=FabricatorStudio%20discovery%20call" />
+    <ContactForm />
+    <p class="svc-cta__alt">Prefer email? <a href="mailto:adrian@fabricator.studio?subject=FabricatorStudio%20inquiry">adrian@fabricator.studio</a></p>
   </section>
 
   <Footer />
@@ -159,6 +161,14 @@ const help = [
   .svc-steps li { padding-left: 0.25rem; line-height: 1.5; }
 
   .svc-cta { text-align: center; }
+  .svc-cta :global(.field-label) { margin-bottom: 1rem; }
   .svc-cta .prose { margin: 0 auto; }
-  .svc-cta .btn { margin-top: 1.5rem; }
+  .svc-cta__alt {
+    margin: 1.25rem auto 0;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    color: var(--bone-dim);
+  }
+  .svc-cta__alt a { color: var(--plasma); text-decoration: none; }
+  .svc-cta__alt a:hover { color: var(--plasma-dim); }
 </style>

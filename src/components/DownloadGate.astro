@@ -1,0 +1,154 @@
+---
+import { LINKS } from '../data/links';
+
+// MailerLite embedded-form subscribe endpoint.
+// In MailerLite: Forms > new Embedded form > it gives an action URL shaped like
+//   https://assets.mailerlite.com/jsonp/<ACCOUNT_ID>/forms/<FORM_ID>/subscribe
+// Paste that here. Until it is filled in, the gate still opens and routes people to
+// the download; it just does not capture the email yet.
+const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192763576695392191/subscribe';
+---
+<dialog id="download-gate" class="dl-gate" aria-labelledby="dl-gate-title">
+  <div class="dl-gate__inner">
+    <button type="button" class="dl-gate__close" data-dl-close aria-label="Close">✕</button>
+    <p class="dl-gate__label">// DOWNLOAD</p>
+    <h2 id="dl-gate-title" class="dl-gate__title">Get FabricatorStudio</h2>
+    <p class="dl-gate__sub">Drop your email and we'll take you straight to the download. We'll only use it to let you know when new tools and rigs ship. No spam, unsubscribe anytime.</p>
+    <form class="dl-gate__form" id="dl-gate-form" novalidate>
+      <label class="dl-gate__sronly" for="dl-gate-email">Email address</label>
+      <input class="dl-gate__input" id="dl-gate-email" type="email" name="fields[email]" inputmode="email" autocomplete="email" placeholder="you@studio.com" required />
+      <input class="dl-gate__hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+      <button class="dl-gate__submit" type="submit">[ GET THE DOWNLOAD ]</button>
+      <p class="dl-gate__error" id="dl-gate-error" hidden>Please enter a valid email.</p>
+    </form>
+    <a class="dl-gate__skip" href={LINKS.repo} target="_blank" rel="noopener">or browse the source on GitHub &rarr;</a>
+  </div>
+</dialog>
+<script define:vars={{ action: MAILERLITE_ACTION, downloadUrl: LINKS.download }}>
+  (function () {
+    var dlg = document.getElementById('download-gate');
+    if (!dlg) return;
+    var form = document.getElementById('dl-gate-form');
+    var email = document.getElementById('dl-gate-email');
+    var error = document.getElementById('dl-gate-error');
+    var STORE = 'fs_dl_subscribed';
+
+    function goDownload() { window.location.href = downloadUrl; }
+
+    function openGate() {
+      // Returning subscribers skip the form and go straight to the download.
+      try { if (localStorage.getItem(STORE)) { goDownload(); return; } } catch (e) {}
+      if (error) error.hidden = true;
+      if (dlg.showModal) dlg.showModal(); else goDownload();
+    }
+
+    document.querySelectorAll('[data-download-open]').forEach(function (b) {
+      b.addEventListener('click', function (e) { e.preventDefault(); openGate(); });
+    });
+    dlg.querySelectorAll('[data-dl-close]').forEach(function (b) {
+      b.addEventListener('click', function () { dlg.close(); });
+    });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var val = (email.value || '').trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { if (error) error.hidden = false; email.focus(); return; }
+        var hp = form.querySelector('.dl-gate__hp');
+        var isBot = hp && hp.value;
+        try { localStorage.setItem(STORE, '1'); } catch (e2) {}
+        if (action && !isBot) {
+          fetch(action, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'fields[email]=' + encodeURIComponent(val) + '&ml-submit=1&anticsrf=true',
+          }).then(goDownload, goDownload);
+        } else {
+          goDownload();
+        }
+      });
+    }
+  })();
+</script>
+<style>
+  .dl-gate {
+    margin: auto;
+    max-width: 30rem;
+    width: calc(100vw - 3rem);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    background: var(--carbon);
+    color: var(--bone);
+    padding: 0;
+  }
+  .dl-gate::backdrop { background: rgba(0, 0, 0, 0.7); }
+  .dl-gate__inner { position: relative; padding: 2rem; }
+  .dl-gate__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: var(--bone-dim);
+    font-size: 1rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .dl-gate__close:hover { color: var(--bone); }
+  .dl-gate__label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--ember);
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    margin: 0 0 0.5rem;
+  }
+  .dl-gate__title {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: var(--bone);
+  }
+  .dl-gate__sub { color: var(--bone-dim); font-size: 0.9rem; line-height: 1.5; margin: 0 0 1.25rem; }
+  .dl-gate__form { display: flex; flex-direction: column; gap: 0.75rem; }
+  .dl-gate__input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--iron);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    color: var(--bone);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    padding: 0.7rem 0.8rem;
+  }
+  .dl-gate__input::placeholder { color: var(--bone-faint); }
+  .dl-gate__input:focus { outline: none; border-color: var(--plasma-dim); }
+  .dl-gate__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .dl-gate__submit {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--carbon);
+    background: var(--plasma);
+    border: 1px solid var(--plasma);
+    border-radius: var(--radius);
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+  }
+  .dl-gate__submit:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); }
+  .dl-gate__error { color: var(--ember); font-size: 0.8rem; margin: 0; font-family: var(--font-mono); }
+  .dl-gate__skip {
+    display: inline-block;
+    margin-top: 1rem;
+    color: var(--bone-dim);
+    font-size: 0.8rem;
+    text-decoration: none;
+    font-family: var(--font-mono);
+  }
+  .dl-gate__skip:hover { color: var(--plasma); }
+  .dl-gate__sronly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>

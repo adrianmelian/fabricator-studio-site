@@ -50,7 +50,7 @@ export const flagshipTools: FlagshipTool[] = [
       'Bridge puts the whole FabricatorStudio toolbox into a compact but powerful toolbar inside Maya. Launch the big tools, fire the everyday utilities, and stay focused instead of hunting through shelves and menus.',
       'Built for the way technical artists and developers actually work.',
     ],
-    href: '/docs/tools/devbot/',
+    href: '/docs/tools/bridge/',
     image: bridgeCard,
     alt: 'The Bridge toolbar docked under a wireframe character in Maya',
     dialogId: 'pop-bridge',

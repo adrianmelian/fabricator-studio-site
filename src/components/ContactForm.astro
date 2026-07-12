@@ -1,0 +1,134 @@
+---
+// Web3Forms access key. Get one free with no account at https://web3forms.com:
+// enter the inbox you want inquiries delivered to, and they email you a key. Paste it
+// here. Until it is filled in, the form shows a note pointing people to email directly.
+const WEB3FORMS_KEY = '529c7d80-6fb8-492c-b431-32eaea095da1';
+---
+<form class="contact-form" id="contact-form">
+  <input type="hidden" name="access_key" value={WEB3FORMS_KEY} />
+  <input type="hidden" name="subject" value="New FabricatorStudio inquiry" />
+  <input type="hidden" name="from_name" value="FabricatorStudio Services" />
+  <input type="checkbox" name="botcheck" class="contact-form__hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+
+  <div class="contact-form__grid">
+    <div class="contact-form__field">
+      <label class="contact-form__sronly" for="cf-name">Name</label>
+      <input class="contact-form__input" id="cf-name" type="text" name="name" placeholder="Name" autocomplete="name" required />
+    </div>
+    <div class="contact-form__field">
+      <label class="contact-form__sronly" for="cf-email">Email</label>
+      <input class="contact-form__input" id="cf-email" type="email" name="email" placeholder="you@studio.com" autocomplete="email" required />
+    </div>
+  </div>
+  <div class="contact-form__field">
+    <label class="contact-form__sronly" for="cf-message">Message</label>
+    <textarea class="contact-form__input contact-form__textarea" id="cf-message" name="message" rows="5" placeholder="What is slowing your pipeline down?" required></textarea>
+  </div>
+  <button class="contact-form__submit" type="submit">[ SEND ]</button>
+  <p class="contact-form__status" id="cf-status" role="status" hidden></p>
+</form>
+<script is:inline>
+  (function () {
+    var form = document.getElementById('contact-form');
+    if (!form) return;
+    var status = document.getElementById('cf-status');
+    var btn = form.querySelector('.contact-form__submit');
+
+    function show(msg, isErr) {
+      if (!status) return;
+      status.hidden = false;
+      status.textContent = msg;
+      status.classList.toggle('is-error', !!isErr);
+    }
+
+    form.addEventListener('submit', function (e) {
+      e.preventDefault();
+      if (form.botcheck && form.botcheck.checked) return; // honeypot tripped
+      var data = new FormData(form);
+      if (!data.get('access_key')) {
+        show('The form is not connected yet. Please email adrian@fabricator.studio directly.', true);
+        return;
+      }
+      var original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = '[ SENDING... ]';
+      fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: { Accept: 'application/json' },
+        body: data,
+      })
+        .then(function (r) { return r.json(); })
+        .then(function (res) {
+          if (res.success) {
+            form.reset();
+            show('Thanks, your message is on its way. I will get back to you soon.', false);
+          } else {
+            show('Something went wrong. Please email adrian@fabricator.studio directly.', true);
+          }
+        })
+        .catch(function () {
+          show('Something went wrong. Please email adrian@fabricator.studio directly.', true);
+        })
+        .finally(function () {
+          btn.disabled = false;
+          btn.textContent = original;
+        });
+    });
+  })();
+</script>
+<style>
+  .contact-form {
+    max-width: 40rem;
+    margin: 1.5rem auto 0;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .contact-form__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+  }
+  @media (max-width: 32rem) {
+    .contact-form__grid { grid-template-columns: 1fr; }
+  }
+  .contact-form__field { display: flex; }
+  .contact-form__input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--iron);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    color: var(--bone);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    padding: 0.7rem 0.8rem;
+  }
+  .contact-form__input::placeholder { color: var(--bone-faint); }
+  .contact-form__input:focus { outline: none; border-color: var(--plasma-dim); }
+  .contact-form__textarea { resize: vertical; min-height: 7rem; line-height: 1.5; }
+  .contact-form__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .contact-form__submit {
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--plasma);
+    background: transparent;
+    border: 1px solid var(--plasma);
+    border-radius: var(--radius);
+    padding: 0.7rem 1.25rem;
+    cursor: pointer;
+  }
+  .contact-form__submit:hover { color: var(--plasma-dim); border-color: var(--plasma-dim); }
+  .contact-form__submit:disabled { opacity: 0.6; cursor: default; }
+  .contact-form__status {
+    font-family: var(--font-mono);
+    font-size: 0.875rem;
+    color: var(--plasma);
+    margin: 0.25rem 0 0;
+  }
+  .contact-form__status.is-error { color: var(--ember); }
+  .contact-form__sronly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>

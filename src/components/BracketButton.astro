@@ -1,10 +1,13 @@
 ---
-// Renders an <a> link by default, or a modal-trigger <button> when `dialogTarget`
-// is set (used by the flagship cards' Learn More to open a product popover).
-interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline'; dialogTarget?: string }
-const { href, label, kind = 'soft', dialogTarget } = Astro.props;
+// Renders an <a> link by default, a modal-trigger <button> when `dialogTarget`
+// is set (flagship cards' Learn More popovers), or the email download-gate trigger
+// when `downloadGate` is set.
+interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline'; dialogTarget?: string; downloadGate?: boolean }
+const { href, label, kind = 'soft', dialogTarget, downloadGate } = Astro.props;
 ---
-{dialogTarget ? (
+{downloadGate ? (
+  <button type="button" class={`btn cta-${kind}`} data-download-open>[ {label.toUpperCase()} ]</button>
+) : dialogTarget ? (
   <button type="button" class={`btn cta-${kind}`} data-dialog-open={dialogTarget}>[ {label.toUpperCase()} ]</button>
 ) : (
   <a class={`btn cta-${kind}`} href={href}>[ {label.toUpperCase()} ]</a>
