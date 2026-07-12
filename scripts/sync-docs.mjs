@@ -33,11 +33,20 @@ const AUTHORED_DIR = join(REPO_ROOT, 'src/content/docs-authored');
 // Each is either folded into an authored page (see docs-authored/) or held from v1. The KS
 // source is untouched; this is only the site's editorial view of it.
 const EXCLUDE = new Set([
-  'components/quad-leg',      // held from the public palette for v1 (final polish pending)
-  'tools/pose-studio',        // folded into tools/pose-anim-studio (one combined page)
-  'tools/animation-studio',   // folded into tools/pose-anim-studio (one combined page)
-  'tools/reggie',             // folded into authored tools/your-ai-ta
-  'tools/connect-your-ai',    // folded into authored tools/your-ai-ta
+  'components/quad-leg',        // held from the public palette for v1 (final polish pending)
+  'tools/pose-studio',          // folded into tools/pose-anim-studio (one combined page)
+  'tools/animation-studio',     // folded into tools/pose-anim-studio (one combined page)
+  'tools/reggie',               // folded into authored tools/your-ai-ta
+  'tools/connect-your-ai',      // folded into authored tools/your-ai-ta
+  'tools/smart-joint-mirror',   // deprecated: the armature system (Armature Skeleton Symmetry) replaced it
+  'tools/skinning-utilities',   // removed from the public palette
+  // Trimmed for the website: full reference stays at the KS source, the site ships a short
+  // human version from docs-authored/. Add a slug here only once its authored version exists.
+  'tools/joint-aimer',
+  'tools/exporter', 'tools/project-setup', 'tools/curve-o-matic', 'tools/skeleton-io', 'tools/scene-cleanup',
+  'tools/ml-auto-skin', 'tools/fabricator', 'tools/skin-io', 'tools/bridge', 'tools/renamer',
+  'components/simple-ik', 'components/ik-leg', 'components/fk-aim', 'components/fk-chain', 'components/simple-fk', 'components/world',
+  'components/advanced-fk', 'components/follow-joint', 'components/spline-fk', 'components/ribbon', 'components/ribbon-spine',
 ]);
 
 // Outbound copy carries zero em-dashes (brand gate 11 / voice rule). The source technical

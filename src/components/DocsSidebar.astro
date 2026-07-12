@@ -1,12 +1,12 @@
 ---
 import { getCollection } from 'astro:content';
-import { DOCS_NAV } from '../data/docs';
+import { DOCS_NAV, DOC_NAV_LABELS } from '../data/docs';
 
 const all = await getCollection('docs');
 const byId = new Map(all.map((d) => [d.id, d]));
 const current = Astro.url.pathname.replace(/\/+$/, '');
 const href = (id: string) => `/docs/${id}/`;
-const title = (id: string) => byId.get(id)?.data.title ?? id;
+const title = (id: string) => DOC_NAV_LABELS[id] ?? byId.get(id)?.data.title ?? id;
 const isActive = (id: string) => current === `/docs/${id}`;
 ---
 <aside class="docs-nav" aria-label="Documentation">

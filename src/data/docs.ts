@@ -23,26 +23,38 @@ export interface DocNavGroup { key: string; label: string; ids: string[]; subgro
 
 export const DOCS_NAV: DocNavGroup[] = [
   {
-    key: 'rigging',
-    label: 'Rigging',
+    key: 'skeleton-building',
+    label: 'Skeleton Building',
+    ids: ['tools/armature', 'tools/skeleton-io', 'tools/joint-aimer'],
+  },
+  {
+    key: 'animation-rig',
+    label: 'Animation Rig Building',
+    ids: ['tools/fabricator', 'tools/curve-o-matic'],
+  },
+  {
+    key: 'rig-components',
+    label: 'Rig Components',
     ids: [
-      'tools/fabricator',
-      'concepts/templates', 'concepts/limbs', 'concepts/components',
-      'tools/skeleton-io', 'tools/joint-aimer', 'tools/smart-joint-mirror',
-      'tools/curve-o-matic', 'tools/skin-io', 'tools/skinning-utilities', 'tools/ml-auto-skin',
+      'concepts/components', 'concepts/limbs', 'concepts/templates',
+      'components/world', 'components/fk-chain', 'components/simple-fk', 'components/advanced-fk',
+      'components/fk-aim', 'components/simple-ik', 'components/ik-leg', 'components/spline-fk',
+      'components/follow-joint', 'components/ribbon', 'components/ribbon-spine',
     ],
-    subgroups: [
-      {
-        label: 'Rig Components',
-        ids: [
-          'components/world', 'components/fk-chain', 'components/simple-fk', 'components/advanced-fk',
-          'components/fk-aim', 'components/simple-ik', 'components/ik-leg', 'components/spline-fk',
-          'components/follow-joint', 'components/ribbon', 'components/ribbon-spine',
-        ],
-      },
-    ],
+  },
+  {
+    key: 'skinning',
+    label: 'Skinning',
+    ids: ['tools/skin-io', 'tools/ml-auto-skin'],
   },
   { key: 'animation', label: 'Animation', ids: ['tools/pose-anim-studio'] },
   { key: 'engine', label: 'Engine', ids: ['tools/exporter', 'tools/project-setup'] },
-  { key: 'utility', label: 'Utility', ids: ['tools/devbot', 'tools/your-ai-ta', 'tools/renamer', 'tools/scene-cleanup'] },
+  { key: 'utility', label: 'Utility', ids: ['tools/bridge', 'tools/your-ai-ta', 'tools/renamer', 'tools/scene-cleanup'] },
 ];
+
+// Site-side display-name overrides for the sidebar (public naming, ahead of the KS source
+// doc titles). Keyed by collection id. These renames also need to land in the source docs
+// via the naming relay; until then the doc page still titles itself with the source name.
+export const DOC_NAV_LABELS: Record<string, string> = {
+  'tools/ml-auto-skin': 'BindSkin Tools',
+};

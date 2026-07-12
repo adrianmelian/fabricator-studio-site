@@ -10,7 +10,7 @@ category: animation
 One popover with two tabs, POSE and ANIM, launching Pose Studio and Animation Studio. Both save and load onto any rig built with Fabricator: a pose or clip saved on one character loads onto another because controls are addressed by component identity (type, side, role), not by node name. Thumbnails are framed in an embedded viewport; search and user-authored sets keep large libraries usable; selection sets mask a pose down to just the controls you choose.
 
 ## Quick start
-1. Open the Library button on the DevBot toolbar and pick the POSE or ANIM tab.
+1. Open the Library button on the Bridge toolbar and pick the POSE or ANIM tab.
 2. Select the rig controls (or the whole rig) you want to capture.
 3. Save, frame the thumbnail, and name it into a set.
 4. On another rig, select it and load; the library maps controls by identity.

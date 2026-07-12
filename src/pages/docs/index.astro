@@ -7,12 +7,15 @@ import { DOCS_NAV } from '../../data/docs';
 const all = await getCollection('docs');
 const byId = new Map(all.map((d) => [d.id, d]));
 
-const concepts = ['concepts/templates', 'concepts/limbs', 'concepts/components']
+const concepts = ['concepts/components', 'concepts/limbs', 'concepts/templates']
   .map((id) => byId.get(id))
   .filter(Boolean);
 
 const CATEGORY_BLURBS: Record<string, string> = {
-  rigging: 'Build the rig: skeleton, orientation, components, and skinning.',
+  'skeleton-building': 'Author the skeleton: the armature, orientation, and skeleton IO.',
+  'animation-rig': 'Build the animation rig with Fabricator and its control curves.',
+  'rig-components': 'The building blocks: components, limbs, and templates.',
+  skinning: 'Bind and transfer skin weights.',
   animation: 'Save and reuse poses and clips across every rig you build.',
   engine: 'Clean FBX into Unreal, with project paths set up for you.',
   utility: 'The toolbar, your AI TA, and the everyday scene helpers.',
