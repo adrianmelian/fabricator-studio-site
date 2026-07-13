@@ -97,11 +97,17 @@ a { color: var(--plasma); }
 a:hover { color: var(--plasma-dim); }
 
 /* Scroll-driven parallax for [data-parallax] banners (download card + tool cards).
-   Runs on the compositor via a view() timeline, so it stays smooth on mobile, where a JS
-   scroll handler stalls during touch/momentum scrolling. The JS in index.astro is only a
-   fallback for browsers without scroll-driven-animation support. Each parallax image sets
-   --parallax-travel to how far it overflows its window; the drift direction matches the JS
-   (bottom of the art on entry, top on exit). Honors reduce-motion. */
+   Runs on the compositor, so it stays smooth on mobile where a JS scroll handler stalls
+   during touch/momentum scrolling. The JS in index.astro is only a fallback for browsers
+   without scroll-driven-animation support. Each parallax image sets --parallax-travel to
+   how far it overflows its window; the drift runs bottom-of-art on entry, top on exit.
+   Honors reduce-motion.
+
+   The timeline is NAMED on purpose. Every window is overflow:hidden, which makes it a
+   scroll container, so a plain view() on the image resolves against that clipped box,
+   which never scrolls, and nothing animates at all (this shipped broken once). Naming the
+   timeline on the window anchors it to the window's own pass through the page scroller. */
+[data-parallax-window] { view-timeline-name: --fs-parallax; }
 @keyframes fs-parallax-drift {
   from { transform: translateY(calc(-1 * var(--parallax-travel, 0px))); }
   to { transform: translateY(0); }
@@ -110,7 +116,13 @@ a:hover { color: var(--plasma-dim); }
   @media (prefers-reduced-motion: no-preference) {
     [data-parallax] {
       animation: fs-parallax-drift linear both;
-      animation-timeline: view();
+    }
+    /* Deliberately a SEPARATE rule with a different selector. The CSS minifier folds an
+       adjacent animation-timeline into the `animation` shorthand, which is invalid (the
+       shorthand cannot carry a timeline, it only resets it), so the browser drops the whole
+       declaration and nothing animates. A distinct selector prevents the fold. */
+    img[data-parallax] {
+      animation-timeline: --fs-parallax;
     }
   }
 }
