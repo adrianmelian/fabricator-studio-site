@@ -1,15 +1,17 @@
 ---
+// Section label. Mindmeld 2.0: the `// ` console prefix is RETIRED (DNA principle 8).
+// Ember is correct here: ember = label / attention (principle 2).
 interface Props { text: string }
 const { text } = Astro.props;
 ---
-<div class="field-label">{'// '}{text.toUpperCase()}</div>
+<div class="field-label">{text.toUpperCase()}</div>
 <style>
   .field-label {
-    font-family: var(--font-mono);
+    font-family: var(--font-display);
     color: var(--ember);
     font-weight: 700;
     font-size: 1.5rem;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     margin-bottom: 1rem;
   }
 </style>

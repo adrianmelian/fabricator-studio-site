@@ -10,7 +10,7 @@ const posts = (await getCollection('blog')).sort((a, b) => b.data.date.valueOf()
   <NavBar />
   <section class="devlog-index">
     <FieldLabel text="Devlog" />
-    <h1 class="vt">Devlog</h1>
+    <h1 class="display">Devlog</h1>
     <ul class="posts">
       {posts.map((p) => (
         <li>

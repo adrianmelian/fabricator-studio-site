@@ -1,16 +1,22 @@
 ---
-// Renders an <a> link by default, a modal-trigger <button> when `dialogTarget`
-// is set (flagship cards' Learn More popovers), or the email download-gate trigger
-// when `downloadGate` is set.
+// CTA button. Mindmeld 2.0: a soft PILL, not `[ BRACKETED CAPS ]` (DNA principles 5 + 8),
+// with sanctioned depth (principle 6) and a springy settle on press (section 4, "alive").
+// Label renders in natural case now; shouty caps were a 1.0 console motif.
+//
+// Renders an <a> by default, a modal-trigger <button> when `dialogTarget` is set (the
+// flagship cards' Learn More popovers), or the email download-gate trigger when
+// `downloadGate` is set.
+//
+// The component name is 1.0 baggage; it is renamed in the P2 sweep.
 interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline'; dialogTarget?: string; downloadGate?: boolean }
 const { href, label, kind = 'soft', dialogTarget, downloadGate } = Astro.props;
 ---
 {downloadGate ? (
-  <button type="button" class={`btn cta-${kind}`} data-download-open>[ {label.toUpperCase()} ]</button>
+  <button type="button" class={`btn cta-${kind}`} data-download-open>{label}</button>
 ) : dialogTarget ? (
-  <button type="button" class={`btn cta-${kind}`} data-dialog-open={dialogTarget}>[ {label.toUpperCase()} ]</button>
+  <button type="button" class={`btn cta-${kind}`} data-dialog-open={dialogTarget}>{label}</button>
 ) : (
-  <a class={`btn cta-${kind}`} href={href}>[ {label.toUpperCase()} ]</a>
+  <a class={`btn cta-${kind}`} href={href}>{label}</a>
 )}
 <style>
   .btn {
@@ -19,16 +25,30 @@ const { href, label, kind = 'soft', dialogTarget, downloadGate } = Astro.props;
     font-weight: 700;
     font-size: inherit;
     line-height: normal;
-    padding: 0.75rem 1.25rem;
+    padding: 0.75rem 1.5rem;
     border: 1px solid;
-    border-radius: var(--radius);
+    border-radius: var(--radius-pill);
     text-decoration: none;
     cursor: pointer;
+    transition: transform var(--t-fast) var(--ease-spring),
+                background var(--t-fast) var(--ease-out),
+                border-color var(--t-fast) var(--ease-out);
   }
-  .cta-hard { color: var(--carbon); background: var(--plasma); border-color: var(--plasma); }
+  .btn:active { transform: scale(0.97); }
+
+  /* plasma = go / action (principle 2). Filled plasma is the primary; the 1.0 "no filled
+     plasma anywhere" ruling belonged to the flat console look and is retired with it. */
+  .cta-hard {
+    color: var(--carbon);
+    background: var(--plasma);
+    border-color: var(--plasma);
+    box-shadow: var(--shadow-md);
+  }
   .cta-hard:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); color: var(--carbon); }
-  .cta-soft { color: var(--bone); background: transparent; border-color: var(--bone-faint); }
-  .cta-soft:hover { color: var(--bone); border-color: var(--bone); }
-  .cta-plasma-outline { color: var(--plasma); background: transparent; border-color: var(--plasma); }
-  .cta-plasma-outline:hover { color: var(--plasma-dim); border-color: var(--plasma-dim); }
+
+  .cta-soft { color: var(--bone); background: var(--iron); border-color: var(--iron-3); box-shadow: var(--shadow-sm); }
+  .cta-soft:hover { color: var(--bone); border-color: var(--bone-faint); }
+
+  .cta-plasma-outline { color: var(--plasma); background: var(--plasma-glow); border-color: var(--plasma); }
+  .cta-plasma-outline:hover { color: var(--carbon); background: var(--plasma); }
 </style>

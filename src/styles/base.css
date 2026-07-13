@@ -1,12 +1,7 @@
-/* base.css - fabricator.studio type system; @font-face block ported from am-mindmeld fonts.css */
-@font-face {
-  font-family: 'VT323';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/VT323-Regular.woff2') format('woff2');
-}
-
+/* base.css - fabricator.studio type system.
+   Mindmeld 2.0: ONE family, JetBrains Mono. VT323 (pixel display) and Geist (body sans) are
+   RETIRED from the system entirely (DNA principles 3 + 4); their @font-face blocks and
+   preloads are gone. Display = JBM Bold with the outlined tri-color treatment. */
 @font-face {
   font-family: 'JetBrains Mono';
   font-style: normal;
@@ -31,35 +26,12 @@
   src: url('/fonts/JetBrainsMono-Bold.woff2') format('woff2');
 }
 
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('/fonts/Geist-400.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('/fonts/Geist-500.woff2') format('woff2');
-}
-
-@font-face {
-  font-family: 'Geist';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('/fonts/Geist-700.woff2') format('woff2');
-}
-
 * { box-sizing: border-box; margin: 0; }
 
 :root {
   --measure: 68ch; /* gate 2: 60-70ch body cap */
-  --radius: 2px;   /* principle 5 */
+  /* --radius now lives in tokens.css as the 2.0 rounded scale. The old `--radius: 2px`
+     hard-corner rule is RETIRED (DNA principle 5). */
 }
 
 html {
@@ -80,12 +52,46 @@ body {
   overflow-x: clip; /* see html above: `hidden` would break the scroll-driven parallax */
 }
 
-.vt {                          /* the ONLY route to VT323 */
+/* Display type (2.0): JetBrains Mono BOLD, set large. `.vt` is a 1.0 class name (it used to
+   be the only route to VT323); it now renders the 2.0 display face so nothing breaks
+   mid-migration, and gets renamed to .display in P1. */
+.vt,
+.display {
   font-family: var(--font-display);
+  font-weight: 700;
   text-transform: uppercase;
   font-size: clamp(2.2rem, 6vw, 4rem);
   line-height: 1.05;
+  letter-spacing: -0.01em;
 }
+
+/* THE SIGNATURE (DNA section 4): the outlined tri-color wordmark. JetBrains Mono Bold, a
+   thick carbon outline on every glyph, letters alternating across bone / plasma / ember.
+   Rendered as LIVE TYPE rather than a PNG so it stays crisp and responsive at any size.
+   `paint-order: stroke fill` puts the stroke BEHIND the fill, so a thick outline does not
+   eat into the letterforms. Letter pattern is taken from Adrian's fs_fabricator_banner:
+   accent, bone, accent, bone... with the accents alternating plasma and ember. */
+.wordmark {
+  font-family: var(--font-display);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  color: var(--bone);
+  -webkit-text-stroke: var(--wordmark-outline) var(--carbon);
+  paint-order: stroke fill;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.wordmark i { font-style: normal; }
+.wordmark i:nth-child(even) { color: var(--bone); }
+.wordmark i:nth-child(4n + 1) { color: var(--plasma); }
+.wordmark i:nth-child(4n + 3) { color: var(--ember); }
 
 .subhead {                     /* JBM Bold ~20-24px step */
   font-family: var(--font-mono);
@@ -99,6 +105,48 @@ section { padding: 2.5rem 1.5rem; max-width: 72rem; margin: 0 auto; }
 
 a { color: var(--plasma); }
 a:hover { color: var(--plasma-dim); }
+
+/* ===== MINDMELD 2.0 DEPTH (DNA principle 6) =====
+   1.0 was flat by rule (no shadows, no gradients). 2.0 layers: panels lift off the carbon
+   ground on a soft shadow, and hover gives a small springy rise with a controlled settle
+   ("alive", DNA section 4). Restraint governs: no neon, no bevel, no garish glow.
+
+   Global selectors on purpose. The component styles are Astro-scoped, but the class names
+   in the markup are unchanged, so one rule here lifts every card instead of touching
+   fifteen scoped blocks. The two-tone signature (carbon ground, iron panels) already holds;
+   this adds the depth that makes it read as layered rather than flat. */
+.feature-tile,
+.doc-entry,
+.svc-card,
+.svc-lead,
+.tut-card,
+.tut-banner,
+.module-row {
+  box-shadow: var(--shadow-md);
+  transition: transform var(--t-base) var(--ease-spring),
+              box-shadow var(--t-base) var(--ease-out),
+              border-color var(--t-fast) var(--ease-out);
+}
+.feature-tile:hover,
+.doc-entry:hover,
+.svc-card:hover,
+.tut-card:hover,
+.tut-banner:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* Modals sit furthest off the ground. */
+dialog.product-pop,
+dialog.dl-gate { box-shadow: var(--shadow-lg); }
+
+/* The fixed nav separates from the content it scrolls over. */
+.navbar { box-shadow: var(--shadow-sm); }
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-tile, .doc-entry, .svc-card, .svc-lead, .tut-card, .tut-banner, .module-row { transition: none; }
+  .feature-tile:hover, .doc-entry:hover, .svc-card:hover, .tut-card:hover, .tut-banner:hover { transform: none; }
+}
 
 /* Scroll-driven parallax for [data-parallax] banners (download card + tool cards).
    Runs on the compositor, so it stays smooth on mobile where a JS scroll handler stalls

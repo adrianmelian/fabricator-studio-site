@@ -1,0 +1,20 @@
+---
+// THE SIGNATURE (brand DNA section 4): the outlined tri-color wordmark.
+// JetBrains Mono Bold, thick carbon outline on every glyph, letters alternating across
+// bone / plasma / ember. Live type rather than a PNG, so it stays crisp at any size and
+// scales responsively. Styling lives in base.css (.wordmark).
+//
+// The letters are split into <i> spans purely so CSS can color them; that would make a
+// screen reader spell the word out, so the real word is exposed once, visually hidden,
+// and the decorative letters are hidden from the a11y tree.
+interface Props { text?: string; class?: string }
+const { text = 'FabricatorStudio', class: cls = '' } = Astro.props;
+const letters = [...text];
+---
+<span class={`wordmark ${cls}`.trim()}>
+  <span class="sr-only">{text}</span>
+  {/* Spaces render as bare text, NOT <i>, so they take no color and do not advance the
+      nth-child cycle. That keeps the letter rhythm continuous across multi-word names
+      like "Rig Fabricator". */}
+  <span aria-hidden="true">{letters.map((ch) => (ch === ' ' ? ' ' : <i>{ch}</i>))}</span>
+</span>

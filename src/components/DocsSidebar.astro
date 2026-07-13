@@ -11,12 +11,12 @@ const isActive = (id: string) => current === `/docs/${id}`;
 ---
 <aside class="docs-nav" aria-label="Documentation">
   <div class="docs-nav__search">
-    <input id="docs-filter" type="search" placeholder="// SEARCH DOCS" autocomplete="off" spellcheck="false" aria-label="Filter docs" />
+    <input id="docs-filter" type="search" placeholder="Search docs" autocomplete="off" spellcheck="false" aria-label="Filter docs" />
   </div>
   <nav class="docs-nav__tree" id="docs-tree">
     {DOCS_NAV.map((group) => (
       <details class="docs-nav__group" open>
-        <summary class="docs-nav__grouplabel">{`// ${group.label.toUpperCase()}`}</summary>
+        <summary class="docs-nav__grouplabel">{group.label.toUpperCase()}</summary>
         <ul class="docs-nav__list">
           {group.ids.map((id) => byId.has(id) && (
             <li class="docs-nav__item">

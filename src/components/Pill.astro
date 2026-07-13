@@ -1,11 +1,23 @@
 ---
+// Status pill. Mindmeld 2.0: a soft ROUNDED pill, not `[ BRACKETED CAPS ]`
+// (DNA principles 5 + 8).
 interface Props { text: string; tone?: 'plasma' | 'ember' | 'bone' }
 const { text, tone = 'bone' } = Astro.props;
 ---
-<span class={`pill pill--${tone}`}>[ {text.toUpperCase()} ]</span>
+<span class={`pill pill--${tone}`}>{text.toUpperCase()}</span>
 <style>
-  .pill { font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.06em; white-space: nowrap; }
-  .pill--plasma { color: var(--plasma); }
-  .pill--ember { color: var(--ember); }
-  .pill--bone { color: var(--bone-dim); }
+  .pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    padding: 0.25rem 0.7rem;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--iron-3);
+  }
+  .pill--plasma { color: var(--plasma); border-color: var(--plasma-dim); background: var(--plasma-glow); }
+  .pill--ember  { color: var(--ember);  border-color: var(--ember-dim);  background: var(--ember-glow); }
+  .pill--bone   { color: var(--bone-dim); background: var(--iron); }
 </style>

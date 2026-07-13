@@ -18,11 +18,11 @@ import DownloadGate from './DownloadGate.astro';
       <summary class="navbar__tab">Community</summary>
       <div class="navbar__panel">
         {LINKS.community.map((c) => (
-          <a href={c.href} target="_blank" rel="noopener">{`[ ${c.label.toUpperCase()} ]`}</a>
+          <a href={c.href} target="_blank" rel="noopener">{c.label}</a>
         ))}
       </div>
     </details>
-    <button type="button" class="nav-download" data-download-open>[ DOWNLOAD ]</button>
+    <button type="button" class="nav-download" data-download-open>Download</button>
   </div>
 </nav>
 <DownloadGate />
