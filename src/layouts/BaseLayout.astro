@@ -10,6 +10,11 @@ const goat = import.meta.env.PUBLIC_GOATCOUNTER_CODE;
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    {/* Declares the page dark so the browser paints its NATIVE dark scrollbar and dark form
+        controls. Without this the UA assumes light and renders a pale scrollbar against carbon.
+        As a meta tag it applies before the stylesheet loads, so there is no first-paint flash. */}
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#0B0E10" />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.ico" sizes="any" />
