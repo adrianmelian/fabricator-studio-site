@@ -73,16 +73,37 @@ const scrimStyle = align === 'right'
     position: absolute;
     inset: 0;
   }
+  /* A real panel, not just a scrim (Adrian 2026-07-14). The gradient alone only TINTS the
+     art, so a bright patch behind the copy still washed the text out. This puts an opaque-
+     enough carbon plate under it, so legibility no longer depends on what the art is doing
+     underneath. The scrim stays: it blends the plate's edge into the band. */
   .tool-banner__copy {
     position: relative;
     z-index: 1;
     max-width: 34rem;
-    padding: 2.5rem;
+    margin: 1.75rem;
+    padding: 1.75rem;
     display: flex;
     flex-direction: column;
     gap: 0.75rem;
     text-align: left;
-    text-shadow: 0 1px 2px rgba(11, 14, 16, 0.9), 0 2px 12px rgba(11, 14, 16, 0.55);
+    background: rgba(11, 14, 16, 0.62);
+    /* Unprefixed ONLY. Hand-writing -webkit-backdrop-filter alongside it makes lightningcss
+       treat the pair as duplicates and keep just the webkit one, which Firefox does not
+       support: it would silently ship a plate with no blur there. The minifier adds whatever
+       prefixes the targets need on its own. Verified against the BUILT css, not dev. */
+    backdrop-filter: blur(10px) saturate(115%);
+    border: 1px solid rgba(232, 224, 208, 0.1);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    text-shadow: 0 1px 2px rgba(11, 14, 16, 0.55);
+  }
+  /* Tests the STANDARD property only. ORing in the -webkit- alias would make this false on
+     older Safari (which supports the alias) while the build emits no alias declaration, so
+     Safari would land on a see-through plate with no blur and no fallback. Testing the
+     standard property alone means anything without it gets the opaque plate instead. */
+  @supports not (backdrop-filter: blur(1px)) {
+    .tool-banner__copy { background: rgba(11, 14, 16, 0.88); }
   }
   /* Solid plasma, bold (Adrian 2026-07-13). The outlined tri-color treatment is deliberately
      kept EXCLUSIVE to the hero wordmark: running it on four cards as well diluted the
@@ -95,6 +116,10 @@ const scrimStyle = align === 'right'
     font-size: clamp(1.5rem, 2.8vw, 2rem);
     line-height: 1.1;
     color: var(--plasma);
+    /* The rule inside the plate, dividing title from body (Adrian 2026-07-14). It spans the
+       plate's full inner width because the heading is a block in a column flex. */
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid rgba(232, 224, 208, 0.14);
   }
   .tool-banner__para {
     /* Bumped from bone-dim: over photographic art the dimmer token loses too
@@ -110,10 +135,13 @@ const scrimStyle = align === 'right'
     .tool-banner {
       align-items: flex-end;
     }
+    /* flex:1 with a margin, NOT width:100%: the plate now has margins, and 100% width plus
+       margins overflows the band. This fills the band minus the gutter instead. */
     .tool-banner__copy {
       max-width: none;
-      width: 100%;
-      padding: 1.5rem;
+      flex: 1;
+      margin: 1rem;
+      padding: 1.25rem;
     }
     /* Mobile: bottom-anchored to-top scrim (same shape as the pre-restyle
        card) reads cleaner at narrow widths than a horizontal scrim stretched
