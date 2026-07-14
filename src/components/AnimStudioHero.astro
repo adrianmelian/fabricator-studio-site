@@ -4,8 +4,14 @@
 // showing the AnimStudio UI, with a BUILD YOUR LIBRARY headline. Grid swapped to an SVG
 // pattern (gate G13) and the viewport-scale JS to a container-fit observer; embedded pose
 // thumbnails preserved. Uses the site's own JetBrains Mono.
+
+// `bare` strips the frame so only the window and its motion sit on the card's frosted plate.
+// The homepage tool cards pass it; the Learn More popover does not, where the graphic stands
+// alone and needs its own card. See FabricatorHero.
+interface Props { bare?: boolean }
+const { bare = false } = Astro.props;
 ---
-<div class="animhero" role="img" aria-label="Animation Studio, pose and clip library in Maya">
+<div class:list={["animhero", bare && "is-bare"]} role="img" aria-label="Animation Studio, pose and clip library in Maya">
   <div class="fit" data-anim-fit>
     <div class="stage">
       <div class="grid"></div>
@@ -220,4 +226,9 @@
     background:#1C2126; border:1px solid var(--iron-3); border-radius:var(--radius);
     font-family:var(--font-mono); }
   @media (prefers-reduced-motion: reduce){ .plane{ animation:none; transform:rotateY(-5deg); } }
+  /* Bare: the plate behind it already IS the frame, so the graphic's own background, border
+     and grid backdrop just drew a box inside a box. */
+  .animhero.is-bare{ background:transparent; border-color:transparent; }
+  .animhero.is-bare .stage{ background:transparent; }
+  .animhero.is-bare .grid{ display:none; }
 </style>

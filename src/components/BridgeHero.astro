@@ -139,6 +139,11 @@ const { bare = false } = Astro.props;
   .bh-bottom { position: absolute; left: 0; right: 0; top: 966px; text-align: center; font-weight: 500; font-size: 14px; letter-spacing: 2.5px; color: #565f69; }
   /* Bare: only the window and its motion. The toolbar, the magnifier panel and the
      animated lens/leader stay; every run of copy goes. */
+  /* Bare: no frame either. The plate behind it already IS the frame, so the graphic's own
+     card background, border and grid backdrop just drew a box inside a box. Only the
+     window and its motion remain, floating straight on the frosted plate. */
+  .bridgehero.is-bare { background: transparent; border-color: transparent; }
+  .bridgehero.is-bare .bridgehero__content { background-color: transparent; background-image: none; }
   .bridgehero.is-bare .bh-eyebrow,
   .bridgehero.is-bare .bh-title,
   .bridgehero.is-bare .bh-tagline,

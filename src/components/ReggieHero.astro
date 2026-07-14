@@ -4,8 +4,14 @@
 // breathing status dot and an AI TECHNICAL ARTIST / ALWAYS ON DUTY title. Grid swapped
 // to SVG (gate G13), viewport-scale -> container-fit observer, and the two em-dashes in
 // the chat copy replaced with periods (gate G11). Uses the site's own JetBrains Mono.
+
+// `bare` strips the frame so only the window and its motion sit on the card's frosted plate.
+// The homepage tool cards pass it; the Learn More popover does not, where the graphic stands
+// alone and needs its own card. See FabricatorHero.
+interface Props { bare?: boolean }
+const { bare = false } = Astro.props;
 ---
-<div class="reggiehero" role="img" aria-label="Reggie, the AI technical artist, in a Maya chat panel">
+<div class:list={["reggiehero", bare && "is-bare"]} role="img" aria-label="Reggie, the AI technical artist, in a Maya chat panel">
   <div data-reggie-stage>
     <div class="grid"></div>
 
@@ -85,7 +91,9 @@
   
   *{ box-sizing:border-box; }
 
-  #stage{
+  /* Selects the data attribute, not an id: the id was removed because this component now
+     renders twice on the homepage (card + popover) and duplicate ids are invalid. */
+  [data-reggie-stage]{
     position:absolute; top:0; left:0; width:1920px; height:1080px; background:#1C2126; overflow:hidden; transform-origin:top left;
   }
 
@@ -145,4 +153,9 @@
     position:relative; width:100%; aspect-ratio:16/9; overflow:hidden;
     background:#1C2126; border:1px solid var(--iron-3); border-radius:var(--radius);
   }
+  /* Bare: the plate behind it already IS the frame, so the graphic's own background, border
+     and grid backdrop just drew a box inside a box. */
+  .reggiehero.is-bare{ background:transparent; border-color:transparent; }
+  .reggiehero.is-bare [data-reggie-stage]{ background:transparent; }
+  .reggiehero.is-bare .grid{ display:none; }
 </style>

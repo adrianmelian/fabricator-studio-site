@@ -92,6 +92,11 @@ const { bare = false } = Astro.props;
   /* Bare: drop the brand stack, and recentre the panel. Without the recentre the panel
      stays parked at left:5.66% with a hole where the text used to be. 23.64% = half of
      the 47.27% left over once the 52.73%-wide panel is placed. */
+  /* Bare: no frame either. The plate behind it already IS the frame, so the graphic's own
+     card background, border and grid backdrop just drew a box inside a box. Only the
+     window and its motion remain, floating straight on the frosted plate. */
+  .fabhero.is-bare { background: transparent; border-color: transparent; }
+  .fabhero.is-bare .fabhero__stage { background-image: none; }
   .fabhero.is-bare .fabhero__brand { display: none; }
   .fabhero.is-bare .fabhero__panelwrap { left: 23.64%; }
   .fabhero__brand {
