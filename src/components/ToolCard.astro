@@ -87,7 +87,7 @@ const scrimStyle = align === 'right'
     flex-direction: column;
     gap: 0.75rem;
     text-align: left;
-    background: rgba(11, 14, 16, 0.62);
+    background: rgba(11, 14, 16, 0.31);
     /* Unprefixed ONLY. Hand-writing -webkit-backdrop-filter alongside it makes lightningcss
        treat the pair as duplicates and keep just the webkit one, which Firefox does not
        support: it would silently ship a plate with no blur there. The minifier adds whatever
@@ -103,7 +103,7 @@ const scrimStyle = align === 'right'
      Safari would land on a see-through plate with no blur and no fallback. Testing the
      standard property alone means anything without it gets the opaque plate instead. */
   @supports not (backdrop-filter: blur(1px)) {
-    .tool-banner__copy { background: rgba(11, 14, 16, 0.88); }
+    .tool-banner__copy { background: rgba(11, 14, 16, 0.55); }
   }
   /* Solid plasma, bold (Adrian 2026-07-13). The outlined tri-color treatment is deliberately
      kept EXCLUSIVE to the hero wordmark: running it on four cards as well diluted the
