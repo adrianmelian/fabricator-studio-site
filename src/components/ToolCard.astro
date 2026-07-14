@@ -127,7 +127,7 @@ const scrimStyle = align === 'right'
   .tool-banner__copy--split {
     max-width: min(74rem, 100%);
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
     gap: 1.75rem;
     align-items: center;
   }
@@ -143,11 +143,17 @@ const scrimStyle = align === 'right'
   /* Copy sits right => GUI takes the left column, facing the band's centre. */
   .tool-banner--right .tool-banner__ui { order: -1; }
 
+  /* The card's copy IS the graphic's text block now (Adrian 2026-07-14). The graphics are
+     frameless on the plate, so the region where their brand stack used to sit is just plate,
+     and the tool's own name and pitch take it over. Scaled into that register: display type
+     at brand-stack size, letter-spaced, not body copy parked beside a picture.
+     Plasma, per the 2026-07-13 ruling on card titles. */
   .tool-banner__name {
     font-family: var(--font-display);
     font-weight: 700;
-    font-size: clamp(1.5rem, 2.8vw, 2rem);
-    line-height: 1.1;
+    font-size: clamp(1.9rem, 3.6vw, 3rem);
+    letter-spacing: 0.03em;
+    line-height: 1.05;
     color: var(--plasma);
     /* The rule inside the plate, dividing title from body (Adrian 2026-07-14). It spans the
        plate's full inner width because the heading is a block in a column flex. */
@@ -155,11 +161,12 @@ const scrimStyle = align === 'right'
     border-bottom: 1px solid rgba(232, 224, 208, 0.14);
   }
   .tool-banner__para {
-    /* Bumped from bone-dim: over photographic art the dimmer token loses too
-       much contrast even under the carbon scrim. Bone matches the hero's
-       body copy treatment. */
+    /* Bone, not bone-dim: over photographic art the dimmer token loses too much contrast even
+       under the carbon scrim. Sized up with the heading so the block reads as the card's
+       headline copy rather than a caption. */
     color: var(--bone);
-    font-size: 0.9375rem;
+    font-size: clamp(1rem, 1.15vw, 1.1875rem);
+    line-height: 1.6;
   }
   .tool-banner__footer {
     margin-top: 0.5rem;
