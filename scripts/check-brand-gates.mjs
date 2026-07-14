@@ -79,8 +79,14 @@ for (const f of htmlFiles) {
 }
 
 // ---- principle 9: the company renders as FabricatorStudio ------------------
+// Compound, capital F and capital S, no dot, NO SPACE (DNA section 7). The gate used to
+// test only the mid-word dot, so "Fabricator Studio" (spaced) sailed through it; that is
+// just as much a naming break, and it turned up in real copy.
 for (const f of htmlFiles) {
-  if (readFileSync(f, 'utf8').includes('Fabricator.Studio')) failures.push(`G9 "Fabricator.Studio" rendering in ${f}`);
+  const html = readFileSync(f, 'utf8');
+  if (html.includes('Fabricator.Studio')) failures.push(`G9 "Fabricator.Studio" rendering in ${f}`);
+  const spaced = visibleText(f).match(/Fabricator\s+Studio/);
+  if (spaced) failures.push(`G9 spaced "${spaced[0]}" in ${f} (the company name is the compound FabricatorStudio)`);
 }
 
 // ---- principles 3 + 4: ONE family, JetBrains Mono. VT323 and Geist retired --
