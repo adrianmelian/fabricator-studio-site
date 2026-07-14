@@ -61,7 +61,7 @@ const TOOL_UI: Record<string, any> = {
         const Ui = t.dialogId ? TOOL_UI[t.dialogId] : undefined;
         return (
           <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId}>
-            {Ui && <Ui slot="ui" />}
+            {Ui && <Ui slot="ui" bare />}
           </ToolCard>
         );
       })}

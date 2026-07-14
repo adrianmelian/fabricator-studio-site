@@ -8,8 +8,13 @@
 // transform (scale needs a unitless number, so it can't be pure CSS). Grid is an SVG
 // pattern (not a CSS gradient) so brand gate G13 stays green.
 import toolbar from '../assets/docs/bridge-toolbar.png';
+
+// `bare` strips the marketing text (eyebrow/title/tagline/caption/bottom strip) so only
+// the toolbar, the magnifier and the animated lens remain. See FabricatorHero.
+interface Props { bare?: boolean }
+const { bare = false } = Astro.props;
 ---
-<div class="bridgehero" role="img" aria-label="Bridge, the FabricatorStudio Maya toolbar">
+<div class:list={["bridgehero", bare && "is-bare"]} role="img" aria-label="Bridge, the FabricatorStudio Maya toolbar">
   <div class="bridgehero__content" data-bridge-content>
     <div class="bh-eyebrow">FABRICATORSTUDIO</div>
     <div class="bh-title">BRIDGE</div>
@@ -132,4 +137,11 @@ import toolbar from '../assets/docs/bridge-toolbar.png';
   .bh-caption { position: absolute; left: 623px; width: 384px; top: 760px; text-align: center; font-weight: 600; font-size: 15px; letter-spacing: 2px; color: #7CFFB2; }
 
   .bh-bottom { position: absolute; left: 0; right: 0; top: 966px; text-align: center; font-weight: 500; font-size: 14px; letter-spacing: 2.5px; color: #565f69; }
+  /* Bare: only the window and its motion. The toolbar, the magnifier panel and the
+     animated lens/leader stay; every run of copy goes. */
+  .bridgehero.is-bare .bh-eyebrow,
+  .bridgehero.is-bare .bh-title,
+  .bridgehero.is-bare .bh-tagline,
+  .bridgehero.is-bare .bh-caption,
+  .bridgehero.is-bare .bh-bottom { display: none; }
 </style>
