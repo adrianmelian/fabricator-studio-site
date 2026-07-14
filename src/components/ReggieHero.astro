@@ -8,8 +8,12 @@
 // `bare` strips the frame so only the window and its motion sit on the card's frosted plate.
 // The homepage tool cards pass it; the Learn More popover does not, where the graphic stands
 // alone and needs its own card. See FabricatorHero.
-interface Props { bare?: boolean }
-const { bare = false } = Astro.props;
+// The graphic's own text block is now the CARD's text block (Adrian 2026-07-14): the tool's
+// real name and pitch live here rather than a standalone strapline. Falls back to the
+// original strapline when nothing is passed, so the Learn More popover is unchanged.
+interface Props { bare?: boolean; heading?: string; paras?: string[] }
+const { bare = false, heading = 'AI TECHNICAL ARTIST', paras } = Astro.props;
+const hasCopy = Array.isArray(paras) && paras.length > 0;
 ---
 <div class:list={["reggiehero", bare && "is-bare"]} role="img" aria-label="Reggie, the AI technical artist, in a Maya chat panel">
   <div data-reggie-stage>
@@ -60,8 +64,12 @@ const { bare = false } = Astro.props;
 
     <div class="title">
       <div class="mark"></div>
-      <h1>AI TECHNICAL ARTIST</h1>
-      <div class="sub">ALWAYS ON DUTY</div>
+      <h1>{heading}</h1>
+      {hasCopy
+        ? paras.map((p, i) => (
+            <p class:list={["para", i === paras.length - 1 && "para--accent"]}>{p}</p>
+          ))
+        : <div class="sub">ALWAYS ON DUTY</div>}
     </div>
   </div>
 </div>
@@ -142,10 +150,20 @@ const { bare = false } = Astro.props;
   .input span{ font-family:var(--mono); font-size:14px; color:rgba(124,255,178,.55); }
   .send{ border:1px solid var(--plasma); color:var(--bone); font-family:var(--mono); font-size:13px; letter-spacing:1.5px; font-weight:600; padding:0 24px; display:flex; align-items:center; }
 
-  .title{ position:absolute; left:956px; top:486px; display:flex; flex-direction:column; gap:22px; }
+  /* Vertically centred rather than pinned at top:486px: the block used to be two short lines
+     and is now a heading plus real paragraphs, so its height varies. Centring keeps it beside
+     the chat panel whatever the copy does. Width is bounded so it cannot run off the 1920
+     stage. */
+  .title{ position:absolute; left:956px; top:50%; transform:translateY(-50%); width:872px; display:flex; flex-direction:column; gap:18px; }
   .title .mark{ width:44px; height:2px; background:var(--ember); margin-bottom:6px; }
-  .title h1{ font-family:var(--mono); font-size:52px; font-weight:700; color:var(--bone); letter-spacing:2px; line-height:1; margin:0; white-space:nowrap; }
+  /* nowrap dropped: the old strapline was one short line; a real tool name has to be free to
+     wrap. Size eased 52 -> 46px for the same reason. */
+  .title h1{ font-family:var(--mono); font-size:46px; font-weight:700; color:var(--bone); letter-spacing:2px; line-height:1.1; margin:0; }
   .title .sub{ font-family:var(--mono); font-size:22px; font-weight:500; color:var(--ember); letter-spacing:8px; }
+  .title .para{ font-family:var(--mono); font-size:21px; font-weight:400; line-height:1.6; color:rgba(232,224,208,.82); margin:0; max-width:none; }
+  /* The closing line takes the ember the strapline used to carry, so the block keeps its
+     accent instead of flattening into one grey slab. */
+  .title .para--accent{ color:var(--ember); font-weight:500; }
 
   .reggiehero{
     --carbon:#0B0E10; --iron:#262C33; --bone:#E8E0D0; --ember:#FF7A3D; --plasma:#7CFFB2;

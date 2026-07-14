@@ -61,7 +61,9 @@ const TOOL_UI: Record<string, any> = {
         const Ui = t.dialogId ? TOOL_UI[t.dialogId] : undefined;
         return (
           <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId}>
-            {Ui && <Ui slot="ui" bare />}
+            {/* The graphic's own text block carries the tool's real name and pitch. Components
+                that do not accept these yet simply ignore them, so this rolls out per graphic. */}
+            {Ui && <Ui slot="ui" bare heading={t.name} paras={t.paras} />}
           </ToolCard>
         );
       })}
