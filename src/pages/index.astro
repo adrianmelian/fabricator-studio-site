@@ -355,7 +355,8 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   @media (max-width: 900px) { .features__grid { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 600px) { .features__grid { grid-template-columns: 1fr; } }
   .feature-tile { border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
-  .feature-tile__name { font-family: var(--font-mono); font-weight: 700; font-size: 1.125rem; line-height: 1.1; color: var(--bone); }
+  /* plasma + bold, matching the flagship tool-card titles (Adrian 2026-07-13) */
+  .feature-tile__name { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; line-height: 1.1; color: var(--plasma); }
   .feature-tile__line { color: var(--bone-dim); font-size: 0.9375rem; }
 
   .download-v2 {
