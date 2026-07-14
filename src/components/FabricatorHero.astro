@@ -12,12 +12,36 @@ import heroShot from '../assets/docs/fabricator-hero.png';
 // `bare` strips the marketing overlay so only the window and its motion remain. The tool
 // cards on the homepage use it (the card's own copy already says all this, right next to
 // it); the Learn More popover does not, because there the graphic stands alone.
-interface Props { bare?: boolean }
-const { bare = false } = Astro.props;
+// Card mode (heading/paras passed, Adrian 2026-07-14): the graphic's own text block IS the
+// card's copy, with the CTA under it, text left / panel mirrored right. With a real button
+// inside, the root drops role="img" in that mode and the decorative panel goes aria-hidden.
+import BracketButton from './BracketButton.astro';
+interface Props { bare?: boolean; heading?: string; paras?: string[]; ctaHref?: string; ctaDialog?: string }
+const { bare = false, heading, paras, ctaHref, ctaDialog } = Astro.props;
+const hasCopy = Array.isArray(paras) && paras.length > 0;
+const hasCta = Boolean(ctaHref || ctaDialog);
 ---
-<div class:list={["fabhero", bare && "is-bare"]} role="img" aria-label="Rig Fabricator, animation rig authoring in Maya">
+<div
+  class:list={["fabhero", bare && "is-bare", hasCopy && "has-copy"]}
+  role={hasCopy ? undefined : 'img'}
+  aria-label={hasCopy ? undefined : 'Rig Fabricator, animation rig authoring in Maya'}
+>
   <div class="fabhero__stage">
-    <div class="fabhero__panelwrap">
+    {hasCopy && (
+      <div class="fabhero__copy">
+        <div class="fabhero__copyrule"></div>
+        <h3>{heading}</h3>
+        {paras.map((p, i) => (
+          <p class:list={["fabhero__para", i === paras.length - 1 && "is-accent"]}>{p}</p>
+        ))}
+        {hasCta && (
+          <div class="fabhero__cta">
+            <BracketButton kind="soft" href={ctaHref} label="Learn More" dialogTarget={ctaDialog} />
+          </div>
+        )}
+      </div>
+    )}
+    <div class="fabhero__panelwrap" aria-hidden={hasCopy ? 'true' : undefined}>
       <div class="fabhero__panel">
         <img src={heroShot.src} width={heroShot.width} height={heroShot.height} alt="" draggable="false" />
         <div class="fabhero__spec" aria-hidden="true"></div>
@@ -99,6 +123,31 @@ const { bare = false } = Astro.props;
   .fabhero.is-bare .fabhero__stage { background-image: none; }
   .fabhero.is-bare .fabhero__brand { display: none; }
   .fabhero.is-bare .fabhero__panelwrap { left: 23.64%; }
+  /* Card mode: text left, panel mirrored to the RIGHT (Adrian 2026-07-14). 41.61% = 100 -
+     5.66 - 52.73, the exact mirror of the panel's original left inset. Placed after the bare
+     recentre rule so card mode (which is also bare) wins the tie. */
+  .fabhero.has-copy .fabhero__panelwrap { left: 41.61%; }
+
+  /* The card's copy block, in stage units (cqw), matching Reggie's register: on a 1920-wide
+     reference, 2.81cqw = 54px headings and 1.3cqw = 25px body. */
+  .fabhero__copy {
+    position: absolute;
+    left: 4.7%;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 33%;
+    display: flex;
+    flex-direction: column;
+    gap: 0.94cqw;
+    font-family: var(--font-mono);
+  }
+  .fabhero__copyrule { width: 2.29cqw; height: 0.1cqw; min-height: 2px; background: var(--ember); margin-bottom: 0.31cqw; }
+  .fabhero__copy h3 { font-size: 2.81cqw; font-weight: 700; color: var(--bone); letter-spacing: 0.1cqw; line-height: 1.1; margin: 0; }
+  .fabhero__para { font-size: 1.3cqw; font-weight: 400; line-height: 1.6; color: rgba(232, 224, 208, 0.82); margin: 0; }
+  .fabhero__para.is-accent { color: var(--ember); font-weight: 500; }
+  .fabhero__cta { align-self: flex-start; margin-top: 0.52cqw; font-size: 1.3cqw; }
+  /* Phones: the stage is too small for an in-graphic button; the card's footer CTA takes over. */
+  @media (max-width: 720px) { .fabhero__cta { display: none; } }
   .fabhero__brand {
     position: absolute;
     left: 64.45%;

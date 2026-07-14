@@ -25,7 +25,10 @@ const { href, label, kind = 'soft', dialogTarget, downloadGate } = Astro.props;
     font-weight: 700;
     font-size: inherit;
     line-height: normal;
-    padding: 0.75rem 1.5rem;
+    /* em, not rem: in-graphic CTAs live inside scaled stages and set their own font size on
+       the wrapper; em padding keeps the button's shape at any register. At the site default
+       16px this is byte-identical to the old 0.75rem/1.5rem. */
+    padding: 0.75em 1.5em;
     border: 1px solid;
     border-radius: var(--radius-pill);
     text-decoration: none;

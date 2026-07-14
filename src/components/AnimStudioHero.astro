@@ -8,15 +8,25 @@
 // `bare` strips the frame so only the window and its motion sit on the card's frosted plate.
 // The homepage tool cards pass it; the Learn More popover does not, where the graphic stands
 // alone and needs its own card. See FabricatorHero.
-interface Props { bare?: boolean }
-const { bare = false } = Astro.props;
+// Card mode (heading/paras passed, Adrian 2026-07-14): the headline block carries the
+// card's real copy and CTA (window left, text right). With a real button inside, the root
+// drops role="img" in that mode and the decorative window goes aria-hidden.
+import BracketButton from './BracketButton.astro';
+interface Props { bare?: boolean; heading?: string; paras?: string[]; ctaHref?: string; ctaDialog?: string }
+const { bare = false, heading, paras, ctaHref, ctaDialog } = Astro.props;
+const hasCopy = Array.isArray(paras) && paras.length > 0;
+const hasCta = Boolean(ctaHref || ctaDialog);
 ---
-<div class:list={["animhero", bare && "is-bare"]} role="img" aria-label="Animation Studio, pose and clip library in Maya">
+<div
+  class:list={["animhero", bare && "is-bare"]}
+  role={hasCopy ? undefined : 'img'}
+  aria-label={hasCopy ? undefined : 'Animation Studio, pose and clip library in Maya'}
+>
   <div class="fit" data-anim-fit>
     <div class="stage">
-      <div class="grid"></div>
+      <div class="grid" aria-hidden="true"></div>
 
-      <div class="plane-wrap">
+      <div class="plane-wrap" aria-hidden={hasCopy ? 'true' : undefined}>
         <div class="plane">
 
           <div class="titlebar">
@@ -115,11 +125,27 @@ const { bare = false } = Astro.props;
         </div>
       </div>
 
-      <div class="headline">
+      <div class:list={["headline", hasCopy && "headline--copy"]}>
         <div class="tick"></div>
-        <h1>ANIMATION &amp;<br>POSE STUDIO</h1>
-        <div class="gap"></div>
-        <div class="sub2">BUILD YOUR LIBRARY</div>
+        {hasCopy ? (
+          <>
+            <h3>{heading}</h3>
+            {paras.map((p, i) => (
+              <p class:list={["para", i === paras.length - 1 && "para--accent"]}>{p}</p>
+            ))}
+            {hasCta && (
+              <div class="cta">
+                <BracketButton kind="soft" href={ctaHref} label="Learn More" dialogTarget={ctaDialog} />
+              </div>
+            )}
+          </>
+        ) : (
+          <>
+            <h1>ANIMATION &amp;<br>POSE STUDIO</h1>
+            <div class="gap"></div>
+            <div class="sub2">BUILD YOUR LIBRARY</div>
+          </>
+        )}
       </div>
     </div>
   </div>
@@ -218,9 +244,19 @@ const { bare = false } = Astro.props;
 
   .headline{ position:absolute; left:2565px; top:928px; width:1050px; }
   .headline .tick{ width:70px; height:3px; background:var(--ember); margin-bottom:42px; }
-  .headline h1{ font-size:92px; font-weight:700; color:var(--bone); line-height:1.12; letter-spacing:1px; }
+  .headline :is(h1,h3){ font-size:92px; font-weight:700; color:var(--bone); line-height:1.12; letter-spacing:1px; margin:0; }
   .headline .gap{ height:56px; }
   .headline .sub2{ font-size:40px; color:var(--ember); letter-spacing:11px; }
+  /* Card mode (Adrian 2026-07-14): real copy is taller than the old two-line strapline, so
+     the block centres vertically and widens a touch. Sizes are Reggie's register doubled for
+     this 3840-wide stage (50px body = 25px at 1920). */
+  .headline--copy{ top:50%; transform:translateY(-50%); width:1120px; display:flex; flex-direction:column; gap:36px; }
+  .headline--copy h3{ font-size:100px; }
+  .headline--copy .para{ font-size:50px; font-weight:400; line-height:1.6; color:rgba(232,224,208,.82); margin:0; }
+  .headline--copy .para--accent{ color:var(--ember); font-weight:500; }
+  .headline--copy .cta{ align-self:flex-start; margin-top:20px; font-size:50px; }
+  /* Phones: the stage is too small for an in-graphic button; the card's footer CTA takes over. */
+  @media (max-width:720px){ .headline--copy .cta{ display:none; } }
 
   .animhero{ position:relative; width:100%; aspect-ratio:16/9; overflow:hidden;
     background:#1C2126; border:1px solid var(--iron-3); border-radius:var(--radius);

@@ -11,16 +11,42 @@ import toolbar from '../assets/docs/bridge-toolbar.png';
 
 // `bare` strips the marketing text (eyebrow/title/tagline/caption/bottom strip) so only
 // the toolbar, the magnifier and the animated lens remain. See FabricatorHero.
-interface Props { bare?: boolean }
-const { bare = false } = Astro.props;
+// Card mode (heading/paras passed, Adrian 2026-07-14): the card's real copy and CTA sit on
+// the RIGHT; the magnifier panel moves left (and grows) and the toolbar drops to a bottom
+// band so the scan never crosses the text. The JS scan constants follow the has-copy class.
+// With a real button inside, the root drops role="img" and the scan parts go aria-hidden.
+import BracketButton from './BracketButton.astro';
+interface Props { bare?: boolean; heading?: string; paras?: string[]; ctaHref?: string; ctaDialog?: string }
+const { bare = false, heading, paras, ctaHref, ctaDialog } = Astro.props;
+const hasCopy = Array.isArray(paras) && paras.length > 0;
+const hasCta = Boolean(ctaHref || ctaDialog);
 ---
-<div class:list={["bridgehero", bare && "is-bare"]} role="img" aria-label="Bridge, the FabricatorStudio Maya toolbar">
+<div
+  class:list={["bridgehero", bare && "is-bare", hasCopy && "has-copy"]}
+  role={hasCopy ? undefined : 'img'}
+  aria-label={hasCopy ? undefined : 'Bridge, the FabricatorStudio Maya toolbar'}
+>
   <div class="bridgehero__content" data-bridge-content>
     <div class="bh-eyebrow">FABRICATORSTUDIO</div>
     <div class="bh-title">BRIDGE</div>
     <div class="bh-tagline">COMPACT TOOLBAR. FULL TOOLBOX.</div>
 
-    <div class="bh-toolbar">
+    {hasCopy && (
+      <div class="bh-copy">
+        <div class="bh-copyrule"></div>
+        <h3>{heading}</h3>
+        {paras.map((p, i) => (
+          <p class:list={["bh-para", i === paras.length - 1 && "is-accent"]}>{p}</p>
+        ))}
+        {hasCta && (
+          <div class="bh-cta">
+            <BracketButton kind="soft" href={ctaHref} label="Learn More" dialogTarget={ctaDialog} />
+          </div>
+        )}
+      </div>
+    )}
+
+    <div class="bh-toolbar" aria-hidden={hasCopy ? 'true' : undefined}>
       <img src={toolbar.src} width={toolbar.width} height={toolbar.height} alt="" draggable="false" />
     </div>
 
@@ -32,7 +58,7 @@ const { bare = false } = Astro.props;
       <circle data-bridge-dot2 r="3" fill="#7CFFB2"></circle>
     </svg>
 
-    <div class="bh-panel">
+    <div class="bh-panel" aria-hidden={hasCopy ? 'true' : undefined}>
       <div class="bh-mag" data-bridge-mag style={`background-image:url(${toolbar.src});`}></div>
     </div>
     <div class="bh-caption">DETAIL &nbsp;&middot;&nbsp; 2.5&times;</div>
@@ -51,8 +77,11 @@ const { bare = false } = Astro.props;
     var mag = root.querySelector('[data-bridge-mag]');
     if (!content || !lens || !mag) return;
 
-    var IMG = { l: (1920 - 1500) / 2, t: 438, w: 1500, h: 33.9 };
-    var PANEL = { l: 623, t: 596, w: 384, h: 150 };
+    /* Card mode moves the pieces (toolbar to a bottom band, magnifier left and larger);
+       these constants MUST match the .has-copy CSS overrides below. */
+    var hasCopy = root.classList.contains('has-copy');
+    var IMG = { l: (1920 - 1500) / 2, t: hasCopy ? 850 : 438, w: 1500, h: 33.9 };
+    var PANEL = hasCopy ? { l: 300, t: 422, w: 600, h: 235 } : { l: 623, t: 596, w: 384, h: 150 };
     var ZOOM = 2.5, LOOP = 12, mY = 9;
 
     function ease(u) {
@@ -144,6 +173,31 @@ const { bare = false } = Astro.props;
      window and its motion remain, floating straight on the frosted plate. */
   .bridgehero.is-bare { background: transparent; border-color: transparent; }
   .bridgehero.is-bare .bridgehero__content { background-color: transparent; background-image: none; }
+
+  /* Card mode geometry: MUST match the JS constants above (IMG.t / PANEL). */
+  .bridgehero.has-copy .bh-toolbar { top: 850px; }
+  /* left 300, not 150 (Adrian 2026-07-14): nudged toward the text so narrow windows don't
+     crop it at the stage edge. */
+  .bridgehero.has-copy .bh-panel { left: 300px; top: 422px; width: 600px; height: 235px; }
+
+  /* The card's copy block, on the right, in Reggie's register (1920 stage: 54px / 25px). */
+  .bh-copy {
+    position: absolute;
+    left: 1080px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 690px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .bh-copyrule { width: 44px; height: 2px; background: var(--ember); margin-bottom: 6px; }
+  .bh-copy h3 { font-size: 54px; font-weight: 700; color: var(--bone); letter-spacing: 2px; line-height: 1.1; margin: 0; }
+  .bh-para { font-size: 25px; font-weight: 400; line-height: 1.6; color: rgba(232, 224, 208, 0.82); margin: 0; }
+  .bh-para.is-accent { color: var(--ember); font-weight: 500; }
+  .bh-cta { align-self: flex-start; margin-top: 10px; font-size: 25px; }
+  /* Phones: the stage is too small for an in-graphic button; the card's footer CTA takes over. */
+  @media (max-width: 720px) { .bh-cta { display: none; } }
   .bridgehero.is-bare .bh-eyebrow,
   .bridgehero.is-bare .bh-title,
   .bridgehero.is-bare .bh-tagline,

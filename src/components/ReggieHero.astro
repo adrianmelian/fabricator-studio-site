@@ -11,15 +11,24 @@
 // The graphic's own text block is now the CARD's text block (Adrian 2026-07-14): the tool's
 // real name and pitch live here rather than a standalone strapline. Falls back to the
 // original strapline when nothing is passed, so the Learn More popover is unchanged.
-interface Props { bare?: boolean; heading?: string; paras?: string[] }
-const { bare = false, heading = 'AI TECHNICAL ARTIST', paras } = Astro.props;
+// The CTA rides in the title block too (Adrian 2026-07-14), under the closing line. Because
+// the text block is now real card content with a real button in it, the root is no longer
+// role="img" (that would hide the button from AT); the decorative chat panel and grid carry
+// aria-hidden instead, and the title block reads as the card's actual copy.
+import BracketButton from './BracketButton.astro';
+interface Props { bare?: boolean; heading?: string; paras?: string[]; ctaHref?: string; ctaDialog?: string }
+const { bare = false, heading = 'AI TECHNICAL ARTIST', paras, ctaHref, ctaDialog } = Astro.props;
 const hasCopy = Array.isArray(paras) && paras.length > 0;
+const hasCta = Boolean(ctaHref || ctaDialog);
+// Card mode (real copy passed) is a section within the page, so it gets a section heading;
+// the standalone popover keeps its original h1.
+const Heading = hasCopy ? 'h3' : 'h1';
 ---
-<div class:list={["reggiehero", bare && "is-bare"]} role="img" aria-label="Reggie, the AI technical artist, in a Maya chat panel">
+<div class:list={["reggiehero", bare && "is-bare"]}>
   <div data-reggie-stage>
-    <div class="grid"></div>
+    <div class="grid" aria-hidden="true"></div>
 
-    <div class="panel-wrap">
+    <div class="panel-wrap" aria-hidden="true">
       <div class="panel" data-reggie-panel>
         <div class="header">
           <div class="newchat">NEW CHAT</div>
@@ -64,12 +73,17 @@ const hasCopy = Array.isArray(paras) && paras.length > 0;
 
     <div class="title">
       <div class="mark"></div>
-      <h1>{heading}</h1>
+      <Heading>{heading}</Heading>
       {hasCopy
         ? paras.map((p, i) => (
             <p class:list={["para", i === paras.length - 1 && "para--accent"]}>{p}</p>
           ))
         : <div class="sub">ALWAYS ON DUTY</div>}
+      {hasCta && (
+        <div class="cta">
+          <BracketButton kind="soft" href={ctaHref} label="Learn More" dialogTarget={ctaDialog} />
+        </div>
+      )}
     </div>
   </div>
 </div>
@@ -108,8 +122,9 @@ const hasCopy = Array.isArray(paras) && paras.length > 0;
   /* static background grid */
   .grid{ position:absolute; inset:0; opacity:.32; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='48' height='48'%3E%3Cpath d='M0 0H48M0 0V48' stroke='%23262C33' stroke-width='1' fill='none'/%3E%3C/svg%3E"); background-size:48px 48px; }
 
-  /* hinge */
-  .panel-wrap{ position:absolute; left:232px; top:126px; width:560px; height:828px; perspective:1500px; }
+  /* hinge. Mirrored to the RIGHT side of the stage (Adrian 2026-07-14): 1920 - (232 + 560)
+     = 1128, so the panel keeps the same 232px inset from its (now right) edge. */
+  .panel-wrap{ position:absolute; left:1128px; top:126px; width:560px; height:828px; perspective:1500px; }
   .panel{
     width:560px; height:828px; background:var(--carbon); border:1px solid var(--iron);
     display:flex; flex-direction:column; backface-visibility:hidden;
@@ -154,16 +169,28 @@ const hasCopy = Array.isArray(paras) && paras.length > 0;
      and is now a heading plus real paragraphs, so its height varies. Centring keeps it beside
      the chat panel whatever the copy does. Width is bounded so it cannot run off the 1920
      stage. */
-  .title{ position:absolute; left:956px; top:50%; transform:translateY(-50%); width:872px; display:flex; flex-direction:column; gap:18px; }
+  /* Text on the LEFT, mirroring the panel's swap (Adrian 2026-07-14): the old block sat at
+     [956, 1828], 92px off the right edge; mirrored, it starts 92px off the left. */
+  .title{ position:absolute; left:92px; top:50%; transform:translateY(-50%); width:872px; display:flex; flex-direction:column; gap:18px; }
   .title .mark{ width:44px; height:2px; background:var(--ember); margin-bottom:6px; }
   /* nowrap dropped: the old strapline was one short line; a real tool name has to be free to
-     wrap. Size eased 52 -> 46px for the same reason. */
-  .title h1{ font-family:var(--mono); font-size:46px; font-weight:700; color:var(--bone); letter-spacing:2px; line-height:1.1; margin:0; }
+     wrap. Size eased 52 -> 46px for the same reason. :is(h1,h3) because card mode renders a
+     section-level h3 while the standalone popover keeps its h1; both dress identically. */
+  /* Sized up 46 -> 54 / 21 -> 25 (Adrian 2026-07-14): as the card's actual copy, the block
+     was reading too small once scaled onto the plate. */
+  .title :is(h1, h3){ font-family:var(--mono); font-size:54px; font-weight:700; color:var(--bone); letter-spacing:2px; line-height:1.1; margin:0; }
   .title .sub{ font-family:var(--mono); font-size:22px; font-weight:500; color:var(--ember); letter-spacing:8px; }
-  .title .para{ font-family:var(--mono); font-size:21px; font-weight:400; line-height:1.6; color:rgba(232,224,208,.82); margin:0; max-width:none; }
+  .title .para{ font-family:var(--mono); font-size:25px; font-weight:400; line-height:1.6; color:rgba(232,224,208,.82); margin:0; max-width:none; }
   /* The closing line takes the ember the strapline used to carry, so the block keeps its
      accent instead of flattening into one grey slab. */
   .title .para--accent{ color:var(--ember); font-weight:500; }
+  /* The CTA sits under the closing line (Adrian 2026-07-14). It lives in stage space, so it
+     scales with the text it belongs to; font-size matches the paras so the pair reads as one
+     register. align-self, because the title column would otherwise stretch it full width. */
+  .title .cta{ align-self:flex-start; margin-top:10px; font-size:25px; }
+  /* On phones the whole stage scales far down and an in-graphic button would be too small to
+     read or tap; the card's own footer button takes over there (see ToolCard). */
+  @media (max-width: 720px){ .title .cta{ display:none; } }
 
   .reggiehero{
     --carbon:#0B0E10; --iron:#262C33; --bone:#E8E0D0; --ember:#FF7A3D; --plasma:#7CFFB2;
