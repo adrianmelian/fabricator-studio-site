@@ -16,6 +16,17 @@ import { features } from '../data/features';
 import { TUTORIALS, CHANNEL } from '../data/tutorials';
 
 const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,png,webp}', { eager: true }))[0];
+
+// The animated GUI that rides inside each tool card, keyed by the tool's dialog. These are
+// the same components the Learn More popovers use, so a card and its popover always show the
+// same graphic. Each one scopes its own script to its own root (currentScript), so rendering
+// a second instance here is safe: the card's copy and the dialog's copy animate independently.
+const TOOL_UI: Record<string, any> = {
+  'pop-fabricator': FabricatorHero,
+  'pop-studio': AnimStudioHero,
+  'pop-bridge': BridgeHero,
+  'pop-reggie': ReggieHero,
+};
 ---
 <BaseLayout
   title="FabricatorStudio | The Artist-Friendly Game Dev Pipeline"
@@ -46,9 +57,14 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
 
   <section id="tools">
     <div class="tools__stack">
-      {flagshipTools.map((t, i) => (
-        <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId} />
-      ))}
+      {flagshipTools.map((t, i) => {
+        const Ui = t.dialogId ? TOOL_UI[t.dialogId] : undefined;
+        return (
+          <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId}>
+            {Ui && <Ui slot="ui" />}
+          </ToolCard>
+        );
+      })}
     </div>
   </section>
 

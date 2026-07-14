@@ -12,6 +12,10 @@ import BracketButton from './BracketButton.astro';
 interface Props { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string; align?: 'left' | 'right'; dialogId?: string }
 const { name, paras, href, image, alt, align = 'left', dialogId } = Astro.props;
 
+// A card only splits into two columns when a `ui` slot is actually passed. Cards without one
+// keep the original single-column plate, so this stays additive rather than a rewrite.
+const hasUi = Astro.slots.has('ui');
+
 // Ruling 2: the scrim is only ever emitted when real media exists beneath it.
 // Kept inline (not a static CSS rule) so a card with no image ships with zero
 // gradient anywhere in the output, per guardrail 2d. Horizontal axis carbon
@@ -29,12 +33,19 @@ const scrimStyle = align === 'right'
       <div class="tool-banner__scrim" aria-hidden="true" style={scrimStyle}></div>
     </div>
   ) : null}
-  <div class="tool-banner__copy">
-    <h3 class="tool-banner__name">{name}</h3>
-    {paras.map((p) => <p class="tool-banner__para prose">{p}</p>)}
-    <div class="tool-banner__footer">
-      <BracketButton kind="soft" href={href} label="Learn More" dialogTarget={dialogId} />
+  <div class={`tool-banner__copy${hasUi ? ' tool-banner__copy--split' : ''}`}>
+    <div class="tool-banner__text">
+      <h3 class="tool-banner__name">{name}</h3>
+      {paras.map((p) => <p class="tool-banner__para prose">{p}</p>)}
+      <div class="tool-banner__footer">
+        <BracketButton kind="soft" href={href} label="Learn More" dialogTarget={dialogId} />
+      </div>
     </div>
+    {hasUi && (
+      <div class="tool-banner__ui">
+        <slot name="ui" />
+      </div>
+    )}
   </div>
 </div>
 <style>
@@ -110,6 +121,28 @@ const scrimStyle = align === 'right'
      signature. Plasma on a heading is not a color-law issue, principle 2 governs functional
      color (CTAs, error states), and principle 7's tri-color rule covers the tool BANNER
      assets, not a web heading. */
+  /* Split plate: the animated GUI rides INSIDE the frosted plate, opposite the copy (Adrian
+     2026-07-14). The GUI always lands on the side facing the middle of the band, so a
+     left-aligned card reads text-then-GUI and a right-aligned one reads GUI-then-text. */
+  .tool-banner__copy--split {
+    max-width: min(74rem, 100%);
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
+    gap: 1.75rem;
+    align-items: center;
+  }
+  .tool-banner__text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    min-width: 0;
+  }
+  /* min-width:0 matters: a grid item defaults to min-content width, and the GUIs are wide,
+     so without it the column refuses to shrink and blows the plate past the band. */
+  .tool-banner__ui { min-width: 0; }
+  /* Copy sits right => GUI takes the left column, facing the band's centre. */
+  .tool-banner--right .tool-banner__ui { order: -1; }
+
   .tool-banner__name {
     font-family: var(--font-display);
     font-weight: 700;
@@ -143,6 +176,14 @@ const scrimStyle = align === 'right'
       margin: 1rem;
       padding: 1.25rem;
     }
+    /* Stack on phones. The order:-1 flip MUST be reset, or right-aligned cards would put the
+       GUI above the heading while left-aligned ones put it below, and the four cards would
+       disagree with each other down the page. Text first, GUI under it, every card. */
+    .tool-banner__copy--split {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 1.25rem;
+    }
+    .tool-banner--right .tool-banner__ui { order: 0; }
     /* Mobile: bottom-anchored to-top scrim (same shape as the pre-restyle
        card) reads cleaner at narrow widths than a horizontal scrim stretched
        to cover a full-width copy block. !important overrides the inline
