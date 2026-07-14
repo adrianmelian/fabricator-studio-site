@@ -9,8 +9,8 @@
 import { Image } from 'astro:assets';
 import BracketButton from './BracketButton.astro';
 
-interface Props { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string; align?: 'left' | 'right'; dialogId?: string }
-const { name, paras, href, image, alt, align = 'left', dialogId } = Astro.props;
+interface Props { name: string; paras: string[]; href: string; image?: ImageMetadata; alt?: string; align?: 'left' | 'right'; dialogId?: string; textInUi?: boolean }
+const { name, paras, href, image, alt, align = 'left', dialogId, textInUi = false } = Astro.props;
 
 // A card only splits into two columns when a `ui` slot is actually passed. Cards without one
 // keep the original single-column plate, so this stays additive rather than a rewrite.
@@ -33,17 +33,33 @@ const scrimStyle = align === 'right'
       <div class="tool-banner__scrim" aria-hidden="true" style={scrimStyle}></div>
     </div>
   ) : null}
-  <div class={`tool-banner__copy${hasUi ? ' tool-banner__copy--split' : ''}`}>
-    <div class="tool-banner__text">
-      <h3 class="tool-banner__name">{name}</h3>
-      {paras.map((p) => <p class="tool-banner__para prose">{p}</p>)}
-      <div class="tool-banner__footer">
-        <BracketButton kind="soft" href={href} label="Learn More" dialogTarget={dialogId} />
+  <div class={`tool-banner__copy${hasUi && !textInUi ? ' tool-banner__copy--split' : ''}${textInUi ? ' tool-banner__copy--uitext' : ''}`}>
+    {textInUi ? (
+      /* The graphic's own text block carries the name and pitch, so the visible copy column
+         would just say it twice. It stays in the DOM for assistive tech though: the graphic is
+         role="img", which hides everything inside it from a screen reader, so dropping this
+         outright would leave the card with no readable content at all. */
+      <div class="sr-only">
+        <h3>{name}</h3>
+        {paras.map((p) => <p>{p}</p>)}
       </div>
-    </div>
+    ) : (
+      <div class="tool-banner__text">
+        <h3 class="tool-banner__name">{name}</h3>
+        {paras.map((p) => <p class="tool-banner__para prose">{p}</p>)}
+        <div class="tool-banner__footer">
+          <BracketButton kind="soft" href={href} label="Learn More" dialogTarget={dialogId} />
+        </div>
+      </div>
+    )}
     {hasUi && (
       <div class="tool-banner__ui">
         <slot name="ui" />
+      </div>
+    )}
+    {textInUi && (
+      <div class="tool-banner__footer tool-banner__footer--uitext">
+        <BracketButton kind="soft" href={href} label="Learn More" dialogTarget={dialogId} />
       </div>
     )}
   </div>
@@ -131,6 +147,16 @@ const scrimStyle = align === 'right'
     gap: 1.75rem;
     align-items: center;
   }
+  /* Text-in-graphic cards: no copy column, so the plate is a single stack. The graphic runs
+     the full width of the plate and the Learn More button sits under it. */
+  .tool-banner__copy--uitext {
+    max-width: min(64rem, 100%);
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  .tool-banner__footer--uitext { margin-top: 0; }
+
   .tool-banner__text {
     display: flex;
     flex-direction: column;

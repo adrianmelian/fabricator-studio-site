@@ -59,8 +59,11 @@ const TOOL_UI: Record<string, any> = {
     <div class="tools__stack">
       {flagshipTools.map((t, i) => {
         const Ui = t.dialogId ? TOOL_UI[t.dialogId] : undefined;
+        // Cards whose GRAPHIC carries the copy: no separate copy column. Rolled out one graphic
+        // at a time, so a card only joins this list once its graphic actually renders the text.
+        const textInUi = t.dialogId === 'pop-reggie';
         return (
-          <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId}>
+          <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId} textInUi={textInUi}>
             {/* The graphic's own text block carries the tool's real name and pitch. Components
                 that do not accept these yet simply ignore them, so this rolls out per graphic. */}
             {Ui && <Ui slot="ui" bare heading={t.name} paras={t.paras} />}
