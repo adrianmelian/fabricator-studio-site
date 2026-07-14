@@ -79,6 +79,9 @@ body {
   color: var(--bone);
   -webkit-text-stroke: var(--wordmark-outline) var(--carbon);
   paint-order: stroke fill;
+  /* Each letter is its own inline <i> so CSS can color it, which means the browser is
+     otherwise free to line-break MID-WORD between letters. Never let the mark break. */
+  white-space: nowrap;
 }
 .sr-only {
   position: absolute;

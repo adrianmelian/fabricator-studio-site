@@ -270,10 +270,15 @@ const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,p
   }
   /* The wordmark is live type now (Wordmark.astro + .wordmark in base.css), not a PNG:
      crisp at any size, and the tri-color/outline treatment comes from the tokens. */
+  /* Sized to FIT the 44rem .hero-copy. "FabricatorStudio" is 16 monospace chars at 0.6em
+     advance = 9.6em wide, so the cap has to stay under 44rem / 9.6 = 4.58rem or the mark
+     overflows the column. 4.2rem gives it headroom. Full-width block + text-align keeps it
+     centered on the copy beneath it regardless of the mark's own width. */
   .hero-wordmark {
     display: block;
-    margin: 0 auto;
-    font-size: clamp(2.4rem, 7.5vw, 5.5rem);
+    width: 100%;
+    text-align: center;
+    font-size: clamp(1.6rem, 5.6vw, 4.2rem);
     filter: drop-shadow(0 6px 18px rgba(11, 14, 16, 0.55));
   }
   /* plasma per Adrian 2026-07-13 (Mindmeld 2.0 pass). Was ember since 2026-07-02; the
