@@ -30,7 +30,7 @@ export const DOCS_NAV: DocNavGroup[] = [
   {
     key: 'animation-rig',
     label: 'Animation Rig Building',
-    ids: ['tools/fabricator', 'tools/curve-o-matic'],
+    ids: ['tools/fabricator', 'tools/ctrl-editor'],
   },
   {
     key: 'rig-components',

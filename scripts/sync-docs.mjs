@@ -43,7 +43,7 @@ const EXCLUDE = new Set([
   // Trimmed for the website: full reference stays at the KS source, the site ships a short
   // human version from docs-authored/. Add a slug here only once its authored version exists.
   'tools/joint-aimer',
-  'tools/exporter', 'tools/project-setup', 'tools/curve-o-matic', 'tools/skeleton-io', 'tools/scene-cleanup',
+  'tools/exporter', 'tools/project-setup', 'tools/ctrl-editor', 'tools/skeleton-io', 'tools/scene-cleanup',
   'tools/ml-auto-skin', 'tools/fabricator', 'tools/skin-io', 'tools/bridge', 'tools/renamer',
   'components/simple-ik', 'components/ik-leg', 'components/fk-aim', 'components/fk-chain', 'components/simple-fk', 'components/world',
   'components/advanced-fk', 'components/follow-joint', 'components/spline-fk', 'components/ribbon', 'components/ribbon-spine',
