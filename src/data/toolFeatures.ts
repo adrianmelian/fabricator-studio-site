@@ -83,7 +83,7 @@ export const toolFeatureBlocks: ToolFeatureBlock[] = [
     ],
   },
   {
-    name: 'Curve-O-Matic',
+    name: 'CtrlEditor',
     blurb: 'A control curve library.',
     features: [
       'A library of ready-made control shapes; add your own.',

@@ -1,16 +1,16 @@
 ---
-title: Curve-O-Matic
+title: CtrlEditor
 summary: Build, swap, recolor, and mirror control-curve shapes from a shared library that also drives every Fabricator component's ctrl-shape options.
 category: rigging
 ---
 
-# Curve-O-Matic
+# CtrlEditor
 
 ## What it does
-Curve-O-Matic is the control-curve shape library for rigging. Pick a shape and build a fresh control from it, swap an existing control's shape without breaking its connections, mirror a control onto its opposite side, combine several curves into one multi-shape control, recolor from a shared palette, or save your own shapes back into the library. Every shape you add shows up automatically on Fabricator's components.
+CtrlEditor is the control-curve shape library for rigging. Pick a shape and build a fresh control from it, swap an existing control's shape without breaking its connections, mirror a control onto its opposite side, combine several curves into one multi-shape control, recolor from a shared palette, or save your own shapes back into the library. Every shape you add shows up automatically on Fabricator's components.
 
 ## Quick start
-1. Open Curve-O-Matic from the Bridge toolbar, the shelf, or the Rigging menu.
+1. Open CtrlEditor from the Bridge toolbar, the shelf, or the Rigging menu.
 2. Click a shape in the list.
 3. Click Build at Origin for a new control, or select existing control(s) and click Swap to restyle them in place.
 4. Optional: with control(s) selected, pick a color and click Apply Color.
