@@ -1,0 +1,116 @@
+---
+// DESIGNED docs page for components/ribbon-ik-arm (docs-thread relay R1, 2026-07-17; copy
+// source: MrMiata workspace/2026-07-17_component-docs/for-humans/ribbon-ik-arm.md).
+// Shared furniture: designed-doc.css. PAID: Advanced Ribbon Pack (ember badge, per the
+// site's paid-pill convention).
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'A three-joint IK/FK arm with premium ribbon twist on the upper arm and forearm, plus a full hand. The paid Advanced Ribbon arm.';
+
+const TITLE = 'RIBBON ARM';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts glyphs only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Ribbon Arm | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="ra-eyebrow-row">
+        <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
+        <span class="ra-pack">ADVANCED RIBBON PACK</span>
+      </div>
+      <h1 class="dd-title" aria-label="RIBBONARM">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="ra-what">
+      <div class="dd-panel__head">
+        <h2 id="ra-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">The upgrade arm</p>
+      </div>
+      <p class="dd-prose ra-lede">Ribbon Arm is the upgrade arm. It does everything the free IK Arm does, then adds <b class="b-plasma">smooth ribbon twist</b> running down the upper arm and the forearm, so the skin flows instead of pinching when the shoulder rolls or the hand pronates.</p>
+      <div class="ra-you-get">
+        <p class="ra-you-get__lede">You get:</p>
+        <div class="dd-gets">
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p><b>FK controls, an IK hand control, an IK/FK switch with match</b>, and an auto-following pole vector</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--diamond" aria-hidden="true"></span><p><b>Smooth twist</b> spread down the upper arm and the forearm, with floating tweak controls along each bone</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--square" aria-hidden="true"></span><p><b>Volume</b> that holds the arm's shape as it twists and stretches</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--pill" aria-hidden="true"></span><p>The same <b>full hand</b> as the free arm: a control per finger and a one-slider fist curl</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GET STARTED -->
+    <section class="dd-section" aria-labelledby="ra-start">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ra-start" class="dd-label dd-label--plasma">GET STARTED</h2>
+        <p class="dd-lede">Animate the free arm, the twist rides underneath</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Drop Ribbon Arm on a three-joint <b>shoulder to wrist chain</b> and build the rig.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Animate the arm exactly like the free arm (IK, FK, switch, pole vector, fingers, fist) - the <b class="b-plasma">twist works underneath on its own</b>.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>If you want, shape the twist with the <b>floating ribbon controls</b> along each bone.</p></li>
+        <li class="dd-step dd-step--ember"><span class="dd-step__num">4</span><p>Reach for Ribbon Arm when you want AAA-grade twist deformation. If you only need the basics, the free <b class="b-ember">IK Arm</b> covers them.</p></li>
+      </ol>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="ra-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ra-gtk" class="dd-label dd-label--ember">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Filtered shoulder, carried wrist</h3>
+            <p class="dd-fact__line">The shoulder twist is filtered on purpose, so a plain shoulder bend does not candy-wrap the upper arm. The wrist twist carries through, so pronation reads in both IK and FK.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Set-and-rebuild options</h3>
+            <p class="dd-fact__line">Mid-control count and ribbon width are set-and-rebuild options - change them in <b class="b-ember">Edit Mode</b> and rebuild for them to take effect.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Tweaks follow the side color</h3>
+            <p class="dd-fact__line">The ribbon tweak controls follow the arm's side color by default. Recolor them only if you want them to read as a separate layer.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the paid-pack badge and layout; everything else is shared furniture. */
+  .ra-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  .ra-pack {
+    padding: 0.3rem 0.8rem;
+    border-radius: 7px;
+    background: rgba(255, 122, 61, 0.12);
+    border: 1px solid rgba(255, 122, 61, 0.45);
+    color: var(--ember);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+  }
+  .ra-lede { max-width: 58rem; }
+  .ra-you-get { display: flex; flex-direction: column; gap: 0.75rem; }
+  .ra-you-get__lede { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
+</style>

@@ -1,0 +1,101 @@
+---
+// DESIGNED docs page for components/ik-arm (docs-thread relay R1, 2026-07-17; copy source:
+// MrMiata workspace/2026-07-17_component-docs/for-humans/ik-arm.md). Shared furniture:
+// designed-doc.css.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'A three-joint IK/FK arm with a full hand, a one-slider fist curl, and forearm twist. The free-core arm.';
+
+const TITLE = 'IK ARM';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts glyphs only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="IK Arm | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
+      <h1 class="dd-title" aria-label="IKARM">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="ia-what">
+      <div class="dd-panel__head">
+        <h2 id="ia-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">The standard arm, with a real hand</p>
+      </div>
+      <p class="dd-prose ia-lede">IK Arm is the standard arm you drop onto a shoulder, elbow, and wrist. It gives you everything the basic IK arm does, plus a real hand and a little forearm twist, all in the <b class="b-plasma">free core</b>.</p>
+      <div class="ia-you-get">
+        <p class="ia-you-get__lede">You get:</p>
+        <div class="dd-gets">
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p><b>FK controls, an IK hand control, and an IK/FK switch</b> you can match so the pose never pops</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--diamond" aria-hidden="true"></span><p>A <b>pole vector</b> that follows the elbow on its own</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p>A control for <b>every finger</b></p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--pill" aria-hidden="true"></span><p>One <b>fist control</b> near the wrist that curls the whole hand at once, with per-finger control layered on top</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--square" aria-hidden="true"></span><p><b>Forearm twist</b> that follows the wrist so the skin does not pinch when you rotate the hand</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- GET STARTED -->
+    <section class="dd-section" aria-labelledby="ia-start">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ia-start" class="dd-label dd-label--plasma">GET STARTED</h2>
+        <p class="dd-lede">Drop it on shoulder to wrist</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Drop IK Arm on a three-joint <b>shoulder to wrist chain</b> and build the rig.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Place the hand with the IK control, pose the arm with the FK controls, and blend between them with the switch (use <b class="b-plasma">Match</b> so the pose holds when you flip).</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>Curl the whole hand with the <b>fist control</b> by the wrist, then fine-tune any single finger with its own control on top.</p></li>
+        <li class="dd-step dd-step--ember"><span class="dd-step__num">4</span><p>Reach for IK Arm when the free rig is all you need. Step up to <b class="b-ember">Ribbon Arm</b> when you want premium twist on the upper arm and forearm.</p></li>
+      </ol>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="ia-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ia-gtk" class="dd-label dd-label--ember">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Basic twist, on purpose</h3>
+            <p class="dd-fact__line">The forearm twist here is basic on purpose. It is good, not fancy. If you want smooth twist spread down the whole arm, use the <b class="b-ember">Ribbon Arm</b>.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">One curl axis for fingers</h3>
+            <p class="dd-fact__line">Every finger curls on the same axis, so orient your finger joints the same way and they all bend correctly.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Fingers join in automatically</h3>
+            <p class="dd-fact__line">The fist control picks up your arm's side color automatically, and fingers are found from the wrist's chains. Add a finger joint, rebuild, and it just joins in.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: layout only; everything else is shared furniture. */
+  .ia-lede { max-width: 58rem; }
+  .ia-you-get { display: flex; flex-direction: column; gap: 0.75rem; }
+  .ia-you-get__lede { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
+</style>

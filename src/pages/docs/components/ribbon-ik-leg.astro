@@ -1,0 +1,118 @@
+---
+// DESIGNED docs page for components/ribbon-ik-leg (docs-thread relay R1, 2026-07-17; copy
+// source: MrMiata workspace/2026-07-17_component-docs/for-humans/ribbon-ik-leg.md).
+// Shared furniture: designed-doc.css. PAID: Advanced Ribbon Pack (ember badge, per the
+// site's paid-pill convention).
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'A four-joint reverse-foot leg with premium ribbon twist on the thigh and shin. The paid Advanced Ribbon leg.';
+
+const TITLE = 'RIBBON LEG';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts glyphs only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Ribbon Leg | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="rl-eyebrow-row">
+        <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
+        <span class="rl-pack">ADVANCED RIBBON PACK</span>
+      </div>
+      <h1 class="dd-title" aria-label="RIBBONLEG">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="rl-what">
+      <div class="dd-panel__head">
+        <h2 id="rl-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">The full reverse-foot leg, with premium twist</p>
+      </div>
+      <p class="dd-prose rl-lede">Ribbon Leg is the full reverse-foot leg with premium twist added. It keeps the whole foot rig from the free leg (heel and toe controls, a foot-roll slider, toe wiggle) and adds <b class="b-plasma">smooth ribbon twist</b> on the thigh and shin, so the leg deforms cleanly through big hip swings and deep knee bends.</p>
+      <div class="rl-you-get">
+        <p class="rl-you-get__lede">You get:</p>
+        <div class="dd-gets">
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--diamond" aria-hidden="true"></span><p>The complete <b>reverse foot</b>: heel and toe controls, a foot_roll slider, and a toe-wiggle control</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p><b>FK controls, an IK foot control, and an IK/FK switch</b> with match</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p><b>Smooth twist</b> spread down the thigh and the shin, with floating tweak controls</p></div>
+          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--square" aria-hidden="true"></span><p><b>Volume</b> that holds the leg's shape as it twists and stretches</p></div>
+        </div>
+      </div>
+      <p class="dd-prose rl-note">The foot itself is not ribboned - it works exactly like the free leg's foot.</p>
+    </section>
+
+    <!-- GET STARTED -->
+    <section class="dd-section" aria-labelledby="rl-start">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="rl-start" class="dd-label dd-label--plasma">GET STARTED</h2>
+        <p class="dd-lede">The free leg's workflow, with twist underneath</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Drop Ribbon Leg on a four-joint <b>hip-knee-ankle-ball chain</b> and build the rig.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Animate the foot with the heel and toe controls and the <b>foot_roll slider</b>, pose the leg with IK or FK, and the thigh and shin twist flows underneath.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>Shape the twist with the <b>floating ribbon controls</b> if you want more control along each bone.</p></li>
+        <li class="dd-step dd-step--ember"><span class="dd-step__num">4</span><p>Reach for Ribbon Leg when a walk or run needs clean thigh and shin twist. The free <b class="b-ember">IK Leg</b> gives you the reverse foot without the ribbon.</p></li>
+      </ol>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="rl-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="rl-gtk" class="dd-label dd-label--ember">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">The foot is the free foot</h3>
+            <p class="dd-fact__line">The foot is not ribboned, so everything about the foot (including picking the right foot-roll axis for your skeleton) behaves exactly like the free <b class="b-ember">IK Leg</b>.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Filtered thigh, carried ankle</h3>
+            <p class="dd-fact__line">The thigh twist is filtered, so a hip swing does not candy-wrap the thigh. The ankle twist carries through in both IK and FK.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Set-and-rebuild options</h3>
+            <p class="dd-fact__line">Mid-control count and ribbon width are set-and-rebuild options - change them in <b class="b-ember">Edit Mode</b> and rebuild.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the paid-pack badge and layout; everything else is shared furniture. */
+  .rl-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  .rl-pack {
+    padding: 0.3rem 0.8rem;
+    border-radius: 7px;
+    background: rgba(255, 122, 61, 0.12);
+    border: 1px solid rgba(255, 122, 61, 0.45);
+    color: var(--ember);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+  }
+  .rl-lede { max-width: 58rem; }
+  .rl-note { max-width: 58rem; color: var(--bone-faint); }
+  .rl-you-get { display: flex; flex-direction: column; gap: 0.75rem; }
+  .rl-you-get__lede { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
+</style>

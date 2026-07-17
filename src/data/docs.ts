@@ -1,7 +1,12 @@
 // src/data/docs.ts
 // Paid-pack honesty rule: these two component docs describe the Advanced Ribbon Pack.
 // Everything else in src/content/docs ships free with the core toolset.
-export const PAID_DOC_IDS = new Set(['components/ribbon', 'components/ribbon-spine']);
+export const PAID_DOC_IDS = new Set([
+  'components/ribbon',
+  'components/ribbon-spine',
+  'components/ribbon-ik-arm',
+  'components/ribbon-ik-leg',
+]);
 export const PAID_PACK_LABEL = 'Advanced Ribbon Pack';
 
 // Docs with a DESIGNED page (a hand-built .astro page under src/pages/docs/ that replaces
@@ -27,6 +32,10 @@ export const DESIGNED_DOC_IDS = new Set([
   'tools/skeleton-io',
   'tools/skin-io',
   'tools/pose-anim-studio',
+  'tools/autoskin',
+  'components/ik-arm',
+  'components/ribbon-ik-arm',
+  'components/ribbon-ik-leg',
 ]);
 
 export const DOC_CATEGORY_LABELS: Record<string, string> = {
@@ -63,14 +72,15 @@ export const DOCS_NAV: DocNavGroup[] = [
     ids: [
       'concepts/components', 'concepts/limbs', 'concepts/templates',
       'components/world', 'components/simple-fk', 'components/advanced-fk',
-      'components/fk-aim', 'components/simple-ik', 'components/ik-leg', 'components/spline-fk',
-      'components/follow-joint', 'components/ribbon', 'components/ribbon-spine',
+      'components/fk-aim', 'components/simple-ik', 'components/ik-arm', 'components/ik-leg',
+      'components/spline-fk', 'components/follow-joint', 'components/ribbon',
+      'components/ribbon-spine', 'components/ribbon-ik-arm', 'components/ribbon-ik-leg',
     ],
   },
   {
     key: 'skinning',
     label: 'Skinning',
-    ids: ['tools/skin-io', 'tools/ml-auto-skin'],
+    ids: ['tools/skin-io', 'tools/autoskin'],
   },
   { key: 'animation', label: 'Animation', ids: ['tools/pose-anim-studio'] },
   { key: 'engine', label: 'Engine', ids: ['tools/exporter', 'tools/project-setup'] },
@@ -80,6 +90,9 @@ export const DOCS_NAV: DocNavGroup[] = [
 // Site-side display-name overrides for the sidebar (public naming, ahead of the KS source
 // doc titles). Keyed by collection id. These renames also need to land in the source docs
 // via the naming relay; until then the doc page still titles itself with the source name.
+// (tools/ml-auto-skin "BindSkin Tools" retired 2026-07-17: AutoSkin supersedes it.)
 export const DOC_NAV_LABELS: Record<string, string> = {
-  'tools/ml-auto-skin': 'BindSkin Tools',
+  'components/ik-arm': 'IK Arm',
+  'components/ribbon-ik-arm': 'Ribbon Arm',
+  'components/ribbon-ik-leg': 'Ribbon Leg',
 };
