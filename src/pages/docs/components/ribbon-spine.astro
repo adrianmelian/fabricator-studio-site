@@ -1,0 +1,210 @@
+---
+// DESIGNED docs page for components/ribbon-spine (Adrian x Claude Design, 2026-07-17;
+// source drop: MrMiata inbox/Docs/"RibbonSpine Docs.html"). Shared furniture:
+// designed-doc.css (incl. dd-fact rows in a 2x2 grid). Page-specific: the paid-pack
+// badge, the dial-board chips, and the ribbon SVG diagram. No media on this page.
+// PAID: this component ships in the Advanced Ribbon Pack (PAID_DOC_IDS); the badge is
+// EMBER per the site's paid-pill convention (ember = label), not the drop's plasma.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'A COG-driven spine with hip and chest end controls, floating mid controls, and a falloff-skinned ribbon for free twist distribution, plus twist, sine, jiggle, and volume dials.';
+
+const TITLE = 'RIBBON SPINE';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="RibbonSpine | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="rs-eyebrow-row">
+        <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
+        <span class="rs-pack">ADVANCED RIBBON PACK</span>
+      </div>
+      <h1 class="dd-title" aria-label="RIBBONSPINE">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="rs-what">
+      <div class="dd-panel__head">
+        <h2 id="rs-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">A ribbon spine, not one control per joint</p>
+      </div>
+      <div class="rs-what">
+        <div class="rs-what__copy">
+          <p class="dd-prose">RibbonSpine builds a whole-body <b>COG control</b> with a hip and a chest control underneath, plus <b>floating mid controls</b> that auto-follow both ends.</p>
+          <p class="dd-prose">Those drive a ribbon surface with a <b class="b-plasma">soft falloff skin</b> rather than one control per row, giving the spine its smooth hip-to-chest twist.</p>
+          <div class="rs-dials">
+            <div class="rs-dials__label">DIAL BOARD ON THE COG</div>
+            <div class="rs-dials__chips">
+              <span class="rs-chip rs-chip--plasma">twist</span>
+              <span class="rs-chip rs-chip--ember">sine</span>
+              <span class="rs-chip rs-chip--plasma">jiggle</span>
+              <span class="rs-chip rs-chip--ember">volume</span>
+            </div>
+          </div>
+        </div>
+        <div class="rs-diagram" role="img" aria-label="A ribbon surface with hip and chest end controls, floating mids, and the COG">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <svg class="rs-svg" viewBox="0 0 320 300">
+            <path d="M120 40 C170 100, 90 180, 150 260 L190 260 C130 180, 210 100, 160 40 Z" fill="rgba(124,255,178,0.08)" stroke="rgba(124,255,178,0.35)" stroke-width="2" />
+            <rect x="118" y="26" width="44" height="24" rx="4" fill="none" stroke="#FF7A3D" stroke-width="3" />
+            <text x="172" y="44" font-family="monospace" font-size="14" fill="#FF7A3D">chest</text>
+            <circle cx="128" cy="120" r="9" fill="none" stroke="#7CFFB2" stroke-width="3" />
+            <circle cx="170" cy="185" r="9" fill="none" stroke="#7CFFB2" stroke-width="3" />
+            <text x="186" y="150" font-family="monospace" font-size="13" fill="#4FB888">mids</text>
+            <rect x="148" y="258" width="44" height="24" rx="4" fill="none" stroke="#FF7A3D" stroke-width="3" />
+            <text x="196" y="276" font-family="monospace" font-size="14" fill="#FF7A3D">hip</text>
+            <circle cx="230" cy="150" r="18" fill="none" stroke="#E8E0D0" stroke-width="3" />
+            <circle cx="230" cy="150" r="4" fill="#E8E0D0" />
+            <text x="212" y="196" font-family="monospace" font-size="13" fill="#8A8378">COG</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHEN TO USE IT -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="rs-when">
+      <div class="dd-panel__head">
+        <h2 id="rs-when" class="dd-label dd-label--ember">WHEN TO USE IT</h2>
+        <p class="dd-lede">A spine, or any 3+ chain treated as one</p>
+      </div>
+      <p class="dd-prose rs-when">Use it for a spine, or any 3+ joint chain treated as one, when you want a whole-body mover, organic secondary motion, and non-uniform twist between two ends, <b>without placing an FK control per joint</b>.</p>
+      <div class="rs-cards">
+        <div class="rs-card rs-card--plasma">
+          <h3 class="rs-card__name rs-card__name--plasma">Whole-body mover</h3>
+          <p class="rs-card__line">One COG drives the entire spine at once.</p>
+        </div>
+        <div class="rs-card rs-card--plasma">
+          <h3 class="rs-card__name rs-card__name--plasma">Organic secondary</h3>
+          <p class="rs-card__line">Sine, jiggle, and volume add life on top of the pose.</p>
+        </div>
+        <div class="rs-card rs-card--ember">
+          <h3 class="rs-card__name rs-card__name--ember">Stable parent space</h3>
+          <p class="rs-card__line">Hip and chest outputs give arms, neck, or legs a stable space to parent into.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="rs-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="rs-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts rs-facts">
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Center-line only</h3>
+            <p class="dd-fact__line">Doesn't mirror; there's no per-side version.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Mid count is a build option</h3>
+            <p class="dd-fact__line">Mid control count (1&ndash;8): change it in <b class="b-plasma">Edit Mode</b> and rebuild.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Dial values persist</h3>
+            <p class="dd-fact__line">Dial board values persist through an Edit Rig round trip.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">4</span>
+          <div>
+            <h3 class="dd-fact__name">No parent drift</h3>
+            <p class="dd-fact__line">Hip and chest rotation locks to its end control instead of the ribbon directly, so anything parented there doesn't pick up drift.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the paid-pack badge, dial chips, and the ribbon diagram. Shared
+     furniture: designed-doc.css. */
+  .rs-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  /* Ember, matching the site's paid pill: the pack badge is a LABEL (DNA principle 2). */
+  .rs-pack {
+    padding: 0.3rem 0.8rem;
+    border-radius: 7px;
+    background: rgba(255, 122, 61, 0.12);
+    border: 1px solid rgba(255, 122, 61, 0.45);
+    color: var(--ember);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+  }
+
+  .rs-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); gap: 2rem; align-items: center; }
+  .rs-what__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .rs-dials { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.25rem; }
+  .rs-dials__label { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-faint); }
+  .rs-dials__chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .rs-chip {
+    padding: 0.5rem 0.9rem;
+    border-radius: 9px;
+    background: var(--carbon);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+  .rs-chip--plasma { border: 1px solid rgba(124, 255, 178, 0.3); color: var(--plasma); }
+  .rs-chip--ember { border: 1px solid rgba(255, 122, 61, 0.3); color: var(--ember); }
+
+  .rs-diagram {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 45%, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    box-shadow: var(--shadow-lg), 0 0 40px -14px rgba(124, 255, 178, 0.3);
+    aspect-ratio: 16 / 11;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .rs-svg { width: 78%; height: auto; overflow: visible; }
+
+  .rs-when { max-width: 58rem; }
+  .rs-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .rs-card {
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.375rem 1.375rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  .rs-card--plasma { border-color: rgba(124, 255, 178, 0.2); }
+  .rs-card--ember { border-color: rgba(255, 122, 61, 0.22); }
+  .rs-card__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1rem; }
+  .rs-card__name--plasma { color: var(--plasma); }
+  .rs-card__name--ember { color: var(--ember); }
+  .rs-card__line { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
+
+  .rs-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  @media (max-width: 820px) {
+    .rs-what { grid-template-columns: 1fr; }
+    .rs-cards { grid-template-columns: 1fr; }
+    .rs-facts { grid-template-columns: 1fr; }
+  }
+</style>

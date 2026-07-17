@@ -1,0 +1,183 @@
+---
+// DESIGNED docs page for components/follow-joint (Adrian x Claude Design, 2026-07-17;
+// source drop: MrMiata inbox/Docs/"FollowJoint Docs.html"). Shared furniture:
+// designed-doc.css (incl. dd-fact rows in a 2x2 grid). Page-specific: the source-to-
+// follower constraint diagram and the when-cards. No media on this page.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  "Constrains one joint to follow another joint's position and rotation, with per-axis and per-channel weight control.";
+
+const TITLE = 'FOLLOW JOINT';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="FollowJoint | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
+      <h1 class="dd-title" aria-label="FOLLOWJOINT">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="fj-what">
+      <div class="dd-panel__head">
+        <h2 id="fj-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">A plumbing component, no control built</p>
+      </div>
+      <div class="fj-what">
+        <div class="fj-what__copy">
+          <p class="dd-prose">FollowJoint builds <b class="b-ember">no control</b>. It point- and orient-constrains one joint to a source joint you pick in Properties.</p>
+          <p class="dd-prose">Independent <b>per-axis skip and weight sliders</b> for translate and rotate.</p>
+          <p class="fj-note">It's plumbing: useful wherever a joint just needs to track another one.</p>
+        </div>
+        <div class="fj-diagram" role="img" aria-label="A source joint driving a follower joint over point and orient constraints">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <div class="fj-scene">
+            <div class="fj-node">
+              <span class="fj-src"></span>
+              <span class="fj-node__cap">SOURCE JOINT</span>
+            </div>
+            <div class="fj-beams" aria-hidden="true">
+              <div class="fj-beam fj-beam--plasma"></div>
+              <div class="fj-beams__cap">POINT + ORIENT</div>
+              <div class="fj-beam fj-beam--ember"></div>
+            </div>
+            <div class="fj-node">
+              <span class="fj-follower"></span>
+              <span class="fj-node__cap fj-node__cap--plasma">FOLLOWER</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHEN TO USE IT -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="fj-when">
+      <div class="dd-panel__head">
+        <h2 id="fj-when" class="dd-label dd-label--ember">WHEN TO USE IT</h2>
+        <p class="dd-lede">Wherever a joint should track another</p>
+      </div>
+      <div class="fj-cards">
+        <div class="fj-card fj-card--plasma">
+          <h3 class="fj-card__name fj-card__name--plasma">Engine reference joints</h3>
+          <p class="fj-card__line">UE5 joints (<b>ik_foot_*, ik_hand_*, ik_hand_gun</b>) that follow their rig counterparts for export.</p>
+        </div>
+        <div class="fj-card">
+          <h3 class="fj-card__name">Helpers &amp; attachers</h3>
+          <p class="fj-card__line">Helper joints, prop attachers, or any joint that should track another without a control.</p>
+        </div>
+        <div class="fj-card fj-card--ember">
+          <h3 class="fj-card__name fj-card__name--ember">Template placeholder</h3>
+          <p class="fj-card__line">Leave the follow target empty and set it later, a supported no-op.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="fj-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="fj-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts fj-facts">
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Empty target is silent</h3>
+            <p class="dd-fact__line">Leaving the follow target empty is silent: the joint doesn't move, no warning printed.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Missing target fails the build</h3>
+            <p class="dd-fact__line">A follow target that doesn't exist in the scene fails the build.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Zeroing skips the constraint</h3>
+            <p class="dd-fact__line">Dropping either weight to 0, or turning off all axes on one side, skips building that constraint; re-enabling it later needs a rebuild.</p>
+          </div>
+        </div>
+        <div class="dd-fact">
+          <span class="dd-fact__num">4</span>
+          <div>
+            <h3 class="dd-fact__name">No control, no mirror</h3>
+            <p class="dd-fact__line">Not mirrorable, and it never joins the FK/IK selection sets; it has no control.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the constraint diagram and the when-cards. Shared furniture:
+     designed-doc.css. */
+  .fj-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 2rem; align-items: center; }
+  .fj-what__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .fj-note { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
+
+  .fj-diagram {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 45%, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    box-shadow: var(--shadow-lg), 0 0 40px -14px rgba(124, 255, 178, 0.3);
+    aspect-ratio: 16 / 11;
+    display: flex;
+    align-items: center;
+    padding: 1.5rem;
+  }
+  .fj-scene { display: flex; align-items: center; width: 100%; gap: 0.5rem; }
+  .fj-node { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+  .fj-node__cap { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-faint); white-space: nowrap; }
+  .fj-node__cap--plasma { color: var(--plasma-dim); }
+  .fj-src { width: 1.625rem; height: 1.625rem; border-radius: 50%; background: var(--bone); box-shadow: 0 0 0 0.5rem rgba(232, 224, 208, 0.12); }
+  .fj-follower { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--carbon); border: 3px solid var(--plasma); }
+  /* Dashed beams: palette hue at full and zero alpha, never the transparent keyword. */
+  .fj-beams { flex: 1; display: flex; flex-direction: column; justify-content: center; gap: 0.55rem; margin-bottom: 1.4rem; }
+  .fj-beam { height: 4px; }
+  .fj-beam--plasma { background: repeating-linear-gradient(90deg, #7CFFB2 0 10px, rgba(124, 255, 178, 0) 10px 20px); }
+  .fj-beam--ember { background: repeating-linear-gradient(90deg, #FF7A3D 0 10px, rgba(255, 122, 61, 0) 10px 20px); }
+  .fj-beams__cap { text-align: center; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--plasma-dim); }
+
+  .fj-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+  .fj-card {
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.375rem 1.375rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .fj-card--plasma { border-color: rgba(124, 255, 178, 0.2); }
+  .fj-card--ember { border-color: rgba(255, 122, 61, 0.22); }
+  .fj-card__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--bone); }
+  .fj-card__name--plasma { color: var(--plasma); }
+  .fj-card__name--ember { color: var(--ember); }
+  .fj-card__line { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--bone-dim); }
+  .fj-card__line b { color: var(--bone); }
+
+  .fj-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  @media (max-width: 820px) {
+    .fj-what { grid-template-columns: 1fr; }
+    .fj-cards { grid-template-columns: 1fr; }
+    .fj-facts { grid-template-columns: 1fr; }
+  }
+</style>

@@ -22,6 +22,11 @@ export const DESIGNED_DOC_IDS = new Set([
   'components/fk-aim',
   'components/simple-ik',
   'components/ik-leg',
+  'components/follow-joint',
+  'components/ribbon-spine',
+  'tools/skeleton-io',
+  'tools/skin-io',
+  'tools/pose-anim-studio',
 ]);
 
 export const DOC_CATEGORY_LABELS: Record<string, string> = {
