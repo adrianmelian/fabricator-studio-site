@@ -1,0 +1,176 @@
+---
+// DESIGNED docs page for components/ik-leg (Adrian x Claude Design, 2026-07-17; source
+// drop: MrMiata inbox/Docs/"IKLeg Docs.html"). Shared furniture: designed-doc.css (incl.
+// dd-fact rows). Page-specific: the deliverables list, the reverse-foot SVG diagram, and
+// the two-way decision cards. No media on this page.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'A four-joint IK/FK leg with a reverse foot rig, heel and toe pivots, and a foot roll slider.';
+
+const TITLE = 'IK LEG';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="IKLeg | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
+      <h1 class="dd-title" aria-label="IKLEG">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="il-what">
+      <div class="dd-panel__head">
+        <h2 id="il-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">SimpleIK, plus a full reverse-foot rig</p>
+      </div>
+      <div class="il-what">
+        <div class="il-what__copy">
+          <p class="dd-prose">IKLeg builds on SimpleIK's hip-knee-ankle chain and adds a <b>fourth ball joint</b> plus a full reverse-foot rig.</p>
+          <div class="il-list">
+            <div class="il-item"><span class="il-glyph il-glyph--fk" aria-hidden="true"></span><p>Everything SimpleIK gives: <b>FK controls, IK/FK switch, pole vector</b></p></div>
+            <div class="il-item"><span class="il-glyph il-glyph--foot" aria-hidden="true"></span><p>A <b>floor-level foot control</b></p></div>
+            <div class="il-item"><span class="il-glyph il-glyph--pivot" aria-hidden="true"></span><p>Separate <b>heel and toe controls</b></p></div>
+            <div class="il-item"><span class="il-glyph il-glyph--roll" aria-hidden="true"></span><p>A <b>foot_roll slider</b></p></div>
+          </div>
+          <p class="il-note">foot_roll lifts the heel and rolls onto the toe while keeping the ball and toe planted.</p>
+        </div>
+        <div class="il-diagram" role="img" aria-label="A leg mid foot-roll: heel lifted, ball and toe planted, the roll arc marked">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <svg class="il-svg" viewBox="0 0 440 300">
+            <line x1="40" y1="250" x2="400" y2="250" stroke="rgba(232,224,208,0.25)" stroke-width="2" />
+            <line x1="150" y1="40" x2="150" y2="170" stroke="#E8E0D0" stroke-width="5" />
+            <line x1="150" y1="170" x2="230" y2="215" stroke="#E8E0D0" stroke-width="5" />
+            <line x1="230" y1="215" x2="300" y2="250" stroke="#E8E0D0" stroke-width="5" />
+            <path d="M300 250 A70 70 0 0 1 250 195" fill="none" stroke="#FF7A3D" stroke-width="2" stroke-dasharray="5 5" />
+            <text x="255" y="150" font-family="monospace" font-size="15" fill="#FF7A3D">foot_roll</text>
+            <circle cx="150" cy="170" r="8" fill="#E8E0D0" />
+            <text x="86" y="165" font-family="monospace" font-size="14" fill="#8A8378">heel</text>
+            <circle cx="230" cy="215" r="9" fill="#7CFFB2" />
+            <text x="205" y="240" font-family="monospace" font-size="14" fill="#4FB888">ball</text>
+            <circle cx="300" cy="250" r="8" fill="#E8E0D0" />
+            <text x="312" y="256" font-family="monospace" font-size="14" fill="#8A8378">toe</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHEN TO USE IT -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="il-when">
+      <div class="dd-panel__head">
+        <h2 id="il-when" class="dd-label dd-label--ember">WHEN TO USE IT</h2>
+        <p class="dd-lede">Any leg that plants on the ground</p>
+      </div>
+      <div class="il-pick">
+        <div class="il-pick__card il-pick__card--this">
+          <div class="il-pick__tag il-pick__tag--plasma">USE THIS WHEN</div>
+          <h3 class="il-pick__name">hip-knee-ankle-ball</h3>
+          <p class="il-pick__line">Any four-joint leg chain that needs to plant on the ground, like a game character's leg.</p>
+        </div>
+        <div class="il-pick__card">
+          <div class="il-pick__tag">NO FOOT? (ARM, TAIL)</div>
+          <h3 class="il-pick__name">SimpleIK</h3>
+          <p class="il-pick__line">The reverse-foot stack has nothing to attach to without a ball joint.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="il-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="il-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Mind the roll axis</h3>
+            <p class="dd-fact__line"><b class="b-ember">foot_roll_axis</b> depends on your skeleton's orientation convention; the wrong axis rolls or yaws instead of lifting the heel.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Toe-wiggle stays posable</h3>
+            <p class="dd-fact__line">The toe-wiggle ball control stays visible and posable in <b class="b-plasma">both IK and FK mode</b>.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Separate heel &amp; toe points</h3>
+            <p class="dd-fact__line">Heel and toe guide positions need to be genuinely separate points, not stacked on top of each other.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the deliverables list, the reverse-foot diagram, and the decision
+     cards. Shared furniture: designed-doc.css. */
+  .il-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 2rem; align-items: center; }
+  .il-what__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .il-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .il-item { display: flex; align-items: center; gap: 0.75rem; }
+  .il-item p { margin: 0; font-size: 0.9375rem; color: var(--bone-dim); }
+  .il-item b { color: var(--bone); }
+  .il-glyph { flex: none; display: block; }
+  .il-glyph--fk { width: 0.9375rem; height: 0.9375rem; border: 3px solid var(--plasma); border-radius: 50%; }
+  .il-glyph--foot { width: 0.9375rem; height: 0.9375rem; border: 3px solid var(--ember); transform: rotate(45deg); }
+  .il-glyph--pivot { width: 0.9375rem; height: 0.9375rem; border: 3px solid var(--ember); }
+  .il-glyph--roll { width: 1.375rem; height: 0.75rem; border: 2px solid var(--plasma); border-radius: var(--radius-pill); }
+  .il-note { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
+
+  .il-diagram {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 45%, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    box-shadow: var(--shadow-lg), 0 0 40px -14px rgba(124, 255, 178, 0.3);
+    aspect-ratio: 16 / 11;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .il-svg { width: 88%; height: auto; overflow: visible; }
+
+  .il-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .il-pick__card {
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.5rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
+  .il-pick__card--this {
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border-color: rgba(124, 255, 178, 0.5);
+    box-shadow: 0 0 30px -14px rgba(124, 255, 178, 0.4);
+  }
+  .il-pick__tag { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-faint); }
+  .il-pick__tag--plasma { color: var(--plasma); }
+  .il-pick__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
+  .il-pick__line { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
+
+  @media (max-width: 820px) {
+    .il-what { grid-template-columns: 1fr; }
+    .il-pick { grid-template-columns: 1fr; }
+  }
+</style>

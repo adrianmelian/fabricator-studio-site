@@ -1,0 +1,196 @@
+---
+// DESIGNED docs page for components/advanced-fk (Adrian x Claude Design, 2026-07-17;
+// source drop: MrMiata inbox/Docs/"AdvancedFK Docs.html"). Shared furniture:
+// designed-doc.css (incl. dd-fact rows). Page-specific: the switchable-space diagram and
+// the use-this-when cards. No media on this page.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'A single control anchored in world space, with a switchable space attribute so it can follow its parent joint, world, or any joint you add.';
+
+const TITLE = 'ADVANCED FK';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="AdvancedFK | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
+      <h1 class="dd-title" aria-label="ADVANCEDFK">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="af-what">
+      <div class="dd-panel__head">
+        <h2 id="af-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">One control, switchable space</p>
+      </div>
+      <div class="af-what">
+        <div class="af-what__copy">
+          <p class="dd-prose">AdvancedFK builds <b>one control for one joint</b>, much like SimpleFK, but instead of parenting under an ancestor control it sits in <b class="b-plasma">world space</b> and carries a switchable space attribute.</p>
+          <p class="dd-prose">Pick a target in Properties (its skeleton parent, world, or any joint you add) and the control <b class="b-ember">follows that space</b>.</p>
+        </div>
+        <div class="af-diagram" role="img" aria-label="One control with three switchable space targets">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <div class="af-scene">
+            <div class="af-ctrl-col">
+              <div class="af-ctrl"></div>
+              <div class="af-ctrl__cap">CONTROL</div>
+            </div>
+            <div class="af-targets">
+              <div class="af-target"><span class="af-target__arrow af-target__arrow--plasma" aria-hidden="true">&rarr;</span><span class="af-target__chip af-target__chip--plasma">Parent joint</span></div>
+              <div class="af-target"><span class="af-target__arrow" aria-hidden="true">&rarr;</span><span class="af-target__chip">World</span></div>
+              <div class="af-target"><span class="af-target__arrow af-target__arrow--ember" aria-hidden="true">&rarr;</span><span class="af-target__chip af-target__chip--ember">Any joint you add</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHEN TO USE IT -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="af-when">
+      <div class="dd-panel__head">
+        <h2 id="af-when" class="dd-label dd-label--ember">WHEN TO USE IT</h2>
+        <p class="dd-lede">Anything that changes parent mid-shot</p>
+      </div>
+      <div class="af-chips">
+        <span class="af-chip">prop: hand &rarr; table</span>
+        <span class="af-chip">a weapon</span>
+        <span class="af-chip">accessory hopping between joints</span>
+      </div>
+      <div class="af-pick">
+        <div class="af-pick__card af-pick__card--this">
+          <div class="af-pick__tag af-pick__tag--plasma">USE THIS WHEN</div>
+          <h3 class="af-pick__name">The parent changes</h3>
+          <p class="af-pick__line">The control needs to switch spaces during a shot.</p>
+        </div>
+        <div class="af-pick__card">
+          <div class="af-pick__tag">OTHERWISE</div>
+          <h3 class="af-pick__name">SimpleFK</h3>
+          <p class="af-pick__line">If the control only ever needs one parent; the plainer, cheaper choice.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="af-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="af-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Per-target marking menu</h3>
+            <p class="dd-fact__line">The marking menu adds a <b class="b-plasma">Match to Space</b> and a <b class="b-plasma">Switch to Space</b> entry per target you've added, on top of the usual Zero All / Zero Translates set.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">One joint per instance</h3>
+            <p class="dd-fact__line">Selecting zero or several fails before the component can be added.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Names come from the joint</h3>
+            <p class="dd-fact__line">The control's name comes from the joint's <b>short name</b>, so two joints sharing a short name collide on control naming.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the switchable-space diagram, use chips, and decision cards. Shared
+     furniture: designed-doc.css. */
+  .af-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); gap: 2rem; align-items: center; }
+  .af-what__copy { display: flex; flex-direction: column; gap: 1rem; }
+
+  .af-diagram {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 45%, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    box-shadow: var(--shadow-lg), 0 0 40px -14px rgba(124, 255, 178, 0.3);
+    aspect-ratio: 16 / 11;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+  }
+  .af-scene { display: flex; align-items: center; gap: 1.5rem; }
+  .af-ctrl-col { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
+  .af-ctrl { width: 4.25rem; height: 4.25rem; border: 4px solid var(--plasma); border-radius: 50%; box-shadow: 0 0 24px rgba(124, 255, 178, 0.5); }
+  .af-ctrl__cap { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--plasma-dim); }
+  .af-targets { display: flex; flex-direction: column; gap: 0.5rem; }
+  .af-target { display: flex; align-items: center; gap: 0.5rem; }
+  .af-target__arrow { color: var(--bone-faint); font-size: 1rem; font-weight: 800; }
+  .af-target__arrow--plasma { color: var(--plasma); }
+  .af-target__arrow--ember { color: var(--ember); }
+  .af-target__chip {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    color: var(--bone);
+  }
+  .af-target__chip--plasma { border-color: rgba(124, 255, 178, 0.35); }
+  .af-target__chip--ember { border-color: rgba(255, 122, 61, 0.35); }
+
+  .af-chips { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .af-chip {
+    padding: 0.55rem 1rem;
+    border-radius: 9px;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 122, 61, 0.3);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--bone);
+  }
+
+  .af-pick { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding-top: 0.25rem; }
+  .af-pick__card {
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.375rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
+  .af-pick__card--this {
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border-color: rgba(124, 255, 178, 0.5);
+    box-shadow: 0 0 30px -14px rgba(124, 255, 178, 0.4);
+  }
+  .af-pick__tag { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-faint); }
+  .af-pick__tag--plasma { color: var(--plasma); }
+  .af-pick__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
+  .af-pick__line { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
+
+  @media (max-width: 820px) {
+    .af-what { grid-template-columns: 1fr; }
+    .af-pick { grid-template-columns: 1fr; }
+    .af-scene { flex-direction: column; gap: 1rem; }
+  }
+</style>

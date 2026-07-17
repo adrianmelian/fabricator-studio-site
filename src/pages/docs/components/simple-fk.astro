@@ -77,11 +77,6 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
           <p class="sf-pick__line">One joint, one plain control.</p>
         </div>
         <div class="sf-pick__card">
-          <div class="sf-pick__tag">2+ JOINTS IN A ROW</div>
-          <h3 class="sf-pick__name">FKChain</h3>
-          <p class="sf-pick__line">Same naming; a joint can move between the two without a rename.</p>
-        </div>
-        <div class="sf-pick__card">
           <div class="sf-pick__tag">SPACE SWITCH / IK-FK</div>
           <h3 class="sf-pick__name">AdvancedFK</h3>
           <p class="sf-pick__line">Space switching or IK/FK matching lives here, not in SimpleFK.</p>
@@ -160,7 +155,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     color: var(--bone);
   }
 
-  .sf-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding-top: 0.25rem; }
+  .sf-pick { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; padding-top: 0.25rem; }
   .sf-pick__card {
     background: var(--carbon);
     border: 1px solid rgba(255, 255, 255, 0.08);

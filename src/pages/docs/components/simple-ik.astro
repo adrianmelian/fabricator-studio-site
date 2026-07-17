@@ -1,0 +1,191 @@
+---
+// DESIGNED docs page for components/simple-ik (Adrian x Claude Design, 2026-07-17; source
+// drop: MrMiata inbox/Docs/"SimpleIK Docs.html"). Shared furniture: designed-doc.css
+// (incl. dd-fact rows, here in a 2x2 grid). Page-specific: the per-chain deliverables
+// list, the SVG chain diagram, and the pick-your-IK cards. No media on this page.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'A three-joint IK/FK chain with a pole vector and pin: the base building block for any bending limb.';
+
+const TITLE = 'SIMPLE IK';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="SimpleIK | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
+      <h1 class="dd-title" aria-label="SIMPLEIK">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="si-what">
+      <div class="dd-panel__head">
+        <h2 id="si-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">FK and IK on a 3-joint chain, with a blend</p>
+      </div>
+      <div class="si-what">
+        <div class="si-what__copy">
+          <p class="dd-prose">SimpleIK takes a <b>3-joint chain</b> (shoulder-elbow-wrist or hip-knee-ankle) and gives it FK and IK control with a switch to blend between them.</p>
+          <p class="si-list__lede">You get, per chain:</p>
+          <div class="si-list">
+            <div class="si-item"><span class="si-glyph si-glyph--fk" aria-hidden="true"></span><p><b>FK control</b> per joint</p></div>
+            <div class="si-item"><span class="si-glyph si-glyph--ik" aria-hidden="true"></span><p><b>IK control</b> at the end joint</p></div>
+            <div class="si-item"><span class="si-glyph si-glyph--pole" aria-hidden="true"></span><p><b>Pole vector</b> for the elbow's bend direction</p></div>
+            <div class="si-item"><span class="si-glyph si-glyph--switch" aria-hidden="true"></span><p><b>Switch control</b> carrying the blend slider</p></div>
+          </div>
+        </div>
+        <div class="si-diagram" role="img" aria-label="A three-joint chain with FK controls, an IK end control, and a pole vector">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <svg class="si-svg" viewBox="0 0 420 300">
+            <line x1="90" y1="40" x2="150" y2="150" stroke="#E8E0D0" stroke-width="5" />
+            <line x1="150" y1="150" x2="120" y2="255" stroke="#E8E0D0" stroke-width="5" />
+            <line x1="150" y1="150" x2="300" y2="150" stroke="#FF7A3D" stroke-width="2" stroke-dasharray="6 6" />
+            <rect x="288" y="138" width="24" height="24" fill="none" stroke="#FF7A3D" stroke-width="4" />
+            <text x="318" y="156" font-family="monospace" font-size="15" fill="#FF7A3D">pole</text>
+            <circle cx="90" cy="40" r="12" fill="none" stroke="#7CFFB2" stroke-width="4" />
+            <circle cx="150" cy="150" r="9" fill="#E8E0D0" />
+            <rect x="104" y="239" width="32" height="32" fill="none" stroke="#FF7A3D" stroke-width="4" transform="rotate(45 120 255)" />
+            <text x="150" y="285" font-family="monospace" font-size="15" fill="#FF7A3D">IK</text>
+            <text x="60" y="30" font-family="monospace" font-size="15" fill="#4FB888">FK</text>
+          </svg>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHEN TO USE IT -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="si-when">
+      <div class="dd-panel__head">
+        <h2 id="si-when" class="dd-label dd-label--ember">WHEN TO USE IT</h2>
+        <p class="dd-lede">A generic bending limb, no limb-specific extras</p>
+      </div>
+      <p class="dd-prose si-when">Use SimpleIK for any <b>generic 3-joint bending limb</b> that needs an IK/FK switch and pole vector, without limb-specific extras.</p>
+      <div class="si-pick">
+        <div class="si-pick__card si-pick__card--this">
+          <div class="si-pick__tag si-pick__tag--plasma">THIS ONE</div>
+          <h3 class="si-pick__name">SimpleIK</h3>
+          <p class="si-pick__line">Generic bending limb. Also the foundation the others build on.</p>
+        </div>
+        <div class="si-pick__card">
+          <div class="si-pick__tag">NEED A CLAVICLE</div>
+          <h3 class="si-pick__name">IK Arm</h3>
+          <p class="si-pick__line">Built on SimpleIK, with arm-specific extras.</p>
+        </div>
+        <div class="si-pick__card">
+          <div class="si-pick__tag">NEED A FOOT</div>
+          <h3 class="si-pick__name">IK Leg</h3>
+          <p class="si-pick__line">Built on SimpleIK, with foot-specific extras.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="si-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="si-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts si-facts">
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Stretchy is optional</h3>
+            <p class="dd-fact__line">The chain can extend past rest length in IK mode: stretch only, no squash.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Pole vector pin</h3>
+            <p class="dd-fact__line">The pole vector control has a <b class="b-plasma">pin slider</b> that locks the elbow exactly under it.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Match, don't pop</h3>
+            <p class="dd-fact__line"><b class="b-plasma">Match to IK / Match to FK</b> hold the pose through the switch; plain Switch can pop.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">4</span>
+          <div>
+            <h3 class="dd-fact__name">One unbroken chain</h3>
+            <p class="dd-fact__line">The 3 joints must be one unbroken parent chain, no branching.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the per-chain list, the SVG chain diagram, and the decision cards.
+     Shared furniture: designed-doc.css. */
+  .si-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr); gap: 2rem; align-items: center; }
+  .si-what__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .si-list__lede { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
+  .si-list { display: flex; flex-direction: column; gap: 0.5rem; }
+  .si-item { display: flex; align-items: center; gap: 0.75rem; }
+  .si-item p { margin: 0; font-size: 0.9375rem; color: var(--bone-dim); }
+  .si-item b { color: var(--bone); }
+  .si-glyph { flex: none; display: block; }
+  .si-glyph--fk { width: 1rem; height: 1rem; border: 3px solid var(--plasma); border-radius: 50%; }
+  .si-glyph--ik { width: 1rem; height: 1rem; border: 3px solid var(--ember); transform: rotate(45deg); }
+  .si-glyph--pole { width: 1rem; height: 1rem; border: 3px solid var(--ember); }
+  .si-glyph--switch { width: 1.375rem; height: 0.8125rem; border: 2px solid var(--plasma); border-radius: var(--radius-pill); }
+
+  .si-diagram {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 45%, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    box-shadow: var(--shadow-lg), 0 0 40px -14px rgba(124, 255, 178, 0.3);
+    aspect-ratio: 16 / 11;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .si-svg { width: 88%; height: auto; overflow: visible; }
+
+  .si-when { max-width: 56rem; }
+  .si-pick { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; padding-top: 0.25rem; }
+  .si-pick__card {
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 1.375rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
+  .si-pick__card--this {
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border-color: rgba(124, 255, 178, 0.5);
+    box-shadow: 0 0 30px -14px rgba(124, 255, 178, 0.4);
+  }
+  .si-pick__tag { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-faint); }
+  .si-pick__tag--plasma { color: var(--plasma); }
+  .si-pick__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
+  .si-pick__line { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
+
+  .si-facts { display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }
+
+  @media (max-width: 820px) {
+    .si-what { grid-template-columns: 1fr; }
+    .si-pick { grid-template-columns: 1fr; }
+    .si-facts { grid-template-columns: 1fr; }
+  }
+</style>

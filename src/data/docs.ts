@@ -18,6 +18,10 @@ export const DESIGNED_DOC_IDS = new Set([
   'concepts/templates',
   'components/world',
   'components/simple-fk',
+  'components/advanced-fk',
+  'components/fk-aim',
+  'components/simple-ik',
+  'components/ik-leg',
 ]);
 
 export const DOC_CATEGORY_LABELS: Record<string, string> = {
@@ -53,7 +57,7 @@ export const DOCS_NAV: DocNavGroup[] = [
     label: 'Rig Components',
     ids: [
       'concepts/components', 'concepts/limbs', 'concepts/templates',
-      'components/world', 'components/fk-chain', 'components/simple-fk', 'components/advanced-fk',
+      'components/world', 'components/simple-fk', 'components/advanced-fk',
       'components/fk-aim', 'components/simple-ik', 'components/ik-leg', 'components/spline-fk',
       'components/follow-joint', 'components/ribbon', 'components/ribbon-spine',
     ],

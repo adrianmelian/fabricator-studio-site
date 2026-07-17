@@ -8,7 +8,7 @@ category: component
 SimpleFK builds one control for one joint, parented under whatever it's attached to, driving that joint directly. Nothing fancier underneath: no duplicate chains, no blending.
 
 ## When to use it
-Reach for it on a single joint that just needs a plain, posable control: a clavicle, a jaw, an individual finger or spine joint you aren't chaining. For two or more joints in a row, use FKChain instead (same naming, so a joint can move between the two without a rename). Need space switching or IK/FK matching? That's AdvancedFK, not this one.
+Reach for it on a single joint that just needs a plain, posable control: a clavicle, a jaw, an individual finger or spine joint you aren't chaining. Need space switching or IK/FK matching? That's AdvancedFK, not this one.
 
 ## Good to know
 - Exactly one joint per instance; selecting zero or more than one won't build.
