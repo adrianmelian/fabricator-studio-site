@@ -14,6 +14,18 @@
   --ember:       #FF7A3D;
   --ember-dim:   #B5532A;
   --ember-glow:  rgba(255, 122, 61, 0.22);
+  /* Cobalt (Adrian 2026-07-17): the STRUCTURAL tertiary accent — skeleton, joints, data,
+     the thing being rigged — for diagrams and depictions. Never a CTA, never a state color,
+     never the wordmark; plasma/ember stay the only FUNCTIONAL accents (DNA principle 1
+     amendment pending ratification in the brand DNA). */
+  --cobalt:      #7CB8FF;
+  --cobalt-dim:  #4F84BE;
+  /* Magma (Adrian 2026-07-17): the CODE tertiary accent — source, scripts, the Python
+     under the hood — for diagrams and depictions. Same scoping as cobalt: never a CTA,
+     state color, or the wordmark. It is the red the Joint Aimer axis legend already
+     depicts for X. (DNA amendment pending ratification.) */
+  --magma:       #FF3B3B;
+  --magma-dim:   #B52A2A;
 
   /* ===== typography (Mindmeld 2.0: ONE family, JetBrains Mono) =====
      VT323 and Geist are RETIRED (DNA principles 3 + 4). Display is JBM Bold with the

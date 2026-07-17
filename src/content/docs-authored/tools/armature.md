@@ -1,24 +1,23 @@
 ---
 title: Armature
-summary: The editable skeleton stage of Fabricator, where you place joints, orient them live, and mirror the whole skeleton before you build the rig.
+summary: Fabricator's editable skeleton stage. Place the joints and they get auto-oriented, symmetry mirrors live, and it bakes into a clean, engine-ready skeleton when you build your Animation Rig.
 category: rigging
 ---
 
 # Armature
 
 ## What
-The Armature is Fabricator's editable skeleton stage: the joints, their live orientation, and their layout, before you press Build Rig. Every rig starts here. You place and shape the skeleton in the Armature, Fabricator keeps it oriented and symmetrical as you work, and it bakes into a clean, engine-ready skeleton when you build.
+The Armature Rig is Fabricator's editable skeleton stage. You place the joints and they'll get auto-oriented. Every rig starts here. You place and shape the skeleton in the Armature, Fabricator keeps it oriented and symmetrical as you work, and it bakes into a clean, engine-ready skeleton when you build your Animation Rig.
 
 ## Why
-A rig is only as good as the skeleton under it. The Armature keeps that skeleton correct while you author it. Joints orient themselves as you move them, symmetry mirrors one side onto the other live, and the whole thing stays non-destructive so you can restructure at any point. It replaces the old one-off Smart Joint Mirror workflow with a system that holds the entire skeleton together.
+A rig is only as good as the skeleton under it. The Armature keeps that skeleton correct while you author it. Joints orient themselves as you move them, symmetry mirrors one side onto the other live, and the whole thing stays live so you can restructure at any point.
 
 ## How
-You build the Armature from the Skeleton Helpers Bar at the top of the Fabricator window:
-
-- **Add Joint** and **Insert Joints Between**: grow a chain, or subdivide a segment to add twist and bend joints without rebuilding it.
-- **Aim Joints at Aimers**: every joint carries a live XYZ aimer that keeps orientation correct as you move joints around. One click bakes it, so rotate carries the orientation and jointOrient and rotateAxis are zeroed, exactly what Unreal expects.
-- **Armature Skeleton Symmetry**: toggle Live Mirror and one side drives the other while you pose, or use Mirror Joints, Mirror Limb, and Mirror Module to snap the opposite side into place.
-- **Duplicate Limb** and **Duplicate Joints**: reuse a limb you have already placed.
+1. Start with a Template, a single root joint, or bring your own skeleton.
+2. Move the Armature controls around.
+3. Watch the aimers move around, they represent the final orientation of that joint.
+4. Use Symmetry to keep your skeleton symmetrical. Turn it off for asymmetry.
+5. Duplicate and Mirror limbs as needed.
 
 The Armature is non-destructive. Unbuild a rig and you land right back in it with nothing lost, and skinned meshes detach and rebind automatically around Armature edits, so you can restructure the skeleton even after skinning.
 

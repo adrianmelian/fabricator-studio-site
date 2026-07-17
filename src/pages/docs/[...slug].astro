@@ -2,11 +2,15 @@
 import DocsLayout from '../../layouts/DocsLayout.astro';
 import Pill from '../../components/Pill.astro';
 import { getCollection, render } from 'astro:content';
-import { PAID_DOC_IDS, PAID_PACK_LABEL, DOC_CATEGORY_LABELS } from '../../data/docs';
+import { PAID_DOC_IDS, PAID_PACK_LABEL, DOC_CATEGORY_LABELS, DESIGNED_DOC_IDS } from '../../data/docs';
 
 export async function getStaticPaths() {
   const entries = await getCollection('docs');
-  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+  // Designed docs render from their own static .astro pages; generating them here too
+  // would collide on the route.
+  return entries
+    .filter((entry) => !DESIGNED_DOC_IDS.has(entry.id))
+    .map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
 }
 
 const { entry } = Astro.props;

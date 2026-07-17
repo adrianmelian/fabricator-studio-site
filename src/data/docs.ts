@@ -4,6 +4,22 @@
 export const PAID_DOC_IDS = new Set(['components/ribbon', 'components/ribbon-spine']);
 export const PAID_PACK_LABEL = 'Advanced Ribbon Pack';
 
+// Docs with a DESIGNED page (a hand-built .astro page under src/pages/docs/ that replaces
+// the rendered-markdown route). The collection entry stays (it feeds the sidebar, the docs
+// index, and the Reggie-facing markdown truth); the dynamic [...slug] route skips these ids
+// so the static page owns the URL without a route collision.
+export const DESIGNED_DOC_IDS = new Set([
+  'tools/armature',
+  'tools/joint-aimer',
+  'tools/fabricator',
+  'tools/ctrl-editor',
+  'concepts/components',
+  'concepts/limbs',
+  'concepts/templates',
+  'components/world',
+  'components/simple-fk',
+]);
+
 export const DOC_CATEGORY_LABELS: Record<string, string> = {
   concept: 'Concept',
   framework: 'Framework',

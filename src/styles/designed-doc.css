@@ -1,0 +1,252 @@
+/* src/styles/designed-doc.css
+   Shared furniture for DESIGNED docs pages (src/pages/docs/** with an entry in
+   DESIGNED_DOC_IDS): the Adrian x Claude Design board language, ported fluid and onto the
+   site tokens. Page-specific sections (a flow diagram, an axis legend) stay in each page's
+   own scoped <style>; everything here is series-wide. All classes are dd-namespaced, the
+   file is imported per designed page, and every gradient stop is a palette token or a
+   palette hue at alpha (brand gate G6). */
+
+.dd { display: flex; flex-direction: column; gap: 2.75rem; text-align: left; }
+
+.dd-breadcrumb {
+  align-self: flex-start;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--ember);
+  text-decoration: none;
+  letter-spacing: 0.08em;
+}
+.dd-breadcrumb:hover { color: var(--ember-dim); }
+
+/* ── header ── */
+.dd-header { display: flex; flex-direction: column; gap: 0.9rem; }
+.dd-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
+/* The outlined tri-color treatment (brand signature): carbon ink stroke under the fill. */
+.dd-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: clamp(2.1rem, 5.2vw, 3.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.02em;
+  -webkit-text-stroke: 0.08em #06090C;
+  paint-order: stroke fill;
+  white-space: nowrap;
+}
+.dd-title .t-bone { color: var(--bone); }
+.dd-title .t-plasma { color: var(--plasma); }
+.dd-title .t-ember { color: var(--ember); }
+.dd-title .t-gap { display: inline-block; width: 0.4em; }
+.dd-summary { margin: 0; max-width: 44rem; font-size: 1.0625rem; line-height: 1.55; color: var(--bone-dim); text-wrap: pretty; }
+
+/* ── section furniture ── */
+.dd-panel {
+  box-sizing: border-box;
+  background: linear-gradient(180deg, var(--iron), var(--carbon));
+  border: 1px solid rgba(124, 255, 178, 0.1);
+  border-radius: 16px;
+  padding: 2rem 2.25rem 2.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.75rem;
+  box-shadow: var(--shadow-lg);
+}
+.dd-panel--ember { border-color: rgba(255, 122, 61, 0.12); }
+.dd-section { display: flex; flex-direction: column; gap: 1.5rem; }
+.dd-panel__head { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+.dd-panel__head--bare { padding-left: 0.25rem; }
+.dd-label { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.375rem; letter-spacing: 0.03em; }
+.dd-label--plasma { color: var(--plasma); }
+.dd-label--ember { color: var(--ember); }
+.dd-lede { margin: 0; font-size: 0.9375rem; color: var(--bone-dim); }
+.dd-prose { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+.dd-prose b { color: var(--bone); font-weight: 700; }
+
+.b-ember { color: var(--ember) !important; }
+.b-plasma { color: var(--plasma) !important; }
+
+/* ── framed screenshots ── */
+.dd-shot {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--carbon);
+  box-shadow: var(--shadow-md), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+}
+.dd-shot--ember { border: 1px solid rgba(255, 122, 61, 0.35); }
+.dd-shot--plasma { border: 1px solid rgba(124, 255, 178, 0.5); }
+.dd-shot img { width: 100%; height: 100%; object-fit: contain; display: block; }
+.dd-shot__glow { position: absolute; top: 0; left: 10px; right: 10px; height: 3px; z-index: 1; }
+.dd-shot__glow--ember { background: linear-gradient(90deg, rgba(255, 122, 61, 0), rgba(255, 122, 61, 0.9), rgba(255, 122, 61, 0)); }
+.dd-shot__glow--plasma { background: linear-gradient(90deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.9), rgba(124, 255, 178, 0)); }
+.dd-shot__badge { position: absolute; bottom: 0.75rem; left: 0; right: 0; display: flex; justify-content: center; }
+
+.dd-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.55rem 1.1rem;
+  border-radius: 8px;
+  background: var(--plasma);
+  color: #06120B;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.9375rem;
+  letter-spacing: 0.06em;
+  box-shadow: 0 0 22px rgba(124, 255, 178, 0.35);
+}
+.dd-chip--sm { padding: 0.4rem 0.85rem; font-size: 0.8125rem; }
+
+/* ── cards ── */
+.dd-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.dd-card {
+  background: linear-gradient(180deg, var(--iron), var(--carbon));
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  padding: 1.5rem 1.375rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+.dd-card__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 800;
+}
+.dd-card__icon--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
+.dd-card__icon--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+.dd-card__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
+.dd-card__line { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
+
+/* ── annotated GUI ── */
+.dd-gui { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 1.75rem; align-items: start; }
+.dd-gui--centered { align-items: center; }
+.dd-gui__shot {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgba(124, 255, 178, 0.12);
+}
+.dd-gui__shot img { width: 100%; height: auto; display: block; }
+.dd-gui__edge { position: absolute; top: 8px; bottom: 8px; left: -2px; width: 3px; z-index: 1; background: linear-gradient(180deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.85), rgba(124, 255, 178, 0)); }
+.dd-legend { display: flex; flex-direction: column; gap: 0.9rem; }
+.dd-legend__lede { margin: 0 0 0.25rem; font-size: 0.875rem; color: var(--bone-dim); }
+.dd-legend__row { display: flex; gap: 0.75rem; align-items: flex-start; }
+.dd-num {
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.8125rem;
+}
+.dd-num--plasma { background: var(--plasma); color: #06120B; }
+.dd-num--ember { background: var(--ember); color: #1A0A02; }
+.dd-legend__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone); }
+.dd-legend__line { margin: 0; font-size: 0.8125rem; line-height: 1.45; color: var(--bone-dim); }
+
+/* ── side-by-side figure (copy | shot) ── */
+.dd-figrow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 0.9fr);
+  gap: 1.75rem;
+  align-items: center;
+}
+.dd-figrow--rule { border-top: 1px solid rgba(255, 255, 255, 0.07); padding-top: 1.75rem; }
+.dd-figrow__copy { display: flex; flex-direction: column; gap: 0.75rem; }
+.dd-figrow__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
+.dd-figrow__shot { border-radius: 10px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: var(--shadow-md); }
+.dd-figrow__shot img { width: 100%; height: auto; display: block; }
+
+/* ── looping demo video frame ── */
+.dd-loop {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--carbon);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: var(--shadow-lg);
+}
+.dd-loop video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dd-loop--plasma { border-color: rgba(124, 255, 178, 0.35); box-shadow: var(--shadow-lg), 0 0 40px -14px rgba(124, 255, 178, 0.3); }
+.dd-loop--ember { border-color: rgba(255, 122, 61, 0.4); }
+.dd-loop__cap {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.25em;
+  color: var(--plasma-dim);
+}
+
+/* ── numbered fact rows (GOOD TO KNOW) ── */
+.dd-facts { display: flex; flex-direction: column; gap: 0.75rem; }
+.dd-fact {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+  background: linear-gradient(90deg, var(--iron), var(--carbon));
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 12px;
+  padding: 1.125rem 1.375rem;
+}
+.dd-fact--ember { border-color: rgba(255, 122, 61, 0.2); }
+.dd-fact--plasma { border-color: rgba(124, 255, 178, 0.18); }
+.dd-fact__num {
+  flex: none;
+  width: 1.875rem;
+  height: 1.875rem;
+  border-radius: 8px;
+  background: rgba(232, 224, 208, 0.1);
+  color: var(--bone);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-weight: 800;
+  font-size: 0.9375rem;
+}
+.dd-fact--ember .dd-fact__num { background: rgba(255, 122, 61, 0.14); color: var(--ember); }
+.dd-fact--plasma .dd-fact__num { background: rgba(124, 255, 178, 0.12); color: var(--plasma); }
+.dd-fact__name { margin: 0 0 0.25rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone); }
+.dd-fact__line { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--bone-dim); }
+.dd-fact__line b { color: var(--bone); }
+
+/* ── numbered step rows ── */
+.dd-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.dd-step {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  background: linear-gradient(90deg, var(--iron), var(--carbon));
+  border-radius: 0 10px 10px 0;
+  padding: 1rem 1.25rem;
+}
+.dd-step--plasma { border-left: 3px solid var(--plasma); }
+.dd-step--ember { border-left: 3px solid var(--ember); }
+.dd-step__num { flex: none; width: 1.75rem; font-family: var(--font-mono); font-weight: 800; font-size: 1.25rem; }
+.dd-step--plasma .dd-step__num { color: var(--plasma); }
+.dd-step--ember .dd-step__num { color: var(--ember); }
+.dd-step p { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--bone); }
+.dd-step b { color: var(--bone); }
+
+/* ── collapse ── */
+@media (max-width: 820px) {
+  .dd-panel { padding: 1.375rem 1.125rem 1.5rem; }
+  .dd-title { white-space: normal; }
+  .dd-cards { grid-template-columns: 1fr; }
+  .dd-gui { grid-template-columns: 1fr; }
+  .dd-figrow { grid-template-columns: 1fr; }
+}

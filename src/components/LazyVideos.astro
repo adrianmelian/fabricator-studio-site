@@ -1,0 +1,32 @@
+---
+// Lazy loader for the designed docs pages' demo loops (video[data-lazyvid]). One shared
+// copy so a playback fix lands everywhere at once (the muted-property quirk below already
+// bit once). Behavior: nothing downloads until its frame nears the viewport, nothing plays
+// off-screen, and prefers-reduced-motion gets stills only. Render once per page, after the
+// videos, e.g. as the last child of the article.
+---
+<script is:inline>
+  (function () {
+    var vids = document.querySelectorAll('video[data-lazyvid]');
+    if (!vids.length) return;
+    var still = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function arm(v) {
+      if (v.preload === 'none') v.preload = 'auto';
+      // Property, not just attribute: a known Chromium quirk can leave the muted attribute
+      // unreflected, and an unmuted programmatic play() gets policy-blocked.
+      v.muted = true; v.loop = true; v.playsInline = true;
+      if (!still && v.play) v.play().catch(function () {});
+    }
+    if (!('IntersectionObserver' in window)) {
+      vids.forEach(arm);
+      return;
+    }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) {
+        if (en.isIntersecting) arm(en.target);
+        else if (en.target.pause) en.target.pause();
+      });
+    }, { rootMargin: '200px 0px', threshold: 0.15 });
+    vids.forEach(function (v) { io.observe(v); });
+  })();
+</script>

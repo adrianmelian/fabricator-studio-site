@@ -1,0 +1,156 @@
+---
+// DESIGNED docs page for concepts/templates (Adrian x Claude Design, 2026-07-17; source
+// drop: MrMiata inbox/Docs/"Templates Docs.html"). Shared furniture:
+// src/styles/designed-doc.css + LazyVideos. Page-specific: the one-template-to-many-
+// characters diagram and the two WHY cards.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import LazyVideos from '../../../components/LazyVideos.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'Full rigs, ready to share across similar characters, even when their proportions differ.';
+
+const TITLE = 'TEMPLATES';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Templates | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; CONCEPT</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT -->
+    <section class="dd-panel" aria-labelledby="tp-what">
+      <div class="dd-panel__head">
+        <h2 id="tp-what" class="dd-label dd-label--plasma">WHAT</h2>
+        <p class="dd-lede">A full rig, shared across a cast</p>
+      </div>
+      <div class="tp-what">
+        <div class="tp-what__copy">
+          <p class="dd-prose">Templates are <b>full rigs</b>, ready to share across similar characters. They work even when your characters have <b class="b-plasma">different proportions</b>.</p>
+          <div class="tp-cast" aria-label="One template drives many characters">
+            <div class="tp-cast__src">
+              <div class="tp-cast__tile tp-cast__tile--lit"><span class="tp-cast__rig" aria-hidden="true"></span></div>
+              <div class="tp-cast__name">Template</div>
+            </div>
+            <div class="tp-cast__arrow" aria-hidden="true">&rarr;</div>
+            <div class="tp-cast__many">
+              <div class="tp-cast__char"><div class="tp-cast__tile"><span class="tp-shape tp-shape--biped" aria-hidden="true"></span></div><div class="tp-cast__sub">biped</div></div>
+              <div class="tp-cast__char"><div class="tp-cast__tile"><span class="tp-shape tp-shape--quad" aria-hidden="true"></span></div><div class="tp-cast__sub">quadruped</div></div>
+              <div class="tp-cast__char"><div class="tp-cast__tile"><span class="tp-shape tp-shape--creature" aria-hidden="true"></span></div><div class="tp-cast__sub">creature</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="dd-loop dd-loop--plasma tp-loop">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <video data-lazyvid src="/docs/templates/templates-loop.mp4" muted loop playsinline preload="none" aria-label="Dropping a template and building a full rig in Fabricator"></video>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="tp-why">
+      <div class="dd-panel__head">
+        <h2 id="tp-why" class="dd-label dd-label--ember">WHY</h2>
+        <p class="dd-lede">Consistency across a whole cast</p>
+      </div>
+      <div class="tp-cards">
+        <div class="tp-card tp-card--plasma">
+          <h3 class="tp-card__name">Consistent rigs</h3>
+          <p class="tp-card__line">Reach for a template when you want the same rig across a whole cast of characters.</p>
+        </div>
+        <div class="tp-card tp-card--ember">
+          <h3 class="tp-card__name">Animation retargeting</h3>
+          <p class="tp-card__line">Rigs built from the same template support <b class="b-ember">retargeting animation</b> between them.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW -->
+    <section class="dd-section" aria-labelledby="tp-how">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="tp-how" class="dd-label dd-label--plasma">HOW</h2>
+        <p class="dd-lede">Drag it on, it builds the whole rig</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Drag a template onto your <b>Rig Outliner</b> to add it to your scene.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>It builds the <b>skeleton and every rig component</b> from the template.</p></li>
+        <li class="dd-step dd-step--ember tp-step--merge"><span class="dd-step__num">3</span><p><span class="tp-merge">Smart merge:</span> if a joint from the template already exists in your scene, it adds <b class="b-ember">only the components</b> and leaves your joint alone.</p></li>
+      </ol>
+    </section>
+    <LazyVideos />
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the one-template-to-many diagram and the WHY cards. Shared furniture:
+     designed-doc.css. */
+  .tp-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr); gap: 2rem; align-items: center; }
+  .tp-what__copy { display: flex; flex-direction: column; gap: 1.25rem; }
+  .tp-loop { aspect-ratio: 16 / 10; }
+
+  .tp-cast { display: flex; align-items: center; gap: 1rem; }
+  .tp-cast__src { flex: none; display: flex; flex-direction: column; align-items: center; gap: 0.4rem; }
+  .tp-cast__tile {
+    width: 100%;
+    min-width: 4.25rem;
+    height: 4.25rem;
+    border-radius: 12px;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
+  .tp-cast__tile--lit {
+    width: 4.25rem;
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border-color: rgba(124, 255, 178, 0.5);
+    box-shadow: 0 0 26px -10px rgba(124, 255, 178, 0.4);
+  }
+  .tp-cast__rig { width: 1.5rem; height: 2rem; border: 3px solid var(--plasma); border-radius: 8px; }
+  .tp-cast__name { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; color: var(--bone); }
+  .tp-cast__arrow { flex: none; color: var(--plasma); font-size: 1.375rem; font-weight: 800; padding-bottom: 1.25rem; }
+  .tp-cast__many { flex: 1; display: flex; gap: 0.7rem; }
+  .tp-cast__char { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 0.35rem; }
+  .tp-cast__sub { font-family: var(--font-mono); font-size: 0.75rem; color: var(--bone-faint); }
+  .tp-shape { display: block; border: 2px solid var(--bone-dim); }
+  .tp-shape--biped { width: 1.1rem; height: 2.4rem; border-radius: 6px; }
+  .tp-shape--quad { width: 2.2rem; height: 1.3rem; border-radius: 6px; }
+  .tp-shape--creature { width: 1.4rem; height: 2.1rem; border-radius: 50% 50% 40% 40%; }
+
+  .tp-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .tp-card {
+    background: var(--carbon);
+    border-radius: 12px;
+    padding: 1.375rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .tp-card--plasma { border: 1px solid rgba(124, 255, 178, 0.2); }
+  .tp-card--ember { border: 1px solid rgba(255, 122, 61, 0.22); }
+  .tp-card__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); }
+  .tp-card__line { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--bone-dim); }
+
+  .tp-step--merge { background: var(--carbon); }
+  .tp-merge { color: var(--bone-faint); }
+
+  @media (max-width: 820px) {
+    .tp-what { grid-template-columns: 1fr; }
+    .tp-cards { grid-template-columns: 1fr; }
+    .tp-cast { flex-wrap: wrap; }
+  }
+</style>

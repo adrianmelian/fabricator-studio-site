@@ -1,0 +1,212 @@
+---
+// DESIGNED docs page for tools/joint-aimer (Adrian x Claude Design, 2026-07-17; source
+// drop: MrMiata inbox/Docs/"Joint Aimer Docs.html"). Shared furniture comes from
+// src/styles/designed-doc.css; this page adds the axis legend, the aimer video frame,
+// and the aim-target chips. Copy passed the house rules (no em-dashes). The demo video is
+// a plain public asset (Astro's image pipeline doesn't process video) at
+// public/docs/joint-aimer/ — deliberately OUTSIDE public/docs-media/, which sync-docs owns.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import fabricatorGui from '../../../assets/docs/joint-aimer/fabricator-gui.png';
+import aimersToggle from '../../../assets/docs/joint-aimer/aimers-toggle.png';
+import aimTargetBox from '../../../assets/docs/joint-aimer/aim-target-channelbox.png';
+
+const SUMMARY =
+  "Preview each joint's orientation with an auto-aiming, always manually-rotatable XYZ aimer, then bake it into clean, engine-ready joint rotations with one click.";
+
+const TITLE = 'JOINT AIMER';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Joint Aimer | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; RIGGING</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES: copy + axis legend | aimer video -->
+    <section class="dd-panel" aria-labelledby="ja-what">
+      <div class="dd-panel__head">
+        <h2 id="ja-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">A visible orientation you can preview before committing</p>
+      </div>
+      <div class="ja-what">
+        <div class="ja-what__copy">
+          <p class="dd-prose">Joint Aimer puts a visible <b>XYZ arrow on each joint</b> so you can preview its orientation before committing. Point each aimer at the next joint, or dial in a custom twist.</p>
+          <p class="dd-prose">Then click <b class="b-plasma">Orient All Joints</b> to bake it into clean rotation. It's the tool for orienting hand-built or imported skeletons. Inside Fabricator it runs automatically when building an Animation Rig from the Armature Rig.</p>
+          <!-- Maya's viewport axis colors, quoted deliberately: this legend depicts the
+               tool's own XYZ arrows, the same way a screenshot would. -->
+          {/* Swatches are inline SVG imagery, not CSS accents: they QUOTE Maya's viewport
+              axis colors the way a screenshot would. Styling them via CSS reads to the
+              brand gates as a third functional accent, which they are not. */}
+          <div class="ja-axes" aria-label="Aimer axis colors">
+            <div class="ja-axes__item"><svg class="ja-axes__swatch" viewBox="0 0 28 4" role="img" aria-label="red"><rect width="28" height="4" rx="2" fill="#FF3B3B" /></svg><span class="ja-axes__name">X <em>aim</em></span></div>
+            <div class="ja-axes__item"><svg class="ja-axes__swatch" viewBox="0 0 28 4" role="img" aria-label="green"><rect width="28" height="4" rx="2" fill="#3BFF6E" /></svg><span class="ja-axes__name">Y <em>up</em></span></div>
+            <div class="ja-axes__item"><svg class="ja-axes__swatch" viewBox="0 0 28 4" role="img" aria-label="blue"><rect width="28" height="4" rx="2" fill="#3B8CFF" /></svg><span class="ja-axes__name">Z <em>side</em></span></div>
+          </div>
+        </div>
+        <div class="ja-video">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <video src="/docs/joint-aimer/aimer-loop.mp4" autoplay muted loop playsinline aria-label="A joint aimer rotating live in the Maya viewport"></video>
+          <div class="ja-video__cap" aria-hidden="true">LIVE XYZ AIMER</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AIM TARGET: copy + chips | channel-box screenshot -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="ja-target">
+      <div class="dd-panel__head">
+        <h2 id="ja-target" class="dd-label dd-label--ember">AIM TARGET</h2>
+        <p class="dd-lede">Tell each aimer where to auto-aim</p>
+      </div>
+      <div class="ja-target">
+        <div class="ja-target__copy">
+          <p class="dd-prose">Every Aimer Control has an <b class="b-ember">Aim Target</b> attribute in the channel box. Each aimer automatically offers these choices:</p>
+          <div class="ja-chips">
+            <div class="ja-chip"><span class="ja-chip__dot ja-chip__dot--plasma"></span>World</div>
+            <div class="ja-chip"><span class="ja-chip__dot ja-chip__dot--plasma"></span>Local</div>
+            <div class="ja-chip"><span class="ja-chip__dot ja-chip__dot--plasma"></span>Parent</div>
+            <div class="ja-chip"><span class="ja-chip__dot ja-chip__dot--ember"></span>Every child joint</div>
+          </div>
+          <p class="ja-hint">Pick a child joint to aim down the chain, or World / Local / Parent for a fixed reference.</p>
+        </div>
+        <div class="dd-figrow__shot">
+          <Image src={aimTargetBox} alt="The Aim Target attribute in Maya's channel box" widths={[420, 840]} sizes="(max-width: 820px) 92vw, 340px" />
+        </div>
+      </div>
+    </section>
+
+    <!-- WHERE: the Aimers toggle in the toolbar -->
+    <section class="dd-panel" aria-labelledby="ja-where">
+      <div class="dd-panel__head">
+        <h2 id="ja-where" class="dd-label dd-label--plasma">WHERE</h2>
+        <p class="dd-lede">The Aimers toggle lives in the Fabricator toolbar</p>
+      </div>
+      <div class="dd-gui dd-gui--centered">
+        <div class="dd-gui__shot">
+          <div class="dd-gui__edge" aria-hidden="true"></div>
+          <Image src={fabricatorGui} alt="The Fabricator window with the Aimers toggle in the top toolbar" widths={[940, 1880]} sizes="(max-width: 820px) 92vw, 560px" />
+        </div>
+        <div class="ja-toggle">
+          <div class="ja-toggle__label">TOGGLE</div>
+          <div class="ja-toggle__frame">
+            <Image src={aimersToggle} alt="The Aimers toolbar button" densities={[1, 2]} />
+          </div>
+          <p class="dd-prose">Toggle <b class="b-plasma">Aimers</b> in the top toolbar to show or hide the XYZ arrows across the whole skeleton while you work.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section class="dd-section" aria-labelledby="ja-quickstart">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ja-quickstart" class="dd-label dd-label--ember">QUICK START</h2>
+        <p class="dd-lede">From aimer to baked rotation</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Aimers are <b>automatically built</b> into the Armature System, no setup needed.</p></li>
+        <li class="dd-step dd-step--ember"><span class="dd-step__num">2</span><p>Set each aimer's <b class="b-ember">Aim Target</b>: World, Local, Parent, or any child joint.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>Run <b class="b-plasma">Aim Joints at Aimers</b> to aim on the fly, or just build your rig and joints aim at the aimers automatically.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">4</span><p>Click <b>Orient All Joints</b> to bake into clean, engine-ready rotations.</p></li>
+      </ol>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the what-grid with the square video, the Maya-axis legend, the
+     aim-target chips, and the toggle column. Shared furniture: designed-doc.css. */
+  .ja-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.8fr); gap: 2rem; align-items: center; }
+  .ja-what__copy { display: flex; flex-direction: column; gap: 1rem; }
+
+  /* Maya's own axis colors (red/green/blue), quoted as tool depiction, not brand accents. */
+  .ja-axes { display: flex; gap: 1.5rem; margin-top: 0.25rem; flex-wrap: wrap; }
+  .ja-axes__item { display: flex; align-items: center; gap: 0.6rem; }
+  .ja-axes__swatch { width: 1.75rem; height: 4px; display: block; }
+  .ja-axes__name { font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone); }
+  .ja-axes__name em { font-style: normal; font-weight: 400; color: var(--bone-faint); }
+
+  .ja-video {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    aspect-ratio: 1 / 1;
+    box-shadow: var(--shadow-lg), inset 0 0 0 1px rgba(255, 255, 255, 0.03);
+  }
+  .ja-video video { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ja-video__cap {
+    position: absolute;
+    bottom: 0.75rem;
+    left: 0;
+    right: 0;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.25em;
+    color: var(--plasma-dim);
+  }
+
+  .ja-target { display: grid; grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr); gap: 2rem; align-items: center; }
+  .ja-target__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .ja-chips { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.6rem; }
+  .ja-chip {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 10px;
+    padding: 0.7rem 0.9rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--bone);
+  }
+  .ja-chip__dot { flex: none; width: 0.5rem; height: 0.5rem; border-radius: 50%; }
+  .ja-chip__dot--plasma { background: var(--plasma); }
+  .ja-chip__dot--ember { background: var(--ember); }
+  .ja-hint { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-faint); }
+
+  .ja-toggle { display: flex; flex-direction: column; gap: 0.9rem; }
+  .ja-toggle__label { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.25em; color: var(--bone-faint); }
+  .ja-toggle__frame {
+    align-self: flex-start;
+    padding: 0.6rem 0.9rem;
+    border-radius: 10px;
+    background: var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.3);
+  }
+  .ja-toggle__frame :global(img) { height: 2.25rem; width: auto; display: block; }
+
+  @media (max-width: 820px) {
+    .ja-what { grid-template-columns: 1fr; }
+    .ja-target { grid-template-columns: 1fr; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    /* The loop is decorative; a paused first frame reads fine and respects the setting. */
+    .ja-video video { display: none; }
+    .ja-video { aspect-ratio: auto; min-height: 12rem; }
+  }
+</style>
+
+<script is:inline>
+  (function () {
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      document.querySelectorAll('.ja-video video').forEach(function (v) { v.removeAttribute('autoplay'); v.pause(); });
+    }
+  })();
+</script>

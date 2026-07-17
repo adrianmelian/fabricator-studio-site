@@ -1,0 +1,182 @@
+---
+// DESIGNED docs page for concepts/components (Adrian x Claude Design, 2026-07-17; source
+// drop: MrMiata inbox/Docs/"Components Docs.html"). Shared furniture:
+// src/styles/designed-doc.css + LazyVideos. Page-specific: the block chips, the
+// joint-plus-component concept diagram, and the two info cards.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import LazyVideos from '../../../components/LazyVideos.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'The raw building blocks of a rig: simple Python scripts you attach to tell it how to build.';
+
+const TITLE = 'COMPONENTS';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Components | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; CONCEPT</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT -->
+    <section class="dd-panel" aria-labelledby="cp-what">
+      <div class="dd-panel__head">
+        <h2 id="cp-what" class="dd-label dd-label--plasma">WHAT</h2>
+        <p class="dd-lede">The blocks that give your joints life</p>
+      </div>
+      <div class="cp-what">
+        <div class="cp-what__copy">
+          <p class="dd-prose">The raw building blocks of every rig, components that give your joints life. They're <b>modular</b>: you or your Tech Art team can build custom components in <b class="b-plasma">Python</b> and the system detects them automatically.</p>
+          <p class="dd-prose">Think of them as the basic building blocks of any rig (IK, FK, Ribbon, Aim), stacked and combined into your animation team's favorite rig.</p>
+          <div class="cp-eq" aria-label="A component is a Python script">
+            <div class="cp-eq__tile cp-eq__tile--comp">Components</div>
+            <div class="cp-eq__op" aria-hidden="true">=</div>
+            <div class="cp-eq__tile cp-eq__tile--script">Python Script</div>
+          </div>
+        </div>
+        <div class="dd-loop dd-loop--plasma cp-loop">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <video data-lazyvid src="/docs/components/components-loop.mp4" muted loop playsinline preload="none" aria-label="Attaching rig components to joints in Fabricator"></video>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="cp-why">
+      <div class="dd-panel__head">
+        <h2 id="cp-why" class="dd-label dd-label--ember">WHY</h2>
+        <p class="dd-lede">The lowest common denominator of any rig</p>
+      </div>
+      <p class="cp-why">Components are the <b>lowest common denominator</b> of any animation rig, meant to be combined and customized for your rigging and animation team's needs.</p>
+    </section>
+
+    <!-- HOW -->
+    <section class="dd-panel" aria-labelledby="cp-how">
+      <div class="dd-panel__head">
+        <h2 id="cp-how" class="dd-label dd-label--plasma">HOW</h2>
+        <p class="dd-lede">Attach components to joints to give them controls</p>
+      </div>
+      <div class="cp-diagram" aria-label="A joint plus a component makes a driven control">
+        <div class="cp-node">
+          <div class="cp-node__tile"><span class="cp-node__joint" aria-hidden="true"></span></div>
+          <div class="cp-node__name">Joint</div>
+        </div>
+        <div class="cp-diagram__op" aria-hidden="true">+</div>
+        <div class="cp-node">
+          <div class="cp-node__tile cp-node__tile--comp">FK</div>
+          <div class="cp-node__name">Component</div>
+        </div>
+        <div class="cp-diagram__op cp-diagram__op--arrow" aria-hidden="true">&rarr;</div>
+        <div class="cp-node">
+          <div class="cp-node__tile cp-node__tile--lit"><span class="cp-node__ctrl" aria-hidden="true"></span></div>
+          <div class="cp-node__name">Driven control</div>
+        </div>
+      </div>
+      <div class="cp-cards">
+        <div class="cp-card">
+          <h3 class="cp-card__name">No skeleton included</h3>
+          <p class="cp-card__line">Components don't come with a skeleton or any joints. You add them to joints; the simplest example is an <b class="b-plasma">FK component</b> that drives a single joint.</p>
+        </div>
+        <div class="cp-card cp-card--ember">
+          <div class="cp-card__head"><span class="cp-card__mark" aria-hidden="true">&#9432;</span><h3 class="cp-card__name">Check the attach rules</h3></div>
+          <p class="cp-card__line">Each component has its own requirements for how it attaches. <b class="b-ember">Hover over a component</b> in the Palette for the details.</p>
+        </div>
+      </div>
+    </section>
+    <LazyVideos />
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: block chips, the joint+component=control diagram, and the info cards.
+     Shared furniture: designed-doc.css. */
+  .cp-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr); gap: 2rem; align-items: center; }
+  .cp-what__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .cp-loop { aspect-ratio: 16 / 10; }
+
+  /* Components = Python Script, the Limbs-page equation language (Adrian 2026-07-17).
+     The script tile is MAGMA, the code tertiary accent's first use. */
+  .cp-eq { display: flex; align-items: center; gap: 0.9rem; margin-top: 0.25rem; }
+  .cp-eq__tile {
+    flex: 1;
+    text-align: center;
+    background: var(--carbon);
+    border-radius: 12px;
+    padding: 0.9rem 0.6rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+  }
+  .cp-eq__tile--comp {
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.5);
+    color: var(--plasma);
+    box-shadow: 0 0 26px -10px rgba(124, 255, 178, 0.4);
+  }
+  .cp-eq__tile--script { border: 1px solid rgba(255, 59, 59, 0.4); color: var(--magma); }
+  .cp-eq__op { flex: none; font-size: 1.25rem; font-weight: 800; color: var(--bone-faint); }
+
+  .cp-why { margin: 0; max-width: 56rem; font-size: 1.0625rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .cp-why b { color: var(--bone); }
+
+  .cp-diagram { display: flex; align-items: center; justify-content: center; gap: 1.5rem; padding: 0.75rem 0 0.25rem; flex-wrap: wrap; }
+  .cp-node { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
+  .cp-node__tile {
+    width: 5.75rem;
+    height: 5.75rem;
+    border-radius: 14px;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.25rem;
+  }
+  .cp-node__tile--comp { border-color: rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
+  .cp-node__tile--lit {
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border-color: rgba(124, 255, 178, 0.5);
+    box-shadow: 0 0 26px -8px rgba(124, 255, 178, 0.4);
+  }
+  .cp-node__joint { width: 1rem; height: 1rem; border-radius: 50%; background: var(--bone); box-shadow: 0 0 0 0.4rem rgba(232, 224, 208, 0.12); }
+  .cp-node__ctrl { width: 2.375rem; height: 2.375rem; border: 3px solid var(--plasma); border-radius: 50%; }
+  .cp-node__name { font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; color: var(--bone); }
+  .cp-diagram__op { font-size: 1.75rem; font-weight: 800; color: var(--bone-faint); padding-bottom: 1.75rem; }
+  .cp-diagram__op--arrow { color: var(--plasma); }
+
+  .cp-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .cp-card {
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    padding: 1.375rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .cp-card--ember { border-color: rgba(255, 122, 61, 0.22); }
+  .cp-card__head { display: flex; align-items: center; gap: 0.6rem; }
+  .cp-card__mark { color: var(--ember); font-size: 1.125rem; font-weight: 800; }
+  .cp-card__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); }
+  .cp-card__line { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--bone-dim); }
+
+  @media (max-width: 820px) {
+    .cp-what { grid-template-columns: 1fr; }
+    .cp-cards { grid-template-columns: 1fr; }
+  }
+</style>

@@ -16,6 +16,7 @@ CtrlEditor is the control-curve shape library for rigging. Pick a shape and buil
 4. Optional: with control(s) selected, pick a color and click Apply Color.
 
 ## Good to know
+- Never lose work: when unbuilding a rig, the system remembers your ctrl-shape choices.
 - Build at Origin always places the new control at world origin; it ignores your viewport selection.
 - Delete removes a shape's file permanently, with no undo.
 - Mirror needs a recognized side token (L/R, left/right) in the name, and the opposite control must already exist.

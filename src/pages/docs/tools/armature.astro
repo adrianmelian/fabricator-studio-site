@@ -1,0 +1,200 @@
+---
+// DESIGNED docs page for tools/armature (Adrian x Claude Design, 2026-07-17; source drop:
+// MrMiata inbox/Docs/Armature/"Armature Rig Docs.html"). Ported from the fixed-1740px
+// bundle into the docs shell: site tokens and self-hosted fonts replace the bundled ones,
+// the layout is fluid down to phones, and the copy passed the house rules (no em-dashes).
+// The markdown twin (src/content/docs-authored/tools/armature.md -> synced snapshot)
+// carries the same What/Why/How for Reggie and search; this page owns the URL for humans
+// (the [...slug] route skips DESIGNED_DOC_IDS).
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import armatureControls from '../../../assets/docs/armature/armature-controls.png';
+import builtRig from '../../../assets/docs/armature/built-rig.png';
+import armatureGui from '../../../assets/docs/armature/armature-gui.png';
+import limbMenu from '../../../assets/docs/armature/limb-menu.png';
+
+const SUMMARY =
+  "Fabricator's editable skeleton stage. Place the joints, they auto-orient, and it bakes into a clean, engine-ready skeleton when you build your Animation Rig.";
+
+// The outlined tri-color treatment cycles bone / plasma / ember per glyph (the brand
+// signature). Rendered from data so the heading stays one string in the markup.
+const TITLE = 'ARMATURE RIG';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Armature | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; TOOL REFERENCE</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT: author -> build -> built, as a flow -->
+    <section class="dd-panel" aria-labelledby="dd-what">
+      <div class="dd-panel__head">
+        <h2 id="dd-what" class="dd-label dd-label--plasma">WHAT</h2>
+        <p class="dd-lede">Every rig starts in the Armature</p>
+      </div>
+      <div class="dd-flow">
+        <div class="dd-flow__step">
+          <div class="dd-shot dd-shot--ember">
+            <div class="dd-shot__glow dd-shot__glow--ember" aria-hidden="true"></div>
+            <Image src={armatureControls} alt="Armature controls in the Maya viewport" widths={[552, 1104]} sizes="(max-width: 820px) 92vw, 280px" />
+          </div>
+          <h3 class="dd-flow__tag dd-flow__tag--ember">01 &middot; AUTHOR</h3>
+          <p class="dd-flow__cap">Place &amp; shape the Armature controls. This is the editable stage.</p>
+        </div>
+        <div class="dd-flow__arrow" aria-hidden="true">&rarr;</div>
+        <div class="dd-flow__step">
+          <div class="dd-build" aria-hidden="true">
+            <div class="dd-build__chain">
+              <span class="dd-build__dot dd-build__dot--ember"></span>
+              <span class="dd-build__link dd-build__link--a"></span>
+              <span class="dd-build__dot dd-build__dot--bone"></span>
+              <span class="dd-build__link dd-build__link--b"></span>
+              <span class="dd-build__dot dd-build__dot--plasma"></span>
+            </div>
+            <div class="dd-chip">BUILD RIG</div>
+            <p class="dd-build__cap">Aimers auto-align,<br />then bake to a skeleton</p>
+          </div>
+          <h3 class="dd-flow__tag dd-flow__tag--plasma">02 &middot; BUILD</h3>
+          <p class="dd-flow__cap">Aimers auto-align each joint; symmetry mirrors live. Then bake.</p>
+        </div>
+        <div class="dd-flow__arrow" aria-hidden="true">&rarr;</div>
+        <div class="dd-flow__step">
+          <div class="dd-shot dd-shot--plasma">
+            <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+            <Image src={builtRig} alt="The built, engine-ready animation rig" widths={[552, 1104]} sizes="(max-width: 820px) 92vw, 280px" />
+            <div class="dd-shot__badge"><span class="dd-chip dd-chip--sm">BUILT RIG</span></div>
+          </div>
+          <h3 class="dd-flow__tag dd-flow__tag--plasma">03 &middot; BUILT RIG</h3>
+          <p class="dd-flow__cap">Clean, engine-ready skeleton. Non-destructive: unbuild to return.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY: three cards -->
+    <section class="dd-section" aria-labelledby="dd-why">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="dd-why" class="dd-label dd-label--ember">WHY</h2>
+        <p class="dd-lede">A rig is only as good as the skeleton under it</p>
+      </div>
+      <div class="dd-cards">
+        <div class="dd-card">
+          <div class="dd-card__icon dd-card__icon--plasma" aria-hidden="true">&#8918;&#8919;</div>
+          <h3 class="dd-card__name">Auto-orient</h3>
+          <p class="dd-card__line">Joints orient themselves as you move them. Aimers always show the final orientation of each joint.</p>
+        </div>
+        <div class="dd-card">
+          <div class="dd-card__icon dd-card__icon--ember" aria-hidden="true">&#8646;</div>
+          <h3 class="dd-card__name">Live symmetry</h3>
+          <p class="dd-card__line">Symmetry mirrors one side onto the other as you work. Turn it off for asymmetry.</p>
+        </div>
+        <div class="dd-card">
+          <div class="dd-card__icon dd-card__icon--plasma" aria-hidden="true">&#8635;</div>
+          <h3 class="dd-card__name">Non-destructive</h3>
+          <p class="dd-card__line">Stays live. Restructure at any point; skinned meshes detach and rebind automatically around edits.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW: the annotated GUI -->
+    <section class="dd-panel" aria-labelledby="dd-how">
+      <div class="dd-panel__head">
+        <h2 id="dd-how" class="dd-label dd-label--plasma">HOW</h2>
+        <p class="dd-lede">The Armature toolbar</p>
+      </div>
+      <div class="dd-gui">
+        <div class="dd-gui__shot">
+          <div class="dd-gui__edge" aria-hidden="true"></div>
+          <Image src={armatureGui} alt="The Fabricator window in Armature mode, Skeleton Helpers Bar at top" widths={[940, 1880]} sizes="(max-width: 820px) 92vw, 560px" />
+        </div>
+        <div class="dd-legend">
+          <p class="dd-legend__lede">Five actions drive the Armature:</p>
+          <div class="dd-legend__row"><span class="dd-num dd-num--plasma">1</span><div><h3 class="dd-legend__name">Skeleton</h3><p class="dd-legend__line">Add &amp; structure joints in the outliner.</p></div></div>
+          <div class="dd-legend__row"><span class="dd-num dd-num--plasma">2</span><div><h3 class="dd-legend__name">Aimers</h3><p class="dd-legend__line">Show the final orientation of each joint.</p></div></div>
+          <div class="dd-legend__row"><span class="dd-num dd-num--ember">3</span><div><h3 class="dd-legend__name">Mirror</h3><p class="dd-legend__line">Mirror a limb across the center axis.</p></div></div>
+          <div class="dd-legend__row"><span class="dd-num dd-num--ember">4</span><div><h3 class="dd-legend__name">Duplicate</h3><p class="dd-legend__line">Copy limbs as needed.</p></div></div>
+          <div class="dd-legend__row"><span class="dd-num dd-num--plasma">5</span><div><h3 class="dd-legend__name">Symmetry</h3><p class="dd-legend__line">Keep both sides matched live. Toggle off for asymmetry.</p></div></div>
+        </div>
+      </div>
+      <div class="dd-figrow dd-figrow--rule">
+        <div class="dd-figrow__copy">
+          <h3 class="dd-figrow__name">Per-limb actions</h3>
+          <p class="dd-prose">Right-click any limb in the Rig Outliner to <b class="b-ember">Mirror</b> it across the center axis or <b class="b-plasma">Duplicate</b> it. The same menu adds or removes components, saves the limb as a preset, or deletes it.</p>
+        </div>
+        <div class="dd-figrow__shot">
+          <Image src={limbMenu} alt="The right-click limb menu in the Rig Outliner" widths={[671, 1342]} sizes="(max-width: 820px) 92vw, 400px" />
+        </div>
+      </div>
+    </section>
+
+    <!-- WORKFLOW: the six steps -->
+    <section class="dd-section" aria-labelledby="dd-workflow">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="dd-workflow" class="dd-label dd-label--ember">WORKFLOW</h2>
+        <p class="dd-lede">From empty scene to built rig</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Start with a <b>Template</b>, a single root joint, or bring your own skeleton.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Move the <b>Armature Controls</b> around to place the skeleton.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>Watch the <b class="b-plasma">Aimers</b> move, they represent the final orientation of each joint.</p></li>
+        <li class="dd-step dd-step--ember"><span class="dd-step__num">4</span><p>Use <b class="b-ember">Symmetry</b> to keep the skeleton symmetrical. Turn off for asymmetry.</p></li>
+        <li class="dd-step dd-step--ember"><span class="dd-step__num">5</span><p><b class="b-ember">Duplicate &amp; Mirror</b> limbs as needed.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">6</span><p>Hit <b>Build Rig</b>. It's non-destructive. Unbuild and land right back in the Armature with nothing lost.</p></li>
+      </ol>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the WHAT flow (author -> build -> built) and the build diagram.
+     Everything else comes from src/styles/designed-doc.css. */
+  .dd-flow { display: grid; grid-template-columns: 1fr 2.25rem 1fr 2.25rem 1fr; align-items: start; }
+  .dd-flow__step { display: flex; flex-direction: column; gap: 0.6rem; min-width: 0; }
+  .dd-flow__arrow { align-self: center; text-align: center; color: var(--plasma); font-size: 1.5rem; font-weight: 800; padding-bottom: 3.5rem; }
+  .dd-flow__tag { margin: 0.35rem 0 0; font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; letter-spacing: 0.12em; }
+  .dd-flow__tag--ember { color: var(--ember); }
+  .dd-flow__tag--plasma { color: var(--plasma); }
+  .dd-flow__cap { margin: 0; font-size: 0.875rem; line-height: 1.45; color: var(--bone-dim); }
+  .dd-flow :global(.dd-shot) { aspect-ratio: 552 / 793; }
+
+  .dd-build {
+    border-radius: 12px;
+    background: linear-gradient(160deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.3);
+    aspect-ratio: 552 / 793;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.1rem;
+    padding: 1.5rem;
+    text-align: center;
+  }
+  .dd-build__chain { display: flex; flex-direction: column; align-items: center; }
+  .dd-build__dot { width: 0.7rem; height: 0.7rem; border-radius: 50%; }
+  .dd-build__dot--ember { background: var(--ember); box-shadow: 0 0 10px rgba(255, 122, 61, 0.5); }
+  .dd-build__dot--bone { background: var(--bone); width: 0.6rem; height: 0.6rem; }
+  .dd-build__dot--plasma { background: var(--plasma); box-shadow: 0 0 10px rgba(124, 255, 178, 0.5); }
+  .dd-build__link { width: 2px; height: 1.1rem; }
+  .dd-build__link--a { background: linear-gradient(var(--ember), var(--bone)); }
+  .dd-build__link--b { background: linear-gradient(var(--bone), var(--plasma)); }
+  .dd-build__cap { margin: 0; font-size: 0.8125rem; line-height: 1.5; color: var(--plasma-dim); }
+
+  @media (max-width: 820px) {
+    .dd-flow { grid-template-columns: 1fr; gap: 0.75rem; }
+    .dd-flow__arrow { transform: rotate(90deg); padding: 0; margin: 0.25rem auto; }
+  }
+</style>

@@ -141,6 +141,8 @@ const PALETTE = new Set([
   'e8e0d0', '8a8378', '5a554d',                     // bone + dims
   '7cffb2', '4fb888',                               // plasma
   'ff7a3d', 'b5532a',                               // ember
+  '7cb8ff', '4f84be',                               // cobalt (structural tertiary, Adrian 2026-07-17)
+  'ff3b3b', 'b52a2a',                               // magma (code tertiary, Adrian 2026-07-17)
   '000', '000000', 'fff', 'ffffff',                 // neutrals (shadow / scrim ink)
 ]);
 // Principle 1 bans a third functional ACCENT, not a neutral tint. The animated tool-window
@@ -175,9 +177,11 @@ const PALETTE_RGB = [
   [232, 224, 208], [138, 131, 120], [90, 85, 77],
   [124, 255, 178], [79, 184, 136],
   [255, 122, 61], [181, 83, 42],
+  [124, 184, 255], [79, 132, 190],
+  [255, 59, 59], [181, 42, 42],
   [0, 0, 0], [255, 255, 255],
 ];
-const DIRECTION = /^(to\s+(top|bottom|left|right)(\s+(left|right|top|bottom))?|-?[\d.]+(deg|grad|rad|turn)|circle|ellipse|at\s+.*|closest-\w+|farthest-\w+)$/i;
+const DIRECTION = /^(to\s+(top|bottom|left|right)(\s+(left|right|top|bottom))?|-?[\d.]+(deg|grad|rad|turn)|circle|ellipse|at\s+.*|([\d.]+(%|px|r?em)\s+){1,2}(circle\s+|ellipse\s+)?at\s+.*|closest-\w+|farthest-\w+)$/i;
 
 function extractBalanced(text, openParenIdx) {
   let depth = 0;

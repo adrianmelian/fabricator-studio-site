@@ -1,0 +1,131 @@
+---
+// DESIGNED docs page for concepts/limbs (Adrian x Claude Design, 2026-07-17; source drop:
+// MrMiata inbox/Docs/"Limbs Docs.html"). Shared furniture: src/styles/designed-doc.css +
+// LazyVideos. Page-specific: the joints-plus-components inline diagram.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import LazyVideos from '../../../components/LazyVideos.astro';
+import '../../../styles/designed-doc.css';
+
+const SUMMARY =
+  'The next step up in rig modularity: joints and components together. Parts of a rig, like an arm or a leg, that you add on to grow your rig.';
+
+const TITLE = 'LIMBS';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Limbs | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; CONCEPT</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT -->
+    <section class="dd-panel" aria-labelledby="lm-what">
+      <div class="dd-panel__head">
+        <h2 id="lm-what" class="dd-label dd-label--plasma">WHAT</h2>
+        <p class="dd-lede">Templates, but just the parts</p>
+      </div>
+      <div class="lm-what">
+        <div class="lm-what__copy">
+          <p class="dd-prose">Limbs are like <b>templates</b>, but instead of a full rig they're just parts, like an arm or a leg.</p>
+          <div class="lm-row" aria-label="A limb equals components plus joints">
+            <div class="lm-tile lm-tile--limb lm-row__result">Limbs</div>
+            <div class="lm-op lm-op--eq" aria-hidden="true">=</div>
+            <div class="lm-row__stack">
+              <div class="lm-tile lm-tile--comp">Components</div>
+              <div class="lm-op" aria-hidden="true">+</div>
+              <div class="lm-tile lm-tile--joints">Joints</div>
+            </div>
+          </div>
+        </div>
+        <div class="dd-loop dd-loop--plasma lm-loop">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <video data-lazyvid src="/docs/limbs/limbs-loop.mp4" muted loop playsinline preload="none" aria-label="Dragging a limb onto a joint and watching it build itself"></video>
+        </div>
+      </div>
+    </section>
+
+    <!-- WHY -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="lm-why">
+      <div class="dd-panel__head">
+        <h2 id="lm-why" class="dd-label dd-label--ember">WHY</h2>
+        <p class="dd-lede">The modular pieces of your rig</p>
+      </div>
+      <p class="lm-why">Add as many <b>arms and legs</b> as a character needs, or anything else you want to build onto it. Limbs are the modular pieces you grow a rig from.</p>
+    </section>
+
+    <!-- HOW -->
+    <section class="dd-section" aria-labelledby="lm-how">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="lm-how" class="dd-label dd-label--plasma">HOW</h2>
+        <p class="dd-lede">Drag on, and the limb builds itself</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Select a <b>parent joint</b> for the limb.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Drag a <b class="b-plasma">limb component</b> onto that joint in your Rig Outliner.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>The limb <b>builds itself</b>, joints and components included.</p></li>
+        <li class="dd-step dd-step--ember lm-step--reuse"><span class="dd-step__num">4</span><p><span class="lm-reuse">Reuse:</span> make custom limbs once, then <b class="b-ember">right-click the root</b> of the branch to save them back out as new limbs for other characters or creatures.</p></li>
+      </ol>
+    </section>
+    <LazyVideos />
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the joints+components=limb row. Shared furniture: designed-doc.css. */
+  .lm-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.95fr); gap: 2rem; align-items: center; }
+  .lm-what__copy { display: flex; flex-direction: column; gap: 1.25rem; }
+  .lm-loop { aspect-ratio: 16 / 10; }
+
+  /* Limbs = (Components + Joints), the equation reading left to right with the parts
+     stacked (Adrian 2026-07-17). The result tile stretches to the stack's height. */
+  .lm-row { display: flex; align-items: stretch; gap: 0.9rem; }
+  .lm-row__result { flex: 1; display: flex; align-items: center; justify-content: center; font-size: 1.0625rem; }
+  .lm-row__stack { flex: 1.4; display: flex; flex-direction: column; gap: 0.35rem; }
+  .lm-row__stack .lm-op { align-self: center; }
+  .lm-op--eq { align-self: center; }
+  .lm-tile {
+    text-align: center;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 0.9rem 0.6rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--bone);
+  }
+  .lm-tile--comp { border-color: rgba(124, 255, 178, 0.3); color: var(--plasma); }
+  /* Joints in cobalt, the structural accent's first-ever use (Adrian 2026-07-17). */
+  .lm-tile--joints { border-color: rgba(124, 184, 255, 0.35); color: var(--cobalt); }
+  /* Ember result tile (Adrian 2026-07-17): ember-at-alpha wash over carbon (palette-legal
+     gradient stops), plus the halo. */
+  .lm-tile--limb {
+    background: linear-gradient(160deg, rgba(255, 122, 61, 0.12), rgba(255, 122, 61, 0)), var(--carbon);
+    border-color: rgba(255, 122, 61, 0.5);
+    color: var(--ember);
+    box-shadow: 0 0 26px -10px rgba(255, 122, 61, 0.4);
+  }
+  .lm-op { flex: none; font-size: 1.25rem; font-weight: 800; color: var(--bone-faint); }
+  .lm-op--arrow { color: var(--plasma); }
+
+  .lm-why { margin: 0; max-width: 56rem; font-size: 1.0625rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .lm-why b { color: var(--bone); }
+
+  .lm-step--reuse { background: var(--carbon); }
+  .lm-reuse { color: var(--bone-faint); }
+
+  @media (max-width: 820px) {
+    .lm-what { grid-template-columns: 1fr; }
+  }
+</style>
