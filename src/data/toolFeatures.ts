@@ -144,7 +144,7 @@ export const toolFeatureBlocks: ToolFeatureBlock[] = [
       'Propose first, file second: it troubleshoots from the shipped docs before it is allowed to file a bug.',
       'Pre-filled bug reports with repro, versions, and diagnostics. You click submit; nothing auto-posts.',
       'READ-ONLY: your AI can see, never touch. Zero write operations in the bridge, auditable in the source.',
-      'Open source, transparent, verifiable code.',
+      'Source available, transparent, verifiable code.',
       'No telemetry, no bundled model, localhost only, off by default.',
     ],
   },

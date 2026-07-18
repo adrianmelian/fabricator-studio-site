@@ -78,6 +78,20 @@ for (const f of htmlFiles) {
   if (m) failures.push(`G12 hype word "${m[0]}" in ${f}`);
 }
 
+// ---- gate 13 (SITE-LIC-R1, 2026-07-18): BSL 1.1 is not open source ---------
+// The license honesty rule, mechanized: the built site must never say "open source"
+// (any casing, spacing, or hyphenation) or reference Apache. Raw scan rather than
+// visibleText, so the string dies in metas, alt text, attributes, and comments too.
+const LIC = /open[\s-]+source|apache/i;
+for (const f of htmlFiles) {
+  const m = readFileSync(f, 'utf8').match(LIC);
+  if (m) failures.push(`G13 license claim "${m[0]}" in ${f}`);
+}
+for (const [css, where] of allCss) {
+  const m = css.match(LIC);
+  if (m) failures.push(`G13 license claim "${m[0]}" in ${where}`);
+}
+
 // ---- principle 9: the company renders as FabricatorStudio ------------------
 // Compound, capital F and capital S, no dot, NO SPACE (DNA section 7). The gate used to
 // test only the mid-word dot, so "Fabricator Studio" (spaced) sailed through it; that is
