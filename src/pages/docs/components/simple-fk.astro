@@ -9,19 +9,19 @@ import '../../../styles/designed-doc.css';
 const SUMMARY =
   "A single FK control on one joint: the basic block for anything posable that doesn't need a chain or IK.";
 
-const TITLE = 'SIMPLE FK';
+const TITLE = 'FK SIMPLE';
 const TRI = ['t-bone', 't-plasma', 't-ember'];
 // The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 ---
-<DocsLayout title="SimpleFK | FabricatorStudio Docs" description={SUMMARY}>
+<DocsLayout title="FK Simple | FabricatorStudio Docs" description={SUMMARY}>
   <article class="dd">
     <a class="dd-breadcrumb" href="/docs/">Docs</a>
 
     <header class="dd-header">
       <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
-      <h1 class="dd-title" aria-label="SIMPLEFK">
+      <h1 class="dd-title" aria-label="FK SIMPLE">
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}

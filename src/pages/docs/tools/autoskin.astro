@@ -8,13 +8,13 @@ import '../../../styles/designed-doc.css';
 const SUMMARY =
   'One button that skins your character for you. Pick the joints and the mesh, press Bind Skin, and AutoSkin works out the weights.';
 
-const TITLE = 'AUTOSKIN';
+const TITLE = 'AUTO SKIN';
 const TRI = ['t-bone', 't-plasma', 't-ember'];
 // The cycle counts glyphs only, continuing across word gaps (Claude Design's treatment).
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 ---
-<DocsLayout title="AutoSkin | FabricatorStudio Docs" description={SUMMARY}>
+<DocsLayout title="Auto Skin | FabricatorStudio Docs" description={SUMMARY}>
   <article class="dd">
     <a class="dd-breadcrumb" href="/docs/">Docs</a>
 

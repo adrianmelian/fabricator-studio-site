@@ -20,7 +20,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
     <header class="dd-header">
       <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
-      <h1 class="dd-title" aria-label="IKARM">
+      <h1 class="dd-title" aria-label="IK ARM">
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}

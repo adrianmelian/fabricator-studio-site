@@ -15,13 +15,13 @@ const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 ---
-<DocsLayout title="FollowJoint | FabricatorStudio Docs" description={SUMMARY}>
+<DocsLayout title="Follow Joint | FabricatorStudio Docs" description={SUMMARY}>
   <article class="dd">
     <a class="dd-breadcrumb" href="/docs/">Docs</a>
 
     <header class="dd-header">
       <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
-      <h1 class="dd-title" aria-label="FOLLOWJOINT">
+      <h1 class="dd-title" aria-label="FOLLOW JOINT">
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}

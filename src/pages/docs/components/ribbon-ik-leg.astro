@@ -24,7 +24,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
         <span class="rl-pack">ADVANCED RIBBON PACK</span>
       </div>
-      <h1 class="dd-title" aria-label="RIBBONLEG">
+      <h1 class="dd-title" aria-label="RIBBON LEG">
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}
@@ -38,17 +38,44 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         <h2 id="rl-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
         <p class="dd-lede">The full reverse-foot leg, with premium twist</p>
       </div>
-      <p class="dd-prose rl-lede">Ribbon Leg is the full reverse-foot leg with premium twist added. It keeps the whole foot rig from the free leg (heel and toe controls, a foot-roll slider, toe wiggle) and adds <b class="b-plasma">smooth ribbon twist</b> on the thigh and shin, so the leg deforms cleanly through big hip swings and deep knee bends.</p>
-      <div class="rl-you-get">
-        <p class="rl-you-get__lede">You get:</p>
-        <div class="dd-gets">
-          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--diamond" aria-hidden="true"></span><p>The complete <b>reverse foot</b>: heel and toe controls, a foot_roll slider, and a toe-wiggle control</p></div>
-          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p><b>FK controls, an IK foot control, and an IK/FK switch</b> with match</p></div>
-          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p><b>Smooth twist</b> spread down the thigh and the shin, with floating tweak controls</p></div>
-          <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--square" aria-hidden="true"></span><p><b>Volume</b> that holds the leg's shape as it twists and stretches</p></div>
+      <div class="rl-what">
+        <div class="rl-what__copy">
+          <p class="dd-prose">Ribbon Leg is the full reverse-foot leg with premium twist added. It keeps the whole foot rig from the free leg (heel and toe controls, a foot-roll slider, toe wiggle) and adds <b class="b-plasma">smooth ribbon twist</b> on the thigh and shin, so the leg deforms cleanly through big hip swings and deep knee bends.</p>
+          <div class="rl-you-get">
+            <p class="rl-you-get__lede">You get:</p>
+            <div class="dd-gets">
+              <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--diamond" aria-hidden="true"></span><p>The complete <b>reverse foot</b>: heel and toe controls, a foot_roll slider, and a toe-wiggle control</p></div>
+              <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p><b>FK controls, an IK foot control, and an IK/FK switch</b> with match</p></div>
+              <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--circle" aria-hidden="true"></span><p><b>Smooth twist</b> spread down the thigh and the shin, with floating tweak controls</p></div>
+              <div class="dd-get"><span class="dd-get__glyph dd-get__glyph--square" aria-hidden="true"></span><p><b>Volume</b> that holds the leg's shape as it twists and stretches</p></div>
+            </div>
+          </div>
+          <p class="rl-note">The foot itself is <b>not ribboned</b> - it works exactly like the free leg's foot.</p>
+        </div>
+        <div class="rl-diagram" role="img" aria-label="A leg with ribbon twist coils on the thigh and shin, a free un-ribboned foot, and the IK foot control">
+          <div class="dd-shot__glow dd-shot__glow--plasma" aria-hidden="true"></div>
+          <svg class="rl-svg" viewBox="0 0 380 300">
+            <line x1="40" y1="270" x2="340" y2="270" stroke="rgba(232,224,208,0.25)" stroke-width="2" />
+            <path d="M130 30 C160 55, 160 80, 130 105 S160 150, 130 175" fill="none" stroke="rgba(124,255,178,0.4)" stroke-width="2" />
+            <path d="M170 30 C140 55, 140 80, 170 105 S140 150, 170 175" fill="none" stroke="rgba(124,255,178,0.4)" stroke-width="2" />
+            <line x1="150" y1="30" x2="150" y2="175" stroke="#E8E0D0" stroke-width="4" />
+            <path d="M150 185 C175 200, 175 210, 150 225 M162 185 C137 200, 137 210, 162 225" fill="none" stroke="rgba(255,122,61,0.4)" stroke-width="2" />
+            <line x1="150" y1="175" x2="155" y2="230" stroke="#E8E0D0" stroke-width="4" />
+            <line x1="155" y1="230" x2="210" y2="255" stroke="#E8E0D0" stroke-width="4" />
+            <line x1="210" y1="255" x2="260" y2="270" stroke="#E8E0D0" stroke-width="4" />
+            <circle cx="150" cy="30" r="11" fill="none" stroke="#7CFFB2" stroke-width="4" />
+            <circle cx="150" cy="175" r="7" fill="#E8E0D0" />
+            <circle cx="155" cy="230" r="7" fill="#E8E0D0" />
+            <circle cx="210" cy="255" r="7" fill="#7CFFB2" />
+            <rect x="246" y="256" width="28" height="28" fill="none" stroke="#FF7A3D" stroke-width="4" transform="rotate(45 260 270)" />
+            <circle cx="150" cy="105" r="6" fill="none" stroke="#7CFFB2" stroke-width="2" />
+            <circle cx="156" cy="205" r="6" fill="none" stroke="#FF7A3D" stroke-width="2" />
+            <text x="175" y="70" font-family="monospace" font-size="13" fill="#4FB888">thigh twist</text>
+            <text x="180" y="200" font-family="monospace" font-size="13" fill="#FF7A3D">shin twist</text>
+            <text x="196" y="250" font-family="monospace" font-size="12" fill="#8A8378">free foot</text>
+          </svg>
         </div>
       </div>
-      <p class="dd-prose rl-note">The foot itself is not ribboned - it works exactly like the free leg's foot.</p>
     </section>
 
     <!-- GET STARTED -->
@@ -111,8 +138,35 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     font-size: 0.75rem;
     letter-spacing: 0.12em;
   }
-  .rl-lede { max-width: 58rem; }
-  .rl-note { max-width: 58rem; color: var(--bone-faint); }
+  .rl-what { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.75fr); gap: 2rem; align-items: center; }
+  .rl-what__copy { display: flex; flex-direction: column; gap: 1rem; }
   .rl-you-get { display: flex; flex-direction: column; gap: 0.75rem; }
   .rl-you-get__lede { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
+  .rl-note {
+    margin: 0;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 122, 61, 0.22);
+    border-radius: 12px;
+    padding: 0.9rem 1.125rem;
+    font-size: 0.9375rem;
+    line-height: 1.5;
+    color: var(--bone-dim);
+  }
+  .rl-note b { color: var(--bone); }
+  .rl-diagram {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 45%, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    box-shadow: var(--shadow-lg), 0 0 40px -14px rgba(124, 255, 178, 0.3);
+    aspect-ratio: 16 / 12;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .rl-svg { width: 80%; height: auto; overflow: visible; }
+  @media (max-width: 820px) {
+    .rl-what { grid-template-columns: 1fr; }
+  }
 </style>

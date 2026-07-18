@@ -17,7 +17,7 @@ const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 ---
-<DocsLayout title="RibbonSpine | FabricatorStudio Docs" description={SUMMARY}>
+<DocsLayout title="Ribbon Spine | FabricatorStudio Docs" description={SUMMARY}>
   <article class="dd">
     <a class="dd-breadcrumb" href="/docs/">Docs</a>
 
@@ -26,7 +26,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         <div class="dd-eyebrow">FABRICATOR &middot; COMPONENT &middot; RIG MODULE</div>
         <span class="rs-pack">ADVANCED RIBBON PACK</span>
       </div>
-      <h1 class="dd-title" aria-label="RIBBONSPINE">
+      <h1 class="dd-title" aria-label="RIBBON SPINE">
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}

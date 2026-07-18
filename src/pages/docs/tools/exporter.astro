@@ -1,0 +1,210 @@
+---
+// DESIGNED docs page for tools/exporter (Adrian x Claude Design, 2026-07-17; source drop:
+// MrMiata inbox/Docs/"Rig & Animation Exporter Docs.html"; both embedded tab shots are
+// byte-identical to inbox/FSWindows/exporter.png + anim_export.png). Shared furniture:
+// designed-doc.css (incl. dd-fact rows). Page-specific: the three-inputs-to-FBX pipeline
+// diagram, the two-tab screenshot pair, and the long-title size override.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import modelRigTab from '../../../assets/docs/exporter/model-rig-tab.png';
+import animTab from '../../../assets/docs/exporter/anim-tab.png';
+
+const SUMMARY =
+  'Exports static and skeletal meshes and animation clips from Maya, using a per-rig binding so exports always ship the right joints.';
+
+const TITLE = 'RIG & ANIM EXPORTER';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts glyphs only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Rig & Anim Exporter | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATOR &middot; EXPORT</div>
+      <h1 class="dd-title ex-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="ex-what">
+      <div class="dd-panel__head">
+        <h2 id="ex-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">One FBX pipeline, three outputs</p>
+      </div>
+      <div class="ex-pipe" aria-label="Static meshes, skeletal meshes, and animation clips all export through one FBX pipeline">
+        <div class="ex-pipe__inputs">
+          <div class="ex-input ex-input--plasma"><span class="ex-input__glyph ex-input__glyph--square" aria-hidden="true"></span><span class="ex-input__name">Static mesh</span></div>
+          <div class="ex-input ex-input--plasma"><span class="ex-input__glyph ex-input__glyph--circle" aria-hidden="true"></span><span class="ex-input__name">Skeletal mesh</span></div>
+          <div class="ex-input ex-input--ember"><span class="ex-input__glyph ex-input__glyph--diamond" aria-hidden="true"></span><span class="ex-input__name">Animation clip</span></div>
+        </div>
+        <div class="ex-pipe__arrow" aria-hidden="true">&rarr;</div>
+        <div class="ex-pipe__out">
+          <div class="ex-fbx">
+            <span class="ex-fbx__name">FBX</span>
+            <span class="ex-fbx__sub">ONE PIPELINE</span>
+          </div>
+        </div>
+      </div>
+      <div class="ex-notes">
+        <p class="ex-note ex-note--plasma">Skeletal export writes a <b class="b-plasma">rig binding</b> the animation exporter reads later, so it knows exactly which joints to bake.</p>
+        <p class="ex-note">Animation clips bake in a <b>background process</b>, so it never touches your open scene.</p>
+      </div>
+    </section>
+
+    <!-- TWO TABS -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="ex-tabs">
+      <div class="dd-panel__head">
+        <h2 id="ex-tabs" class="dd-label dd-label--ember">TWO TABS</h2>
+        <p class="dd-lede">Model/Rig and Anim</p>
+      </div>
+      <div class="ex-tabs">
+        <div class="ex-tab">
+          <div class="ex-tab__head"><span class="ex-tab__badge ex-tab__badge--plasma">MODEL / RIG</span><span class="ex-tab__sub">static &amp; skeletal meshes</span></div>
+          <div class="ex-shot ex-shot--plasma">
+            <div class="ex-shot__edge ex-shot__edge--plasma" aria-hidden="true"></div>
+            <Image src={modelRigTab} alt="The Exporter's Model/Rig tab: static and skeletal export with output paths" densities={[1, 2]} />
+          </div>
+        </div>
+        <div class="ex-tab">
+          <div class="ex-tab__head"><span class="ex-tab__badge ex-tab__badge--ember">ANIM</span><span class="ex-tab__sub">clips baked from range</span></div>
+          <div class="ex-shot ex-shot--ember">
+            <div class="ex-shot__edge ex-shot__edge--ember" aria-hidden="true"></div>
+            <Image src={animTab} alt="The Exporter's Anim tab: clip list with ranges, rigs, and output names" densities={[1, 2]} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section class="dd-section" aria-labelledby="ex-quickstart">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ex-quickstart" class="dd-label dd-label--plasma">QUICK START</h2>
+        <p class="dd-lede">Set a path, select, export</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Save the scene under a <b>registered project</b> for auto set paths, or set an output folder manually.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Select mesh(es) for a <b class="b-plasma">static</b> export, or a joint plus skinned mesh(es) for <b class="b-plasma">skeletal</b>, then press the button to export.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>For a repeatable list, open the Export popover, add entries, then <b>Export Checked, Selected, or All</b>.</p></li>
+        <li class="dd-step dd-step--ember ex-step--anim"><span class="dd-step__num">4</span><p>For animation, set the playback range, open the <b class="b-ember">Anim</b> tab, add a clip from range, assign the rig, then export. You'll be asked to save first; the bake reads the saved file.</p></li>
+      </ol>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="ex-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ex-gtk" class="dd-label dd-label--ember">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Anim reads the last skeletal binding</h3>
+            <p class="dd-fact__line">Animation export reads the rig's last skeletal binding; re-run skeletal export if it's missing or stale.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Root motion is manual for now</h3>
+            <p class="dd-fact__line">Root motion isn't wired into the UI yet; animate the world control by hand.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Duplicate filenames block export</h3>
+            <p class="dd-fact__line">Two clips sharing an output filename block export rather than overwrite each other.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the long title, the pipeline diagram, and the tab screenshot pair.
+     Shared furniture: designed-doc.css. */
+  .ex-title { font-size: clamp(1.6rem, 4.1vw, 2.75rem); white-space: normal; }
+
+  .ex-pipe { display: grid; grid-template-columns: minmax(0, 1fr) 3.25rem minmax(0, 1fr); align-items: center; }
+  .ex-pipe__inputs { display: flex; flex-direction: column; gap: 0.6rem; }
+  .ex-input {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: var(--carbon);
+    border-radius: 12px;
+    padding: 0.9rem 1.125rem;
+  }
+  .ex-input--plasma { border: 1px solid rgba(124, 255, 178, 0.25); }
+  .ex-input--ember { border: 1px solid rgba(255, 122, 61, 0.3); }
+  .ex-input__glyph { flex: none; display: block; width: 0.8125rem; height: 0.8125rem; }
+  .ex-input__glyph--square { background: var(--plasma); border-radius: 3px; }
+  .ex-input__glyph--circle { background: var(--plasma); border-radius: 50%; }
+  .ex-input__glyph--diamond { background: var(--ember); transform: rotate(45deg); }
+  .ex-input__name { font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone); }
+  .ex-pipe__arrow { text-align: center; color: var(--plasma); font-size: 1.5rem; font-weight: 800; }
+  .ex-pipe__out { display: flex; justify-content: center; }
+  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
+  .ex-fbx {
+    width: 10rem;
+    height: 10rem;
+    border-radius: 14px;
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.5);
+    box-shadow: 0 0 30px -12px rgba(124, 255, 178, 0.4);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+  }
+  .ex-fbx__name { font-family: var(--font-mono); font-weight: 800; font-size: 2rem; color: var(--plasma); letter-spacing: 0.04em; }
+  .ex-fbx__sub { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.2em; color: var(--plasma-dim); }
+
+  .ex-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; padding-top: 0.25rem; }
+  .ex-note {
+    margin: 0;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 12px;
+    padding: 1.125rem 1.375rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--bone-dim);
+  }
+  .ex-note--plasma { border-color: rgba(124, 255, 178, 0.2); }
+  .ex-note b { color: var(--bone); }
+
+  .ex-tabs { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+  .ex-tab { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
+  .ex-tab__head { display: flex; align-items: center; gap: 0.7rem; }
+  .ex-tab__badge { padding: 0.25rem 0.7rem; border-radius: 7px; font-family: var(--font-mono); font-weight: 800; font-size: 0.75rem; letter-spacing: 0.08em; }
+  .ex-tab__badge--plasma { background: var(--plasma); color: #06120B; }
+  .ex-tab__badge--ember { background: var(--ember); color: #1A0A02; }
+  .ex-tab__sub { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--bone-dim); }
+  .ex-shot { position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: var(--shadow-md); align-self: flex-start; }
+  .ex-shot--plasma { box-shadow: var(--shadow-md), 0 0 0 1px rgba(124, 255, 178, 0.12); }
+  .ex-shot--ember { box-shadow: var(--shadow-md), 0 0 0 1px rgba(255, 122, 61, 0.12); }
+  .ex-shot :global(img) { width: 100%; height: auto; display: block; }
+  .ex-shot__edge { position: absolute; top: 8px; bottom: 8px; left: -2px; width: 3px; z-index: 1; }
+  .ex-shot__edge--plasma { background: linear-gradient(180deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.85), rgba(124, 255, 178, 0)); }
+  .ex-shot__edge--ember { background: linear-gradient(180deg, rgba(255, 122, 61, 0), rgba(255, 122, 61, 0.85), rgba(255, 122, 61, 0)); }
+
+  .ex-step--anim { background: var(--carbon); }
+
+  @media (max-width: 820px) {
+    .ex-pipe { grid-template-columns: 1fr; gap: 1rem; }
+    .ex-pipe__arrow { transform: rotate(90deg); }
+    .ex-notes { grid-template-columns: 1fr; }
+    .ex-tabs { grid-template-columns: 1fr; }
+  }
+</style>
