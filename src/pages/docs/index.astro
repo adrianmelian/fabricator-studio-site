@@ -9,6 +9,7 @@ import DocsLayout from '../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../styles/designed-doc.css';
 import fsMonogram from '../../assets/docs/fs-monogram.png';
+import reggiePortrait from '../../assets/docs/reggie-portrait.png';
 
 const STEPS = [
   {
@@ -77,6 +78,17 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       <p class="dd-summary gs-intro">Build a game character the way a professional studio does, from an empty project to an in-engine asset, without a pipeline team behind you. <b>Five steps</b>, each with its own tool and its own docs.</p>
     </header>
 
+    <!-- MEET REGGIE (Adrian's 2026-07-18 amendment to the Getting Started drop) -->
+    <aside class="gs-reggie" aria-labelledby="gs-reggie-t">
+      <Image class="gs-reggie__portrait" src={reggiePortrait} alt="Reggie, the AI Technical Artist" densities={[1, 2]} />
+      <div class="gs-reggie__copy">
+        <div class="gs-reggie__eyebrow">MEET REGGIE &middot; YOUR AI TA</div>
+        <h2 id="gs-reggie-t" class="gs-reggie__title">Stuck? Just ask Reggie.</h2>
+        <p class="gs-reggie__line">You can always ask the AI Technical Artist, <b>Reggie</b>, for help. He'll get you set up and going with the FabricatorStudio tools, directly in a chat window inside Maya.</p>
+      </div>
+      <a class="gs-reggie__cta" href="/docs/tools/your-ai-ta/">Reggie docs &rarr;</a>
+    </aside>
+
     <ol class="gs-steps">
       {STEPS.map((s) => (
         <li class={`gs-step gs-step--${s.tone}`}>
@@ -114,6 +126,44 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   }
   .gs-intro { max-width: 52rem; }
   .gs-intro b { color: var(--bone); }
+
+  /* MEET REGGIE panel (2026-07-18 amendment): ember card with a plasma tint sweeping in
+     from the right; the portrait asset carries its own ember ring. */
+  .gs-reggie {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 2rem;
+    align-items: center;
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0) 45%, rgba(124, 255, 178, 0.08)), var(--iron);
+    border: 1px solid rgba(255, 122, 61, 0.35);
+    border-radius: 22px;
+    padding: 2rem 2.25rem;
+    box-shadow: var(--shadow-lg), 0 0 44px -24px rgba(255, 122, 61, 0.35);
+  }
+  .gs-reggie__portrait { width: 8.25rem; height: auto; filter: drop-shadow(0 12px 24px rgba(11, 14, 16, 0.6)); }
+  .gs-reggie__copy { display: flex; flex-direction: column; gap: 0.6rem; }
+  .gs-reggie__eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--ember); }
+  .gs-reggie__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem; color: var(--bone); }
+  .gs-reggie__line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .gs-reggie__line b { color: var(--ember); }
+  .gs-reggie__cta {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 1.5rem;
+    border-radius: 11px;
+    background: var(--ember);
+    color: #1A0A02;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1rem;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 0 30px -12px rgba(255, 122, 61, 0.7);
+  }
+  .gs-reggie__cta:hover { background: var(--ember-dim); }
 
   .gs-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
   .gs-step {
@@ -174,5 +224,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     .gs-step { grid-template-columns: 3rem minmax(0, 1fr); }
     .gs-step__chip { grid-column: 2; justify-self: start; }
     .gs-outro__bar { display: none; }
+    .gs-reggie { grid-template-columns: 1fr; justify-items: start; gap: 1.25rem; }
+    .gs-reggie__portrait { width: 6.5rem; }
+    .gs-reggie__cta { justify-self: start; }
   }
 </style>
