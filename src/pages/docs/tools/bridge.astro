@@ -1,0 +1,267 @@
+---
+// DESIGNED docs page for tools/bridge (Adrian x Claude Design, 2026-07-17; source drop:
+// MrMiata inbox/Docs/"Bridge Toolbar Docs.html"). Shared furniture: designed-doc.css
+// (incl. dd-fact rows). Page-specific: the toolbar band with the sweeping lens and 2.5x
+// magnifier (same scan language as the homepage BridgeHero, recomposed as a tight band;
+// the toolbar strip is the SAME asset BridgeHero imports). The drop's "// DETAIL" caption
+// prefix is the banned 1.0 label motif and ships without the slashes.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import '../../../styles/designed-doc.css';
+import toolbar from '../../../assets/docs/bridge-toolbar.png';
+
+const SUMMARY =
+  "A dockable Maya toolbar that puts FabricatorStudio's scene, build, rigging, skinning, and export tools two clicks away.";
+
+const TITLE = 'BRIDGE';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts glyphs only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Bridge | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="br-eyebrow-row">
+        <div class="dd-eyebrow">FABRICATOR &middot; FRAMEWORK</div>
+        <span class="br-badge">DOCKABLE TOOLBAR</span>
+      </div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="br-what">
+      <div class="dd-panel__head">
+        <h2 id="br-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">One strip, everything two clicks away</p>
+      </div>
+      <p class="dd-prose br-lede">Bridge is FabricatorStudio's framework toolbar: a single strip that docks to Maya's viewport and puts the everyday tools within two clicks, with bigger tools opening as <b class="b-plasma">popover panels</b>.</p>
+      <div class="br-scan" role="img" aria-label="The Bridge toolbar with a sweeping lens feeding a magnified detail panel">
+        <div class="br-stage" data-bridge-stage>
+          <div class="br-strip">
+            <img src={toolbar.src} width={toolbar.width} height={toolbar.height} alt="" draggable="false" />
+          </div>
+          <div class="br-lens" data-bridge-lens aria-hidden="true"></div>
+          <svg class="br-leader" viewBox="0 0 1488 378" aria-hidden="true">
+            <line data-bridge-line stroke="#7CFFB2" stroke-width="1.5" stroke-dasharray="5 6" stroke-linecap="round"></line>
+            <circle data-bridge-dot1 r="3" fill="#7CFFB2"></circle>
+            <circle data-bridge-dot2 r="3" fill="#7CFFB2"></circle>
+          </svg>
+          <div class="br-panel">
+            <div class="br-mag" data-bridge-mag style={`background-image:url(${toolbar.src});`}></div>
+          </div>
+          <div class="br-caption" aria-hidden="true">DETAIL &nbsp;&middot;&nbsp; 2.5&times;</div>
+        </div>
+      </div>
+      <div class="br-notes">
+        <p class="br-note br-note--plasma">Covers scene I/O, object creation, constraints, selection, mirroring, skeleton &amp; skin I/O, the renamer, <b class="b-plasma">Fabricator</b>, CtrlEditor, exporters, and pose/animation libraries.</p>
+        <p class="br-note br-note--ember">A <b class="b-ember">Connect AI</b> panel gives an AI client read-only scene access.</p>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section class="dd-section" aria-labelledby="br-quickstart">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="br-quickstart" class="dd-label dd-label--ember">QUICK START</h2>
+        <p class="dd-lede">Dock it, set a project, go</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Show the toolbar from Maya's <b>FabricatorStudio menu</b>; it docks along the bottom by default.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Set your active project with the <b class="b-plasma">PRJ chooser</b> at the left edge.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>Hover a button like <b>CR (Create)</b> for a quick action, or click a bigger tool for its full panel.</p></li>
+        <li class="dd-step dd-step--ember br-step--set"><span class="dd-step__num">4</span><p>Use the <b class="b-ember">SET (gear)</b> popover to change dock placement, reorder tools, or hide ones you don't use.</p></li>
+      </ol>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="br-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="br-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Quick on hover, full tools on click</h3>
+            <p class="dd-fact__line">Quick panels open on hover; full tools (Renamer, Export, CtrlEditor, Pose/Anim Studios, Fabricator) open on <b class="b-plasma">click only</b>, so they never pop up uninvited.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Interact to keep a hover panel open</h3>
+            <p class="dd-fact__line">A hover-opened panel closes if you click away; interact with it to keep it open.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Hiding it stops scene listeners</h3>
+            <p class="dd-fact__line">Hiding the toolbar turns off its scene-change listeners, so anything tracking live scene state only <b class="b-ember">resyncs once shown again</b>.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the header badge, the scan band, and the note cards. Shared furniture:
+     designed-doc.css. */
+  .br-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  /* Ember: a header badge is a LABEL (DNA principle 2), same convention as the pack badges. */
+  .br-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 7px;
+    background: rgba(255, 122, 61, 0.12);
+    border: 1px solid rgba(255, 122, 61, 0.45);
+    color: var(--ember);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+  }
+  .br-lede { max-width: 60rem; }
+
+  /* The scan band: a fixed 1488x378 stage scaled to fit its container (the lens math is
+     pixel-based), same pattern as the animated heroes. */
+  .br-scan { position: relative; width: 100%; aspect-ratio: 1488 / 378; overflow: hidden; }
+  .br-stage { position: absolute; top: 0; left: 0; width: 1488px; height: 378px; transform-origin: top left; }
+  .br-strip {
+    position: absolute;
+    left: 44px;
+    top: 20px;
+    width: 1400px;
+    height: 31.6px;
+    border: 1px solid #353D45;
+    border-radius: 5px;
+    overflow: hidden;
+    line-height: 0;
+    background: var(--iron-3);
+    box-shadow: 0 12px 34px -14px rgba(11, 14, 16, 0.75);
+  }
+  .br-strip img { display: block; width: 1400px; height: 31.6px; }
+  .br-lens {
+    position: absolute;
+    left: 0;
+    top: 0;
+    z-index: 5;
+    pointer-events: none;
+    border: 2px solid var(--plasma);
+    border-radius: 4px;
+    box-sizing: border-box;
+    box-shadow: 0 0 18px rgba(124, 255, 178, 0.4);
+  }
+  .br-leader { position: absolute; top: 0; left: 0; width: 1488px; height: 378px; z-index: 2; pointer-events: none; }
+  .br-panel {
+    position: absolute;
+    left: 484px;
+    top: 214px;
+    width: 520px;
+    height: 130px;
+    border: 1px solid #353D45;
+    border-radius: 10px;
+    background: var(--carbon);
+    overflow: hidden;
+    z-index: 3;
+    box-shadow: 0 22px 54px -26px rgba(11, 14, 16, 0.85), 0 0 0 1px rgba(124, 255, 178, 0.12);
+  }
+  .br-mag { position: absolute; inset: 0; background-repeat: no-repeat; }
+  .br-caption {
+    position: absolute;
+    left: 484px;
+    width: 520px;
+    top: 352px;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-weight: 600;
+    font-size: 15px;
+    letter-spacing: 0.15em;
+    color: var(--plasma-dim);
+  }
+
+  .br-notes { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .br-note {
+    margin: 0;
+    background: radial-gradient(120% 120% at 50% 45%, var(--iron), var(--carbon));
+    border-radius: 12px;
+    padding: 1.125rem 1.375rem;
+    font-size: 0.9375rem;
+    line-height: 1.55;
+    color: var(--bone-dim);
+  }
+  .br-note--plasma { border: 1px solid rgba(124, 255, 178, 0.2); }
+  .br-note--ember { border: 1px solid rgba(255, 122, 61, 0.22); }
+
+  .br-step--set { background: var(--carbon); }
+
+  @media (max-width: 820px) {
+    .br-notes { grid-template-columns: 1fr; }
+  }
+</style>
+
+<script is:inline>
+  // The band scan: fit the fixed stage to the container, sweep the lens along the strip,
+  // and keep the magnifier tracking it. Static representative frame under reduced motion.
+  (function () {
+    var scan = document.querySelector('.br-scan');
+    if (!scan) return;
+    var stage = scan.querySelector('[data-bridge-stage]');
+    var lens = scan.querySelector('[data-bridge-lens]');
+    var line = scan.querySelector('[data-bridge-line]');
+    var dot1 = scan.querySelector('[data-bridge-dot1]');
+    var dot2 = scan.querySelector('[data-bridge-dot2]');
+    var mag = scan.querySelector('[data-bridge-mag]');
+    if (!stage || !lens || !mag) return;
+
+    var IMG = { l: 44, t: 20, w: 1400, h: 31.6 };
+    var PANEL = { l: 484, t: 214, w: 520, h: 130 };
+    var ZOOM = 2.5, LOOP = 12, mY = 6;
+
+    function ease(u) {
+      var e = 0.18, V = 1 / (1 - e);
+      if (u < e) return (V / (2 * e)) * u * u;
+      if (u > 1 - e) { var d = 1 - u; return 1 - (V / (2 * e)) * d * d; }
+      return V * (u - e / 2);
+    }
+
+    function frame(tSec) {
+      var loopT = (((tSec % LOOP) + LOOP) % LOOP) / LOOP;
+      var u = loopT < 0.5 ? loopT * 2 : (1 - loopT) * 2;
+      var frac = ease(u);
+      var lensW = PANEL.w / ZOOM;
+      var center = lensW / 2 + (IMG.w - lensW) * frac;
+      lens.style.width = lensW + 'px';
+      lens.style.height = (IMG.h + mY * 2) + 'px';
+      lens.style.transform = 'translate(' + (IMG.l + center - lensW / 2) + 'px,' + (IMG.t - mY) + 'px)';
+      var lx1 = IMG.l + center, ly1 = IMG.t + IMG.h + mY;
+      var lx2 = PANEL.l + PANEL.w / 2, ly2 = PANEL.t;
+      line.setAttribute('x1', lx1); line.setAttribute('y1', ly1);
+      line.setAttribute('x2', lx2); line.setAttribute('y2', ly2);
+      dot1.setAttribute('cx', lx1); dot1.setAttribute('cy', ly1);
+      dot2.setAttribute('cx', lx2); dot2.setAttribute('cy', ly2);
+      mag.style.backgroundSize = (IMG.w * ZOOM) + 'px ' + (IMG.h * ZOOM) + 'px';
+      mag.style.backgroundPosition = (PANEL.w / 2 - center * ZOOM) + 'px ' + ((PANEL.h - IMG.h * ZOOM) / 2) + 'px';
+    }
+
+    function fit() {
+      var w = scan.clientWidth;
+      if (w > 0) stage.style.transform = 'scale(' + (w / 1488) + ')';
+    }
+    fit();
+    if (window.ResizeObserver) new ResizeObserver(fit).observe(scan); else window.addEventListener('resize', fit);
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      frame(3);
+    } else {
+      var t0 = performance.now();
+      (function loop() { frame((performance.now() - t0) / 1000); requestAnimationFrame(loop); })();
+    }
+  })();
+</script>

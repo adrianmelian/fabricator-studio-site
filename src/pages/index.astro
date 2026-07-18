@@ -12,10 +12,25 @@ import downloadBanner from '../assets/download/download_card.png';
 import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
 import { flagshipTools } from '../data/tools';
-import { features } from '../data/features';
 import { TUTORIALS, CHANNEL } from '../data/tutorials';
 
-const aboutPhoto = Object.values(import.meta.glob('../assets/about/*.{jpg,jpeg,png,webp}', { eager: true }))[0];
+// Key Features section heading in the outlined tri-color treatment (Adrian x Claude
+// Design, 2026-07-17). Same glyph cycle as the designed docs pages: letters only,
+// continuing across word gaps.
+const KF_TITLE = 'KEY FEATURES';
+const KF_TRI = ['kf-bone', 'kf-plasma', 'kf-ember'];
+let kfi = 0;
+const kfGlyphs = KF_TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'kf-gap' : KF_TRI[kfi++ % 3] }));
+
+import aboutPortrait from '../assets/about/adrian.png';
+import heroWordmark from '../assets/hero/wordmark-banner.png';
+
+// About Me section heading, same tri-color treatment as Key Features (Adrian x Claude
+// Design, 2026-07-17).
+const AM_TITLE = 'ABOUT ME';
+const AM_TRI = ['am-bone', 'am-plasma', 'am-ember'];
+let ami = 0;
+const amGlyphs = AM_TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'am-gap' : AM_TRI[ami++ % 3] }));
 
 // The animated GUI that rides inside each tool card, keyed by the tool's dialog. These are
 // the same components the Learn More popovers use, so a card and its popover always show the
@@ -42,13 +57,24 @@ const TOOL_UI: Record<string, any> = {
     <img class="hero-media hero-poster" src="/demo/fs_hero_poster.jpg" alt="" aria-hidden="true" />
     <div class="hero-scrim" aria-hidden="true"></div>
     <div class="hero-copy">
-      <h1 class="hero-lockup">
-        <img class="hero-mark" src="/hero-mark.png" width="256" height="256" alt="" aria-hidden="true" />
-        <span class="hero-name">FabricatorStudio</span>
+      <h1 class="hero-wordmark">
+        <Image src={heroWordmark} alt="FabricatorStudio" widths={[1180, 2205]} sizes="(max-width: 820px) 92vw, 1180px" loading="eager" />
       </h1>
-      <p class="hero-tagline">Human+AI Studio Toolset</p>
-      <p class="hero-sub">Built for solo developers and small teams. Free, open source, Maya-to-Unreal pipeline tools. Rigging, skinning, animation, and export, and an AI Technical Artist built in. The kit is made for the generative AI era. These tools help you put the final touch on your art and get in engine fast. Ready for all the next-gen features, like Control Rig and MetaHuman.</p>
-      <p class="hero-strip">Concept • Modeling • Texturing • Rigging • Animation • Unreal</p>
+      <p class="hero-tagline">HUMAN+AI STUDIO TOOLSET</p>
+      <div class="hero-divider" aria-hidden="true">
+        <span class="hero-divider__bar"></span>
+        <span class="hero-divider__gem"></span>
+        <span class="hero-divider__bar"></span>
+      </div>
+      <p class="hero-sub">Built for solo developers and small teams. <b>Free, open source, Maya-to-Unreal pipeline tools</b>: rigging, skinning, animation, and export, with an AI Technical Artist built in. The kit is made for the generative AI era: these tools help you put the final touch on your art and get in engine fast. Ready for all the next-gen features, like <b class="hero-sub__hl">Control Rig</b> and <b class="hero-sub__hl">MetaHuman</b>.</p>
+      <p class="hero-strip">
+        <span>Concept</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
+        <span>Modeling</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
+        <span>Texturing</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
+        <span class="hero-strip__plasma">Rigging</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
+        <span class="hero-strip__plasma">Animation</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
+        <span class="hero-strip__ember">Unreal</span>
+      </p>
       <div class="hero-ctas">
         <BracketButton kind="plasma-outline" downloadGate label="Download" />
       </div>
@@ -167,14 +193,75 @@ const TOOL_UI: Record<string, any> = {
   </script>
 
   <section id="features">
-    <FieldLabel text="Key Features" />
-    <div class="features__grid">
-      {features.map((f) => (
-        <div class="feature-tile">
-          <h3 class="feature-tile__name">{f.name}</h3>
-          <p class="feature-tile__line">{f.line}</p>
+    <div class="kf-head">
+      <div class="kf-eyebrow">FABRICATORSTUDIO</div>
+      <h2 class="kf-title" aria-label={KF_TITLE}>
+        {kfGlyphs.map((g) =>
+          g.cls === 'kf-gap' ? <span class="kf-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h2>
+    </div>
+    <div class="kf-grid">
+      <div class="kf-card kf-card--plasma">
+        <div class="kf-card__top">
+          <div class="kf-icon kf-icon--plasma">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><path d="M8 15l5 5 9-11" stroke="#7CFFB2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </div>
+          <span class="kf-num" aria-hidden="true">01</span>
         </div>
-      ))}
+        <h3 class="kf-card__name">Easy to use</h3>
+        <p class="kf-card__line">Elegant by design. Where most tools are button-and-option nightmares, these are <b>drag-and-drop and guided</b>. Light-weight, portable, and made for artists by an artist.</p>
+      </div>
+      <div class="kf-card kf-card--ember">
+        <div class="kf-card__top">
+          <div class="kf-icon kf-icon--ember">
+            <svg width="34" height="30" viewBox="0 0 34 30" fill="none" aria-hidden="true"><circle cx="6" cy="15" r="4" stroke="#FF7A3D" stroke-width="2.6" /><circle cx="28" cy="15" r="4" stroke="#FF7A3D" stroke-width="2.6" /><path d="M10 15h14" stroke="#FF7A3D" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 5" /></svg>
+          </div>
+          <span class="kf-num" aria-hidden="true">02</span>
+        </div>
+        <h3 class="kf-card__name">End to end pipeline</h3>
+        <p class="kf-card__line">From <b>concept to animating in engine</b>, one kit helps carry your assets the whole way. Portable across projects, extendable when you need your own workflows, professional in design.</p>
+      </div>
+      <div class="kf-card kf-card--plasma">
+        <div class="kf-card__top">
+          <div class="kf-icon kf-icon--plasma">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><ellipse cx="15" cy="15" rx="13" ry="8" stroke="#7CFFB2" stroke-width="2.4" /><circle cx="15" cy="15" r="3.4" fill="#7CFFB2" /></svg>
+          </div>
+          <span class="kf-num" aria-hidden="true">03</span>
+        </div>
+        <h3 class="kf-card__name">AI integration</h3>
+        <p class="kf-card__line">Connect your own AI and it becomes <b>Reggie</b>, the AI TA trained on the FabricatorStudio pipeline. Troubleshoots, proposes fixes, files bugs. <b class="kf-hl">Read-only, enforced in code</b>. Automation-ready APIs cover the rest.</p>
+      </div>
+      <div class="kf-card kf-card--plasma">
+        <div class="kf-card__top">
+          <div class="kf-icon kf-icon--plasma">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="3.2" stroke="#7CFFB2" stroke-width="2.4" /><circle cx="22" cy="22" r="3.2" stroke="#7CFFB2" stroke-width="2.4" /><path d="M10.3 10.3l9.4 9.4" stroke="#7CFFB2" stroke-width="2.4" stroke-linecap="round" /></svg>
+          </div>
+          <span class="kf-num" aria-hidden="true">04</span>
+        </div>
+        <h3 class="kf-card__name">Animator-friendly rig modules</h3>
+        <p class="kf-card__line">Clean controls, space matching, and IK/FK matching that <b>holds the pose through the switch</b>. Rigs animators actually enjoy using. Networked rigs that never break on a name change.</p>
+      </div>
+      <div class="kf-card kf-card--ember">
+        <div class="kf-card__top">
+          <div class="kf-icon kf-icon--ember">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><path d="M24 8a10 10 0 10 1.5 9" stroke="#FF7A3D" stroke-width="2.6" stroke-linecap="round" /><path d="M24 3v6h-6" stroke="#FF7A3D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </div>
+          <span class="kf-num" aria-hidden="true">05</span>
+        </div>
+        <h3 class="kf-card__name">Non-destructive workflow</h3>
+        <p class="kf-card__line">Non-destructive and non-linear: <b>tear down and rebuild at any stage</b>. Model and rig edits can run while animation is already in production.</p>
+      </div>
+      <div class="kf-card kf-card--plasma">
+        <div class="kf-card__top">
+          <div class="kf-icon kf-icon--plasma">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><path d="M15 3l10 5v7c0 6-4.3 10-10 12-5.7-2-10-6-10-12V8l10-5z" stroke="#7CFFB2" stroke-width="2.4" stroke-linejoin="round" /><path d="M11 15l3 3 5-6" stroke="#7CFFB2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
+          </div>
+          <span class="kf-num" aria-hidden="true">06</span>
+        </div>
+        <h3 class="kf-card__name">Studio-grade tools</h3>
+        <p class="kf-card__line">Network-based rigging that survives renames, rig versioning, and <b>export contracts that hold up</b> on a large production. Open source, transparent, verifiable: pure Python, nothing to compile, nothing hidden.</p>
+      </div>
     </div>
   </section>
 
@@ -203,14 +290,33 @@ const TOOL_UI: Record<string, any> = {
   )}
 
   <section id="about">
-    <FieldLabel text="About Me" />
-    <div class={`about__grid${aboutPhoto ? ' about__grid--photo' : ''}`}>
-      {aboutPhoto && (
-        <Image class="about__photo" src={(aboutPhoto as any).default} alt="Adrian Melian" width={480} densities={[1, 2]} />
-      )}
-      <div class="prose about__body">
-        <p>Hi, I'm Adrian Melian. I've spent 14 years as a Technical Artist in AAA games, most recently leading the Tech Art team at Sledgehammer Games. Along the way I've worked with Double Fine, Ubisoft, Camouflaj, and Meta, on games like Broken Age, Modern Warfare III, and South Park: The Fractured But Whole.</p>
-        <p>Game dev is changing fast, and a new era of generative AI is here. Avoiding generic slop still takes good tools, ones that put the layers of polish where you want them. So I'm sharing my toolbox. FabricatorStudio is the rigging, skinning, animation, and export kit I built for indie teams and small studios, to the standard I held on AAA productions. The tools are free and open source.</p>
+    <div class="am-head">
+      <div class="am-eyebrow">FABRICATORSTUDIO</div>
+      <h2 class="am-title" aria-label={AM_TITLE}>
+        {amGlyphs.map((g) =>
+          g.cls === 'am-gap' ? <span class="am-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h2>
+    </div>
+    <div class="am-grid">
+      <div class="am-portrait">
+        <div class="am-portrait__frame">
+          <div class="am-portrait__edge" aria-hidden="true"></div>
+          <Image src={aboutPortrait} alt="Adrian Melian" widths={[660, 1320]} sizes="(max-width: 820px) 92vw, 560px" />
+        </div>
+        <div class="am-portrait__cap">
+          <span class="am-portrait__tick" aria-hidden="true"></span>
+          <span class="am-portrait__line">Technical Artist &nbsp;&middot;&nbsp; 14 years in AAA</span>
+        </div>
+      </div>
+      <div class="am-bio">
+        <h3 class="am-bio__name">Hi, I'm Adrian Melian.</h3>
+        <p class="am-bio__para">I've spent <b>14 years as a Technical Artist</b> in AAA games, most recently leading the Tech Art team at <b class="am-plasma-b">Sledgehammer Games</b>. Along the way I've worked with Double Fine, Ubisoft, Camouflaj, and Meta, on games like Broken Age, Modern Warfare III, and South Park: The Fractured But Whole.</p>
+        <p class="am-bio__para">Game dev is changing fast, and a new era of generative AI is here. Avoiding generic slop still takes <b>good tools</b>, ones that put the layers of polish where you want them. So I'm sharing my toolbox. <b class="am-ember-b">FabricatorStudio</b> is the rigging, skinning, animation, and export kit I built for indie teams and small studios, to the standard I held on AAA productions.</p>
+        <div class="am-free">
+          <span class="am-free__dot" aria-hidden="true"></span>
+          <span class="am-free__line">The tools are free and open source.</span>
+        </div>
       </div>
     </div>
   </section>
@@ -334,51 +440,40 @@ const TOOL_UI: Record<string, any> = {
   @supports not (backdrop-filter: blur(1px)) {
     .hero-copy { background: rgba(11, 14, 16, 0.55); }
   }
-  /* The rule sits under the TAGLINE, not under the lockup: mark, name and tagline are one
-     identity block, and cutting between the name and its tagline would split the thing the
-     hero exists to say. Body copy starts below the line. align-self stretch because the
-     column centers its items, so the rule would otherwise only be as wide as the text. */
-  .hero-tagline {
-    /* The band is viewport-wide now, so the rule caps at the old plate measure instead of
-       stretching with it; the copy keeps its column inside the full-bleed band. */
-    align-self: center;
-    width: min(44rem, 100%);
-    padding-bottom: 0.9rem;
-    border-bottom: 1px solid rgba(232, 224, 208, 0.14);
+  /* The hero identity is Adrian's authored wordmark BANNER now (Adrian x Claude Design,
+     2026-07-17): the polished tri-color banner render replaces the mark + name text
+     lockup. 2205x320 source, shown at up to ~1180px wide. */
+  .hero-wordmark { margin: 0; width: min(73.75rem, 100%); }
+  .hero-wordmark :global(img) {
+    display: block;
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 18px 40px rgba(11, 14, 16, 0.55));
   }
-  /* The headline is the mark + name lockup (Adrian 2026-07-14), the same one the NavBar and
-     the adrianmelian.com cards use. It replaces the tri-color outlined Wordmark, which read
-     as a toy at hero scale. The colour now comes from the mark alone, and the name sits in
-     plain bone, which is what makes it look like a product and not a logotype.
-
-     Sized to FIT the 44rem .hero-copy. "FabricatorStudio" is 16 monospace chars at 0.6em
-     advance = 9.6em, and the mark plus its gap adds ~1.5em, so the cap has to stay under
-     44rem / 11.1 = 3.96rem or the lockup overflows the column. 3.6rem leaves headroom. */
-  .hero-lockup {
+  /* Ember, letterspaced caps per the 2026-07-17 hero design (supersedes the 07-13 plasma
+     call); the plasma divider below carries the accent balance. */
+  .hero-tagline { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: clamp(1rem, 2vw, 1.5rem); letter-spacing: 0.28em; color: var(--ember); }
+  .hero-divider { display: flex; align-items: center; gap: 0.75rem; }
+  .hero-divider__bar { width: 3rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
+  .hero-divider__gem { width: 0.55rem; height: 0.55rem; background: var(--plasma); transform: rotate(45deg); }
+  .hero-sub { font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.7; color: var(--bone-dim); max-width: 52rem; }
+  .hero-sub b { color: var(--bone); }
+  .hero-sub .hero-sub__hl { color: var(--plasma); }
+  .hero-strip {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 0.35em;
-    width: 100%;
-    margin: 0;
-    font-family: var(--font-display);
+    gap: 0.45rem;
+    flex-wrap: wrap;
+    font-family: var(--font-mono);
     font-weight: 700;
-    font-size: clamp(1.4rem, 4.6vw, 3.6rem);
-    line-height: 1.1;
-    color: var(--bone);
-    white-space: nowrap; /* the name must never break mid-word */
-    filter: drop-shadow(0 6px 18px rgba(11, 14, 16, 0.55));
+    font-size: 0.9375rem;
+    color: var(--bone-dim);
+    letter-spacing: 0.1em;
   }
-  .hero-mark {
-    width: 1.15em;
-    height: 1.15em;
-    flex-shrink: 0;
-  }
-  /* plasma per Adrian 2026-07-13 (Mindmeld 2.0 pass). Was ember since 2026-07-02; the
-     original ruling-5c advice had been bone/plasma, so this lands back on it. */
-  .hero-tagline { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--plasma); }
-  .hero-sub { font-family: var(--font-body); font-size: 1.0625rem; color: var(--bone); max-width: 44rem; }
-  .hero-strip { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--bone-dim); letter-spacing: 0.06em; }
+  .hero-strip__sep { color: var(--iron-3); letter-spacing: 0; }
+  .hero-strip__plasma { color: var(--plasma); }
+  .hero-strip__ember { color: var(--ember); }
   .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; }
 
   /* CP-D: full-bleed band stack, edge to edge below the hero,
@@ -442,15 +537,58 @@ const TOOL_UI: Record<string, any> = {
   }
   .product-pop__docs:hover { color: var(--plasma-dim); }
 
-  #features { text-align: center; }
-  #features .subhead { margin-inline: auto; }
-  .features__grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin: 2rem 0; text-align: left; }
-  @media (max-width: 900px) { .features__grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 600px) { .features__grid { grid-template-columns: 1fr; } }
-  .feature-tile { border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); padding: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; }
-  /* plasma + bold, matching the flagship tool-card titles (Adrian 2026-07-13) */
-  .feature-tile__name { font-family: var(--font-display); font-weight: 700; font-size: 1.125rem; line-height: 1.1; color: var(--plasma); }
-  .feature-tile__line { color: var(--bone-dim); font-size: 0.9375rem; }
+  /* Key Features (Adrian x Claude Design, 2026-07-17): tri-color section heading, six
+     icon cards with ghost numbers. The ghost number is iron-3, snapped from the drop's
+     off-palette #2A323B. */
+  #features { text-align: left; }
+  .kf-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+  .kf-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
+  .kf-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 4.8vw, 3.1rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    -webkit-text-stroke: 0.08em #06090C;
+    paint-order: stroke fill;
+  }
+  .kf-title .kf-bone { color: var(--bone); }
+  .kf-title .kf-plasma { color: var(--plasma); }
+  .kf-title .kf-ember { color: var(--ember); }
+  .kf-title .kf-gap { display: inline-block; width: 0.4em; }
+
+  .kf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.125rem; }
+  @media (max-width: 900px) { .kf-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px) { .kf-grid { grid-template-columns: 1fr; } }
+  .kf-card {
+    box-sizing: border-box;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border-radius: 16px;
+    padding: 1.75rem 1.625rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    box-shadow: var(--shadow-md);
+  }
+  .kf-card--plasma { border: 1px solid rgba(124, 255, 178, 0.14); }
+  .kf-card--ember { border: 1px solid rgba(255, 122, 61, 0.16); }
+  .kf-card__top { display: flex; align-items: center; justify-content: space-between; }
+  .kf-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .kf-icon--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); }
+  .kf-icon--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); }
+  .kf-num { font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--iron-3); }
+  .kf-card__name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; line-height: 1.1; color: var(--bone); }
+  .kf-card__line { margin: 0; color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; text-wrap: pretty; }
+  .kf-card__line b { color: var(--bone); }
+  .kf-card__line .kf-hl { color: var(--plasma); }
 
   .download-v2 {
     position: relative;
@@ -508,25 +646,64 @@ const TOOL_UI: Record<string, any> = {
   #rigs .prose { margin-inline: auto; }
   .rigs__ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem; }
 
-  #about { text-align: center; }
-  #about .about__grid {
-    margin-inline: auto;
-    max-width: 56rem;
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    text-align: left;
+  /* About Me (Adrian x Claude Design, 2026-07-17): tri-color heading, portrait with the
+     plasma edge, big bio, the free-and-open-source callout, studios and shipped-on chips. */
+  #about { text-align: left; }
+  .am-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+  .am-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
+  .am-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 4.8vw, 3.1rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    -webkit-text-stroke: 0.08em #06090C;
+    paint-order: stroke fill;
   }
-  #about .about__grid--photo { grid-template-columns: 240px 1fr; align-items: start; }
-  #about .about__photo {
-    display: block;
-    width: 100%;
-    height: auto;
-    border: 1px solid var(--iron-3);
-    border-radius: var(--radius);
+  .am-title .am-bone { color: var(--bone); }
+  .am-title .am-plasma { color: var(--plasma); }
+  .am-title .am-ember { color: var(--ember); }
+  .am-title .am-gap { display: inline-block; width: 0.4em; }
+
+  .am-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+  .am-portrait { display: flex; flex-direction: column; gap: 0.9rem; }
+  .am-portrait__frame {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(124, 255, 178, 0.14);
   }
-  #about .about__body { display: flex; flex-direction: column; gap: 1rem; }
-  @media (max-width: 720px) {
-    #about .about__grid--photo { grid-template-columns: 1fr; }
+  .am-portrait__frame :global(img) { width: 100%; height: auto; display: block; }
+  .am-portrait__edge { position: absolute; top: 10px; bottom: 10px; left: -2px; width: 3px; z-index: 1; background: linear-gradient(180deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.85), rgba(124, 255, 178, 0)); }
+  .am-portrait__cap { display: flex; align-items: center; gap: 0.9rem; padding-left: 0.25rem; }
+  .am-portrait__tick { width: 2.25rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
+  .am-portrait__line { font-family: var(--font-mono); font-size: 0.9375rem; letter-spacing: 0.08em; color: var(--bone-dim); }
+
+  .am-bio { display: flex; flex-direction: column; gap: 1.25rem; }
+  .am-bio__name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.375rem); line-height: 1.02; letter-spacing: -0.02em; color: var(--bone); }
+  .am-bio__para { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .am-bio__para b { color: var(--bone); }
+  .am-bio__para .am-plasma-b { color: var(--plasma); }
+  .am-bio__para .am-ember-b { color: var(--ember); }
+
+  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
+  .am-free {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    align-self: flex-start;
+    background: linear-gradient(90deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.4);
+    border-radius: 12px;
+    padding: 0.8rem 1.25rem;
+    box-shadow: 0 0 34px -18px rgba(124, 255, 178, 0.4);
+  }
+  .am-free__dot { width: 0.625rem; height: 0.625rem; border-radius: 50%; background: var(--plasma); box-shadow: 0 0 12px rgba(124, 255, 178, 0.7); }
+  .am-free__line { font-family: var(--font-mono); font-weight: 700; font-size: 0.9860rem; color: var(--plasma); letter-spacing: 0.03em; }
+
+  @media (max-width: 820px) {
+    .am-grid { grid-template-columns: 1fr; }
   }
 </style>

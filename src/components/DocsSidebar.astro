@@ -26,7 +26,17 @@ const isActive = (id: string) => current === `/docs/${id}`;
           {group.subgroups?.map((sub) => (
             <li class="docs-nav__item docs-nav__item--sub">
               <details class="docs-nav__subdetails" open>
-                <summary class="docs-nav__sublabel">{sub.label}</summary>
+                <summary class="docs-nav__sublabel">
+                  {sub.labelId && byId.has(sub.labelId) ? (
+                    <a
+                      class={`docs-nav__sublink${isActive(sub.labelId) ? ' is-active' : ''}`}
+                      href={href(sub.labelId)}
+                      aria-current={isActive(sub.labelId) ? 'page' : undefined}
+                    >{sub.label}</a>
+                  ) : (
+                    sub.label
+                  )}
+                </summary>
                 <ul class="docs-nav__list">
                   {sub.ids.map((id) => byId.has(id) && (
                     <li class="docs-nav__item">
@@ -117,6 +127,11 @@ const isActive = (id: string) => current === `/docs/${id}`;
     padding: 0.35rem 0 0.35rem 0.625rem;
     margin-top: 0.25rem;
   }
+  /* A subgroup label that links to its concept page: the chevron still toggles, the text
+     navigates. */
+  .docs-nav__sublink { color: inherit; text-decoration: none; }
+  .docs-nav__sublink:hover { color: var(--plasma); }
+  .docs-nav__sublink.is-active { color: var(--ember); }
 
   .docs-nav__list { list-style: none; padding: 0.35rem 0 0; margin: 0; display: flex; flex-direction: column; }
   .docs-nav__subdetails .docs-nav__list { padding-left: 0.75rem; }

@@ -1,97 +1,178 @@
 ---
+// Docs landing: the Getting Started narrative (docs-thread relay R3 + Adrian x Claude
+// Design visual pass, 2026-07-17). Copy is VERBATIM from
+// MrMiata workspace/2026-07-17_component-docs/docs-landing-copy.md - em-dash-free by
+// requirement; the design drop's copy drift (reintroduced em-dashes, "That's") was NOT
+// adopted, per the R3 no-re-wording rule. Visuals follow the drop: fS monogram eyebrow,
+// accent-stroked ghost numbers, link chips, flanked footer.
 import DocsLayout from '../../layouts/DocsLayout.astro';
-import FieldLabel from '../../components/FieldLabel.astro';
-import { getCollection } from 'astro:content';
-import { DOCS_NAV } from '../../data/docs';
+import { Image } from 'astro:assets';
+import '../../styles/designed-doc.css';
+import fsMonogram from '../../assets/docs/fs-monogram.png';
 
-const all = await getCollection('docs');
-const byId = new Map(all.map((d) => [d.id, d]));
+const STEPS = [
+  {
+    n: 1,
+    tone: 'plasma',
+    heading: 'Set up your project',
+    para: 'Every project starts with a project setup file. Use <b class="gs-b-plasma">Mindmeld</b> to set yours up: define your naming conventions and folder structure once, and the toolset gives you automatic pathing and a faster pipeline from then on. The way a professional studio works.',
+    link: '/docs/tools/project-setup/',
+    linkLabel: 'Mindmeld docs',
+  },
+  {
+    n: 2,
+    tone: 'plasma',
+    heading: 'Build your skeleton',
+    para: 'Every rig starts with a skeleton. The <b class="gs-b-plasma">Armature</b> system builds yours fast: auto-orienting joints, mirroring, and symmetry mean you place the joints and it takes care of the rest.',
+    link: '/docs/tools/armature/',
+    linkLabel: 'Armature docs',
+  },
+  {
+    n: 3,
+    tone: 'ember',
+    heading: 'Build your rig',
+    para: 'Rigging used to take ages. With <b class="gs-b-ember">Fabricator</b> it takes minutes. Build modularly from components, limbs, and templates, like stacking blocks, and you get a rig animators actually want to use. Every component was built by an animator and is used in production every day.',
+    link: '/docs/tools/fabricator/',
+    linkLabel: 'Fabricator docs',
+  },
+  {
+    n: 4,
+    tone: 'plasma',
+    heading: 'Skin it',
+    para: 'Skinning used to take days. With <b class="gs-b-plasma">AutoSkin</b> it takes minutes. It uses a modern autoregressive AI model to skin your mesh onto your skeleton, running locally on your own machine. No token cost, completely free, straight out of Maya.',
+    link: '/docs/tools/autoskin/',
+    linkLabel: 'AutoSkin docs',
+  },
+  {
+    n: 5,
+    tone: 'ember',
+    heading: 'Take it to engine',
+    para: 'Getting your assets and animations into engine comes down to a button or two with the <b class="gs-b-ember">Rig &amp; Anim Exporter</b>. Model, skeleton, and animation, out of Maya and into your engine.',
+    link: '/docs/tools/exporter/',
+    linkLabel: 'Exporter docs',
+  },
+];
 
-const concepts = ['concepts/components', 'concepts/limbs', 'concepts/templates']
-  .map((id) => byId.get(id))
-  .filter(Boolean);
-
-const CATEGORY_BLURBS: Record<string, string> = {
-  'skeleton-building': 'Author the skeleton: the armature, orientation, and skeleton IO.',
-  'animation-rig': 'Build the animation rig with Fabricator and its control curves.',
-  'rig-components': 'The building blocks: components, limbs, and templates.',
-  skinning: 'Bind and transfer skin weights.',
-  animation: 'Save and reuse poses and clips across every rig you build.',
-  engine: 'Clean FBX into Unreal, with project paths set up for you.',
-  utility: 'The toolbar, your AI TA, and the everyday scene helpers.',
-};
-
-const categories = DOCS_NAV.map((g) => {
-  const ids = [...g.ids, ...(g.subgroups ?? []).flatMap((s) => s.ids)].filter((id) => byId.has(id));
-  return { key: g.key, label: g.label, count: ids.length, first: ids[0], blurb: CATEGORY_BLURBS[g.key] };
-});
+const TITLE = 'GETTING STARTED';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 ---
 <DocsLayout
   title="Docs | FabricatorStudio"
-  description="Reference docs for every tool and rig component in the FabricatorStudio toolset."
+  description="Getting started with the FabricatorStudio toolset: from an empty project to an in-engine asset in five steps."
 >
-  <section class="docs-landing">
-    <FieldLabel text="Docs" />
-    <h1 class="display">Documentation</h1>
-    <p class="prose docs-landing__intro">Everything that ships with the toolset. New here? Start with the core concepts, then browse by category in the sidebar.</p>
+  <article class="dd gs">
+    <header class="dd-header">
+      <div class="gs-eyebrow-row">
+        <Image class="gs-monogram" src={fsMonogram} alt="" aria-hidden="true" densities={[1, 2]} />
+        <div class="dd-eyebrow">FABRICATORSTUDIO &middot; DOCS</div>
+      </div>
+      <h1 class="dd-title gs-title" aria-label="Getting Started with the FabricatorStudio Toolset">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="gs-subtitle">with the FabricatorStudio Toolset</p>
+      <p class="dd-summary gs-intro">Build a game character the way a professional studio does, from an empty project to an in-engine asset, without a pipeline team behind you. <b>Five steps</b>, each with its own tool and its own docs.</p>
+    </header>
 
-    <FieldLabel text="Start Here" />
-    <ul class="doc-cards">
-      {concepts.map((entry) => (
-        <li>
-          <a class="doc-entry" href={`/docs/${entry!.id}/`}>
-            <span class="doc-entry__title">{entry!.data.title}</span>
-            <span class="doc-entry__summary prose" set:html={entry!.data.summary} />
-          </a>
+    <ol class="gs-steps">
+      {STEPS.map((s) => (
+        <li class={`gs-step gs-step--${s.tone}`}>
+          <span class={`gs-step__num gs-step__num--${s.tone}`} aria-hidden="true">{s.n}</span>
+          <div class="gs-step__body">
+            <h2 class="gs-step__heading"><span class="gs-step__sr">{s.n}. </span>{s.heading}</h2>
+            <p class="gs-step__para" set:html={s.para} />
+          </div>
+          <a class={`gs-step__chip gs-step__chip--${s.tone}`} href={s.link}>{s.linkLabel} &rarr;</a>
         </li>
       ))}
-    </ul>
+    </ol>
 
-    <FieldLabel text="Browse" />
-    <ul class="doc-cards">
-      {categories.map((cat) => (
-        <li>
-          <a class="doc-entry" href={`/docs/${cat.first}/`}>
-            <span class="doc-entry__head">
-              <span class="doc-entry__title">{cat.label}</span>
-              <span class="doc-entry__count">{cat.count} {cat.count === 1 ? 'doc' : 'docs'}</span>
-            </span>
-            <span class="doc-entry__summary">{cat.blurb}</span>
-          </a>
-        </li>
-      ))}
-    </ul>
-  </section>
+    <div class="gs-outro">
+      <span class="gs-outro__bar" aria-hidden="true"></span>
+      <p>That is the whole path. Jump into any step above, or browse the full toolset by category in the sidebar.</p>
+      <span class="gs-outro__bar" aria-hidden="true"></span>
+    </div>
+  </article>
 </DocsLayout>
-<style>
-  .docs-landing { text-align: left; max-width: 52rem; }
-  .docs-landing__intro { margin: 0.5rem 0 2rem; }
-  .docs-landing :global(.field-label) { margin-bottom: 0.75rem; }
-  .docs-landing :global(.field-label:not(:first-of-type)) { margin-top: 2.5rem; }
 
-  .doc-cards {
-    list-style: none;
-    padding: 0;
+<style>
+  /* The Getting Started narrative, in the design drop's visual language. Shared
+     furniture: designed-doc.css. */
+  .gs-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; }
+  .gs-monogram { height: 2.5rem; width: auto; }
+  .gs-title { white-space: normal; }
+  .gs-subtitle {
     margin: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(15rem, 1fr));
-    gap: 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    letter-spacing: 0.08em;
+    color: var(--bone-dim);
   }
-  .doc-entry {
-    display: block;
-    height: 100%;
+  .gs-intro { max-width: 52rem; }
+  .gs-intro b { color: var(--bone); }
+
+  .gs-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+  .gs-step {
     box-sizing: border-box;
-    border: 1px solid var(--iron-2);
-    border-radius: var(--radius);
-    background: var(--iron);
-    padding: 1rem 1.25rem;
-    text-decoration: none;
-    color: inherit;
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) auto;
+    gap: 1.5rem;
+    align-items: center;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border-radius: 16px;
+    padding: 1.625rem 1.75rem;
+    box-shadow: var(--shadow-md);
   }
-  .doc-entry:hover { border-color: var(--iron-3); }
-  .doc-entry__head { display: flex; align-items: baseline; justify-content: space-between; gap: 0.75rem; }
-  .doc-entry__title { font-family: var(--font-mono); font-weight: 700; color: var(--bone); }
-  .doc-entry__count { font-family: var(--font-mono); font-size: 0.75rem; color: var(--bone-faint); white-space: nowrap; }
-  .doc-entry__summary { display: block; margin-top: 0.375rem; color: var(--bone-dim); font-size: 0.9375rem; }
-  .doc-entry__summary :global(b) { color: var(--bone); font-weight: 700; }
+  .gs-step--plasma { border: 1px solid rgba(124, 255, 178, 0.14); }
+  .gs-step--ember { border: 1px solid rgba(255, 122, 61, 0.16); }
+  /* The ghost number: iron-2 fill with the accent stroke, per the drop (its off-palette
+     dark fills snapped to the token). */
+  .gs-step__num {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--iron-2);
+    text-align: center;
+  }
+  .gs-step__num--plasma { -webkit-text-stroke: 2px rgba(124, 255, 178, 0.4); }
+  .gs-step__num--ember { -webkit-text-stroke: 2px rgba(255, 122, 61, 0.45); }
+  .gs-step__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .gs-step__body { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+  .gs-step__heading { margin: 0; position: relative; font-family: var(--font-mono); font-weight: 800; font-size: 1.375rem; color: var(--bone); }
+  .gs-step__para { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .gs-step__para :global(b) { color: var(--bone); }
+  .gs-step__para :global(.gs-b-plasma) { color: var(--plasma); }
+  .gs-step__para :global(.gs-b-ember) { color: var(--ember); }
+  .gs-step__chip {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .gs-step__chip--plasma { background: rgba(124, 255, 178, 0.1); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .gs-step__chip--plasma:hover { background: var(--plasma); color: #06120B; }
+  .gs-step__chip--ember { background: rgba(255, 122, 61, 0.1); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+  .gs-step__chip--ember:hover { background: var(--ember); color: #1A0A02; }
+
+  .gs-outro { display: flex; align-items: center; justify-content: center; gap: 1rem; padding-top: 0.25rem; }
+  .gs-outro__bar { flex: none; width: 3rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
+  .gs-outro p { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-align: center; text-wrap: pretty; }
+
+  @media (max-width: 820px) {
+    .gs-step { grid-template-columns: 3rem minmax(0, 1fr); }
+    .gs-step__chip { grid-column: 2; justify-self: start; }
+    .gs-outro__bar { display: none; }
+  }
 </style>

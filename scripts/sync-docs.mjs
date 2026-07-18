@@ -44,11 +44,13 @@ const EXCLUDE = new Set([
   'tools/ml-auto-skin',         // superseded by tools/autoskin (AutoSkin is the shipped name, 2026-07-17)
   'components/ribbon',          // deprecated component (Adrian 2026-07-17); page removed
   'components/spline-fk',       // component CUT from the toolset (Adrian 2026-07-17); page removed
+  'tools/renamer',              // removed from the docs (Adrian 2026-07-17)
+  'tools/scene-cleanup',        // removed from the docs (Adrian 2026-07-17)
   // Trimmed for the website: full reference stays at the KS source, the site ships a short
   // human version from docs-authored/. Add a slug here only once its authored version exists.
   'tools/joint-aimer',
-  'tools/exporter', 'tools/project-setup', 'tools/ctrl-editor', 'tools/skeleton-io', 'tools/scene-cleanup',
-  'tools/fabricator', 'tools/skin-io', 'tools/bridge', 'tools/renamer',
+  'tools/exporter', 'tools/project-setup', 'tools/ctrl-editor', 'tools/skeleton-io',
+  'tools/fabricator', 'tools/skin-io', 'tools/bridge',
   'components/simple-ik', 'components/ik-leg', 'components/fk-aim', 'components/simple-fk', 'components/world',
   'components/advanced-fk', 'components/follow-joint', 'components/ribbon-spine',
 ]);

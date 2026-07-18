@@ -37,6 +37,9 @@ export const DESIGNED_DOC_IDS = new Set([
   'components/ribbon-ik-leg',
   'tools/exporter',
   'tools/project-setup',
+  'tools/bridge',
+  'tools/your-ai-ta',
+  'tools/batch-runner',
 ]);
 
 export const DOC_CATEGORY_LABELS: Record<string, string> = {
@@ -49,43 +52,44 @@ export const DOC_CATEGORY_LABELS: Record<string, string> = {
   component: 'Component',
 };
 
-// Docs navigation taxonomy (Adrian, 2026-07-11). Four top-level groups; every doc is
-// listed by its collection id under exactly one group. The sidebar and the /docs landing
-// both render from this, and it drives the ordering. Concepts open the Rigging group as
-// the onboarding path; the rig-component reference docs nest in a collapsible subgroup.
-export interface DocNavSubgroup { label: string; ids: string[] }
+// Docs navigation taxonomy (Adrian, 2026-07-17; supersedes the 07-11 four-group layout).
+// Three groups: Rigging (the build path, with the component reference nested in a
+// collapsible Components subgroup whose label links to the concept page), Animation, and
+// Utility. The sidebar renders from this and it drives the ordering; the landing is the
+// Getting Started narrative and no longer reads it.
+export interface DocNavSubgroup { label: string; ids: string[]; labelId?: string }
 export interface DocNavGroup { key: string; label: string; ids: string[]; subgroups?: DocNavSubgroup[] }
 
 export const DOCS_NAV: DocNavGroup[] = [
   {
-    key: 'skeleton-building',
-    label: 'Skeleton Building',
-    ids: ['tools/armature', 'tools/skeleton-io', 'tools/joint-aimer'],
-  },
-  {
-    key: 'animation-rig',
-    label: 'Animation Rig Building',
-    ids: ['tools/fabricator', 'tools/ctrl-editor'],
-  },
-  {
-    key: 'rig-components',
-    label: 'Rig Components',
+    key: 'rigging',
+    label: 'Rigging',
     ids: [
-      'concepts/components', 'concepts/limbs', 'concepts/templates',
-      'components/world', 'components/simple-fk', 'components/advanced-fk',
-      'components/fk-aim', 'components/simple-ik', 'components/ik-arm', 'components/ik-leg',
-      'components/follow-joint',
-      'components/ribbon-spine', 'components/ribbon-ik-arm', 'components/ribbon-ik-leg',
+      'tools/armature', 'tools/fabricator', 'tools/autoskin', 'tools/ctrl-editor',
+      'tools/joint-aimer', 'concepts/templates', 'concepts/limbs',
+    ],
+    subgroups: [
+      {
+        label: 'Components',
+        labelId: 'concepts/components',
+        ids: [
+          'components/world', 'components/simple-fk', 'components/advanced-fk',
+          'components/fk-aim', 'components/simple-ik', 'components/ik-arm', 'components/ik-leg',
+          'components/follow-joint', 'components/ribbon-spine', 'components/ribbon-ik-arm',
+          'components/ribbon-ik-leg',
+        ],
+      },
     ],
   },
-  {
-    key: 'skinning',
-    label: 'Skinning',
-    ids: ['tools/skin-io', 'tools/autoskin'],
-  },
   { key: 'animation', label: 'Animation', ids: ['tools/pose-anim-studio'] },
-  { key: 'engine', label: 'Engine', ids: ['tools/exporter', 'tools/project-setup'] },
-  { key: 'utility', label: 'Utility', ids: ['tools/bridge', 'tools/your-ai-ta', 'tools/renamer', 'tools/scene-cleanup'] },
+  {
+    key: 'utility',
+    label: 'Utility',
+    ids: [
+      'tools/skeleton-io', 'tools/skin-io', 'tools/exporter', 'tools/project-setup',
+      'tools/bridge', 'tools/your-ai-ta', 'tools/batch-runner',
+    ],
+  },
 ];
 
 // Site-side display-name overrides for the sidebar (public naming, ahead of the KS source
@@ -96,8 +100,14 @@ export const DOCS_NAV: DocNavGroup[] = [
 // (FK Simple, IK Arm, Ribbon Leg). Applies to the docs nav; source-doc titles follow
 // via the naming relay.
 export const DOC_NAV_LABELS: Record<string, string> = {
-  'tools/ctrl-editor': 'Ctrl Editor',
-  'tools/autoskin': 'Auto Skin',
+  'tools/armature': 'Armature: Skeleton Building',
+  'tools/fabricator': 'Fabricator: Rig Building',
+  'tools/autoskin': 'AutoSkin: AI Skinning',
+  'tools/ctrl-editor': 'Ctrl Editor: Curve Utilities',
+  'tools/joint-aimer': 'Aimers',
+  'tools/pose-anim-studio': 'Pose & Animation Studio',
+  'tools/exporter': 'Rig & Anim Exporter',
+  'tools/your-ai-ta': 'AI TA',
   'components/simple-fk': 'FK Simple',
   'components/advanced-fk': 'FK Advanced',
   'components/fk-aim': 'FK Aim',
