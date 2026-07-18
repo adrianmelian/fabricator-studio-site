@@ -36,6 +36,7 @@ export const DESIGNED_DOC_IDS = new Set([
   'components/ribbon-ik-arm',
   'components/ribbon-ik-leg',
   'tools/exporter',
+  'tools/project-setup',
 ]);
 
 export const DOC_CATEGORY_LABELS: Record<string, string> = {

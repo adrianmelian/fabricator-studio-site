@@ -1,0 +1,227 @@
+---
+// DESIGNED docs page for tools/project-setup (Adrian x Claude Design, 2026-07-17; source
+// drop: MrMiata inbox/Docs/"Project Setup Docs.html"; the embedded window shot is
+// byte-identical to inbox/FSWindows/MindMeld.png). Shared furniture: designed-doc.css
+// (incl. dd-fact rows). Page-specific: the two-settings-files cards, the READ BY bar,
+// the engine-template chips, and the window figure. The WINDOW: MINDMELD badge is ember
+// per the site's header-badge convention (ember = label).
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import mindmeldWindow from '../../../assets/docs/project-setup/mindmeld-window.png';
+
+const SUMMARY =
+  'Sets up the per-project settings every exporter, library, and Maya session reads from, with live validation and optional folder scaffolding, instead of hand-edited JSON.';
+
+const TITLE = 'PROJECT SETUP';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+// The cycle counts glyphs only, continuing across word gaps (Claude Design's treatment).
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout title="Project Setup | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="ps-eyebrow-row">
+        <div class="dd-eyebrow">FABRICATOR &middot; FRAMEWORK</div>
+        <span class="ps-badge">WINDOW: MINDMELD</span>
+      </div>
+      <h1 class="dd-title ps-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="ps-what">
+      <div class="dd-panel__head">
+        <h2 id="ps-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">Two settings files, one source of truth</p>
+      </div>
+      <p class="dd-prose ps-lede">Project Setup (window title: <b>Mindmeld</b>) authors the two settings files every project runs on. Save once, and the exporters, libraries, and your Maya session all read from that same source.</p>
+      <div class="ps-files">
+        <div class="ps-file ps-file--plasma">
+          <div class="ps-file__head"><span class="ps-file__braces ps-file__braces--plasma" aria-hidden="true">&lbrace; &rbrace;</span><h3 class="ps-file__name">Session settings</h3></div>
+          <div class="ps-chips">
+            <span class="ps-chip">units</span>
+            <span class="ps-chip">frame rate</span>
+            <span class="ps-chip">playback range</span>
+          </div>
+        </div>
+        <div class="ps-file ps-file--ember">
+          <div class="ps-file__head"><span class="ps-file__braces ps-file__braces--ember" aria-hidden="true">&lbrace; &rbrace;</span><h3 class="ps-file__name">Export settings</h3></div>
+          <div class="ps-chips">
+            <span class="ps-chip">output folders</span>
+            <span class="ps-chip">prefixes</span>
+            <span class="ps-chip">FBX presets</span>
+          </div>
+        </div>
+      </div>
+      <div class="ps-readby" aria-label="Read by the exporters, the libraries, and the Maya session">
+        <span class="ps-readby__label">READ BY</span>
+        <span class="ps-readby__chip">Exporters</span>
+        <span class="ps-readby__chip">Libraries</span>
+        <span class="ps-readby__chip">Maya session</span>
+      </div>
+    </section>
+
+    <!-- THE WINDOW -->
+    <section class="dd-panel" aria-labelledby="ps-window">
+      <div class="dd-panel__head">
+        <h2 id="ps-window" class="dd-label dd-label--plasma">THE WINDOW</h2>
+        <p class="dd-lede">Projects, templates, and live validation</p>
+      </div>
+      <div class="ps-gui">
+        <div class="dd-gui__shot ps-shot">
+          <div class="dd-gui__edge" aria-hidden="true"></div>
+          <Image src={mindmeldWindow} alt="The Mindmeld Project Setup window: project list, engine templates, and the validation panel" densities={[1, 2]} />
+        </div>
+        <div class="ps-gui__copy">
+          <p class="dd-prose">Each project lists its engine template and active state. A <b class="b-plasma">validation panel</b> flags problems live, and Save stays disabled while an error is listed.</p>
+          <div class="ps-engines">
+            <span class="ps-engine ps-engine--plasma">Unreal5 &middot; vetted</span>
+            <span class="ps-engine ps-engine--ember">Unity &middot; experimental</span>
+            <span class="ps-engine ps-engine--ember">Godot &middot; experimental</span>
+            <span class="ps-engine">Generic &middot; empty</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section class="dd-section" aria-labelledby="ps-quickstart">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ps-quickstart" class="dd-label dd-label--ember">QUICK START</h2>
+        <p class="dd-lede">New project, validate, activate</p>
+      </div>
+      <ol class="dd-steps">
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Open Project Setup from the <b>FabricatorStudio menu</b> or the fsModel shelf.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Click <b class="b-plasma">New</b>, pick an engine template (Unreal5 vetted; Unity &amp; Godot experimental; Generic empty), and name your project.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>Set your <b>Project Root</b>, fill in Asset Classes, and watch the validation panel; Save stays disabled while an error is listed.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">4</span><p>Save, then optionally check off which <b>folders to create</b> on disk.</p></li>
+        <li class="dd-step dd-step--ember ps-step--activate"><span class="dd-step__num">5</span><p>Select the project and click <b class="b-ember">Apply &amp; Activate</b> to apply its settings to your current session.</p></li>
+      </ol>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="ps-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="ps-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">1</span>
+          <div>
+            <h3 class="dd-fact__name">Engine template locks once created</h3>
+            <p class="dd-fact__line">To switch, <b class="b-plasma">Duplicate</b> under a new template, then delete the old one.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--ember">
+          <span class="dd-fact__num">2</span>
+          <div>
+            <h3 class="dd-fact__name">Rename-that-moves-the-folder is blocked</h3>
+            <p class="dd-fact__line">Renaming a project so its folder would change is blocked; <b class="b-plasma">Duplicate</b> under the new name instead.</p>
+          </div>
+        </div>
+        <div class="dd-fact dd-fact--plasma">
+          <span class="dd-fact__num">3</span>
+          <div>
+            <h3 class="dd-fact__name">Export target follows file path</h3>
+            <p class="dd-fact__line">Apply &amp; Activate doesn't change which project a scene exports to; that's always based on file path.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the window badge, settings-file cards, READ BY bar, engine chips, and
+     the window figure. Shared furniture: designed-doc.css. */
+  .ps-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  /* Ember: a header badge is a LABEL (DNA principle 2), same convention as the pack badges. */
+  .ps-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 7px;
+    background: rgba(255, 122, 61, 0.12);
+    border: 1px solid rgba(255, 122, 61, 0.45);
+    color: var(--ember);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.12em;
+  }
+  .ps-title { font-size: clamp(1.8rem, 4.6vw, 3.1rem); }
+  .ps-lede { max-width: 60rem; }
+
+  .ps-files { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .ps-file { background: var(--carbon); border-radius: 12px; padding: 1.375rem 1.5rem; display: flex; flex-direction: column; gap: 0.75rem; }
+  .ps-file--plasma { border: 1px solid rgba(124, 255, 178, 0.25); }
+  .ps-file--ember { border: 1px solid rgba(255, 122, 61, 0.25); }
+  .ps-file__head { display: flex; align-items: center; gap: 0.7rem; }
+  .ps-file__braces { font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; }
+  .ps-file__braces--plasma { color: var(--plasma); }
+  .ps-file__braces--ember { color: var(--ember); }
+  .ps-file__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.0625rem; color: var(--bone); }
+  .ps-chips { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+  .ps-chip {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    background: var(--iron);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    color: var(--bone-dim);
+  }
+
+  .ps-readby {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    flex-wrap: wrap;
+    background: radial-gradient(120% 120% at 50% 45%, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.2);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+  }
+  .ps-readby__label { font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.12em; color: var(--bone-faint); }
+  .ps-readby__chip {
+    padding: 0.4rem 0.8rem;
+    border-radius: 8px;
+    background: var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.3);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    color: var(--plasma);
+  }
+
+  .ps-gui { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 1.75rem; align-items: center; }
+  .ps-shot { align-self: start; }
+  .ps-gui__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .ps-engines { display: flex; gap: 0.6rem; flex-wrap: wrap; }
+  .ps-engine {
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px;
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.875rem;
+    color: var(--bone-faint);
+  }
+  .ps-engine--plasma { background: rgba(124, 255, 178, 0.1); border-color: rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .ps-engine--ember { background: rgba(255, 122, 61, 0.1); border-color: rgba(255, 122, 61, 0.4); color: var(--ember); }
+
+  .ps-step--activate { background: var(--carbon); }
+
+  @media (max-width: 820px) {
+    .ps-files { grid-template-columns: 1fr; }
+    .ps-gui { grid-template-columns: 1fr; }
+  }
+</style>
