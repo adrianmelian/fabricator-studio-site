@@ -31,6 +31,14 @@ export const TUTORIALS: Tutorial[] = [
   { title: 'Reggie: Your AI Technical Artist in Maya', name: 'Reggie', sub: 'Your AI Technical Artist in Maya', tag: 'AI TA', tone: 'ember', ...yt('QqPu48V2wmM') },
 ];
 
+// Lookup for docs-page watch cards (DocsWatchCard). Throws at build time on a bad
+// name, so a renamed tutorial can't silently drop a card.
+export function tutorialByName(name: string): Tutorial {
+  const t = TUTORIALS.find((x) => x.name === name);
+  if (!t) throw new Error(`No tutorial named "${name}"`);
+  return t;
+}
+
 export const PLAYLIST = 'https://www.youtube.com/playlist?list=PLdhimSiSWWxA';
 
 export const CHANNEL = LINKS.tutorialsChannel;

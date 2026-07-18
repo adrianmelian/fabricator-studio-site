@@ -9,6 +9,8 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
+import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import { tutorialByName } from '../../../data/tutorials';
 import armatureControls from '../../../assets/docs/armature/armature-controls.png';
 import builtRig from '../../../assets/docs/armature/built-rig.png';
 import armatureGui from '../../../assets/docs/armature/armature-gui.png';
@@ -38,6 +40,14 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       </h1>
       <p class="dd-summary">{SUMMARY}</p>
     </header>
+
+    <!-- No standalone Armature upload exists; the Fabricator Quick Start covers the
+         armature workflow. -->
+    <DocsWatchCard
+      video={tutorialByName('Fabricator')}
+      name="Fabricator: The Animation Rig Authoring Framework"
+      sub="Covers the armature workflow: joints, posing, and Build Rig."
+    />
 
     <!-- WHAT: author -> build -> built, as a flow -->
     <section class="dd-panel" aria-labelledby="dd-what">
@@ -197,4 +207,5 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     .dd-flow { grid-template-columns: 1fr; gap: 0.75rem; }
     .dd-flow__arrow { transform: rotate(90deg); padding: 0; margin: 0.25rem auto; }
   }
+
 </style>

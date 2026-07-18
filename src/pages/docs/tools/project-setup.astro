@@ -8,6 +8,8 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
+import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import { tutorialByName } from '../../../data/tutorials';
 import mindmeldWindow from '../../../assets/docs/project-setup/mindmeld-window.png';
 
 const SUMMARY =
@@ -35,6 +37,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       </h1>
       <p class="dd-summary">{SUMMARY}</p>
     </header>
+
+    <DocsWatchCard video={tutorialByName('Mindmeld')} />
 
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="ps-what">

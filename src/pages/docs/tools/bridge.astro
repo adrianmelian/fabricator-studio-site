@@ -7,6 +7,8 @@
 // prefix is the banned 1.0 label motif and ships without the slashes.
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import '../../../styles/designed-doc.css';
+import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import { tutorialByName } from '../../../data/tutorials';
 import toolbar from '../../../assets/docs/bridge-toolbar.png';
 
 const SUMMARY =
@@ -34,6 +36,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       </h1>
       <p class="dd-summary">{SUMMARY}</p>
     </header>
+
+    <DocsWatchCard video={tutorialByName('Bridge')} />
 
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="br-what">
