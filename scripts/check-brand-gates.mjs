@@ -82,9 +82,17 @@ for (const f of htmlFiles) {
 // The license honesty rule, mechanized: the built site must never say "open source"
 // (any casing, spacing, or hyphenation) or reference Apache. Raw scan rather than
 // visibleText, so the string dies in metas, alt text, attributes, and comments too.
+// Two sanctioned truths (Adrian's Option A ruling, SITE-LIC-R2 2026-07-18):
+//   1. /licensing discusses the license as a subject, including saying what it is NOT;
+//      that one page is exempt.
+//   2. The canonical four-year BSL promise may appear anywhere, byte-for-byte only, so
+//      any drift in its wording still fails the gate.
 const LIC = /open[\s-]+source|apache/i;
+const LIC_EXEMPT_PAGE = /[\\/]licensing[\\/]index\.html$/;
+const FOUR_YEAR = 'Every version becomes fully open source four years after it ships, automatically.';
 for (const f of htmlFiles) {
-  const m = readFileSync(f, 'utf8').match(LIC);
+  if (LIC_EXEMPT_PAGE.test(f)) continue;
+  const m = readFileSync(f, 'utf8').split(FOUR_YEAR).join(' ').match(LIC);
   if (m) failures.push(`G13 license claim "${m[0]}" in ${f}`);
 }
 for (const [css, where] of allCss) {

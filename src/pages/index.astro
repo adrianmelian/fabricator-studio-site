@@ -88,6 +88,22 @@ const TOOL_UI: Record<string, any> = {
     </div>
   </section>
 
+  <!-- LICENSING (SITE-LIC-R2): Adrian-approved copy from COMMERCIAL-PAGE.md section B,
+       placed under the hero per the record so it frames everything after it. The
+       four-year line is the canonical G13-exempt sentence, byte-for-byte. -->
+  <section id="licensing">
+    <div class="lc-band">
+      <h2 class="lc-band__title">Free for solo developers, indies, and small teams.</h2>
+      <p class="lc-band__para">If your studio makes under 2 million a year, everything here is yours. Use it in production, ship your game, use it on client work, keep it forever. No seats, no trial, no feature gates, no phoning home.</p>
+      <p class="lc-band__para">Above 2 million, one flat license covers your whole studio, and it scales with your revenue so it stays small when you are small.</p>
+      <p class="lc-band__para lc-band__para--gpl">Every version becomes fully open source four years after it ships, automatically.</p>
+      <div class="lc-band__ctas">
+        <BracketButton kind="plasma-outline" href="/licensing/#pricing" label="See pricing" />
+        <BracketButton kind="soft" href="/licensing/#license" label="Read the license" />
+      </div>
+    </div>
+  </section>
+
   <section id="tools">
     <div class="tools__stack">
       {flagshipTools.map((t, i) => {
@@ -656,6 +672,26 @@ const TOOL_UI: Record<string, any> = {
   }
   .download-line { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--bone); }
 
+
+  /* Licensing band (SITE-LIC-R2): the free-tier promise under the hero, plasma wash. */
+  #licensing { display: flex; justify-content: center; }
+  .lc-band {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 1rem;
+    max-width: 56rem;
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.4);
+    border-radius: 22px;
+    padding: 2.5rem 2.75rem;
+    box-shadow: 0 0 44px -22px rgba(124, 255, 178, 0.4);
+  }
+  .lc-band__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.375rem, 3vw, 1.75rem); color: var(--plasma); text-wrap: balance; }
+  .lc-band__para { margin: 0; max-width: 46rem; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .lc-band__para--gpl { color: var(--bone-faint); font-size: 0.875rem; }
+  .lc-band__ctas { margin-top: 0.75rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
 
   /* Tutorials block (Adrian x Claude Design, 2026-07-17): tri-color head, the nine
      Quick Start cards with real thumbnails, and the All Tutorials chip. */
