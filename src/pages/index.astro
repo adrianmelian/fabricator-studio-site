@@ -1,7 +1,6 @@
 ---
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import FieldLabel from '../components/FieldLabel.astro';
 import BracketButton from '../components/BracketButton.astro';
 import ToolCard from '../components/ToolCard.astro';
 import FabricatorHero from '../components/FabricatorHero.astro';
@@ -12,7 +11,7 @@ import downloadBanner from '../assets/download/download_card.png';
 import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
 import { flagshipTools } from '../data/tools';
-import { TUTORIALS, CHANNEL } from '../data/tutorials';
+import { TUTORIALS } from '../data/tutorials';
 
 // Key Features section heading in the outlined tri-color treatment (Adrian x Claude
 // Design, 2026-07-17). Same glyph cycle as the designed docs pages: letters only,
@@ -31,6 +30,14 @@ const AM_TITLE = 'ABOUT ME';
 const AM_TRI = ['am-bone', 'am-plasma', 'am-ember'];
 let ami = 0;
 const amGlyphs = AM_TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'am-gap' : AM_TRI[ami++ % 3] }));
+
+// Tutorials block heading, same treatment (Adrian x Claude Design, 2026-07-17; source
+// drop: MrMiata inbox/Docs/"Tutorials Block Docs.html"). The drop predates the uploads;
+// the cards carry the REAL thumbnails and links from the tutorials data.
+const TB_TITLE = 'TUTORIALS';
+const TB_TRI = ['tb-bone', 'tb-plasma', 'tb-ember'];
+let tbi = 0;
+const tbGlyphs = TB_TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'tb-gap' : TB_TRI[tbi++ % 3] }));
 
 // The animated GUI that rides inside each tool card, keyed by the tool's dialog. These are
 // the same components the Learn More popovers use, so a card and its popover always show the
@@ -275,17 +282,32 @@ const TOOL_UI: Record<string, any> = {
 
   {TUTORIALS.length > 0 && (
     <section id="tutorials">
-      <FieldLabel text="Tutorials" />
-      <h2 class="subhead">Learn the kit.</h2>
-      <div class="tutorials__grid">
+      <div class="tb-head">
+        <div class="tb-eyebrow">FABRICATORSTUDIO</div>
+        <h2 class="tb-title" aria-label={TB_TITLE}>
+          {tbGlyphs.map((g) =>
+            g.cls === 'tb-gap' ? <span class="tb-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+          )}
+        </h2>
+        <p class="tb-sub">Learn the kit.</p>
+      </div>
+      <div class="tb-grid">
         {TUTORIALS.map((t) => (
-          <a class="tutorial-card" href={t.href}>
-            {t.thumb && <img class="tutorial-card__thumb" src={t.thumb} alt="" />}
-            <span class="tutorial-card__title">{t.title}</span>
+          <a class={`tb-card tb-card--${t.tone ?? 'plasma'}`} href={t.href} target="_blank" rel="noopener" aria-label={`Watch ${t.title} on YouTube`}>
+            <div class="tb-card__media">
+              {t.thumb && <img class="tb-card__thumb" src={t.thumb} alt="" loading="lazy" />}
+              <div class="tb-card__scrim" aria-hidden="true"></div>
+              {t.tag && <span class={`tb-card__tag tb-card__tag--${t.tone ?? 'plasma'}`}>{t.tag}</span>}
+              <span class={`tb-card__play tb-card__play--${t.tone ?? 'plasma'}`} aria-hidden="true"><span class="tb-card__tri"></span></span>
+            </div>
+            <div class="tb-card__body">
+              <span class={`tb-card__name tb-card__name--${t.tone ?? 'plasma'}`}>{t.name ?? t.title}</span>
+              {t.sub && <span class="tb-card__line">{t.sub}</span>}
+            </div>
           </a>
         ))}
       </div>
-      <BracketButton kind="soft" href={CHANNEL} label="All Tutorials" />
+      <a class="tb-all" href="/tutorials/">All Tutorials &rarr;</a>
     </section>
   )}
 
@@ -635,12 +657,107 @@ const TOOL_UI: Record<string, any> = {
   .download-line { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--bone); }
 
 
-  #tutorials { text-align: center; }
-  #tutorials .subhead { margin-inline: auto; }
-  .tutorials__grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 0.75rem; margin: 2rem 0; text-align: left; }
-  .tutorial-card { display: flex; flex-direction: column; border: 1px solid var(--iron-2); border-radius: var(--radius); background: var(--iron); overflow: hidden; text-decoration: none; color: inherit; }
-  .tutorial-card__thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-  .tutorial-card__title { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); padding: 1.25rem; }
+  /* Tutorials block (Adrian x Claude Design, 2026-07-17): tri-color head, the nine
+     Quick Start cards with real thumbnails, and the All Tutorials chip. */
+  #tutorials { display: flex; flex-direction: column; }
+  .tb-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+  .tb-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
+  .tb-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 4.8vw, 3.1rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    -webkit-text-stroke: 0.08em #06090C;
+    paint-order: stroke fill;
+  }
+  .tb-title .tb-bone { color: var(--bone); }
+  .tb-title .tb-plasma { color: var(--plasma); }
+  .tb-title .tb-ember { color: var(--ember); }
+  .tb-title .tb-gap { display: inline-block; width: 0.4em; }
+  .tb-sub { margin: 0; font-family: var(--font-mono); font-weight: 500; font-size: 1.0625rem; letter-spacing: 0.08em; color: var(--bone-dim); }
+
+  .tb-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.125rem; }
+  .tb-card {
+    display: flex;
+    flex-direction: column;
+    background: var(--iron);
+    border: 1px solid rgba(124, 255, 178, 0.14);
+    border-radius: 18px;
+    overflow: hidden;
+    text-decoration: none;
+    box-shadow: 0 26px 60px -38px rgba(0, 0, 0, 0.8);
+    transition: border-color var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out);
+  }
+  .tb-card--ember { border-color: rgba(255, 122, 61, 0.16); }
+  .tb-card--plasma:hover { border-color: rgba(124, 255, 178, 0.5); transform: translateY(-2px); }
+  .tb-card--ember:hover { border-color: rgba(255, 122, 61, 0.55); transform: translateY(-2px); }
+
+  .tb-card__media { position: relative; aspect-ratio: 16 / 9; background: radial-gradient(120% 120% at 50% 38%, var(--iron), var(--carbon)); }
+  .tb-card__thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* Carbon-at-alpha scrim so the tag and play badge read over any thumbnail. */
+  .tb-card__scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 14, 16, 0.55), rgba(11, 14, 16, 0) 45%); }
+  .tb-card__tag {
+    position: absolute;
+    left: 0.9rem;
+    top: 0.7rem;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    background: rgba(11, 14, 16, 0.65);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: 0.15em;
+  }
+  .tb-card__tag--plasma { color: var(--plasma); }
+  .tb-card__tag--ember { color: var(--ember); }
+  .tb-card__play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(11, 14, 16, 0.55);
+    border: 2px solid rgba(124, 255, 178, 0.55);
+  }
+  .tb-card__play--ember { border-color: rgba(255, 122, 61, 0.55); }
+  .tb-card__tri { width: 0; height: 0; border-top: 0.55rem solid transparent; border-bottom: 0.55rem solid transparent; border-left: 0.9rem solid var(--plasma); margin-left: 0.3rem; }
+  .tb-card__play--ember .tb-card__tri { border-left-color: var(--ember); }
+
+  .tb-card__body { padding: 1.25rem 1.375rem 1.375rem; display: flex; flex-direction: column; gap: 0.35rem; }
+  .tb-card__name { font-family: var(--font-mono); font-weight: 800; font-size: 1.0625rem; }
+  .tb-card__name--plasma { color: var(--plasma); }
+  .tb-card__name--ember { color: var(--ember); }
+  .tb-card__line { font-size: 0.9375rem; line-height: 1.4; color: var(--bone-dim); }
+
+  .tb-all {
+    align-self: center;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-top: 2rem;
+    padding: 1rem 2.25rem;
+    border-radius: 12px;
+    background: rgba(124, 255, 178, 0.1);
+    border: 1px solid rgba(124, 255, 178, 0.4);
+    color: var(--plasma);
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.0625rem;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    transition: background var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out);
+  }
+  .tb-all:hover { background: var(--plasma); color: #06120B; }
+
+  @media (max-width: 900px) { .tb-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 600px) { .tb-grid { grid-template-columns: 1fr; } }
 
   #rigs { text-align: center; }
   #rigs .prose { margin-inline: auto; }
