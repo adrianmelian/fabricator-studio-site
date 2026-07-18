@@ -1,41 +1,58 @@
 ---
+// Services page (Adrian x Claude Design, 2026-07-17; source drop:
+// MrMiata inbox/Docs/"Services Docs.html"). The drop's copy matches the live page's
+// approved copy in substance; em-dashes in the drop were NOT adopted (outbound-copy
+// rule), its contractions were. The drop's decorative contact form is replaced by the
+// real working ContactForm (Web3Forms), restyled to the drop's language.
+// Shared furniture: designed-doc.css.
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import FieldLabel from '../../components/FieldLabel.astro';
-import Footer from '../../components/Footer.astro';
 import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
 import ContactForm from '../../components/ContactForm.astro';
+import '../../styles/designed-doc.css';
+
+const TITLE = 'Custom pipelines you own.';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
 const values = [
   {
+    tone: 'plasma',
     name: 'Transparency',
     body: 'Every engagement starts as a written proposal. You see the plan, the code, and the reasoning before anything touches your pipeline. No black boxes.',
   },
   {
+    tone: 'plasma',
     name: 'No lock-in',
-    body: 'Open source, pure Python, no DRM and no license checks. Read it, change it, maintain it yourself. You are never renting access to something you cannot open.',
+    body: "Open source, pure Python, no DRM and no license checks. Read it, change it, maintain it yourself. You're never renting access to something you can't open.",
   },
   {
+    tone: 'ember',
     name: 'Agile and versatile',
     body: 'No two productions are the same, so Fabricator is built to be extended and customized. It bends to your pipeline instead of making you bend to it.',
   },
   {
+    tone: 'plasma',
     name: 'Knowledge transfer',
-    body: 'I document what I build and leave your team able to run it without me. The point is your independence, not a retainer you cannot get out of.',
+    body: "I document what I build and leave your team able to run it without me. The point is your independence, not a retainer you can't get out of.",
   },
   {
+    tone: 'ember',
+    wide: true,
     name: 'Production quality',
-    body: 'Industry standard tools that come with 14 years experience building pipelines for AAA games.',
+    body: 'Industry-standard tools that come with 14 years of experience building pipelines for AAA games.',
   },
 ];
 
 const help = [
   {
-    name: 'Rig and export setup',
+    name: 'Rig & export setup',
     body: 'Characters rigged with Fabricator and wired clean into your Maya-to-Unreal export contract. Scoped to your roster.',
   },
   {
     name: 'Custom tools',
-    body: 'A Maya tool built to spec, documented, and handed over readable, so your team owns it long after I am gone.',
+    body: "A Maya tool built to spec, documented, and handed over readable, so your team owns it long after I'm gone.",
   },
   {
     name: 'Ongoing support',
@@ -49,126 +66,235 @@ const help = [
 >
   <NavBar />
 
-  <section class="svc-hero">
-    <FieldLabel text="Services" />
-    <h1 class="display">Custom pipelines you own.</h1>
-    <p class="prose svc-hero__sub">The tools are free and open source. The work I take on for hire runs the same way: agile, readable, documented, and yours to keep. Every engagement is delivered by the technical artist who built Fabricator, not a team you have never met, and you are never dependent on me to keep moving.</p>
-  </section>
+  <article class="dd svc">
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; SERVICES</div>
+      <h1 class="dd-title svc-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary svc-lede">The tools are free and open source. The work I take on for hire runs the same way: <b>agile, readable, documented, and yours to keep</b>. Every engagement is delivered by the technical artist who built Fabricator, not a team you've never met, and you're never dependent on me to keep moving.</p>
+    </header>
 
-  <section class="svc-values">
-    <FieldLabel text="How I Work" />
-    <div class="svc-grid">
-      {values.map((v) => (
-        <div class="svc-card">
-          <h3>{v.name}</h3>
-          <p>{v.body}</p>
+    <!-- HOW I WORK -->
+    <section class="svc-section" aria-labelledby="svc-work">
+      <div class="svc-rule svc-rule--plasma">
+        <h2 id="svc-work" class="svc-rule__label svc-rule__label--plasma">HOW I WORK</h2>
+      </div>
+      <div class="svc-grid">
+        {values.map((v) => (
+          <div class={`svc-card svc-card--${v.tone}${v.wide ? ' svc-card--wide' : ''}`}>
+            <h3 class={`svc-card__name svc-card__name--${v.tone}`}>{v.name}</h3>
+            <p class="svc-card__body">{v.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- WAYS I CAN HELP -->
+    <section class="svc-section" aria-labelledby="svc-help">
+      <div class="svc-rule svc-rule--ember">
+        <h2 id="svc-help" class="svc-rule__label svc-rule__label--ember">WAYS I CAN HELP</h2>
+      </div>
+      <p class="svc-intro">Scope and pricing depend on your team, your characters, and your deadline, so everything is quoted after a short call. The usual starting point is an audit.</p>
+
+      <div class="svc-audit">
+        <div class="svc-audit__head">
+          <span class="svc-audit__badge">START HERE</span>
+          <h3 class="svc-audit__name">Pipeline Health Audit</h3>
+          <span class="svc-audit__meta">~ one week</span>
         </div>
-      ))}
-    </div>
-  </section>
+        <p class="svc-audit__body">I go through your rigs, skinning, export path, naming, and versioning, then hand you a findings document, a prioritized fix list, and a quote for the fixes. Sign a fix package within thirty days and the audit fee <b class="b-plasma">credits toward it in full</b>, so the first step costs you almost nothing to try.</p>
+      </div>
 
-  <section class="svc-help">
-    <FieldLabel text="Ways I Can Help" />
-    <p class="prose svc-help__intro">Scope and pricing depend on your team, your characters, and your deadline, so everything is quoted after a short call. The usual starting point is an audit.</p>
+      <div class="svc-grid">
+        {help.map((h) => (
+          <div class="svc-card">
+            <h3 class="svc-card__name">{h.name}</h3>
+            <p class="svc-card__body">{h.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
 
-    <div class="svc-lead">
-      <h3>Pipeline Health Audit</h3>
-      <p>About a week. I go through your rigs, skinning, export path, naming, and versioning, then hand you a findings document, a prioritized fix list, and a quote for the fixes. Sign a fix package within thirty days and the audit fee credits toward it in full, so the first step costs you almost nothing to try.</p>
-    </div>
+    <!-- HOW IT WORKS -->
+    <section class="svc-section" aria-labelledby="svc-how">
+      <div class="svc-rule svc-rule--plasma">
+        <h2 id="svc-how" class="svc-rule__label svc-rule__label--plasma">HOW IT WORKS</h2>
+      </div>
+      <ol class="svc-steps">
+        <li class="svc-step">
+          <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">1</span>
+          <p class="svc-step__body">A short <b>discovery call</b>: your team, your characters, your pain points.</p>
+        </li>
+        <li class="svc-step">
+          <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">2</span>
+          <p class="svc-step__body">A <b>written scope</b> with clear deliverables and a quote. Nothing starts until you have it in hand.</p>
+        </li>
+        <li class="svc-step svc-step--ember">
+          <span class="svc-step__num svc-step__num--ember" aria-hidden="true">3</span>
+          <p class="svc-step__body">Delivery in a <b>focused burst</b>, everything documented, readable, and handed over as yours.</p>
+        </li>
+      </ol>
+    </section>
 
-    <div class="svc-grid">
-      {help.map((h) => (
-        <div class="svc-card">
-          <h3>{h.name}</h3>
-          <p>{h.body}</p>
+    <!-- GET IN TOUCH -->
+    <section class="svc-contact" aria-labelledby="svc-touch">
+      <div class="svc-contact__copy">
+        <h2 id="svc-touch" class="svc-contact__title">Get in touch</h2>
+        <p class="svc-contact__sub">Tell me what's slowing your pipeline down. I'll tell you honestly whether I'm the right person to fix it, and what it would take.</p>
+        <div class="svc-contact__alt">
+          <span class="svc-contact__dot" aria-hidden="true"></span>
+          <p>Prefer email? <a href="mailto:adrian@fabricator.studio?subject=FabricatorStudio%20inquiry">adrian@fabricator.studio</a></p>
         </div>
-      ))}
-    </div>
-  </section>
-
-  <section class="svc-process">
-    <FieldLabel text="How It Works" />
-    <ol class="svc-steps">
-      <li>A short discovery call: your team, your characters, your pain points.</li>
-      <li>A written scope with clear deliverables and a quote. Nothing starts until you have it in hand.</li>
-      <li>Delivery in a focused burst, everything documented, readable, and handed over as yours.</li>
-    </ol>
-  </section>
-
-  <section class="svc-cta">
-    <FieldLabel text="Get In Touch" />
-    <p class="prose">Tell me what is slowing your pipeline down. I will tell you honestly whether I am the right person to fix it, and what it would take.</p>
-    <ContactForm />
-    <p class="svc-cta__alt">Prefer email? <a href="mailto:adrian@fabricator.studio?subject=FabricatorStudio%20inquiry">adrian@fabricator.studio</a></p>
-  </section>
+      </div>
+      <div class="svc-contact__form">
+        <ContactForm />
+      </div>
+    </section>
+  </article>
 
   <Footer />
 </BaseLayout>
+
 <style>
-  section { max-width: 60rem; }
+  /* Page-specific: section rules, the card grids, the audit feature, the step cards, and
+     the contact panel. Shared furniture: designed-doc.css. Drop's off-palette darks are
+     snapped to tokens; hairline fades end at the hue at zero alpha, never `transparent`. */
+  .svc .dd-header { align-items: center; text-align: center; }
+  .svc-title { white-space: normal; justify-content: center; }
+  .svc-lede { max-width: 58rem; margin-inline: auto; }
+  .svc-lede b { color: var(--bone); }
 
-  .svc-hero { text-align: center; }
-  .svc-hero .display { margin-top: 0.25rem; }
-  .svc-hero__sub { margin: 1rem auto 0; }
-
-  .svc-values, .svc-help, .svc-process { text-align: center; }
-  .svc-values :global(.field-label),
-  .svc-help :global(.field-label),
-  .svc-process :global(.field-label) { margin-bottom: 1rem; }
-
-  .svc-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-    gap: 0.75rem;
-    margin-top: 1rem;
-    text-align: left;
-  }
-  .svc-card {
-    border: 1px solid var(--iron-2);
-    border-radius: var(--radius);
-    background: var(--iron);
-    padding: 1.25rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  .svc-card h3 { font-size: 1rem; color: var(--bone); }
-  .svc-card p { color: var(--bone-dim); font-size: 0.9375rem; }
-
-  .svc-help__intro { margin: 0 auto 1.5rem; }
-  .svc-lead {
-    max-width: 40rem;
-    margin: 0 auto 0.75rem;
-    text-align: left;
-    border: 1px solid var(--iron-3);
-    border-radius: var(--radius);
-    background: var(--iron);
-    padding: 1.5rem;
-  }
-  .svc-lead h3 { font-size: 1.0625rem; color: var(--ember); }
-  .svc-lead p { color: var(--bone); font-size: 0.9375rem; margin-top: 0.5rem; }
-
-  .svc-steps {
-    max-width: var(--measure);
-    margin: 1.5rem auto 0;
-    text-align: left;
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-    padding-left: 1.25rem;
-    color: var(--bone-dim);
-  }
-  .svc-steps li { padding-left: 0.25rem; line-height: 1.5; }
-
-  .svc-cta { text-align: center; }
-  .svc-cta :global(.field-label) { margin-bottom: 1rem; }
-  .svc-cta .prose { margin: 0 auto; }
-  .svc-cta__alt {
-    margin: 1.25rem auto 0;
+  .svc-section { display: flex; flex-direction: column; gap: 1.5rem; }
+  .svc-rule { display: flex; align-items: center; gap: 1.1rem; }
+  .svc-rule__label {
+    margin: 0;
     font-family: var(--font-mono);
-    font-size: 0.85rem;
-    color: var(--bone-dim);
+    font-weight: 800;
+    font-size: clamp(1.25rem, 2.6vw, 1.625rem);
+    letter-spacing: 0.04em;
   }
-  .svc-cta__alt a { color: var(--plasma); text-decoration: none; }
-  .svc-cta__alt a:hover { color: var(--plasma-dim); }
+  .svc-rule__label--plasma { color: var(--plasma); }
+  .svc-rule__label--ember { color: var(--ember); }
+  .svc-rule::after { content: ''; flex: 1; height: 1px; }
+  .svc-rule--plasma::after { background: linear-gradient(90deg, rgba(124, 255, 178, 0.4), rgba(124, 255, 178, 0)); }
+  .svc-rule--ember::after { background: linear-gradient(90deg, rgba(255, 122, 61, 0.4), rgba(255, 122, 61, 0)); }
+
+  .svc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  .svc-card {
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.75rem 1.625rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .svc-card--plasma { border-color: rgba(124, 255, 178, 0.14); }
+  .svc-card--ember { border-color: rgba(255, 122, 61, 0.16); }
+  .svc-card--wide { grid-column: span 2; }
+  .svc-card__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
+  .svc-card__name--plasma { color: var(--plasma); }
+  .svc-card__name--ember { color: var(--ember); }
+  .svc-card__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
+
+  .svc-intro { margin: -0.25rem 0 0; max-width: 52rem; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+
+  /* The featured audit: plasma-at-alpha wash over carbon (the guarantee card). */
+  .svc-audit {
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.4);
+    border-radius: 20px;
+    padding: 2rem 2.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    box-shadow: 0 0 44px -22px rgba(124, 255, 178, 0.4);
+  }
+  .svc-audit__head { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+  .svc-audit__badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 7px;
+    background: var(--plasma);
+    color: #06120B;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+  }
+  .svc-audit__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.375rem; color: var(--bone); }
+  .svc-audit__meta { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--plasma-dim); }
+  .svc-audit__body { margin: 0; max-width: 62rem; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .svc-audit__body :global(.b-plasma) { color: var(--plasma); }
+
+  .svc-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  .svc-step {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    background: var(--iron);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.625rem 1.5rem;
+  }
+  .svc-step--ember { border-color: rgba(255, 122, 61, 0.16); }
+  .svc-step__num { font-family: var(--font-mono); font-weight: 800; font-size: 2.5rem; line-height: 1; }
+  .svc-step__num--plasma { color: var(--plasma); -webkit-text-stroke: 1px rgba(124, 255, 178, 0.4); }
+  .svc-step__num--ember { color: var(--ember); -webkit-text-stroke: 1px rgba(255, 122, 61, 0.4); }
+  .svc-step__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
+  .svc-step__body b { color: var(--bone); }
+
+  .svc-contact {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2.5rem;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.14);
+    border-radius: 22px;
+    padding: 2.5rem 2.75rem;
+    box-shadow: var(--shadow-lg);
+  }
+  .svc-contact__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .svc-contact__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.75rem; color: var(--bone); }
+  .svc-contact__sub { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .svc-contact__alt {
+    margin-top: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    padding: 0.9rem 1.25rem;
+    background: var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.2);
+    border-radius: 12px;
+  }
+  .svc-contact__dot { flex: none; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--plasma); }
+  .svc-contact__alt p { margin: 0; font-size: 0.9375rem; color: var(--bone-dim); }
+  .svc-contact__alt a { font-weight: 700; color: var(--plasma); text-decoration: none; }
+  .svc-contact__alt a:hover { color: var(--plasma-dim); }
+
+  /* The real form, restyled to the drop's language (solid plasma Send). */
+  .svc-contact__form :global(.contact-form) { margin: 0; max-width: none; }
+  .svc-contact__form :global(.contact-form__input) { background: var(--carbon); }
+  .svc-contact__form :global(.contact-form__submit) {
+    background: var(--plasma);
+    border-color: var(--plasma);
+    color: #06120B;
+    font-size: 1rem;
+    padding: 0.8rem 2.25rem;
+    border-radius: 11px;
+    box-shadow: 0 0 30px -12px rgba(124, 255, 178, 0.6);
+  }
+  .svc-contact__form :global(.contact-form__submit:hover) {
+    background: var(--plasma-dim);
+    border-color: var(--plasma-dim);
+    color: #06120B;
+  }
+
+  @media (max-width: 900px) {
+    .svc-grid, .svc-steps { grid-template-columns: 1fr; }
+    .svc-card--wide { grid-column: auto; }
+    .svc-contact { grid-template-columns: 1fr; padding: 1.75rem 1.5rem; }
+  }
 </style>
