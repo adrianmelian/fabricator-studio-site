@@ -73,7 +73,7 @@ const TOOL_UI: Record<string, any> = {
         <span class="hero-divider__gem"></span>
         <span class="hero-divider__bar"></span>
       </div>
-      <p class="hero-sub">Built for solo developers and small teams. <b>Free, open source, Maya-to-Unreal pipeline tools</b>: rigging, skinning, animation, and export, with an AI Technical Artist built in. The kit is made for the generative AI era: these tools help you put the final touch on your art and get in engine fast. Ready for all the next-gen features, like <b class="hero-sub__hl">Control Rig</b> and <b class="hero-sub__hl">MetaHuman</b>.</p>
+      <p class="hero-sub">Built for solo developers and small teams. <b>Free Maya-to-Unreal pipeline tools</b>: rigging, skinning, animation, and export, with an <b class="hero-sub__hl">AI Technical Artist</b> built in. The kit is made for the <b class="hero-sub__hl">generative AI</b> era: these tools help you put the final touch on your art and get in engine fast. Ready for all the next-gen features, like <b>Control Rig</b> and <b>MetaHuman</b>.</p>
       <p class="hero-strip">
         <span>Concept</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
         <span>Modeling</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
@@ -683,16 +683,16 @@ const TOOL_UI: Record<string, any> = {
     display: flex;
     flex-direction: column;
     background: var(--iron);
-    border: 1px solid rgba(124, 255, 178, 0.14);
+    border: 1px solid rgba(255, 59, 59, 0.16);
     border-radius: 18px;
     overflow: hidden;
     text-decoration: none;
     box-shadow: 0 26px 60px -38px rgba(0, 0, 0, 0.8);
     transition: border-color var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out);
   }
-  .tb-card--ember { border-color: rgba(255, 122, 61, 0.16); }
-  .tb-card--plasma:hover { border-color: rgba(124, 255, 178, 0.5); transform: translateY(-2px); }
-  .tb-card--ember:hover { border-color: rgba(255, 122, 61, 0.55); transform: translateY(-2px); }
+  .tb-card--ember { border-color: rgba(255, 59, 59, 0.16); }
+  .tb-card--plasma:hover,
+  .tb-card--ember:hover { border-color: rgba(255, 59, 59, 0.55); transform: translateY(-2px); }
 
   .tb-card__media { position: relative; aspect-ratio: 16 / 9; background: radial-gradient(120% 120% at 50% 38%, var(--iron), var(--carbon)); }
   .tb-card__thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
@@ -710,8 +710,8 @@ const TOOL_UI: Record<string, any> = {
     font-size: 0.6875rem;
     letter-spacing: 0.15em;
   }
-  .tb-card__tag--plasma { color: var(--plasma); }
-  .tb-card__tag--ember { color: var(--ember); }
+  .tb-card__tag--plasma,
+  .tb-card__tag--ember { color: var(--magma); }
   .tb-card__play {
     position: absolute;
     left: 50%;
@@ -724,16 +724,16 @@ const TOOL_UI: Record<string, any> = {
     align-items: center;
     justify-content: center;
     background: rgba(11, 14, 16, 0.55);
-    border: 2px solid rgba(124, 255, 178, 0.55);
+    border: 2px solid rgba(255, 59, 59, 0.55);
   }
-  .tb-card__play--ember { border-color: rgba(255, 122, 61, 0.55); }
-  .tb-card__tri { width: 0; height: 0; border-top: 0.55rem solid transparent; border-bottom: 0.55rem solid transparent; border-left: 0.9rem solid var(--plasma); margin-left: 0.3rem; }
-  .tb-card__play--ember .tb-card__tri { border-left-color: var(--ember); }
+  .tb-card__play--ember { border-color: rgba(255, 59, 59, 0.55); }
+  .tb-card__tri { width: 0; height: 0; border-top: 0.55rem solid transparent; border-bottom: 0.55rem solid transparent; border-left: 0.9rem solid var(--magma); margin-left: 0.3rem; }
+  .tb-card__play--ember .tb-card__tri { border-left-color: var(--magma); }
 
   .tb-card__body { padding: 1.25rem 1.375rem 1.375rem; display: flex; flex-direction: column; gap: 0.35rem; }
   .tb-card__name { font-family: var(--font-mono); font-weight: 800; font-size: 1.0625rem; }
-  .tb-card__name--plasma { color: var(--plasma); }
-  .tb-card__name--ember { color: var(--ember); }
+  .tb-card__name--plasma,
+  .tb-card__name--ember { color: var(--magma); }
   .tb-card__line { font-size: 0.9375rem; line-height: 1.4; color: var(--bone-dim); }
 
   .tb-all {

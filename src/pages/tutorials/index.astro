@@ -130,29 +130,29 @@ const pad = (n: number) => String(n).padStart(2, '0');
     border-radius: 16px;
     overflow: hidden;
     background: radial-gradient(120% 120% at 50% 40%, var(--iron), var(--carbon));
-    border: 1px solid rgba(255, 122, 61, 0.3);
-    box-shadow: var(--shadow-lg), 0 0 40px -16px rgba(255, 122, 61, 0.3);
+    border: 1px solid rgba(255, 59, 59, 0.35);
+    box-shadow: var(--shadow-lg), 0 0 40px -16px rgba(255, 59, 59, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
     text-decoration: none;
     transition: border-color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
   }
-  .tut-playcard:hover { border-color: rgba(255, 122, 61, 0.6); box-shadow: var(--shadow-lg), 0 0 48px -12px rgba(255, 122, 61, 0.45); }
-  .tut-playcard__glow { position: absolute; top: 0; left: 14px; right: 14px; height: 3px; background: linear-gradient(90deg, rgba(255, 122, 61, 0), rgba(255, 122, 61, 0.9), rgba(255, 122, 61, 0)); }
+  .tut-playcard:hover { border-color: rgba(255, 59, 59, 0.6); box-shadow: var(--shadow-lg), 0 0 48px -12px rgba(255, 59, 59, 0.45); }
+  .tut-playcard__glow { position: absolute; top: 0; left: 14px; right: 14px; height: 3px; background: linear-gradient(90deg, rgba(255, 59, 59, 0), rgba(255, 59, 59, 0.9), rgba(255, 59, 59, 0)); }
   .tut-playcard__mark { position: absolute; left: 1.5rem; top: 1.25rem; height: 2.5rem; width: auto; opacity: 0.9; }
   .tut-playcard__circle {
     width: 5.5rem;
     height: 5.5rem;
     border-radius: 50%;
-    background: rgba(255, 122, 61, 0.15);
-    border: 2px solid rgba(255, 122, 61, 0.6);
+    background: rgba(255, 59, 59, 0.15);
+    border: 2px solid rgba(255, 59, 59, 0.6);
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 40px -8px rgba(255, 122, 61, 0.5);
+    box-shadow: 0 0 40px -8px rgba(255, 59, 59, 0.5);
   }
-  .tut-playcard__triangle { width: 0; height: 0; border-top: 1.3rem solid transparent; border-bottom: 1.3rem solid transparent; border-left: 2.1rem solid var(--ember); margin-left: 0.5rem; }
+  .tut-playcard__triangle { width: 0; height: 0; border-top: 1.3rem solid transparent; border-bottom: 1.3rem solid transparent; border-left: 2.1rem solid var(--magma); margin-left: 0.5rem; }
   .tut-playcard__strap { position: absolute; left: 0; right: 0; bottom: 1.25rem; text-align: center; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.18em; color: var(--bone-dim); }
 
   .tut-rail { margin-top: 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
@@ -186,8 +186,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
     border-radius: 6px;
     background: rgba(11, 14, 16, 0.75);
   }
-  .tut-card__tag--plasma { color: var(--plasma); }
-  .tut-card__tag--ember { color: var(--ember); }
+  .tut-card__tag--plasma,
+  .tut-card__tag--ember { color: var(--magma); }
   .tut-card__play {
     position: absolute;
     inset: 0;
@@ -207,11 +207,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     border-radius: 50%;
     position: absolute;
   }
-  .tut-card__play--plasma::before { background: rgba(124, 255, 178, 0.16); border: 2px solid rgba(124, 255, 178, 0.6); }
-  .tut-card__play--ember::before { background: rgba(255, 122, 61, 0.16); border: 2px solid rgba(255, 122, 61, 0.6); }
+  .tut-card__play--plasma::before,
+  .tut-card__play--ember::before { background: rgba(255, 59, 59, 0.16); border: 2px solid rgba(255, 59, 59, 0.6); }
   .tut-card__triangle { position: relative; width: 0; height: 0; border-top: 0.8rem solid transparent; border-bottom: 0.8rem solid transparent; margin-left: 0.35rem; }
-  .tut-card__play--plasma .tut-card__triangle { border-left: 1.3rem solid var(--plasma); }
-  .tut-card__play--ember .tut-card__triangle { border-left: 1.3rem solid var(--ember); }
+  .tut-card__play--plasma .tut-card__triangle,
+  .tut-card__play--ember .tut-card__triangle { border-left: 1.3rem solid var(--magma); }
   .tut-card__body { padding: 1.125rem 1.25rem; display: flex; flex-direction: column; gap: 0.3rem; }
   .tut-card__name { font-family: var(--font-mono); font-weight: 800; font-size: 1.0625rem; color: var(--bone); }
   .tut-card__sub { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--bone-faint); }
