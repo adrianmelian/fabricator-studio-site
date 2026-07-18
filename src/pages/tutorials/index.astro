@@ -1,128 +1,239 @@
 ---
+// Tutorials page (Adrian x Claude Design, 2026-07-17; source drop:
+// MrMiata inbox/Docs/"Tutorials Docs.html"). The drop predates the uploads and used
+// placeholder play-tiles; the page keeps its structure and language but fills the grid
+// with the NINE REAL Quick Start videos (real thumbnails, real links) plus the real
+// playlist card - the honesty rule made flesh. Shared furniture: designed-doc.css.
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import FieldLabel from '../../components/FieldLabel.astro';
-import Footer from '../../components/Footer.astro';
 import NavBar from '../../components/NavBar.astro';
-import { TUTORIALS, CHANNEL } from '../../data/tutorials';
+import Footer from '../../components/Footer.astro';
+import { Image } from 'astro:assets';
+import '../../styles/designed-doc.css';
+import fsMonogram from '../../assets/docs/fs-monogram.png';
+import { TUTORIALS, CHANNEL, PLAYLIST } from '../../data/tutorials';
+
+const TITLE = 'TUTORIALS';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+const pad = (n: number) => String(n).padStart(2, '0');
 ---
 <BaseLayout
   title="Tutorials | FabricatorStudio"
-  description="Video tutorials for the FabricatorStudio toolset: tool walkthroughs, pipeline deep-dives, and the full path from concept to in-engine."
+  description="Video tutorials for the FabricatorStudio toolset: the Quick Start series, tool walkthroughs, and the full path from concept to in-engine."
 >
   <NavBar />
 
-  <section class="tut-intro">
-    <FieldLabel text="Tutorials" />
-    <h1 class="display">Tutorials</h1>
-    <p class="prose tut-intro__sub">Learn the kit, from install to in-engine.</p>
-  </section>
+  <article class="dd tut">
+    <header class="dd-header">
+      <div class="tut-eyebrow-row">
+        <Image class="tut-monogram" src={fsMonogram} alt="" aria-hidden="true" densities={[1, 2]} />
+        <div class="dd-eyebrow">FABRICATORSTUDIO</div>
+      </div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="tut-subtitle">Learn the kit, from install to in-engine.</p>
+    </header>
 
-  <section class="tut-banner-wrap">
-    <a class="tut-banner" href={CHANNEL} target="_blank" rel="noopener">
-      <span class="tut-banner__eyebrow">FABRICATORSTUDIO ON YOUTUBE</span>
-      <span class="tut-banner__title">Watch on YouTube</span>
-      <span class="tut-banner__sub">Every tutorial lives on the channel: tool walkthroughs, pipeline deep-dives, and the full path from concept to in-engine. Subscribe to catch new ones the day they land.</span>
-      <span class="tut-banner__cta">Visit the channel</span>
-    </a>
-  </section>
+    <!-- YOUTUBE FEATURE -->
+    <section class="dd-panel dd-panel--ember tut-feature" aria-labelledby="tut-yt">
+      <div class="tut-feature__copy">
+        <div class="tut-feature__eyebrow">FABRICATORSTUDIO ON YOUTUBE</div>
+        <h2 id="tut-yt" class="tut-feature__title">Watch on YouTube</h2>
+        <p class="tut-feature__sub">Every tutorial lives on the channel: tool walkthroughs, pipeline deep-dives, and the full path from concept to in-engine. Subscribe to catch new ones the day they land.</p>
+        <a class="tut-feature__cta" href={CHANNEL} target="_blank" rel="noopener">
+          <svg width="30" height="22" viewBox="0 0 30 22" fill="none" aria-hidden="true"><rect x="1" y="1" width="28" height="20" rx="6" fill="#1A0A02" /><path d="M12 6.5v9l8-4.5z" fill="#FF7A3D" /></svg>
+          Visit the channel &rarr;
+        </a>
+      </div>
+      <a class="tut-playcard" href={PLAYLIST} target="_blank" rel="noopener" aria-label="Watch the FabricatorStudio Quick Start playlist on YouTube">
+        <div class="tut-playcard__glow" aria-hidden="true"></div>
+        <Image class="tut-playcard__mark" src={fsMonogram} alt="" aria-hidden="true" densities={[1, 2]} />
+        <div class="tut-playcard__circle" aria-hidden="true">
+          <div class="tut-playcard__triangle"></div>
+        </div>
+        <div class="tut-playcard__strap" aria-hidden="true">TOOL WALKTHROUGHS &nbsp;&middot;&nbsp; PIPELINE DEEP-DIVES</div>
+      </a>
+    </section>
 
-  {TUTORIALS.length > 0 ? (
-    <section class="tut-list">
-      <FieldLabel text="Start Here" />
+    <!-- START HERE: the Quick Start series -->
+    <section class="tut-rail" aria-labelledby="tut-start">
+      <div class="tut-rail__head">
+        <h2 id="tut-start" class="tut-rail__label">START HERE</h2>
+        <div class="tut-rail__rule" aria-hidden="true"></div>
+      </div>
       <div class="tut-grid">
-        {TUTORIALS.map((t) => (
+        {TUTORIALS.map((t, i) => (
           <a class="tut-card" href={t.href} target="_blank" rel="noopener">
-            {t.thumb && <img class="tut-card__thumb" src={t.thumb} alt="" loading="lazy" />}
-            <span class="tut-card__title">{t.title}</span>
+            <div class="tut-card__media">
+              {t.thumb && <img class="tut-card__thumb" src={t.thumb} alt="" loading="lazy" />}
+              <span class={`tut-card__tag tut-card__tag--${t.tone ?? 'plasma'}`}>{pad(i + 1)} &middot; {t.tag}</span>
+              <span class={`tut-card__play tut-card__play--${t.tone ?? 'plasma'}`} aria-hidden="true"><span class="tut-card__triangle"></span></span>
+            </div>
+            <div class="tut-card__body">
+              <span class="tut-card__name">{t.name ?? t.title}</span>
+              {t.sub && <span class="tut-card__sub">{t.sub}</span>}
+            </div>
           </a>
         ))}
+        <a class="tut-card tut-card--playlist" href={PLAYLIST} target="_blank" rel="noopener">
+          <span class="tut-card__playlist-eyebrow">FULL PLAYLIST</span>
+          <span class="tut-card__playlist-title">Concept to in-engine, start to finish</span>
+          <span class="tut-card__playlist-sub">The complete path in one sitting.</span>
+          <span class="tut-card__playlist-cta">Watch the series &rarr;</span>
+        </a>
       </div>
     </section>
-  ) : (
-    <section class="tut-empty">
-      <FieldLabel text="Coming Soon" />
-      <p class="prose">The first tutorials are in production. They will show up here as they publish, so subscribe on the channel to catch them.</p>
-    </section>
-  )}
+  </article>
 
   <Footer />
 </BaseLayout>
+
 <style>
-  section { max-width: 60rem; }
+  /* The tutorials page in the designed language: feature panel + the real Quick Start
+     grid. Shared furniture: designed-doc.css. */
+  .tut { max-width: 74rem; margin: 0 auto; padding: 2.5rem 1.5rem 3.5rem; }
+  .tut-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; }
+  .tut-monogram { height: 2.5rem; width: auto; }
+  .tut-subtitle { margin: 0; font-family: var(--font-mono); font-weight: 500; font-size: clamp(1rem, 2.2vw, 1.25rem); letter-spacing: 0.08em; color: var(--bone-dim); }
 
-  .tut-intro { text-align: center; }
-  .tut-intro .display { margin-top: 0.25rem; }
-  .tut-intro__sub { margin: 0.75rem auto 0; }
-
-  .tut-banner-wrap { max-width: 60rem; }
-  .tut-banner {
-    display: block;
-    border: 1px solid var(--iron-3);
-    border-radius: var(--radius);
-    background: var(--iron);
-    padding: 2rem 2.25rem;
-    text-decoration: none;
-    color: inherit;
-  }
-  .tut-banner:hover { border-color: var(--plasma-dim); }
-  .tut-banner__eyebrow {
-    display: block;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.75rem;
-    letter-spacing: 0.08em;
-    color: var(--bone-dim);
-  }
-  .tut-banner__title {
-    display: block;
-    margin-top: 0.5rem;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1.5rem;
-    color: var(--bone);
-  }
-  .tut-banner__sub {
-    display: block;
-    margin-top: 0.625rem;
-    max-width: 42rem;
-    color: var(--bone-dim);
-    font-size: 0.9375rem;
-    line-height: 1.6;
-  }
-  .tut-banner__cta {
-    display: inline-block;
-    margin-top: 1.25rem;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    color: var(--plasma);
-  }
-  .tut-banner:hover .tut-banner__cta { color: var(--plasma-dim); }
-
-  .tut-list { text-align: center; }
-  .tut-list :global(.field-label) { margin-bottom: 1rem; }
-  .tut-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  .tut-feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); gap: 2.5rem; align-items: center; margin-top: 2.5rem; }
+  .tut-feature__copy { display: flex; flex-direction: column; gap: 1rem; }
+  .tut-feature__eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.25em; color: var(--ember); }
+  .tut-feature__title { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3.2vw, 2.375rem); line-height: 1.05; color: var(--bone); }
+  .tut-feature__sub { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .tut-feature__cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
     gap: 0.75rem;
-    text-align: left;
+    padding: 0.9rem 1.5rem;
+    border-radius: 12px;
+    background: var(--ember);
+    color: #1A0A02;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.0625rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    box-shadow: 0 0 34px -12px rgba(255, 122, 61, 0.6);
   }
+  .tut-feature__cta:hover { background: var(--ember-dim); color: #1A0A02; }
+
+  .tut-playcard {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 40%, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 122, 61, 0.3);
+    box-shadow: var(--shadow-lg), 0 0 40px -16px rgba(255, 122, 61, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: border-color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
+  }
+  .tut-playcard:hover { border-color: rgba(255, 122, 61, 0.6); box-shadow: var(--shadow-lg), 0 0 48px -12px rgba(255, 122, 61, 0.45); }
+  .tut-playcard__glow { position: absolute; top: 0; left: 14px; right: 14px; height: 3px; background: linear-gradient(90deg, rgba(255, 122, 61, 0), rgba(255, 122, 61, 0.9), rgba(255, 122, 61, 0)); }
+  .tut-playcard__mark { position: absolute; left: 1.5rem; top: 1.25rem; height: 2.5rem; width: auto; opacity: 0.9; }
+  .tut-playcard__circle {
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 50%;
+    background: rgba(255, 122, 61, 0.15);
+    border: 2px solid rgba(255, 122, 61, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px -8px rgba(255, 122, 61, 0.5);
+  }
+  .tut-playcard__triangle { width: 0; height: 0; border-top: 1.3rem solid transparent; border-bottom: 1.3rem solid transparent; border-left: 2.1rem solid var(--ember); margin-left: 0.5rem; }
+  .tut-playcard__strap { position: absolute; left: 0; right: 0; bottom: 1.25rem; text-align: center; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.18em; color: var(--bone-dim); }
+
+  .tut-rail { margin-top: 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
+  .tut-rail__head { display: flex; align-items: center; gap: 1rem; }
+  .tut-rail__label { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: 0.08em; color: var(--plasma); }
+  .tut-rail__rule { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(124, 255, 178, 0.4), rgba(124, 255, 178, 0)); }
+
+  .tut-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.125rem; }
   .tut-card {
     display: flex;
     flex-direction: column;
-    border: 1px solid var(--iron-2);
-    border-radius: var(--radius);
-    background: var(--iron);
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 16px;
     overflow: hidden;
     text-decoration: none;
-    color: inherit;
+    box-shadow: var(--shadow-md);
   }
-  .tut-card:hover { border-color: var(--iron-3); }
-  .tut-card__thumb { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
-  .tut-card__title { font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); padding: 1rem 1.25rem; }
+  .tut-card__media { position: relative; aspect-ratio: 16 / 9; background: radial-gradient(120% 120% at 50% 40%, var(--iron), var(--carbon)); }
+  .tut-card__thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .tut-card__tag {
+    position: absolute;
+    left: 0.75rem;
+    top: 0.6rem;
+    z-index: 1;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: 0.12em;
+    padding: 0.2rem 0.55rem;
+    border-radius: 6px;
+    background: rgba(11, 14, 16, 0.75);
+  }
+  .tut-card__tag--plasma { color: var(--plasma); }
+  .tut-card__tag--ember { color: var(--ember); }
+  .tut-card__play {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity var(--t-fast) var(--ease-out);
+    background: rgba(11, 14, 16, 0.35);
+  }
+  .tut-card:hover .tut-card__play { opacity: 1; }
+  .tut-card__play::before {
+    content: '';
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 50%;
+    position: absolute;
+  }
+  .tut-card__play--plasma::before { background: rgba(124, 255, 178, 0.16); border: 2px solid rgba(124, 255, 178, 0.6); }
+  .tut-card__play--ember::before { background: rgba(255, 122, 61, 0.16); border: 2px solid rgba(255, 122, 61, 0.6); }
+  .tut-card__triangle { position: relative; width: 0; height: 0; border-top: 0.8rem solid transparent; border-bottom: 0.8rem solid transparent; margin-left: 0.35rem; }
+  .tut-card__play--plasma .tut-card__triangle { border-left: 1.3rem solid var(--plasma); }
+  .tut-card__play--ember .tut-card__triangle { border-left: 1.3rem solid var(--ember); }
+  .tut-card__body { padding: 1.125rem 1.25rem; display: flex; flex-direction: column; gap: 0.3rem; }
+  .tut-card__name { font-family: var(--font-mono); font-weight: 800; font-size: 1.0625rem; color: var(--bone); }
+  .tut-card__sub { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--bone-faint); }
 
-  .tut-empty { text-align: center; }
-  .tut-empty :global(.field-label) { margin-bottom: 1rem; }
-  .tut-empty .prose { margin: 0 auto; }
+  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops). */
+  .tut-card--playlist {
+    justify-content: center;
+    gap: 0.75rem;
+    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border-color: rgba(124, 255, 178, 0.4);
+    padding: 1.75rem 1.5rem;
+  }
+  .tut-card__playlist-eyebrow { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.2em; color: var(--plasma); }
+  .tut-card__playlist-title { font-family: var(--font-mono); font-weight: 800; font-size: 1.25rem; line-height: 1.15; color: var(--bone); }
+  .tut-card__playlist-sub { font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
+  .tut-card__playlist-cta { margin-top: 0.25rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--plasma); }
+
+  @media (max-width: 900px) {
+    .tut-feature { grid-template-columns: 1fr; }
+    .tut-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 600px) {
+    .tut-grid { grid-template-columns: 1fr; }
+  }
 </style>
