@@ -12,6 +12,7 @@ import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
 import { flagshipTools } from '../data/tools';
 import { TUTORIALS } from '../data/tutorials';
+import { WHY_PARAS } from '../data/licensing';
 
 // Key Features section heading in the outlined tri-color treatment (Adrian x Claude
 // Design, 2026-07-17). Same glyph cycle as the designed docs pages: letters only,
@@ -88,48 +89,13 @@ const TOOL_UI: Record<string, any> = {
     </div>
   </section>
 
-  <!-- LICENSING (Adrian x Claude Design drop, 2026-07-18; source:
-       MrMiata inbox/Docs/"Licensing Block Docs.html"). Copy stays the approved
-       COMMERCIAL-PAGE.md language, em-dash-free; the four-year line is the canonical
-       G13-exempt sentence, byte-for-byte, kept as the quiet closer (the drop omitted it). -->
-  <section id="licensing">
-    <div class="lcb-head">
-      <div class="lcb-eyebrow">LICENSING</div>
-      <h2 class="lcb-title">Free for solo developers, indies, and small teams.</h2>
-    </div>
-    <div class="lcb-tiers">
-      <div class="lcb-tier lcb-tier--plasma">
-        <div class="lcb-tier__top">
-          <span class="lcb-pill lcb-pill--plasma"><span class="lcb-pill__dot" aria-hidden="true"></span>UNDER $2M / YEAR</span>
-          <span class="lcb-price lcb-price--plasma">Free</span>
-        </div>
-        <p class="lcb-tier__body">If your studio makes under <b>$2 million a year</b>, everything here is yours. Use it in production, ship your game, use it on client work, and keep it forever.</p>
-        <div class="lcb-tier__rule lcb-tier__rule--plasma" aria-hidden="true"></div>
-        <ul class="lcb-checks">
-          {['No seats', 'No trial', 'No feature gates', 'No phoning home'].map((c) => (
-            <li class="lcb-check">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10l3.5 3.5L15 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              {c}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="lcb-tier lcb-tier--ember">
-        <div class="lcb-tier__top">
-          <span class="lcb-pill lcb-pill--ember"><span class="lcb-pill__dot" aria-hidden="true"></span>ABOVE $2M / YEAR</span>
-          <span class="lcb-price lcb-price--ember">One license</span>
-        </div>
-        <p class="lcb-tier__body">Above $2 million, <b>one flat license covers your whole studio</b>, and it scales with your revenue, so it stays small when you're small.</p>
-        <div class="lcb-tier__rule lcb-tier__rule--ember" aria-hidden="true"></div>
-        <div class="lcb-star">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 3l3 6 6 1-4.5 4.3 1 6.2L13 20l-5.5 3 1-6.2L4 12.5 10 11z" stroke="#FF7A3D" stroke-width="2" stroke-linejoin="round" /></svg>
-          <p>One flat fee for the whole studio, no per-seat math.</p>
-        </div>
-      </div>
-    </div>
-    <div class="lcb-ctas">
-      <a class="lcb-cta lcb-cta--solid" href="/licensing/#pricing">See pricing &rarr;</a>
-      <a class="lcb-cta lcb-cta--ghost" href="/licensing/#license">Read the license</a>
+  <!-- WHY (Adrian x Claude Design, 2026-07-18): his own story, its own section right
+       under the hero. Copy is shared verbatim with /licensing (src/data/licensing.ts). -->
+  <section id="why">
+    <h2 class="lcb-title">Free for solo developers, indies, and small teams.</h2>
+    <div class="lcb-why">
+      <div class="lcb-why__label">WHY IT'S FREE</div>
+      {WHY_PARAS.map((p) => <p class="lcb-why__para" set:html={p} />)}
     </div>
   </section>
 
@@ -322,6 +288,51 @@ const TOOL_UI: Record<string, any> = {
     <div class="download-scrim" aria-hidden="true"></div>
     <div class="download-copy">
       <BracketButton kind="plasma-outline" downloadGate label="Download" />
+    </div>
+  </section>
+
+  <!-- LICENSING (Adrian x Claude Design drop, 2026-07-18; source:
+       MrMiata inbox/Docs/"Licensing Block Docs.html"). Copy is the approved
+       COMMERCIAL-PAGE.md language, em-dash-free. Adrian's flow ruling 2026-07-18:
+       the deal sits AFTER download; the WHY story it used to carry now opens the
+       page as its own #why section. -->
+  <section id="licensing">
+    <div class="lcb-head">
+      <div class="lcb-eyebrow">LICENSING</div>
+    </div>
+    <div class="lcb-tiers">
+      <div class="lcb-tier lcb-tier--plasma">
+        <div class="lcb-tier__top">
+          <span class="lcb-pill lcb-pill--plasma"><span class="lcb-pill__dot" aria-hidden="true"></span>UNDER $2M / YEAR</span>
+          <span class="lcb-price lcb-price--plasma">Free</span>
+        </div>
+        <p class="lcb-tier__body">If your studio makes under <b>$2 million a year</b>, everything here is yours. Use it in production, ship your game, use it on client work, and keep it forever.</p>
+        <div class="lcb-tier__rule lcb-tier__rule--plasma" aria-hidden="true"></div>
+        <ul class="lcb-checks">
+          {['No seats', 'No trial', 'No feature gates', 'No phoning home'].map((c) => (
+            <li class="lcb-check">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10l3.5 3.5L15 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              {c}
+            </li>
+          ))}
+        </ul>
+      </div>
+      <div class="lcb-tier lcb-tier--ember">
+        <div class="lcb-tier__top">
+          <span class="lcb-pill lcb-pill--ember"><span class="lcb-pill__dot" aria-hidden="true"></span>ABOVE $2M / YEAR</span>
+          <span class="lcb-price lcb-price--ember">One license</span>
+        </div>
+        <p class="lcb-tier__body">Above $2 million, <b>one flat license covers your whole studio</b>, and it scales with your revenue, so it stays small when you're small.</p>
+        <div class="lcb-tier__rule lcb-tier__rule--ember" aria-hidden="true"></div>
+        <div class="lcb-star">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 3l3 6 6 1-4.5 4.3 1 6.2L13 20l-5.5 3 1-6.2L4 12.5 10 11z" stroke="#FF7A3D" stroke-width="2" stroke-linejoin="round" /></svg>
+          <p>One flat fee for the whole studio, no per-seat math.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lcb-ctas">
+      <a class="lcb-cta lcb-cta--solid" href="/licensing/#pricing">See pricing &rarr;</a>
+      <a class="lcb-cta lcb-cta--ghost" href="/licensing/#license">Read the license</a>
     </div>
   </section>
 
@@ -703,10 +714,28 @@ const TOOL_UI: Record<string, any> = {
 
 
   /* Licensing block (Adrian x Claude Design, 2026-07-18): two tier cards under the hero. */
-  #licensing { display: flex; flex-direction: column; gap: 1.75rem; }
+  #licensing, #why { display: flex; flex-direction: column; gap: 1.75rem; }
   .lcb-head { display: flex; flex-direction: column; gap: 0.75rem; }
   .lcb-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
   .lcb-title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.5rem, 3.4vw, 2.25rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--bone); text-wrap: pretty; }
+
+  /* The story as a pull-quote: plasma spine on the left, squared to it. */
+  .lcb-why {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1.125rem;
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.22);
+    border-left: 3px solid var(--plasma);
+    border-radius: 0 20px 20px 0;
+    padding: 2.25rem 2.75rem;
+    box-shadow: var(--shadow-lg);
+  }
+  .lcb-why__label { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.25em; color: var(--plasma); }
+  .lcb-why__para { margin: 0; max-width: 62rem; font-size: 1.0625rem; line-height: 1.7; color: var(--bone-dim); text-wrap: pretty; }
+  .lcb-why__para :global(b) { color: var(--bone); }
+  .lcb-why__para :global(.b-plasma) { color: var(--plasma); }
 
   .lcb-tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
   .lcb-tier {
