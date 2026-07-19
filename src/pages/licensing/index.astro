@@ -1,10 +1,15 @@
 ---
-// Licensing page (SITE-LIC-R2, 2026-07-18). Copy is Adrian-approved from
-// MrMiata workspace/2026-07-18_licensing-decision/COMMERCIAL-PAGE.md (section A, the
-// COMMERCIAL-LICENSE.md mirror), annual-recurring confirmed by Adrian. Pre-launch
-// adjustments flagged in the session record: the "source is public" FAQ line is trimmed
-// until the repo actually publishes, and the license text links the standard BSL 1.1
-// (the repo LICENSE would 404 while private).
+// Licensing page (Adrian x Claude Design, 2026-07-18; source drop:
+// MrMiata inbox/Docs/"Licensing Docs.html"). Copy is Adrian-approved from
+// MrMiata workspace/2026-07-18_licensing-decision/COMMERCIAL-PAGE.md (section A),
+// annual-recurring confirmed by Adrian.
+// COPY NOTE: the WHY section is Adrian's OWN words, held VERBATIM. The design drop
+// compressed his second paragraph (dropping "a lot of us fresh out of those big
+// studios. Wishing we still had the toolset we had access to just a few months ago.")
+// and that drift was NOT adopted, per the no-re-wording rule. The drop's em-dashes
+// were not adopted either; its contractions were.
+// Pre-launch adjustments: the license button links the standard BSL 1.1 text (the repo
+// LICENSE would 404 while private); re-point at v1 publish.
 // G13 NOTE: this page is exempt from the open-source gate BY DESIGN (Adrian's Option A):
 // it discusses the license as a subject, including saying what it is not.
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -18,50 +23,53 @@ let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
 const BANDS = [
-  { rev: 'Under 2 million', fee: 'Free', free: true },
-  { rev: '2 to 5 million', fee: '$1,000' },
-  { rev: '5 to 15 million', fee: '$5,000' },
-  { rev: '15 to 50 million', fee: '$15,000' },
-  { rev: '50 to 250 million', fee: '$50,000' },
-  { rev: '250 million to 1 billion', fee: '$150,000' },
-  { rev: 'Over 1 billion', fee: 'From $300,000, let us talk' },
+  { rev: 'Under $2 million', fee: 'Free', tone: 'free' },
+  { rev: '$2 to $5 million', fee: '$1,000' },
+  { rev: '$5 to $15 million', fee: '$5,000' },
+  { rev: '$15 to $50 million', fee: '$15,000' },
+  { rev: '$50 to $250 million', fee: '$50,000' },
+  { rev: '$250 million to $1 billion', fee: '$150,000' },
+  { rev: 'Over $1 billion', fee: "From $300,000, let's talk", tone: 'top' },
 ];
 
 const FAQ = [
   {
-    q: 'We are a small studio owned by a large publisher.',
-    a: 'The threshold counts your parent and sibling companies. If a large company controls your studio, you are over the line.',
+    q: "We're a small studio owned by a large publisher.",
+    a: "The threshold counts your parent and sibling companies. If a large company controls your studio, you're over the line.",
   },
   {
-    q: 'We spun out of a big company and we are independent now.',
-    a: 'Then you are independent, and only your own revenue counts. The test is who controls you today, not who used to.',
+    q: "We spun out of a big company and we're independent now.",
+    a: "Then you're independent, and only your own revenue counts. The test is who controls you today, not who used to.",
   },
   {
-    q: 'I am an individual contractor working at a large studio.',
-    a: 'Your own learning, portfolio, and personal work is free, always. Work you do for the large studio is use for their benefit, so they need the license, not you. Point them here.',
+    q: "I'm an individual contractor working at a large studio.",
+    a: 'Your own learning, portfolio, and personal work is free, always. Work you do for the large studio is use for their benefit, so <b>they</b> need the license, not you. Point them here.',
   },
   {
+    tone: 'ember',
     q: 'What about the Advanced Ribbon Modules?',
-    a: 'Those are a separate paid product for everyone, at any size. A commercial license covers the free toolset for a large organization; it does not include the Ribbon Modules, and buying the Ribbon Modules does not remove the need for a commercial license if you are over the threshold.',
+    a: "Those are a separate paid product for everyone, at any size. A commercial license covers the free toolset for a large organization; it doesn't include the Ribbon Modules, and buying the Ribbon Modules doesn't remove the need for a commercial license if you're over the threshold.",
   },
   {
+    tone: 'plasma',
     q: 'What happens to old versions?',
-    a: 'Every release becomes open source under the GPL four years after it ships. That is built into the license and cannot be revoked.',
+    a: "Every release becomes open source under the GPL four years after it ships. That's built into the license and cannot be revoked.",
   },
   {
+    tone: 'plasma',
     q: 'Is this open source?',
-    a: 'No, and we will not call it that. You can read and modify every line, but it is not an OSI approved license, because those licenses cannot ask a large company to pay.',
+    a: "No, and we won't call it that. You can read and modify every line, but it's not an OSI approved license, because those licenses can't ask a large company to pay.",
   },
 ];
 ---
 <BaseLayout
   title="Licensing | FabricatorStudio"
-  description="Free for solo developers, indies, and small teams. Above 2 million USD in annual revenue, one flat license covers your whole studio. Every version becomes open source four years after it ships."
+  description="Free for solo developers, indies, and small teams. Above 2 million USD in annual revenue, one flat license covers your whole studio."
 >
   <NavBar />
 
   <article class="dd lc">
-    <header class="dd-header lc-header">
+    <header class="dd-header">
       <div class="dd-eyebrow">FABRICATORSTUDIO &middot; LICENSING</div>
       <h1 class="dd-title" aria-label={TITLE}>
         {titleGlyphs.map((g) =>
@@ -71,74 +79,83 @@ const FAQ = [
       <p class="dd-summary lc-lede">FabricatorStudio is free for solo developers, indies, and small teams.</p>
     </header>
 
-    <!-- THE FREE GRANT -->
+    <!-- FREE TIER -->
     <section class="lc-free" aria-labelledby="lc-free-t">
-      <h2 id="lc-free-t" class="lc-free__title">Under $2M a year? It is yours.</h2>
-      <p class="lc-prose">If your organization made less than 2 million USD in gross revenue last tax year, you do not need a license and you do not need to contact anyone. Use it in production, ship games with it, use it on client work. It is yours, and it stays yours.</p>
-      <p class="lc-prose lc-prose--always"><span class="lc-dot" aria-hidden="true"></span>Personal use, learning, and portfolio work are always free, whatever you do for a day job.</p>
+      <span class="lc-pill"><span class="lc-pill__dot" aria-hidden="true"></span>UNDER $2M / YEAR &middot; FREE</span>
+      <h2 id="lc-free-t" class="lc-free__title">Under $2M a year? It's yours.</h2>
+      <p class="lc-prose lc-prose--lg">If your organization made less than <b>$2 million USD in gross revenue</b> last tax year, you don't need a license and you don't need to contact anyone. Use it in production, ship games with it, use it on client work. It's yours, and it stays yours.</p>
+      <div class="lc-callout lc-callout--plasma">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M6 13l4.5 4.5L20 8" stroke="#7CFFB2" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <p>Personal use, learning, and portfolio work are <b class="b-plasma">always free</b>, whatever you do for a day job.</p>
+      </div>
     </section>
 
     <!-- PRICING -->
     <section id="pricing" class="lc-section" aria-labelledby="lc-pricing-t">
-      <div class="lc-rule lc-rule--ember">
-        <h2 id="lc-pricing-t" class="lc-rule__label lc-rule__label--ember">PRICING</h2>
+      <div class="lc-head">
+        <h2 id="lc-pricing-t" class="lc-head__label lc-head__label--ember">PRICING</h2>
+        <p class="lc-head__sub">One flat license per studio, per year</p>
       </div>
-      <p class="lc-prose">Above 2 million USD in annual revenue, a commercial license is required. One flat license for your whole studio, per year. Not per seat, and never a percentage of what you make. Nothing to count, nothing to activate, no license server, no phoning home.</p>
+      <p class="lc-prose lc-prose--lg">Above $2 million USD in annual revenue, a commercial license is required. <b>One flat license for your whole studio, per year.</b> Not per seat, and never a percentage of what you make. Nothing to count, nothing to activate, no license server, no phoning home.</p>
+
       <div class="lc-table" role="table" aria-label="Annual license by company revenue">
-        <div class="lc-table__row lc-table__row--head" role="row">
-          <span role="columnheader">Your annual revenue</span>
-          <span role="columnheader">Per year</span>
+        <div class="lc-row lc-row--head" role="row">
+          <span role="columnheader">YOUR ANNUAL REVENUE</span>
+          <span role="columnheader">PER YEAR</span>
         </div>
         {BANDS.map((b) => (
-          <div class={`lc-table__row${b.free ? ' lc-table__row--free' : ''}`} role="row">
+          <div class={`lc-row${b.tone ? ` lc-row--${b.tone}` : ''}`} role="row">
             <span role="cell">{b.rev}</span>
-            <span class={`lc-table__fee${b.free ? ' lc-table__fee--free' : ''}`} role="cell">{b.fee}</span>
+            <span class={`lc-row__fee${b.tone ? ` lc-row__fee--${b.tone}` : ''}`} role="cell">{b.fee}</span>
           </div>
         ))}
       </div>
-      <p class="lc-prose">Crossing 2 million costs you 1,000 a year, which is less than a single Maya seat. That is on purpose. You should not get punished for a good year.</p>
-      <p class="lc-prose lc-prose--dim">No percentages. No per seat counting. No reporting, no audits, no license server. You look at one row, you know your number, and you can budget it a year ahead.</p>
+
+      <div class="lc-callout lc-callout--wash">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 3v20M7 9l6-6 6 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <p>Crossing $2 million costs you <b class="b-plasma">$1,000 a year</b>, less than a single Maya seat. That's on purpose. You shouldn't get punished for a good year.</p>
+      </div>
+      <p class="lc-prose lc-prose--dim">No percentages. No per-seat counting. No reporting, no audits, no license server. You look at one row, you know your number, and you can budget it a year ahead.</p>
     </section>
 
-    <!-- WHY -->
+    <!-- WHY IT WORKS THIS WAY -->
     <section class="lc-why" aria-labelledby="lc-why-t">
-      <h2 id="lc-why-t" class="lc-rule__label lc-rule__label--ember">WHY IT WORKS THIS WAY</h2>
-      <!-- Adrian's own story, his words verbatim (approved 2026-07-18). -->
-      <p class="lc-prose">My whole career, I built awesome tools like these at big studios. Then the industry started laying us off, and when I sat down to build my own game I realized I had none of them. Fourteen years of pipeline, and every line of it stayed behind at the companies.</p>
-      <p class="lc-prose">So I built the tools again, for myself. While watching my peers get laid off one by one, I decided to release my tools. There is a growing pool of indie developers now, a lot of us fresh out of those big studios. Wishing we still had the toolset we had access to just a few months ago. This one is free for you.</p>
-      <p class="lc-prose">I am not giving these tools away free to the big companies that ran the layoffs. If your organization can afford a Technical Artist, it can pay for a license, and that revenue is what keeps the toolset free for everyone else.</p>
-      <p class="lc-prose lc-prose--dim">For comparison: Epic charges non-game companies over 1 million in revenue 1,850 USD per seat per year for Unreal Engine. Our line is twice that, and above it you pay once for the entire studio instead of once per person.</p>
+      <h2 id="lc-why-t" class="lc-head__label lc-head__label--ember">WHY IT WORKS THIS WAY</h2>
+      <!-- Adrian's own story, his words VERBATIM (approved 2026-07-18). -->
+      <div class="lc-why__body">
+        <p class="lc-prose lc-prose--lg">My whole career, I built awesome tools like these at big studios. Then the industry started laying us off, and when I sat down to build my own game I realized I had none of them. Fourteen years of pipeline, and every line of it stayed behind at the companies.</p>
+        <p class="lc-prose lc-prose--lg">So I built the tools again, for myself. While watching my peers get laid off one by one, I decided to release my tools. There is a growing pool of indie developers now, a lot of us fresh out of those big studios. Wishing we still had the toolset we had access to just a few months ago. <b class="b-plasma">This one is free for you.</b></p>
+        <p class="lc-prose lc-prose--lg">I'm not giving these tools away free to the big companies that ran the layoffs. If your organization can afford a Technical Artist, it can pay for a license, and that revenue is what keeps the toolset <b>free for everyone else</b>.</p>
+      </div>
+      <div class="lc-callout lc-callout--ember">
+        <span class="lc-callout__badge" aria-hidden="true">&asymp;</span>
+        <p>For comparison: Epic charges non-game companies over $1M in revenue <b>$1,850 per seat per year</b> for Unreal Engine. Our line is twice that, and above it you pay once for the <b>entire studio</b>, instead of once per person.</p>
+      </div>
     </section>
 
     <!-- THE LICENSE -->
-    <section id="license" class="lc-section" aria-labelledby="lc-license-t">
-      <div class="lc-rule lc-rule--plasma">
-        <h2 id="lc-license-t" class="lc-rule__label lc-rule__label--plasma">THE LICENSE</h2>
-      </div>
-      <p class="lc-prose">The toolset ships under the <b>Business Source License 1.1</b>, with one added grant: free use for organizations under 2 million USD in annual gross revenue. Every version becomes fully open source four years after it ships, automatically. That conversion is written into the license and cannot be revoked.</p>
+    <section id="license" class="lc-license" aria-labelledby="lc-license-t">
+      <h2 id="lc-license-t" class="lc-head__label lc-head__label--plasma">THE LICENSE</h2>
+      <p class="lc-prose lc-prose--lg">The toolset ships under the <b>Business Source License 1.1</b>, with one added grant: free use for organizations under $2 million USD in annual gross revenue. Every version becomes fully open source four years after it ships, automatically. That conversion is written into the license and <b class="b-plasma">cannot be revoked</b>.</p>
       <a class="lc-chip" href="https://mariadb.com/bsl11/" target="_blank" rel="noopener">Read the standard BSL 1.1 text &rarr;</a>
-    </section>
-
-    <!-- GET A LICENSE -->
-    <section class="lc-contact" aria-labelledby="lc-contact-t">
-      <div>
-        <h2 id="lc-contact-t" class="lc-contact__title">Getting a license</h2>
-        <p class="lc-prose">Email us your company name and revenue band. No sales call required unless you want one.</p>
-        <p class="lc-prose lc-prose--dim lc-contact__xlink">Need hands, not just a license? <a href="/services/">See Services</a>.</p>
+      <div class="lc-license__rule" aria-hidden="true"></div>
+      <div class="lc-get">
+        <div class="lc-get__copy">
+          <h3 class="lc-get__title">Getting a license</h3>
+          <p class="lc-prose">Email us your company name and revenue band. No sales call required unless you want one. Need hands, not just a license? See <a href="/services/">Services</a>.</p>
+        </div>
+        <a class="lc-cta" href="mailto:licensing@fabricator.studio?subject=Commercial%20license">licensing@fabricator.studio</a>
       </div>
-      <a class="lc-cta" href="mailto:licensing@fabricator.studio?subject=Commercial%20license">licensing@fabricator.studio</a>
     </section>
 
-    <!-- FAQ -->
+    <!-- QUESTIONS -->
     <section id="faq" class="lc-section" aria-labelledby="lc-faq-t">
-      <div class="lc-rule lc-rule--plasma">
-        <h2 id="lc-faq-t" class="lc-rule__label lc-rule__label--plasma">QUESTIONS</h2>
-      </div>
+      <h2 id="lc-faq-t" class="lc-head__label lc-head__label--plasma">QUESTIONS</h2>
       <div class="lc-faq">
         {FAQ.map((f) => (
-          <div class="lc-faq__item">
-            <h3 class="lc-faq__q">{f.q}</h3>
-            <p class="lc-faq__a">{f.a}</p>
+          <div class={`lc-q${f.tone ? ` lc-q--${f.tone}` : ''}`}>
+            <h3 class="lc-q__q">{f.q}</h3>
+            <p class="lc-q__a" set:html={f.a} />
           </div>
         ))}
       </div>
@@ -149,71 +166,139 @@ const FAQ = [
 </BaseLayout>
 
 <style>
-  /* Licensing page: the free grant, the band table, and the FAQ. Shared furniture:
-     designed-doc.css. */
+  /* Licensing page in the design drop's language. Shared furniture: designed-doc.css.
+     The drop's off-palette darks are snapped to tokens, and every fade ends at the hue
+     at zero alpha rather than the `transparent` keyword. */
+  .lc { gap: 3.5rem; }
   .lc .dd-header { align-items: center; text-align: center; }
-  .lc-lede { max-width: 46rem; margin-inline: auto; font-size: 1.125rem; }
+  .lc .dd-title { justify-content: center; }
+  .lc-lede { max-width: 52rem; margin-inline: auto; font-size: 1.125rem; }
 
-  .lc-section, .lc-why { display: flex; flex-direction: column; gap: 1.25rem; }
-  .lc-rule { display: flex; align-items: center; gap: 1.1rem; }
-  .lc-rule__label { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.25rem, 2.6vw, 1.625rem); letter-spacing: 0.04em; }
-  .lc-rule__label--plasma { color: var(--plasma); }
-  .lc-rule__label--ember { color: var(--ember); }
-  .lc-rule::after { content: ''; flex: 1; height: 1px; }
-  .lc-rule--plasma::after { background: linear-gradient(90deg, rgba(124, 255, 178, 0.4), rgba(124, 255, 178, 0)); }
-  .lc-rule--ember::after { background: linear-gradient(90deg, rgba(255, 122, 61, 0.4), rgba(255, 122, 61, 0)); }
+  .lc-section, .lc-why, .lc-license { display: flex; flex-direction: column; gap: 1.5rem; }
 
-  .lc-prose { margin: 0; max-width: 56rem; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
-  .lc-prose b { color: var(--bone); }
+  .lc-head { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
+  .lc-head__label { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.25rem, 2.6vw, 1.625rem); letter-spacing: 0.04em; }
+  .lc-head__label--plasma { color: var(--plasma); }
+  .lc-head__label--ember { color: var(--ember); }
+  .lc-head__sub { margin: 0; font-size: 1rem; color: var(--bone-dim); }
+
+  .lc-prose { margin: 0; max-width: 62rem; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .lc-prose--lg { font-size: 1.0625rem; }
   .lc-prose--dim { color: var(--bone-faint); }
+  .lc-prose b { color: var(--bone); }
+  .lc-prose :global(.b-plasma) { color: var(--plasma); }
+  .lc-prose a { color: var(--plasma); font-weight: 700; text-decoration: none; }
+  .lc-prose a:hover { color: var(--plasma-dim); }
 
-  /* The free grant: the guarantee card, plasma wash. */
+  /* The free grant: iron sliding into a plasma-tinted dark (the drop's 120deg card). */
   .lc-free {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    gap: 1.25rem;
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0) 40%, rgba(124, 255, 178, 0.08)), linear-gradient(120deg, var(--iron), var(--carbon));
     border: 1px solid rgba(124, 255, 178, 0.4);
-    border-radius: 20px;
-    padding: 2rem 2.25rem;
-    box-shadow: 0 0 44px -22px rgba(124, 255, 178, 0.4);
+    border-radius: 22px;
+    padding: 2.5rem 2.75rem 2.75rem;
+    box-shadow: var(--shadow-lg), 0 0 44px -24px rgba(124, 255, 178, 0.3);
   }
-  .lc-free__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem; color: var(--plasma); }
-  .lc-prose--always { display: flex; align-items: baseline; gap: 0.7rem; color: var(--bone); }
-  .lc-dot { flex: none; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--plasma); }
-
-  .lc-table { display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; overflow: hidden; max-width: 44rem; }
-  .lc-table__row {
-    display: grid;
-    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
-    gap: 1rem;
-    padding: 0.8rem 1.25rem;
+  .lc-free__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.5rem, 3.2vw, 2.125rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--bone); }
+  .lc-pill {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 9px;
+    background: rgba(124, 255, 178, 0.13);
+    border: 1px solid rgba(124, 255, 178, 0.45);
     font-family: var(--font-mono);
-    font-size: 0.9375rem;
-    color: var(--bone-dim);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    color: var(--plasma);
+    white-space: nowrap;
+  }
+  .lc-pill__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--plasma); box-shadow: 0 0 10px rgba(124, 255, 178, 0.7); }
+
+  /* Inset callouts: carbon panel, accent hairline. */
+  .lc-callout {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
     background: var(--carbon);
   }
-  .lc-table__row:nth-child(odd) { background: var(--iron); }
-  .lc-table__row--head { background: var(--iron-2); color: var(--bone-faint); font-size: 0.75rem; letter-spacing: 0.12em; text-transform: uppercase; }
-  .lc-table__row--free { background: linear-gradient(90deg, rgba(124, 255, 178, 0.12), rgba(124, 255, 178, 0)), var(--carbon); color: var(--bone); }
-  .lc-table__fee { font-weight: 700; color: var(--bone); }
-  .lc-table__fee--free { color: var(--plasma); }
-
-  .lc-why {
-    background: linear-gradient(180deg, var(--iron), var(--carbon));
-    border: 1px solid rgba(255, 122, 61, 0.16);
-    border-radius: 20px;
-    padding: 2rem 2.25rem;
+  .lc-callout p { margin: 0; font-size: 1rem; line-height: 1.55; color: var(--bone-dim); text-wrap: pretty; }
+  .lc-callout p b { color: var(--bone); }
+  .lc-callout :global(.b-plasma) { color: var(--plasma); }
+  .lc-callout svg { flex: none; }
+  .lc-callout--plasma { border: 1px solid rgba(124, 255, 178, 0.25); }
+  .lc-callout--ember { align-items: flex-start; border: 1px solid rgba(255, 122, 61, 0.25); }
+  .lc-callout--wash { border: 1px solid rgba(124, 255, 178, 0.35); background: linear-gradient(90deg, rgba(124, 255, 178, 0.08), rgba(124, 255, 178, 0)), var(--carbon); }
+  .lc-callout__badge {
+    flex: none;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 10px;
+    background: rgba(255, 122, 61, 0.14);
+    color: var(--ember);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    font-size: 1.375rem;
   }
 
+  /* Band table: two columns, ruled rows, the free row plasma and the top row ember. */
+  .lc-table { display: flex; flex-direction: column; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-md); }
+  .lc-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 16rem);
+    font-family: var(--font-mono);
+    font-size: 1rem;
+    color: var(--bone-dim);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  }
+  .lc-row:last-child { border-bottom: none; }
+  .lc-row > span { padding: 1.125rem 1.75rem; }
+  .lc-row > span + span { border-left: 1px solid rgba(255, 255, 255, 0.06); }
+  .lc-row:nth-child(even) { background: rgba(255, 255, 255, 0.015); }
+  .lc-row--head { background: var(--iron); color: var(--bone-faint); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.14em; }
+  .lc-row--free { background: rgba(124, 255, 178, 0.05); color: var(--bone); }
+  .lc-row--top { background: rgba(255, 122, 61, 0.06); color: var(--bone); }
+  .lc-row__fee { font-weight: 700; color: var(--bone); }
+  .lc-row__fee--free { font-weight: 800; color: var(--plasma); }
+  .lc-row__fee--top { font-weight: 800; color: var(--ember); }
+
+  .lc-why {
+    box-sizing: border-box;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 122, 61, 0.14);
+    border-radius: 22px;
+    padding: 2.5rem 2.75rem 2.75rem;
+    box-shadow: var(--shadow-lg);
+  }
+  .lc-why__body { display: flex; flex-direction: column; gap: 1.25rem; max-width: 62rem; }
+
+  .lc-license {
+    box-sizing: border-box;
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0) 40%, rgba(124, 255, 178, 0.06)), linear-gradient(120deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.18);
+    border-radius: 22px;
+    padding: 2.5rem 2.75rem 2.75rem;
+    box-shadow: var(--shadow-lg);
+  }
+  .lc-license__rule { height: 1px; background: linear-gradient(90deg, rgba(232, 224, 208, 0.1), rgba(232, 224, 208, 0)); }
   .lc-chip {
     align-self: flex-start;
     display: inline-flex;
     align-items: center;
     gap: 0.6rem;
-    padding: 0.75rem 1.25rem;
-    border-radius: 10px;
-    background: rgba(124, 255, 178, 0.1);
+    padding: 0.85rem 1.5rem;
+    border-radius: 11px;
+    background: rgba(124, 255, 178, 0);
     border: 1px solid rgba(124, 255, 178, 0.4);
     color: var(--plasma);
     font-family: var(--font-mono);
@@ -223,51 +308,44 @@ const FAQ = [
   }
   .lc-chip:hover { background: var(--plasma); color: #06120B; }
 
-  .lc-contact {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 2rem;
-    flex-wrap: wrap;
-    background: linear-gradient(180deg, var(--iron), var(--carbon));
-    border: 1px solid rgba(124, 255, 178, 0.14);
-    border-radius: 20px;
-    padding: 2rem 2.25rem;
-  }
-  .lc-contact__title { margin: 0 0 0.5rem; font-family: var(--font-mono); font-weight: 800; font-size: 1.375rem; color: var(--bone); }
+  .lc-get { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2.5rem; align-items: center; }
+  .lc-get__copy { display: flex; flex-direction: column; gap: 0.6rem; }
+  .lc-get__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.375rem; color: var(--bone); }
   .lc-cta {
+    justify-self: end;
     display: inline-flex;
     padding: 1rem 1.75rem;
-    border-radius: 11px;
-    background: var(--ember);
-    color: #1A0A02;
+    border-radius: 12px;
+    background: var(--plasma);
+    color: #06120B;
     font-family: var(--font-mono);
     font-weight: 800;
     font-size: 1rem;
     text-decoration: none;
     white-space: nowrap;
-    box-shadow: 0 0 30px -12px rgba(255, 122, 61, 0.7);
+    box-shadow: 0 0 32px -12px rgba(124, 255, 178, 0.7);
   }
-  .lc-cta:hover { background: var(--ember-dim); }
-  .lc-contact__xlink { margin-top: 0.5rem; font-size: 0.8125rem; }
-  .lc-contact__xlink a { color: var(--plasma); text-decoration: none; }
-  .lc-contact__xlink a:hover { color: var(--plasma-dim); }
+  .lc-cta:hover { background: var(--plasma-dim); }
 
-  .lc-faq { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
-  .lc-faq__item {
-    background: var(--iron);
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    border-radius: 16px;
-    padding: 1.5rem 1.625rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
+  .lc-faq { display: flex; flex-direction: column; gap: 0.875rem; }
+  .lc-q {
+    background: linear-gradient(90deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 14px;
+    padding: 1.5rem 1.875rem;
   }
-  .lc-faq__q { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--bone); }
-  .lc-faq__a { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); }
+  .lc-q--ember { border-color: rgba(255, 122, 61, 0.2); }
+  .lc-q--plasma { border-color: rgba(124, 255, 178, 0.2); }
+  .lc-q__q { margin: 0 0 0.5rem; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
+  .lc-q__a { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); }
+  .lc-q__a :global(b) { color: var(--bone); }
 
   @media (max-width: 760px) {
-    .lc-faq { grid-template-columns: 1fr; }
-    .lc-contact { flex-direction: column; align-items: flex-start; }
+    .lc-free, .lc-why, .lc-license { padding: 1.75rem 1.5rem 2rem; }
+    .lc-row { grid-template-columns: minmax(0, 1fr) minmax(0, 9rem); font-size: 0.875rem; }
+    .lc-row > span { padding: 0.9rem 1.125rem; }
+    .lc-get { grid-template-columns: 1fr; gap: 1.25rem; }
+    .lc-cta { justify-self: start; }
+    .lc-callout { align-items: flex-start; }
   }
 </style>

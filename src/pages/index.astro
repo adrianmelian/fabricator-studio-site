@@ -88,19 +88,48 @@ const TOOL_UI: Record<string, any> = {
     </div>
   </section>
 
-  <!-- LICENSING (SITE-LIC-R2): Adrian-approved copy from COMMERCIAL-PAGE.md section B,
-       placed under the hero per the record so it frames everything after it. The
-       four-year line is the canonical G13-exempt sentence, byte-for-byte. -->
+  <!-- LICENSING (Adrian x Claude Design drop, 2026-07-18; source:
+       MrMiata inbox/Docs/"Licensing Block Docs.html"). Copy stays the approved
+       COMMERCIAL-PAGE.md language, em-dash-free; the four-year line is the canonical
+       G13-exempt sentence, byte-for-byte, kept as the quiet closer (the drop omitted it). -->
   <section id="licensing">
-    <div class="lc-band">
-      <h2 class="lc-band__title">Free for solo developers, indies, and small teams.</h2>
-      <p class="lc-band__para">If your studio makes under 2 million a year, everything here is yours. Use it in production, ship your game, use it on client work, keep it forever. No seats, no trial, no feature gates, no phoning home.</p>
-      <p class="lc-band__para">Above 2 million, one flat license covers your whole studio, and it scales with your revenue so it stays small when you are small.</p>
-      <p class="lc-band__para lc-band__para--gpl">Every version becomes fully open source four years after it ships, automatically.</p>
-      <div class="lc-band__ctas">
-        <BracketButton kind="plasma-outline" href="/licensing/#pricing" label="See pricing" />
-        <BracketButton kind="soft" href="/licensing/#license" label="Read the license" />
+    <div class="lcb-head">
+      <div class="lcb-eyebrow">LICENSING</div>
+      <h2 class="lcb-title">Free for solo developers, indies, and small teams.</h2>
+    </div>
+    <div class="lcb-tiers">
+      <div class="lcb-tier lcb-tier--plasma">
+        <div class="lcb-tier__top">
+          <span class="lcb-pill lcb-pill--plasma"><span class="lcb-pill__dot" aria-hidden="true"></span>UNDER $2M / YEAR</span>
+          <span class="lcb-price lcb-price--plasma">Free</span>
+        </div>
+        <p class="lcb-tier__body">If your studio makes under <b>$2 million a year</b>, everything here is yours. Use it in production, ship your game, use it on client work, and keep it forever.</p>
+        <div class="lcb-tier__rule lcb-tier__rule--plasma" aria-hidden="true"></div>
+        <ul class="lcb-checks">
+          {['No seats', 'No trial', 'No feature gates', 'No phoning home'].map((c) => (
+            <li class="lcb-check">
+              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10l3.5 3.5L15 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              {c}
+            </li>
+          ))}
+        </ul>
       </div>
+      <div class="lcb-tier lcb-tier--ember">
+        <div class="lcb-tier__top">
+          <span class="lcb-pill lcb-pill--ember"><span class="lcb-pill__dot" aria-hidden="true"></span>ABOVE $2M / YEAR</span>
+          <span class="lcb-price lcb-price--ember">One license</span>
+        </div>
+        <p class="lcb-tier__body">Above $2 million, <b>one flat license covers your whole studio</b>, and it scales with your revenue, so it stays small when you're small.</p>
+        <div class="lcb-tier__rule lcb-tier__rule--ember" aria-hidden="true"></div>
+        <div class="lcb-star">
+          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 3l3 6 6 1-4.5 4.3 1 6.2L13 20l-5.5 3 1-6.2L4 12.5 10 11z" stroke="#FF7A3D" stroke-width="2" stroke-linejoin="round" /></svg>
+          <p>One flat fee for the whole studio, no per-seat math.</p>
+        </div>
+      </div>
+    </div>
+    <div class="lcb-ctas">
+      <a class="lcb-cta lcb-cta--solid" href="/licensing/#pricing">See pricing &rarr;</a>
+      <a class="lcb-cta lcb-cta--ghost" href="/licensing/#license">Read the license</a>
     </div>
   </section>
 
@@ -673,25 +702,86 @@ const TOOL_UI: Record<string, any> = {
   .download-line { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--bone); }
 
 
-  /* Licensing band (SITE-LIC-R2): the free-tier promise under the hero, plasma wash. */
-  #licensing { display: flex; justify-content: center; }
-  .lc-band {
+  /* Licensing block (Adrian x Claude Design, 2026-07-18): two tier cards under the hero. */
+  #licensing { display: flex; flex-direction: column; gap: 1.75rem; }
+  .lcb-head { display: flex; flex-direction: column; gap: 0.75rem; }
+  .lcb-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
+  .lcb-title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.5rem, 3.4vw, 2.25rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--bone); text-wrap: pretty; }
+
+  .lcb-tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+  .lcb-tier {
+    box-sizing: border-box;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 1rem;
-    max-width: 56rem;
-    background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
-    border: 1px solid rgba(124, 255, 178, 0.4);
+    gap: 1.1rem;
     border-radius: 22px;
-    padding: 2.5rem 2.75rem;
-    box-shadow: 0 0 44px -22px rgba(124, 255, 178, 0.4);
+    padding: 2rem 2.125rem 2.25rem;
+    box-shadow: var(--shadow-lg);
   }
-  .lc-band__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.375rem, 3vw, 1.75rem); color: var(--plasma); text-wrap: balance; }
-  .lc-band__para { margin: 0; max-width: 46rem; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
-  .lc-band__para--gpl { color: var(--bone-faint); font-size: 0.875rem; }
-  .lc-band__ctas { margin-top: 0.75rem; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
+  /* The free tier: iron falling into a plasma-tinted dark, per the drop. */
+  .lcb-tier--plasma {
+    background: linear-gradient(180deg, rgba(124, 255, 178, 0) 30%, rgba(124, 255, 178, 0.07)), linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.4);
+    box-shadow: var(--shadow-lg), 0 0 40px -24px rgba(124, 255, 178, 0.3);
+  }
+  .lcb-tier--ember {
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 122, 61, 0.35);
+  }
+  .lcb-tier__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .lcb-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 9px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+  }
+  .lcb-pill--plasma { background: rgba(124, 255, 178, 0.13); border: 1px solid rgba(124, 255, 178, 0.45); color: var(--plasma); }
+  .lcb-pill--ember { background: rgba(255, 122, 61, 0.13); border: 1px solid rgba(255, 122, 61, 0.45); color: var(--ember); }
+  .lcb-pill__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; }
+  .lcb-pill--plasma .lcb-pill__dot { background: var(--plasma); box-shadow: 0 0 10px rgba(124, 255, 178, 0.7); }
+  .lcb-pill--ember .lcb-pill__dot { background: var(--ember); box-shadow: 0 0 10px rgba(255, 122, 61, 0.7); }
+  .lcb-price { font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.375rem, 2.6vw, 1.75rem); letter-spacing: -0.02em; }
+  .lcb-price--plasma { color: var(--plasma); }
+  .lcb-price--ember { color: var(--ember); }
+  .lcb-tier__body { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .lcb-tier__body b { color: var(--bone); }
+  .lcb-tier__rule { height: 1px; }
+  .lcb-tier__rule--plasma { background: linear-gradient(90deg, rgba(124, 255, 178, 0.3), rgba(124, 255, 178, 0)); }
+  .lcb-tier__rule--ember { background: linear-gradient(90deg, rgba(255, 122, 61, 0.3), rgba(255, 122, 61, 0)); }
+  .lcb-checks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 1.25rem; }
+  .lcb-check { display: flex; align-items: center; gap: 0.7rem; font-size: 0.9375rem; color: var(--bone-dim); }
+  .lcb-check svg { flex: none; }
+  .lcb-star { display: flex; align-items: center; gap: 0.85rem; font-size: 0.9375rem; color: var(--bone-dim); line-height: 1.5; }
+  .lcb-star svg { flex: none; }
+  .lcb-star p { margin: 0; }
+
+  .lcb-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+  .lcb-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 1rem 2.125rem;
+    border-radius: 12px;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.0625rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    transition: background var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
+  }
+  .lcb-cta--solid { background: var(--plasma); color: #06120B; box-shadow: 0 0 32px -12px rgba(124, 255, 178, 0.7); }
+  .lcb-cta--solid:hover { background: var(--plasma-dim); }
+  .lcb-cta--ghost { font-weight: 700; background: rgba(232, 224, 208, 0); border: 1px solid rgba(232, 224, 208, 0.3); color: var(--bone); }
+  .lcb-cta--ghost:hover { border-color: var(--bone); }
+
+  @media (max-width: 800px) {
+    .lcb-tiers { grid-template-columns: 1fr; }
+  }
 
   /* Tutorials block (Adrian x Claude Design, 2026-07-17): tri-color head, the nine
      Quick Start cards with real thumbnails, and the All Tutorials chip. */
