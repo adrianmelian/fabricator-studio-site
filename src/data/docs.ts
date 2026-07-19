@@ -14,6 +14,7 @@ export const PAID_PACK_LABEL = 'Advanced Ribbon Pack';
 // so the static page owns the URL without a route collision.
 export const DESIGNED_DOC_IDS = new Set([
   'tools/armature',
+  'tools/settings',
   'tools/joint-aimer',
   'tools/fabricator',
   'tools/ctrl-editor',
@@ -61,6 +62,9 @@ export interface DocNavSubgroup { label: string; ids: string[]; labelId?: string
 export interface DocNavGroup { key: string; label: string; ids: string[]; subgroups?: DocNavSubgroup[] }
 
 export const DOCS_NAV: DocNavGroup[] = [
+  // Project sits first: Mindmeld is step 1 of the Getting Started path, and every
+  // other tool resolves its paths from the project config it writes.
+  { key: 'project', label: 'Project', ids: ['tools/project-setup'] },
   {
     key: 'rigging',
     label: 'Rigging',
@@ -86,7 +90,7 @@ export const DOCS_NAV: DocNavGroup[] = [
     key: 'utility',
     label: 'Utility',
     ids: [
-      'tools/skeleton-io', 'tools/skin-io', 'tools/exporter', 'tools/project-setup',
+      'tools/skeleton-io', 'tools/skin-io', 'tools/exporter', 'tools/settings',
       'tools/bridge', 'tools/your-ai-ta', 'tools/batch-runner',
     ],
   },
@@ -100,6 +104,7 @@ export const DOCS_NAV: DocNavGroup[] = [
 // (FK Simple, IK Arm, Ribbon Leg). Applies to the docs nav; source-doc titles follow
 // via the naming relay.
 export const DOC_NAV_LABELS: Record<string, string> = {
+  'tools/project-setup': 'Mindmeld: Project Setup',
   'tools/armature': 'Armature: Skeleton Building',
   'tools/fabricator': 'Fabricator: Rig Building',
   'tools/autoskin': 'AutoSkin: AI Skinning',

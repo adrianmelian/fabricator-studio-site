@@ -1,0 +1,369 @@
+---
+// DESIGNED docs page for tools/settings (Adrian x Claude Design, 2026-07-19; source drop:
+// MrMiata inbox/Docs/"Settings.html"). Grounded in the FS source doc
+// maya_tools/docs/tools/settings.md; the markdown twin lives at
+// src/content/docs-authored/tools/settings.md (the source doc ships without front matter,
+// so sync-docs skips it; the authored twin carries the schema).
+// COPY NOTE: the drop said "Project Setup defines the project"; corrected to MINDMELD, the
+// tool's public name and what the source doc itself says. Drop em-dashes not adopted.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import settingsWindow from '../../../assets/docs/settings/settings-window.png';
+
+const SUMMARY =
+  "Your per-machine setup. Bind each project's folders to this computer, point at a shared configs folder, and choose what FabricatorStudio loads into Maya at startup.";
+
+const TITLE = 'SETTINGS';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+const PARTS = [
+  {
+    glyph: '▤',
+    tone: 'plasma',
+    name: 'Shared Configs Root',
+    body: "Points at your studio's shared configs folder. Solo? The local default just works, so leave it alone.",
+  },
+  {
+    glyph: '⛓',
+    tone: 'plasma',
+    name: 'Project Bindings',
+    body: "Per project: your Source Art Root (working files) and Content Root (where exports land) on this machine.",
+  },
+  {
+    glyph: '◈',
+    tone: 'ember',
+    name: 'Maya Integration',
+    body: 'Menu, shelves, hotkeys, and the animation marking menu. Choose what loads at startup. All on by default.',
+  },
+];
+
+const WINDOW_STEPS = [
+  {
+    n: '01',
+    tone: 'plasma',
+    name: 'Shared Configs Root',
+    body: "One path to the studio's shared configs. Solo builds fall back to <b class=\"b-plasma\">LOCAL DEFAULT</b>.",
+  },
+  {
+    n: '02',
+    tone: 'plasma',
+    name: 'Project Bindings',
+    body: 'Pick a project, set Source Art and Content Roots, then <b class="b-plasma">Bind</b>. Optional library overrides sit below.',
+  },
+  {
+    n: '03',
+    tone: 'ember',
+    name: 'Maya Integration',
+    body: 'Toggle menu, shelves, hotkeys, and the marking menu. <b class="b-ember">Applies at Maya startup.</b>',
+  },
+  {
+    n: '04',
+    tone: 'bone',
+    name: 'Validation and Log',
+    body: 'Collapsible panels surface problems and a filterable activity log as you bind.',
+  },
+];
+
+const STEPS = [
+  {
+    tone: 'plasma',
+    body: '<b>Left-click the gear button</b> on the FabricatorStudio toolbar. Right-click keeps the quick toolbar options.',
+  },
+  {
+    tone: 'plasma',
+    body: "Solo? <b>Skip Shared Configs Root</b>, the local default just works. On a team, click Browse and point at your studio's shared configs folder.",
+  },
+  {
+    tone: 'plasma',
+    body: 'Under <b class="b-plasma">Project Bindings</b>, select a project, browse to your Source Art Root and Content Root, and click <b>Bind</b>.',
+  },
+  {
+    tone: 'ember',
+    body: 'Under <b class="b-ember">Maya Integration</b>, choose what loads at startup: menu, shelves, hotkeys, and the animation marking menu. Everything is on by default.',
+  },
+];
+
+const FACTS = [
+  {
+    tone: 'plasma',
+    name: 'Bind writes locally only',
+    body: 'Bind writes a small file on <b class="b-plasma">this machine only</b>. The shared project config never changes, so binding works even when the shared folder is read-only, like an unopened Perforce path.',
+  },
+  {
+    tone: 'plasma',
+    name: 'Every machine binds its own roots',
+    body: 'Teammates can use completely different drive letters and folder layouts. Each machine binds its own roots; the project does not care.',
+  },
+  {
+    tone: 'plasma',
+    name: 'Overrides stay blank in the normal case',
+    body: 'Pose Library, Anim Library, and Blueprints stay blank, meaning "under Source Art Root at the project\'s subpaths". Set one only when this machine keeps that data somewhere else.',
+  },
+  {
+    tone: 'ember',
+    name: 'Studio environment variable wins',
+    body: 'If your studio sets <b class="b-ember">FABRICATOR_PROJECT_CONFIGS</b>, it wins over anything picked here and the field locks with a note saying so.',
+  },
+  {
+    tone: 'ember',
+    name: 'Toggles: on is immediate, off waits',
+    body: 'Turning a Maya Integration toggle <b class="b-plasma">on</b> builds it immediately. Turning one <b class="b-ember">off</b> takes effect the next time Maya starts.',
+  },
+];
+---
+<DocsLayout title="Settings | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="st-eyebrow-row">
+        <div class="dd-eyebrow">FABRICATOR &middot; FRAMEWORK</div>
+        <span class="st-badge">GEAR BUTTON &middot; TOOLBAR</span>
+      </div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="st-what">
+      <div class="dd-panel__head">
+        <h2 id="st-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">Everything that belongs to you and this machine</p>
+      </div>
+      <p class="dd-prose st-lede">Settings holds what belongs to you and this computer rather than to the project: where the shared configs live, where each project's folders sit on your drives, and which integrations load into Maya at startup. <b>Mindmeld defines the project. Settings binds it to your machine.</b></p>
+      <div class="st-split">
+        <div class="st-split__card st-split__card--ember">
+          <div class="st-split__top"><span class="st-split__glyph st-split__glyph--ember" aria-hidden="true">&#9671;</span><h3 class="st-split__name">Mindmeld</h3></div>
+          <p class="st-split__body">Defines the project: engine template, asset classes, subpaths. Shared across the whole team.</p>
+        </div>
+        <div class="st-split__arrow" aria-hidden="true">&rarr;</div>
+        <div class="st-split__card st-split__card--plasma">
+          <div class="st-split__top"><span class="st-split__glyph st-split__glyph--plasma" aria-hidden="true">&#9881;</span><h3 class="st-split__name">Settings</h3></div>
+          <p class="st-split__body">Binds it to this computer: drive letters, folder roots, and what loads into Maya. Local to you.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- THREE PARTS -->
+    <section class="dd-panel" aria-labelledby="st-parts">
+      <div class="dd-panel__head">
+        <h2 id="st-parts" class="dd-label dd-label--plasma">THREE PARTS</h2>
+        <p class="dd-lede">Configs root, project bindings, Maya integration</p>
+      </div>
+      <div class="st-parts">
+        {PARTS.map((p) => (
+          <div class="st-part">
+            <span class={`st-part__icon st-part__icon--${p.tone}`} aria-hidden="true">{p.glyph}</span>
+            <h3 class="st-part__name">{p.name}</h3>
+            <p class="st-part__body">{p.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- THE WINDOW -->
+    <section class="dd-panel" aria-labelledby="st-gui">
+      <div class="dd-panel__head">
+        <h2 id="st-gui" class="dd-label dd-label--plasma">THE WINDOW</h2>
+        <p class="dd-lede">Bind and point, top to bottom</p>
+      </div>
+      <div class="st-gui">
+        <div class="st-shot">
+          <span class="st-shot__edge" aria-hidden="true"></span>
+          <Image src={settingsWindow} alt="The FabricatorStudio Settings window: shared configs root, project bindings, and Maya integration" widths={[600, 1200]} sizes="(max-width: 900px) 92vw, 600px" />
+        </div>
+        <ol class="st-rows">
+          {WINDOW_STEPS.map((w) => (
+            <li class={`st-row st-row--${w.tone}`}>
+              <span class={`st-row__num st-row__num--${w.tone}`}>{w.n}</span>
+              <div>
+                <h3 class="st-row__name">{w.name}</h3>
+                <p class="st-row__body" set:html={w.body} />
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section class="dd-section" aria-labelledby="st-start">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="st-start" class="dd-label dd-label--ember">QUICK START</h2>
+        <p class="dd-lede">Point, bind, choose what loads</p>
+      </div>
+      <ol class="dd-steps">
+        {STEPS.map((s, i) => (
+          <li class={`dd-step dd-step--${s.tone}`}>
+            <span class="dd-step__num">{i + 1}</span>
+            <p set:html={s.body} />
+          </li>
+        ))}
+      </ol>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="st-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="st-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="dd-facts">
+        {FACTS.map((f, i) => (
+          <div class={`dd-fact dd-fact--${f.tone}`}>
+            <span class="dd-fact__num">{i + 1}</span>
+            <div>
+              <h3 class="dd-fact__name">{f.name}</h3>
+              <p class="dd-fact__line" set:html={f.body} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div class="st-star">
+        <span class="st-star__badge" aria-hidden="true">&starf;</span>
+        <div>
+          <h3 class="st-star__name">A new teammate's whole setup is this one window</h3>
+          <p class="st-star__line">Point at the studio configs, bind roots per project, done. Every FabricatorStudio tool then resolves paths for that machine automatically.</p>
+        </div>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  /* Page-specific: the toolbar badge, the Mindmeld/Settings split, the three parts, the
+     window walkthrough, and the closing star note. Shared furniture: designed-doc.css. */
+  .st-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  .st-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 7px;
+    background: rgba(124, 255, 178, 0.12);
+    border: 1px solid rgba(124, 255, 178, 0.45);
+    color: var(--plasma);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+  }
+  .st-lede { max-width: 62rem; }
+  .st-lede b { color: var(--bone); }
+
+  .st-split { display: grid; grid-template-columns: minmax(0, 1fr) 3.5rem minmax(0, 1fr); align-items: stretch; }
+  .st-split__card {
+    background: var(--carbon);
+    border-radius: 14px;
+    padding: 1.5rem 1.625rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+  .st-split__card--ember { border: 1px solid rgba(255, 122, 61, 0.25); }
+  .st-split__card--plasma { border: 1px solid rgba(124, 255, 178, 0.25); }
+  .st-split__top { display: flex; align-items: center; gap: 0.7rem; }
+  .st-split__glyph { font-size: 1.25rem; line-height: 1; }
+  .st-split__glyph--ember { color: var(--ember); }
+  .st-split__glyph--plasma { color: var(--plasma); }
+  .st-split__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
+  .st-split__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
+  .st-split__arrow { display: flex; align-items: center; justify-content: center; font-size: 1.375rem; font-weight: 800; color: var(--plasma); }
+
+  .st-parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  .st-part {
+    background: var(--carbon);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .st-part__icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+  .st-part__icon--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.35); color: var(--plasma); }
+  .st-part__icon--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.35); color: var(--ember); }
+  .st-part__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.0625rem; color: var(--bone); }
+  .st-part__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
+
+  .st-gui { display: grid; grid-template-columns: minmax(0, 600px) minmax(0, 1fr); gap: 2.25rem; align-items: center; }
+  .st-shot {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(124, 255, 178, 0.12);
+  }
+  .st-shot :global(img) { display: block; width: 100%; height: auto; }
+  .st-shot__edge {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 0;
+    width: 3px;
+    z-index: 3;
+    background: linear-gradient(180deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.85), rgba(124, 255, 178, 0));
+  }
+  .st-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+  .st-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background: var(--carbon);
+    border-radius: 12px;
+    padding: 1.125rem 1.25rem;
+  }
+  .st-row--plasma { border: 1px solid rgba(124, 255, 178, 0.2); }
+  .st-row--ember { border: 1px solid rgba(255, 122, 61, 0.2); }
+  .st-row--bone { border: 1px solid rgba(255, 255, 255, 0.08); }
+  .st-row__num { flex: none; font-family: var(--font-mono); font-weight: 800; font-size: 0.8125rem; letter-spacing: 0.06em; padding-top: 0.15rem; }
+  .st-row__num--plasma { color: var(--plasma); }
+  .st-row__num--ember { color: var(--ember); }
+  .st-row__num--bone { color: var(--bone-faint); }
+  .st-row__name { margin: 0 0 0.2rem; font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); }
+  .st-row__body { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--bone-dim); }
+  .st-row__body :global(.b-plasma) { color: var(--plasma); }
+  .st-row__body :global(.b-ember) { color: var(--ember); }
+
+  .st-star {
+    display: flex;
+    gap: 1.25rem;
+    align-items: flex-start;
+    background: linear-gradient(90deg, rgba(124, 255, 178, 0.08), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.25);
+    border-radius: 14px;
+    padding: 1.5rem 1.75rem;
+  }
+  .st-star__badge {
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 10px;
+    background: rgba(124, 255, 178, 0.14);
+    color: var(--plasma);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+  .st-star__name { margin: 0 0 0.35rem; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
+  .st-star__line { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
+
+  @media (max-width: 900px) {
+    .st-split { grid-template-columns: 1fr; gap: 0.75rem; }
+    .st-split__arrow { transform: rotate(90deg); }
+    .st-parts { grid-template-columns: 1fr; }
+    .st-gui { grid-template-columns: 1fr; }
+  }
+</style>
