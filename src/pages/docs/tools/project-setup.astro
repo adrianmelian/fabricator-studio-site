@@ -9,8 +9,10 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
 import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import ToolbarLocator from '../../../components/ToolbarLocator.astro';
 import { tutorialByName } from '../../../data/tutorials';
 import mindmeldWindow from '../../../assets/docs/project-setup/mindmeld-window.png';
+import toolbarIcon from '../../../assets/docs/toolbar/icons/project-setup.png';
 
 const SUMMARY =
   "Creates and manages your project configs. Author session and export settings from engine templates with live validation. Your machine's folder locations bind separately, so teams stay in sync across different drives.";
@@ -134,6 +136,8 @@ const FACTS = [
     </header>
 
     <DocsWatchCard video={tutorialByName('Mindmeld')} />
+
+    <ToolbarLocator icon={toolbarIcon} name="MindMeld" sub="Project Setup" button="light bulb" x={238} />
 
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="ps-what">

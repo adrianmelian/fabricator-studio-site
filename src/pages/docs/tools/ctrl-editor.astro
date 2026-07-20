@@ -6,6 +6,8 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import LazyVideos from '../../../components/LazyVideos.astro';
 import '../../../styles/designed-doc.css';
+import ToolbarLocator from '../../../components/ToolbarLocator.astro';
+import toolbarIcon from '../../../assets/docs/toolbar/icons/ctrl-editor.png';
 
 const SUMMARY =
   "Build, swap, recolor, and mirror control-curve shapes from a shared library that also drives every Fabricator component's ctrl-shape options.";
@@ -38,6 +40,8 @@ const ACTIONS = [
       </h1>
       <p class="dd-summary">{SUMMARY}</p>
     </header>
+
+    <ToolbarLocator icon={toolbarIcon} name="Control Editor" button="S curve" x={944} y={28} />
 
     <!-- WHAT IT DOES: action grid | loop -->
     <section class="dd-panel" aria-labelledby="ce-what">

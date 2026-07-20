@@ -1,0 +1,175 @@
+---
+// Toolbar locator: shows a reader exactly which button on the FabricatorStudio toolbar
+// opens this tool (Adrian's idea, Claude Design pass 2026-07-19; source drop:
+// MrMiata inbox/Docs/"Toolbar Locator - Project Setup.html").
+//
+// Reusable across every tool page that has its own toolbar button. Pass the icon and the
+// button's x position IN SOURCE-IMAGE PIXELS (the toolbar shot is 1468 wide); the
+// component converts to percentages so the ring and arrow stay locked to the button at
+// any screen width. Hardcoded pixel offsets would drift off-target as the image scales.
+import { Image } from 'astro:assets';
+import toolbar from '../assets/docs/toolbar/toolbar.png';
+
+const TOOLBAR_W = 1468;
+const TOOLBAR_H = 56;
+
+interface Props {
+  icon: ImageMetadata;
+  /** Tool/window name, e.g. "MindMeld" */
+  name: string;
+  /** Second half of the title, e.g. "Project Setup". Omit for single-name tools. */
+  sub?: string;
+  /** Separator drawn between name and sub. Drops have used both "/" and "&". */
+  sep?: string;
+  /** Plain-language name of the button, e.g. "light bulb" */
+  button: string;
+  /** Button centre in source-image pixels (toolbar shot is 1468 x 56) */
+  x: number;
+  /** Optional vertical centre; the toolbar row centre is the sensible default */
+  y?: number;
+  /** Highlight size in source pixels. Defaults to a 46px circle; wide badges like
+   *  [AI.TA] pass their own box (e.g. 96 x 40) and get a rounded rectangle instead. */
+  w?: number;
+  h?: number;
+}
+const { icon, name, sub, sep = '/', button, x, y = 26, w = 46, h = 46 } = Astro.props;
+
+const leftPct = (x / TOOLBAR_W) * 100;
+const topPct = (y / TOOLBAR_H) * 100;
+// Width against image width, height against image height. The shot keeps its aspect
+// ratio, so a square box stays square at every size and a badge box stays a badge.
+const ringW = (w / TOOLBAR_W) * 100;
+const ringH = (h / TOOLBAR_H) * 100;
+const ringRadius = w === h ? '50%' : '8px';
+// A wordmark-shaped icon (e.g. the AI.TA badge) needs a wider tile than a glyph.
+const wideIcon = icon.width / icon.height > 1.5;
+---
+<section class="tl" aria-labelledby="tl-h">
+  <div class="tl__head">
+    <div class={`tl__icon${wideIcon ? ' tl__icon--wide' : ''}`}>
+      <Image src={icon} alt="" aria-hidden="true" width={wideIcon ? 240 : 96} height={wideIcon ? Math.round((240 * icon.height) / icon.width) : 96} />
+    </div>
+    <div class="tl__titles">
+      <div class="tl__eyebrow" id="tl-h">OPEN IT FROM THE TOOLBAR</div>
+      <div class="tl__name">{name}{sub && <><span class="tl__slash">{sep}</span>{sub}</>}</div>
+    </div>
+    <div class="tl__hint">Click the <b>{button}</b></div>
+  </div>
+
+  <div class="tl__strip">
+    <div class="tl__pointer" style={`left:${leftPct}%`} aria-hidden="true">
+      <span class="tl__pointer-label">CLICK HERE</span>
+      <svg width="34" height="40" viewBox="0 0 34 40" fill="none">
+        <path d="M17 2 V30 M17 38 L6 25 M17 38 L28 25" stroke="#7CFFB2" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </div>
+    <div class="tl__shot">
+      <Image src={toolbar} alt={`The FabricatorStudio toolbar, with the ${button} button that opens ${name}`} widths={[734, 1468]} sizes="(max-width: 900px) 96vw, 1100px" />
+      <span
+        class="tl__ring"
+        style={`left:${leftPct}%; top:${topPct}%; width:${ringW}%; height:${ringH}%; border-radius:${ringRadius}`}
+        aria-hidden="true"
+      ></span>
+    </div>
+  </div>
+</section>
+
+<style>
+  .tl {
+    box-sizing: border-box;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.14);
+    border-radius: 20px;
+    padding: 1.75rem 2rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .tl__head { display: flex; align-items: center; gap: 1.25rem; flex-wrap: wrap; }
+  .tl__icon {
+    flex: none;
+    width: 4.25rem;
+    height: 4.25rem;
+    border-radius: 16px;
+    background: var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 26px -8px rgba(124, 255, 178, 0.4);
+  }
+  .tl__icon :global(img) { width: 2.75rem; height: 2.75rem; object-fit: contain; display: block; }
+  .tl__icon--wide { width: 6.25rem; }
+  .tl__icon--wide :global(img) { width: 4.75rem; height: auto; }
+  .tl__titles { display: flex; flex-direction: column; gap: 0.35rem; min-width: 0; }
+  .tl__eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.25em; color: var(--plasma); }
+  .tl__name { font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.125rem, 2.4vw, 1.5rem); letter-spacing: -0.01em; color: var(--bone); }
+  .tl__slash { color: var(--bone-faint); font-weight: 500; margin: 0 0.5rem; }
+  .tl__hint {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.6rem 1.1rem;
+    border-radius: 11px;
+    background: rgba(124, 255, 178, 0.1);
+    border: 1px solid rgba(124, 255, 178, 0.4);
+    font-size: 0.9375rem;
+    color: var(--bone-dim);
+    white-space: nowrap;
+  }
+  .tl__hint b { color: var(--plasma); }
+
+  /* The strip reserves headroom for the arrow, which sits above the toolbar shot. */
+  .tl__strip { position: relative; padding-top: 4.5rem; }
+  .tl__pointer {
+    position: absolute;
+    top: 0;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15rem;
+    animation: tl-bob 1.8s ease-in-out infinite;
+  }
+  .tl__pointer-label { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.12em; color: var(--plasma); white-space: nowrap; }
+
+  .tl__shot {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.8);
+  }
+  .tl__shot :global(img) { display: block; width: 100%; height: auto; }
+  /* Percentage geometry: the ring tracks the button as the image scales. Width is a % of
+     the image width and height a % of its height, so a square box stays square. */
+  .tl__ring {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    border: 2.5px solid var(--plasma);
+    animation: tl-pulse 1.8s ease-in-out infinite;
+  }
+
+  @keyframes tl-bob {
+    0%, 100% { transform: translate(-50%, 0); }
+    50% { transform: translate(-50%, -9px); }
+  }
+  @keyframes tl-pulse {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(124, 255, 178, 0.55), 0 0 22px 4px rgba(124, 255, 178, 0.35); }
+    50% { box-shadow: 0 0 0 6px rgba(124, 255, 178, 0), 0 0 28px 8px rgba(124, 255, 178, 0.45); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl__pointer, .tl__ring { animation: none; }
+    .tl__ring { box-shadow: 0 0 0 4px rgba(124, 255, 178, 0.25), 0 0 22px 4px rgba(124, 255, 178, 0.35); }
+  }
+
+  @media (max-width: 720px) {
+    .tl { padding: 1.25rem 1.25rem 1.5rem; }
+    .tl__hint { margin-left: 0; }
+    .tl__pointer-label { font-size: 0.6875rem; }
+  }
+</style>

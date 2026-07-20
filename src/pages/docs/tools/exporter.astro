@@ -8,7 +8,9 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
 import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import ToolbarLocator from '../../../components/ToolbarLocator.astro';
 import { tutorialByName } from '../../../data/tutorials';
+import toolbarIcon from '../../../assets/docs/toolbar/icons/exporter.png';
 import modelRigTab from '../../../assets/docs/exporter/model-rig-tab.png';
 import animTab from '../../../assets/docs/exporter/anim-tab.png';
 
@@ -39,6 +41,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       <DocsWatchCard video={tutorialByName('Model & Rig Exporter')} />
       <DocsWatchCard video={tutorialByName('Animation Exporter')} />
     </div>
+
+    <ToolbarLocator icon={toolbarIcon} name="Rig" sep="&" sub="Animation Exporters" button="film reel" x={582} y={28} />
 
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="ex-what">

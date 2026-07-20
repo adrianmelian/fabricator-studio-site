@@ -8,7 +8,9 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
 import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import ToolbarLocator from '../../../components/ToolbarLocator.astro';
 import { tutorialByName } from '../../../data/tutorials';
+import toolbarIcon from '../../../assets/docs/toolbar/icons/skin-io.png';
 import skinIoUi from '../../../assets/docs/skin-io/skin-io-ui.png';
 
 const SUMMARY =
@@ -36,6 +38,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
     <DocsWatchCard video={tutorialByName('Skin IO')} />
 
+
+    <ToolbarLocator icon={toolbarIcon} name="Skin IO" button="waveform" x={874} y={28} />
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="sio-what">
       <div class="dd-panel__head">

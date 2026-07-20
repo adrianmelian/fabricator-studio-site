@@ -9,9 +9,11 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
+import ToolbarLocator from '../../../components/ToolbarLocator.astro';
 import DocsWatchCard from '../../../components/DocsWatchCard.astro';
 import { tutorialByName } from '../../../data/tutorials';
 import reggiePanel from '../../../assets/docs/your-ai-ta/reggie-panel.png';
+import toolbarIcon from '../../../assets/docs/toolbar/icons/your-ai-ta.png';
 
 const SUMMARY =
   'A read-only AI technical artist that lives in Maya, sees your scene and your Fabricator rig, and hands you paste-ready fixes. Use the built-in assistant, or connect your own AI client.';
@@ -41,6 +43,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
     <DocsWatchCard video={tutorialByName('Reggie')} />
 
+
+    <ToolbarLocator icon={toolbarIcon} name="AI Technical Artist" sub="Reggie" button="[AI.TA] badge" x={1383} y={28} w={96} h={40} />
     <!-- WHAT -->
     <section class="dd-panel" aria-labelledby="at-what">
       <div class="dd-panel__head">

@@ -7,10 +7,12 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
+import ToolbarLocator from '../../../components/ToolbarLocator.astro';
 import DocsWatchCard from '../../../components/DocsWatchCard.astro';
 import { tutorialByName } from '../../../data/tutorials';
 import poseStudio from '../../../assets/docs/pose-anim-studio/pose-studio.png';
 import animationStudio from '../../../assets/docs/pose-anim-studio/animation-studio.png';
+import toolbarIcon from '../../../assets/docs/toolbar/icons/pose-anim-studio.png';
 
 const SUMMARY =
   'Save and reuse full-rig poses and animation clips across every rig built with Fabricator; poses and clips travel cross-rig by component identity, not node names.';
@@ -37,6 +39,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
     <DocsWatchCard video={tutorialByName('Pose & Anim Studio')} />
 
+
+    <ToolbarLocator icon={toolbarIcon} name="Pose" sep="&" sub="Anim Studio" button="clapperboard" x={979} y={28} />
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="pa-what">
       <div class="dd-panel__head">

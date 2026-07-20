@@ -9,7 +9,9 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
+import ToolbarLocator from '../../../components/ToolbarLocator.astro';
 import settingsWindow from '../../../assets/docs/settings/settings-window.png';
+import toolbarIcon from '../../../assets/docs/toolbar/icons/settings.png';
 
 const SUMMARY =
   "Your per-machine setup. Bind each project's folders to this computer, point at a shared configs folder, and choose what FabricatorStudio loads into Maya at startup.";
@@ -130,6 +132,8 @@ const FACTS = [
       </h1>
       <p class="dd-summary">{SUMMARY}</p>
     </header>
+
+    <ToolbarLocator icon={toolbarIcon} name="Settings" button="sliders" x={1444} y={28} />
 
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="st-what">
