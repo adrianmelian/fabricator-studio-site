@@ -1,27 +1,39 @@
 ---
 // MailerLite embedded-form subscribe endpoint (public client-side embed id, not a secret).
-// The toolset download is gated until v1: this captures the email and confirms, rather than
-// routing anywhere, because the release repo is private until launch. When v1 ships, restore
-// a download destination here and in the submit handler.
 const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192763576695392191/subscribe';
+
+// DELIBERATELY NO DOWNLOAD URL IN THIS FILE (Adrian, 2026-07-20). The installer URL lives
+// ONLY in the MailerLite delivery email. Putting it in the markup would let anyone read it
+// out of view-source and skip the gate entirely, which makes the email toll theatre.
+// Confirmed opt-in is the verification, so a fake address receives nothing. No codes, no
+// accounts, no backend: see workspace/2026-07-18_licensing-decision/DISTRIBUTION.md.
+// The unlisted R2 path is unguessable, not secret; source stays ungated on GitHub by design.
+//
+// !! COUPLED TO THE REPO PUBLIC FLIP (t16). This dialog renders on EVERY page, so its
+// "the entire source is on GitHub" link is a site-wide dead link while the repo is private.
+// Same rule the Footer documents. Do not deploy this component ahead of the squash-publish;
+// if the site must ship first, delete the .dl-gate__alt line in the form body and restore it
+// at launch. The claim is load-bearing: it is what makes the email gate defensible.
 ---
 <dialog id="download-gate" class="dl-gate" aria-labelledby="dl-gate-title">
   <div class="dl-gate__inner">
     <button type="button" class="dl-gate__close" data-dl-close aria-label="Close">✕</button>
-    <p class="dl-gate__label">COMING SOON</p>
+    <p class="dl-gate__label">FREE DOWNLOAD</p>
     <h2 id="dl-gate-title" class="dl-gate__title">Get FabricatorStudio</h2>
     <div class="dl-gate__body" id="dl-gate-body">
-      <p class="dl-gate__sub">The full toolset ships with v1, landing very soon. Drop your email and we'll send you the download the day it goes live. No spam, unsubscribe anytime.</p>
+      <p class="dl-gate__sub">The one-drag installer: every tool, shelves, menu, and hotkeys wired up for you. It costs an email, and we send the download link straight to your inbox. No spam, unsubscribe anytime.</p>
+      <p class="dl-gate__alt">Allergic to email? The entire source is on <a href="https://github.com/adrianmelian/FabricatorStudio" target="_blank" rel="noopener">GitHub</a>. Nothing held back.</p>
       <form class="dl-gate__form" id="dl-gate-form" novalidate>
         <label class="dl-gate__sronly" for="dl-gate-email">Email address</label>
         <input class="dl-gate__input" id="dl-gate-email" type="email" name="fields[email]" inputmode="email" autocomplete="email" placeholder="you@studio.com" required />
         <input class="dl-gate__hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-        <button class="dl-gate__submit" type="submit">Notify me</button>
+        <button class="dl-gate__submit" type="submit">Send me the installer</button>
         <p class="dl-gate__error" id="dl-gate-error" hidden>Please enter a valid email.</p>
       </form>
     </div>
     <div class="dl-gate__done" id="dl-gate-done" hidden>
-      <p class="dl-gate__sub">You're on the list. We'll email you the moment v1 ships.</p>
+      <p class="dl-gate__sub">Check your inbox. Confirm the subscription and the download link is on its way. If it isn't there in a few minutes, look in spam.</p>
+      <p class="dl-gate__alt">Wrong address, or nothing arrives? Write to <a href="mailto:contact@fabricator.studio">contact@fabricator.studio</a> and we'll send it over.</p>
     </div>
   </div>
 </dialog>
@@ -34,15 +46,14 @@ const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192
     var error = document.getElementById('dl-gate-error');
     var body = document.getElementById('dl-gate-body');
     var done = document.getElementById('dl-gate-done');
-    var STORE = 'fs_dl_subscribed';
 
     function showDone() { if (body) body.hidden = true; if (done) done.hidden = false; }
     function showForm() { if (body) body.hidden = false; if (done) done.hidden = true; if (error) error.hidden = true; }
 
+    // Always open on the form. Delivery is by email now, so a returning visitor whose link
+    // never arrived must be able to ask again; a remembered "done" state would strand them.
     function openGate() {
-      var subscribed = false;
-      try { subscribed = !!localStorage.getItem(STORE); } catch (e) {}
-      if (subscribed) showDone(); else showForm();
+      showForm();
       if (dlg.showModal) dlg.showModal();
     }
 
@@ -63,7 +74,6 @@ const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192
         if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { if (error) error.hidden = false; email.focus(); return; }
         var hp = form.querySelector('.dl-gate__hp');
         var isBot = hp && hp.value;
-        try { localStorage.setItem(STORE, '1'); } catch (e2) {}
         showDone();
         if (action && !isBot) {
           fetch(action, {
@@ -118,7 +128,12 @@ const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192
     color: var(--bone);
   }
   .dl-gate__sub { color: var(--bone-dim); font-size: 0.9rem; line-height: 1.5; margin: 0 0 1.25rem; }
-  .dl-gate__done .dl-gate__sub { margin: 0; }
+  .dl-gate__done .dl-gate__sub { margin: 0 0 1rem; }
+  .dl-gate__alt { color: var(--bone-faint); font-size: 0.8rem; line-height: 1.5; margin: 0 0 1.25rem; }
+  .dl-gate__done .dl-gate__alt { margin: 1rem 0 0; }
+  .dl-gate__alt a { color: var(--bone-dim); text-decoration: underline; }
+  .dl-gate__alt a:hover { color: var(--plasma); }
+  .dl-gate__link { display: block; text-align: center; text-decoration: none; }
   .dl-gate__form { display: flex; flex-direction: column; gap: 0.75rem; }
   .dl-gate__input {
     width: 100%;
