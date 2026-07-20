@@ -203,7 +203,14 @@ const PALETTE_RGB = [
   [255, 59, 59], [181, 42, 42],
   [0, 0, 0], [255, 255, 255],
 ];
-const DIRECTION = /^(to\s+(top|bottom|left|right)(\s+(left|right|top|bottom))?|-?[\d.]+(deg|grad|rad|turn)|circle|ellipse|at\s+.*|([\d.]+(%|px|r?em)\s+){1,2}(circle\s+|ellipse\s+)?at\s+.*|closest-\w+|farthest-\w+)$/i;
+// A gradient's FIRST part may be a direction/shape prelude rather than a color stop, and
+// a prelude must never reach the palette check. Covers: keyword direction, angle, shape
+// (optionally positioned), position-only, and a 1-2 length size prelude with optional
+// shape and optional `at`. The `at` clause is OPTIONAL on the size form because the
+// minifier drops a default `at 50% 50%`, leaving a bare `60% 60%` behind (build-only, so
+// it passes in dev and fails the gate on a lawful gradient). Verified against a table of
+// 17 preludes and 10 color stops before landing.
+const DIRECTION = /^(to\s+(top|bottom|left|right)(\s+(left|right|top|bottom))?|-?[\d.]+(deg|grad|rad|turn)|(circle|ellipse)(\s+at\s+.*)?|at\s+.*|[\d.]+(%|px|r?em)(\s+[\d.]+(%|px|r?em))?(\s+(circle|ellipse))?(\s+at\s+.*)?|(closest|farthest)-(side|corner))$/i;
 
 function extractBalanced(text, openParenIdx) {
   let depth = 0;
