@@ -63,8 +63,9 @@ export interface DocNavGroup { key: string; label: string; ids: string[]; subgro
 
 export const DOCS_NAV: DocNavGroup[] = [
   // Project sits first: Mindmeld is step 1 of the Getting Started path, and every
-  // other tool resolves its paths from the project config it writes.
-  { key: 'project', label: 'Project', ids: ['tools/project-setup'] },
+  // other tool resolves its paths from the project config it writes. Installer leads it,
+  // being the one page a reader needs before any of this exists on their machine.
+  { key: 'project', label: 'Project', ids: ['tools/installer', 'tools/project-setup'] },
   {
     key: 'rigging',
     label: 'Rigging',

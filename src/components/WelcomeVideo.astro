@@ -4,8 +4,10 @@
 // created until the poster is clicked, so the page loads no third-party script and sets
 // no cookie for visitors who never play it (youtube-nocookie on top of that).
 // The video is real: "Welcome | FabricatorStudio", 69s, public on the channel.
+// Poster refreshed 2026-07-20 (Adrian): the .jpg was the old thumbnail. Source drop:
+// MrMiata inbox/Welcome.png, same 1280x720. Astro re-encodes it to webp at build.
 import { Image } from 'astro:assets';
-import poster from '../assets/welcome/welcome-poster.jpg';
+import poster from '../assets/welcome/welcome-poster.png';
 
 const VIDEO_ID = 'e316fbyqX5Q';
 const TITLE = 'Welcome to FabricatorStudio';

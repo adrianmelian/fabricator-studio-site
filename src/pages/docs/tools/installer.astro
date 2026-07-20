@@ -1,0 +1,441 @@
+---
+// Designed docs page for tools/installer (2026-07-20). Grounded entirely in the FS source
+// doc maya_tools/docs/tools/installer.md (committed aaaf281); every claim traces to it.
+//
+// VISUAL PASS: Adrian x Claude Design drop, 2026-07-20 (source: MrMiata inbox/HTML/
+// "Installer.html"). Adopted: the THE WINDOW section and its screenshot (the drop shipped
+// the only image of the installer we have), info callouts, quick-start rows with the accent
+// left rule and oversized numerals, the two-up mode cards with glyph and tag on one row, and
+// the GOOD TO KNOW grid with its full-width final card.
+// NOT adopted: the fixed 1740px canvas (ported responsive), the raw hex palette (site tokens
+// instead, which the G6 gate requires), and TWO em-dashes the drop introduced into body copy
+// ("right for almost everyone - Browse to change it", "where it already lives - on a network
+// drive"). Outbound copy in Adrian's voice carries no em-dashes; both became commas.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import installerWindow from '../../../assets/docs/installer/installer-window.png';
+
+const SUMMARY =
+  'Drag one file into Maya and you are set up. The installer copies the toolset (or points at a shared one), wires it into Maya startup, and builds the toolbar immediately. No admin rights, no account, no network calls.';
+
+const TITLE = 'INSTALLER';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+const WINDOW_ROWS = [
+  {
+    n: '01',
+    name: 'Install Directory',
+    body: 'Prefilled with your own Maya scripts folder, right for almost everyone. Browse to change it.',
+  },
+  {
+    n: '02',
+    name: 'Install mode',
+    body: 'Copy the tools (default, solo) or run from current location (shared or network).',
+  },
+  {
+    n: '03',
+    name: 'Install',
+    body: 'Runs the copy, the startup wiring, and the toolbar build. Nothing is written until you press it.',
+  },
+];
+
+const MODES = [
+  {
+    tone: 'plasma',
+    glyph: '⬓',
+    name: 'Copy the tools',
+    tag: 'DEFAULT · SOLO',
+    body: 'The payload is copied into one folder, <code>&lt;Install Directory&gt;/fabricator_studio/</code>, holding <b>maya_tools</b> and <b>icons</b> side by side. That sibling layout is <b>load bearing</b>: the shelf builder finds its icons by walking up from its own file, so icons anywhere else silently blanks every icon.',
+  },
+  {
+    tone: 'ember',
+    glyph: '⇆',
+    name: 'Run from current location',
+    tag: 'SHARED · NETWORK',
+    body: 'Nothing is copied. Your Maya is pointed at the payload where it already lives, on a network drive or in a Perforce workspace. The TA unzips once into the share, every artist drags the same installer and picks this mode, and <b>updates then happen centrally</b> with no rewiring on anyone\'s machine.',
+  },
+];
+
+const STEPS = [
+  { tone: 'plasma', body: 'Unzip the download and open Maya <b>(2022 or newer)</b>.' },
+  { tone: 'plasma', body: 'Drag <code>Fabricator_Install.py</code> from that folder into the Maya viewport.' },
+  { tone: 'plasma', body: 'Check the <b>Install Directory</b>. It is prefilled with your own Maya scripts folder, the right answer for almost everyone.' },
+  { tone: 'plasma', body: 'Press <b class="b-plasma">Install</b>. A progress card runs the copy, the startup wiring, and the toolbar build.' },
+  { tone: 'ember', body: 'The <b>welcome card</b> appears: take the short tour, or skip it. The toolbar is already on screen.' },
+];
+
+const FACTS = [
+  {
+    name: 'Nothing is written until you press Install',
+    body: 'Dropping the file calls Maya\'s native drop hook, which opens a confirm card and stops there. Cancel or Esc closes it having touched nothing.',
+  },
+  {
+    name: 'Your userSetup.py is preserved byte for byte',
+    body: 'The bootstrap sits between <b class="b-plasma">FABRICATOR_START</b> and <b class="b-plasma">FABRICATOR_END</b> markers. Everything outside is untouched, and re-running replaces only that block.',
+  },
+  {
+    name: 'It asks Maya where Maya lives',
+    body: 'The default Install Directory comes from Maya itself, not Windows environment variables. With Documents redirected to another drive, guessing would wire a path Maya never loads.',
+  },
+  {
+    name: 'Updating is just re-running it',
+    body: 'A newer download detects the previous install and prefills its path, so the update lands on top of itself instead of nesting a second copy.',
+  },
+  {
+    name: 'Your project configs are never in the blast radius',
+    body: 'They live outside the install tree, so neither an update nor an uninstall can destroy them.',
+  },
+  {
+    name: 'The toolbar is the front door',
+    body: 'A fresh install loads the toolbar and hotkeys and deliberately does not add a menu or shelves. Want either? Turn it on in <a href="/docs/tools/settings/">Settings</a> under Maya Integration.',
+  },
+];
+
+const FACT_WIDE = {
+  name: 'No restart, and zero network calls',
+  body: 'After wiring, the installer runs the same calls startup would have, so the toolbar appears immediately. AutoSkin fetches its inference backend later from inside the tool, so nothing large rides along here.',
+};
+
+const UNINSTALL = [
+  {
+    tone: 'plasma',
+    name: 'A copy install',
+    body: 'Its whole <b>fabricator_studio</b> folder is removed, along with the sentinel block, the menu and shelves, and the toolbar prefs.',
+  },
+  {
+    tone: 'ember',
+    name: 'A linked (shared) install',
+    body: 'Nothing is deleted. Only this machine\'s wiring is undone, because a shared payload is never one artist\'s to remove.',
+  },
+];
+---
+<DocsLayout title="Installer | FabricatorStudio Docs" description={SUMMARY}>
+  <article class="dd">
+    <a class="dd-breadcrumb" href="/docs/">Docs</a>
+
+    <header class="dd-header">
+      <div class="in-eyebrow-row">
+        <div class="dd-eyebrow">FABRICATOR &middot; FRAMEWORK</div>
+        <span class="in-badge">DRAG &amp; DROP</span>
+      </div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">{SUMMARY}</p>
+    </header>
+
+    <!-- WHAT IT DOES -->
+    <section class="dd-panel" aria-labelledby="in-what">
+      <div class="dd-panel__head">
+        <h2 id="in-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <p class="dd-lede">One file turns the download into a working setup</p>
+      </div>
+      <p class="dd-prose in-prose"><b>Fabricator_Install.py</b> is the drag and drop entry point that turns the downloaded folder into a working FabricatorStudio setup. It copies the toolset (or points at it where it already sits), appends a sentinel guarded bootstrap block to your <code>userSetup.py</code> so Maya loads the toolbar on every launch, and then builds everything immediately so you never have to restart. <b>Fabricator_Uninstall.py</b>, alongside it, is the exact inverse.</p>
+      <p class="dd-prose in-prose">The installer is deliberately <b>self contained</b>. It runs before the toolset exists on Maya's path, so it carries its own copy of the Mindmeld look rather than importing from a payload that is not there yet.</p>
+    </section>
+
+    <!-- THE WINDOW -->
+    <section class="dd-panel" aria-labelledby="in-window">
+      <div class="dd-panel__head">
+        <h2 id="in-window" class="dd-label dd-label--plasma">THE WINDOW</h2>
+        <p class="dd-lede">One card: directory, mode, install</p>
+      </div>
+      <div class="in-gui">
+        <div class="in-shot">
+          <span class="in-shot__edge" aria-hidden="true"></span>
+          <Image src={installerWindow} alt="The FabricatorStudio installer window: install directory, the two install modes, and the Install button" widths={[420, 840]} sizes="(max-width: 900px) 92vw, 420px" />
+        </div>
+        <ol class="in-rows">
+          {WINDOW_ROWS.map((w) => (
+            <li class="in-row">
+              <span class="in-row__num">{w.n}</span>
+              <div>
+                <h3 class="in-row__name">{w.name}</h3>
+                <p class="in-row__body">{w.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+
+    <!-- TWO INSTALL MODES -->
+    <section class="dd-section" aria-labelledby="in-modes">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="in-modes" class="dd-label dd-label--ember">TWO INSTALL MODES</h2>
+        <p class="dd-lede">Decide this before you press Install</p>
+      </div>
+      <div class="in-modes">
+        {MODES.map((m) => (
+          <div class={`in-mode in-mode--${m.tone}`}>
+            <div class="in-mode__top">
+              <span class={`in-mode__glyph in-mode__glyph--${m.tone}`} aria-hidden="true">{m.glyph}</span>
+              <span class={`in-mode__tag in-mode__tag--${m.tone}`}>{m.tag}</span>
+            </div>
+            <h3 class="in-mode__name">{m.name}</h3>
+            <p class="in-mode__body" set:html={m.body} />
+          </div>
+        ))}
+      </div>
+      <div class="in-callout in-callout--plasma">
+        <span class="in-callout__mark" aria-hidden="true">&#9432;</span>
+        <p>In both modes the bootstrap block is written to your own Maya scripts folder. <b>Where the payload lives is a separate question from how this machine finds it.</b></p>
+      </div>
+    </section>
+
+    <!-- QUICK START -->
+    <section class="dd-section" aria-labelledby="in-start">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="in-start" class="dd-label dd-label--ember">QUICK START</h2>
+        <p class="dd-lede">Unzip, drag, install</p>
+      </div>
+      <ol class="in-steps">
+        {STEPS.map((s, i) => (
+          <li class={`in-step in-step--${s.tone}`}>
+            <span class={`in-step__num in-step__num--${s.tone}`}>{i + 1}</span>
+            <p set:html={s.body} />
+          </li>
+        ))}
+      </ol>
+      <div class="in-callout in-callout--ember">
+        <span class="in-callout__mark" aria-hidden="true">&#9432;</span>
+        <p>Keep the unzipped folder somewhere findable. <code>Fabricator_Uninstall.py</code> lives in it, and re-dragging the installer later is how you update.</p>
+      </div>
+    </section>
+
+    <!-- GOOD TO KNOW -->
+    <section class="dd-section" aria-labelledby="in-gtk">
+      <div class="dd-panel__head dd-panel__head--bare">
+        <h2 id="in-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+      </div>
+      <div class="in-facts">
+        {FACTS.map((f, i) => (
+          <div class="in-fact">
+            <span class="in-fact__num">{i + 1}</span>
+            <div>
+              <h3 class="in-fact__name">{f.name}</h3>
+              <p class="in-fact__line" set:html={f.body} />
+            </div>
+          </div>
+        ))}
+        <div class="in-fact in-fact--wide">
+          <span class="in-fact__num">{FACTS.length + 1}</span>
+          <div>
+            <h3 class="in-fact__name">{FACT_WIDE.name}</h3>
+            <p class="in-fact__line">{FACT_WIDE.body}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- UNINSTALLING -->
+    <section class="dd-panel dd-panel--ember" aria-labelledby="in-uninstall">
+      <div class="dd-panel__head">
+        <h2 id="in-uninstall" class="dd-label dd-label--ember">UNINSTALLING</h2>
+        <p class="dd-lede">Drag the uninstaller in the same way</p>
+      </div>
+      <p class="dd-prose in-prose">It strips exactly the sentinel block from userSetup.py and removes the menu and shelves from the running session. What happens to the files depends on the mode the install recorded.</p>
+      <div class="in-modes in-modes--tight">
+        {UNINSTALL.map((u) => (
+          <div class={`in-unin in-unin--${u.tone}`}>
+            <h3 class={`in-unin__name in-unin__name--${u.tone}`}>{u.name}</h3>
+            <p class="in-mode__body" set:html={u.body} />
+          </div>
+        ))}
+      </div>
+      <div class="in-callout in-callout--quiet">
+        <span class="in-callout__mark in-callout__mark--ember" aria-hidden="true">&#9432;</span>
+        <p>Uninstalling also clears the "you have seen the welcome tour" flag, so a reinstall replays the tour. Useful if you want to see it again, surprising if you did not expect it.</p>
+      </div>
+    </section>
+  </article>
+</DocsLayout>
+
+<style>
+  .in-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; flex-wrap: wrap; }
+  .in-badge {
+    padding: 0.3rem 0.8rem;
+    border-radius: 7px;
+    background: rgba(124, 255, 178, 0.12);
+    border: 1px solid rgba(124, 255, 178, 0.45);
+    color: var(--plasma);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+  }
+  .in-prose { max-width: 62rem; }
+  .in-prose b { color: var(--bone); }
+  .in-prose code, .in-mode__body :global(code), .in-callout code, .in-steps :global(code) {
+    font-family: var(--font-mono);
+    color: var(--plasma);
+    font-size: 0.95em;
+  }
+
+  /* THE WINDOW: screenshot beside numbered rows */
+  .in-gui { display: grid; grid-template-columns: minmax(0, 420px) minmax(0, 1fr); gap: 2.25rem; align-items: center; }
+  .in-shot {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(124, 255, 178, 0.12);
+  }
+  .in-shot :global(img) { display: block; width: 100%; height: auto; }
+  .in-shot__edge {
+    position: absolute;
+    top: 0.5rem;
+    bottom: 0.5rem;
+    left: 0;
+    width: 3px;
+    z-index: 3;
+    background: linear-gradient(180deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.85), rgba(124, 255, 178, 0));
+  }
+  .in-rows { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.7rem; }
+  .in-row {
+    display: flex;
+    gap: 1rem;
+    align-items: flex-start;
+    background: var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.2);
+    border-radius: 12px;
+    padding: 1.125rem 1.35rem;
+  }
+  .in-row__num { flex: none; font-family: var(--font-mono); font-weight: 800; font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--plasma); padding-top: 0.15rem; }
+  .in-row__name { margin: 0 0 0.2rem; font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); }
+  .in-row__body { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--bone-dim); }
+
+  /* Mode cards */
+  .in-modes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
+  .in-modes--tight { gap: 1.25rem; }
+  .in-mode {
+    background: var(--iron);
+    border-radius: 18px;
+    padding: 1.85rem 2rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+  }
+  .in-mode--plasma { border: 1px solid rgba(124, 255, 178, 0.3); }
+  .in-mode--ember { border: 1px solid rgba(255, 122, 61, 0.3); }
+  .in-mode__top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; }
+  .in-mode__glyph {
+    flex: none;
+    width: 2.9rem;
+    height: 2.9rem;
+    border-radius: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.35rem;
+  }
+  .in-mode__glyph--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .in-mode__glyph--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+  .in-mode__tag {
+    padding: 0.3rem 0.75rem;
+    border-radius: 7px;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+  }
+  .in-mode__tag--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .in-mode__tag--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+  .in-mode__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.25rem; color: var(--bone); }
+  .in-mode__body { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .in-mode__body :global(b) { color: var(--bone); }
+
+  .in-unin {
+    background: var(--carbon);
+    border-radius: 14px;
+    padding: 1.5rem 1.7rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.6rem;
+  }
+  .in-unin--plasma { border: 1px solid rgba(124, 255, 178, 0.22); }
+  .in-unin--ember { border: 1px solid rgba(255, 122, 61, 0.22); }
+  .in-unin__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.05rem; }
+  .in-unin__name--plasma { color: var(--plasma); }
+  .in-unin__name--ember { color: var(--ember); }
+
+  /* Quick-start rows: accent left rule, oversized numeral */
+  .in-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.15rem; }
+  .in-step {
+    display: flex;
+    gap: 1.35rem;
+    align-items: center;
+    background: var(--iron);
+    border-radius: 0 12px 12px 0;
+    padding: 1.15rem 1.5rem;
+  }
+  .in-step--plasma { border-left: 3px solid var(--plasma); }
+  .in-step--ember { border-left: 3px solid var(--ember); background: var(--carbon); }
+  .in-step__num { flex: none; font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem; width: 2rem; }
+  .in-step__num--plasma { color: var(--plasma); }
+  .in-step__num--ember { color: var(--ember); }
+  .in-step p { margin: 0; font-size: 1rem; line-height: 1.5; color: var(--bone); }
+  .in-step :global(b) { color: var(--bone); }
+  .in-step :global(.b-plasma) { color: var(--plasma); }
+
+  /* Info callouts */
+  .in-callout {
+    display: flex;
+    gap: 0.9rem;
+    align-items: center;
+    background: var(--carbon);
+    border-radius: 12px;
+    padding: 1.15rem 1.5rem;
+    margin-top: 1.25rem;
+  }
+  .in-callout--plasma { border: 1px solid rgba(124, 255, 178, 0.18); }
+  .in-callout--ember { border: 1px solid rgba(255, 122, 61, 0.18); }
+  .in-callout--quiet { border: 1px solid rgba(255, 255, 255, 0.08); }
+  .in-callout__mark { flex: none; font-size: 1.15rem; color: var(--plasma); }
+  .in-callout__mark--ember { color: var(--ember); }
+  .in-callout p { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); text-wrap: pretty; }
+  .in-callout b { color: var(--bone); }
+
+  /* GOOD TO KNOW grid */
+  .in-facts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
+  .in-fact {
+    display: flex;
+    gap: 1.15rem;
+    align-items: flex-start;
+    background: var(--iron);
+    border: 1px solid rgba(124, 255, 178, 0.18);
+    border-radius: 14px;
+    padding: 1.4rem 1.6rem;
+  }
+  .in-fact--wide { grid-column: 1 / -1; background: var(--carbon); border-color: rgba(124, 255, 178, 0.25); }
+  .in-fact__num {
+    flex: none;
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 10px;
+    background: rgba(124, 255, 178, 0.12);
+    color: var(--plasma);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.05rem;
+  }
+  .in-fact__name { margin: 0 0 0.35rem; font-family: var(--font-mono); font-weight: 700; font-size: 1.05rem; color: var(--bone); }
+  .in-fact__line { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); text-wrap: pretty; }
+  .in-fact__line :global(a) { color: var(--plasma); text-decoration: underline; }
+  .in-fact__line :global(.b-plasma) { color: var(--plasma); }
+
+  @media (max-width: 900px) {
+    .in-gui { grid-template-columns: 1fr; }
+    .in-modes { grid-template-columns: 1fr; }
+    .in-facts { grid-template-columns: 1fr; }
+    .in-step { align-items: flex-start; }
+  }
+</style>
