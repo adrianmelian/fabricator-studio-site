@@ -23,6 +23,14 @@ export const flagshipTools: FlagshipTool[] = [
     dialogId: 'pop-fabricator',
   },
   {
+    name: 'AutoSkin',
+    paras: [
+      'One button ML skinning that runs on your own GPU. Select your bind joints and your mesh, press Bind Skin, and a local engine predicts the weights and writes them onto a fresh skinCluster. Tick Generate Joints and it builds the skeleton from the mesh as well. Nothing leaves your machine, influences you locked keep the weights you painted by hand, and one Ctrl+Z puts the scene back exactly as it was.',
+      'Skinning has always been the slow part. This takes about two minutes.',
+    ],
+    href: '/docs/tools/autoskin/',
+  },
+  {
     name: 'Animation Studio',
     paras: [
       'Animations & Poses saved to the library for easy access in other animation scenes. Save once, reuse on the next character. Selection sets filter your controls and mask an imported pose or animation down to just the parts you choose.',
