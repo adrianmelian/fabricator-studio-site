@@ -12,7 +12,10 @@
 // Image service then emits only optimized variants - the raw original never lands in
 // dist, so a plain src pointed at a 404 (the 2026-07-17 broken-homepage bug).
 import { Image } from 'astro:assets';
-import heroShot from '../assets/docs/fabricator-hero.png';
+// One canonical copy: this window shot is shared by the Fabricator, Armature and
+// Aimers docs pages too. Three byte-identical copies used to exist, which is the exact
+// setup that produced the 2026-07-17 asset-dedup 404.
+import heroShot from '../assets/docs/fabricator-gui.png';
 
 // `bare` strips the marketing overlay so only the window and its motion remain. The tool
 // cards on the homepage use it (the card's own copy already says all this, right next to
