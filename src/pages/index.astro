@@ -226,10 +226,14 @@ const TOOL_UI: Record<string, any> = {
        then why they exist, then what makes them good. Copy is shared verbatim with /licensing (src/data/licensing.ts). -->
   <section id="why">
     <h2 class="lcb-title">Free for solo developers, indies, and small teams.</h2>
-    <div class="lcb-why">
-      <div class="lcb-why__label">WHY THIS EXISTS</div>
-      {WHY_PARAS.map((p) => <p class="lcb-why__para" set:html={p} />)}
-    </div>
+    <figure class="lcb-why">
+      <span class="lcb-why__mark lcb-why__mark--open" aria-hidden="true">“</span>
+      <span class="lcb-why__mark lcb-why__mark--close" aria-hidden="true">”</span>
+      <blockquote class="lcb-why__quote">
+        {WHY_PARAS.map((p) => <p class="lcb-why__para" set:html={p} />)}
+      </blockquote>
+      <figcaption class="lcb-why__cite"><span class="lcb-why__rule" aria-hidden="true"></span>Adrian</figcaption>
+    </figure>
   </section>
 
   <section id="features">
@@ -761,10 +765,49 @@ const TOOL_UI: Record<string, any> = {
     padding: 2.25rem 2.75rem;
     box-shadow: var(--shadow-lg);
   }
-  .lcb-why__label { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.25em; color: var(--plasma); }
-  .lcb-why__para { margin: 0; max-width: 62rem; font-size: 1.0625rem; line-height: 1.7; color: var(--bone-dim); text-wrap: pretty; }
+  /* The quote box (Claude Design, 2026-07-19): plasma spine, oversized decorative marks,
+     brighter quoted body, ember-ruled attribution. The marks are aria-hidden and the copy
+     stays a real blockquote inside a figure, so it reads as an attributed quotation.
+     Presentation lives here, NOT in src/data/licensing.ts, which /licensing also renders. */
+  /* position: relative anchors the absolute marks to this box; without it they escape to
+     the nearest positioned ancestor and land off the card entirely. */
+  .lcb-why { position: relative; margin: 0; overflow: hidden; padding: 2.5rem 3rem 2.25rem; }
+  .lcb-why__mark {
+    position: absolute;
+    font-size: 11rem;
+    line-height: 1;
+    font-weight: 800;
+    color: rgba(124, 255, 178, 0.14);
+    pointer-events: none;
+    user-select: none;
+  }
+  .lcb-why__mark--open { top: 0.25rem; left: 1.75rem; }
+  .lcb-why__mark--close { bottom: -4rem; right: 2.5rem; }
+  .lcb-why__quote { position: relative; margin: 0; display: flex; flex-direction: column; gap: 1.25rem; }
+  .lcb-why__para { position: relative; margin: 0; max-width: 62rem; font-size: 1.1875rem; line-height: 1.65; color: var(--bone); text-wrap: pretty; }
   .lcb-why__para :global(b) { color: var(--bone); }
   .lcb-why__para :global(.b-plasma) { color: var(--plasma); }
+  .lcb-why__para :global(.b-cobalt) { color: var(--cobalt); }
+  .lcb-why__cite {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1.0625rem;
+    letter-spacing: 0.04em;
+    color: var(--ember);
+  }
+  .lcb-why__rule { width: 2.5rem; height: 2px; background: var(--ember); }
+
+  @media (max-width: 640px) {
+    .lcb-why { padding: 1.75rem 1.5rem 1.5rem; }
+    .lcb-why__mark { font-size: 7rem; }
+    .lcb-why__mark--open { left: 0.75rem; }
+    .lcb-why__mark--close { right: 1rem; bottom: -2.5rem; }
+  }
 
   .lcb-tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
   .lcb-tier {
