@@ -13,6 +13,7 @@ import NavBar from '../components/NavBar.astro';
 import { flagshipTools } from '../data/tools';
 import { TUTORIALS } from '../data/tutorials';
 import { WHY_PARAS } from '../data/licensing';
+import WelcomeVideo from '../components/WelcomeVideo.astro';
 
 // Key Features section heading in the outlined tri-color treatment (Adrian x Claude
 // Design, 2026-07-17). Same glyph cycle as the designed docs pages: letters only,
@@ -89,14 +90,10 @@ const TOOL_UI: Record<string, any> = {
     </div>
   </section>
 
-  <!-- WHY (Adrian x Claude Design, 2026-07-18): his own story, its own section right
-       under the hero. Copy is shared verbatim with /licensing (src/data/licensing.ts). -->
-  <section id="why">
-    <h2 class="lcb-title">Free for solo developers, indies, and small teams.</h2>
-    <div class="lcb-why">
-      <div class="lcb-why__label">WHY THIS EXISTS</div>
-      {WHY_PARAS.map((p) => <p class="lcb-why__para" set:html={p} />)}
-    </div>
+  <!-- WELCOME VIDEO (Adrian x Claude Design, 2026-07-19). Sits between the hero and the
+       WHY story: the spoken introduction, then the written one. -->
+  <section id="welcome">
+    <WelcomeVideo />
   </section>
 
   <section id="tools">
@@ -209,6 +206,17 @@ const TOOL_UI: Record<string, any> = {
       });
     })();
   </script>
+
+  <!-- WHY (Adrian x Claude Design, 2026-07-18): his own story, its own section. Adrian moved it
+       2026-07-19 to sit between the tool cards and Key Features: see the tools first,
+       then why they exist, then what makes them good. Copy is shared verbatim with /licensing (src/data/licensing.ts). -->
+  <section id="why">
+    <h2 class="lcb-title">Free for solo developers, indies, and small teams.</h2>
+    <div class="lcb-why">
+      <div class="lcb-why__label">WHY THIS EXISTS</div>
+      {WHY_PARAS.map((p) => <p class="lcb-why__para" set:html={p} />)}
+    </div>
+  </section>
 
   <section id="features">
     <div class="kf-head">

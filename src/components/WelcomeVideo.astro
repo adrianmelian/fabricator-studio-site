@@ -1,0 +1,149 @@
+---
+// Welcome video (Adrian x Claude Design, 2026-07-19; source drop:
+// MrMiata inbox/Docs/"Welcome Video.html"). Click-to-play: the YouTube iframe is NOT
+// created until the poster is clicked, so the page loads no third-party script and sets
+// no cookie for visitors who never play it (youtube-nocookie on top of that).
+// The video is real: "Welcome | FabricatorStudio", 69s, public on the channel.
+import { Image } from 'astro:assets';
+import poster from '../assets/welcome/welcome-poster.jpg';
+
+const VIDEO_ID = 'e316fbyqX5Q';
+const TITLE = 'Welcome to FabricatorStudio';
+---
+<div class="wv">
+  <div class="wv-rule" aria-hidden="true">
+    <span class="wv-rule__bar"></span><span class="wv-rule__gem"></span><span class="wv-rule__bar"></span>
+  </div>
+
+  <div class="wv-frame">
+    <span class="wv-frame__rim" aria-hidden="true"></span>
+    <div class="wv-frame__inner">
+      <div class="wv-stage" data-video-id={VIDEO_ID} data-title={TITLE}>
+        <button class="wv-poster" type="button" aria-label={`Play: ${TITLE}`}>
+          <Image class="wv-poster__img" src={poster} alt="" aria-hidden="true" widths={[720, 1280]} sizes="(max-width: 900px) 96vw, 1100px" loading="lazy" />
+          <span class="wv-poster__scrim" aria-hidden="true"></span>
+          <span class="wv-play" aria-hidden="true">
+            <span class="wv-play__halo"></span>
+            <span class="wv-play__disc"><span class="wv-play__tri"></span></span>
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wv-rule" aria-hidden="true">
+    <span class="wv-rule__bar"></span><span class="wv-rule__gem"></span><span class="wv-rule__bar"></span>
+  </div>
+</div>
+
+<script is:inline>
+  (function () {
+    document.querySelectorAll('.wv-stage').forEach(function (stage) {
+      var btn = stage.querySelector('.wv-poster');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var id = stage.getAttribute('data-video-id');
+        var frame = document.createElement('iframe');
+        frame.className = 'wv-embed';
+        frame.src =
+          'https://www.youtube-nocookie.com/embed/' + id + '?rel=0&modestbranding=1&autoplay=1';
+        frame.title = stage.getAttribute('data-title') || 'Video';
+        frame.allow =
+          'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        frame.setAttribute('allowfullscreen', '');
+        frame.setAttribute('loading', 'lazy');
+        stage.replaceChildren(frame);
+      });
+    });
+  })();
+</script>
+
+<style>
+  .wv { display: flex; flex-direction: column; align-items: center; gap: 2rem; }
+
+  .wv-rule { display: flex; align-items: center; gap: 0.9rem; }
+  .wv-rule__bar { width: 3.5rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
+  .wv-rule__gem { width: 0.625rem; height: 0.625rem; background: var(--plasma); transform: rotate(45deg); }
+
+  .wv-frame { position: relative; width: 100%; max-width: 68rem; }
+  /* The rim: plasma into ember across the corner, over the frame's own border. */
+  .wv-frame__rim {
+    position: absolute;
+    inset: -2px;
+    border-radius: 18px;
+    pointer-events: none;
+    background: linear-gradient(135deg, rgba(124, 255, 178, 0.55), rgba(124, 255, 178, 0.05) 40%, rgba(255, 122, 61, 0) 65%, rgba(255, 122, 61, 0.35));
+  }
+  .wv-frame__inner {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: var(--carbon);
+    box-shadow: 0 50px 110px -40px rgba(0, 0, 0, 0.9);
+  }
+  .wv-stage { position: relative; width: 100%; aspect-ratio: 16 / 9; background: var(--carbon); }
+
+  .wv-poster {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: var(--carbon);
+    cursor: pointer;
+    display: block;
+  }
+  .wv-poster__img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  .wv-poster__scrim {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(60% 60% at 50% 50%, rgba(11, 14, 16, 0), rgba(11, 14, 16, 0.35));
+  }
+
+  .wv-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; }
+  .wv-play__halo {
+    position: absolute;
+    width: 9.375rem;
+    height: 9.375rem;
+    border-radius: 50%;
+    background: rgba(124, 255, 178, 0.18);
+    filter: blur(6px);
+  }
+  .wv-play__disc {
+    position: relative;
+    width: 7.375rem;
+    height: 7.375rem;
+    border-radius: 50%;
+    background: var(--plasma);
+    border: 4px solid #06090C;
+    box-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.7), 0 0 0 8px rgba(124, 255, 178, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out);
+  }
+  .wv-play__tri {
+    width: 0;
+    height: 0;
+    border-style: solid;
+    border-width: 1.625rem 0 1.625rem 2.625rem;
+    border-color: rgba(6, 9, 12, 0) rgba(6, 9, 12, 0) rgba(6, 9, 12, 0) #06090C;
+    margin-left: 0.625rem;
+  }
+  .wv-poster:hover .wv-play__disc { transform: scale(1.06); }
+  .wv-poster:focus-visible { outline: 2px solid var(--plasma); outline-offset: 4px; }
+
+  .wv-stage :global(.wv-embed) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  @media (max-width: 640px) {
+    .wv-play__halo { width: 6rem; height: 6rem; }
+    .wv-play__disc { width: 4.75rem; height: 4.75rem; border-width: 3px; }
+    .wv-play__tri { border-width: 1rem 0 1rem 1.625rem; margin-left: 0.4rem; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .wv-poster:hover .wv-play__disc { transform: none; }
+  }
+</style>
