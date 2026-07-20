@@ -33,6 +33,19 @@ const AM_TRI = ['am-bone', 'am-plasma', 'am-ember'];
 let ami = 0;
 const amGlyphs = AM_TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'am-gap' : AM_TRI[ami++ % 3] }));
 
+// The hero pipeline strip carries a colour per word (Adrian 2026-07-19), tuned by hand
+// rather than cycled: accents alternate against beige so the strip reads in beats.
+// "Engine" rather than "Unreal": Unity and Godot ship too (untested) and the export path
+// is engine-agnostic, so naming one engine misleads.
+const PIPELINE: Array<[string, string]> = [
+  ['Concept', 'bone'],
+  ['Modeling', 'ember'],
+  ['Texturing', 'bone'],
+  ['Rigging', 'plasma'],
+  ['Animation', 'bone'],
+  ['Engine', 'cobalt'],
+];
+
 // Tutorials block heading, same treatment (Adrian x Claude Design, 2026-07-17; source
 // drop: MrMiata inbox/Docs/"Tutorials Block Docs.html"). The drop predates the uploads;
 // the cards carry the REAL thumbnails and links from the tutorials data.
@@ -75,14 +88,15 @@ const TOOL_UI: Record<string, any> = {
         <span class="hero-divider__gem"></span>
         <span class="hero-divider__bar"></span>
       </div>
-      <p class="hero-sub">Built for solo developers and small teams. <b>Free Maya-to-Unreal pipeline tools</b>: rigging, skinning, animation, and export, with an <b class="hero-sub__hl">AI Technical Artist</b> built in. The kit is made for the <b class="hero-sub__hl">generative AI</b> era: these tools help you put the final touch on your art and get in engine fast. Ready for all the next-gen features, like <b>Control Rig</b> and <b>MetaHuman</b>.</p>
+      <p class="hero-sub"><b>Fully Python driven, modular 3D pipeline.</b> Meant to be <b class="hero-sub__ember">customized</b> and <b class="hero-sub__ember">extended</b> for your project's needs. Built for <b class="hero-sub__cobalt">solo developers</b> and <b class="hero-sub__cobalt">small teams</b>. With an <b class="hero-sub__hl">AI Technical Artist</b> built in. The tools are made for the <b class="hero-sub__hl">generative AI</b> era. Keep your project standardized and organized and ready to deal with large asset libraries, just like a <b class="hero-sub__hl">professional</b> team.</p>
+      <p class="hero-sub hero-sub--free">Free for solo developers, indies, and small teams.</p>
       <p class="hero-strip">
-        <span>Concept</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
-        <span>Modeling</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
-        <span>Texturing</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
-        <span class="hero-strip__plasma">Rigging</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
-        <span class="hero-strip__plasma">Animation</span><span class="hero-strip__sep" aria-hidden="true">&bull;</span>
-        <span class="hero-strip__ember">Unreal</span>
+        {PIPELINE.map(([step, tone], i) => (
+          <>
+            {i > 0 && <span class="hero-strip__sep" aria-hidden="true">&bull;</span>}
+            <span class={`hero-strip__${tone}`}>{step}</span>
+          </>
+        ))}
       </p>
       <div class="hero-ctas">
         <BracketButton kind="plasma-outline" downloadGate label="Download" />
@@ -543,8 +557,13 @@ const TOOL_UI: Record<string, any> = {
   .hero-divider__bar { width: 3rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
   .hero-divider__gem { width: 0.55rem; height: 0.55rem; background: var(--plasma); transform: rotate(45deg); }
   .hero-sub { font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.7; color: var(--bone-dim); max-width: 52rem; }
+  /* The closing promise line, COBALT (Adrian's ruling 2026-07-19): the free-tier promise
+     gets its own colour so it reads as a distinct claim, not more description. */
+  .hero-sub--free { font-family: var(--font-mono); font-weight: 700; color: var(--cobalt); }
   .hero-sub b { color: var(--bone); }
   .hero-sub .hero-sub__hl { color: var(--plasma); }
+  .hero-sub .hero-sub__ember { color: var(--ember); }
+  .hero-sub .hero-sub__cobalt { color: var(--cobalt); }
   .hero-strip {
     display: flex;
     align-items: center;
@@ -558,6 +577,8 @@ const TOOL_UI: Record<string, any> = {
     letter-spacing: 0.1em;
   }
   .hero-strip__sep { color: var(--iron-3); letter-spacing: 0; }
+  .hero-strip__bone { color: var(--bone); }
+  .hero-strip__cobalt { color: var(--cobalt); }
   .hero-strip__plasma { color: var(--plasma); }
   .hero-strip__ember { color: var(--ember); }
   .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; }
