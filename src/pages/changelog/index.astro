@@ -1,0 +1,216 @@
+---
+// Public changelog (2026-07-20). Required by knowledge/launch-posture.md, which calls it the
+// highest-leverage item on the launch list: "Fast public fixes are what convert a first bug
+// into loyalty."
+//
+// This is the PUBLIC layer, deliberately not a mirror of the toolset repo's CHANGELOG.md.
+// That file is an internal engineering log (module names, spec numbers, retired code paths)
+// and its pre-v1 entries describe work nobody outside the studio ever saw. The public log
+// starts at v1.0.0, the first release anyone could install.
+//
+// VISUAL PASS: Adrian x Claude Design drop, 2026-07-20 (source: MrMiata inbox/HTML/
+// "Changelog.html"). Adopted: the two-column release layout with a sticky version rail
+// (version pill, release name, spaced date), group cards with an accent bar and alternating
+// plasma/ember tint, and the accent chevron item marker. NOT adopted: the drop's fixed
+// 1740px canvas (ported responsive, rail collapses above the content under 60rem) and its
+// raw hex palette (uses site tokens). The drop held the copy verbatim; its only additions
+// were inline bold on product names, which is emphasis, not rewording, so those were kept.
+//
+// HOW TO ADD A RELEASE: prepend an entry to RELEASES. Keep each line about what changed for
+// the person using it, not the code that moved. Fixed bugs should also come off the
+// known-issues page in the same pass.
+//
+// DATE: v1.0.0's date is the day it actually ships. Confirm before deploying.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import '../../styles/designed-doc.css';
+
+const TITLE = 'CHANGELOG';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+const RELEASES = [
+  {
+    version: '1.0.0',
+    date: '2026-07-20',
+    dateLabel: '2026 · 07 · 20',
+    tag: 'First release',
+    lede: 'The first public release of FabricatorStudio: a Maya rigging, skinning, animation, and export pipeline, <b>free for solo developers, indies, and small teams</b>.',
+    groups: [
+      {
+        label: 'RIGGING',
+        tone: 'plasma',
+        items: [
+          '<b>Rig Fabricator</b>, a network driven modular rigging system. Drag components onto your skeleton, build the whole rig in one pass, and rebuild it as often as you like without losing work.',
+          'The <b>Armature</b> skeleton builder, with live aimers you can see and adjust while you work.',
+          'Save a finished rig as a <b>blueprint</b> and rebuild it on a differently proportioned character.',
+          '<b>Limb units</b> group a chain and its twists and fingers together, and derive themselves from the scene rather than being hand maintained.',
+          'Selectable mirror conventions: <b>Mirrored Behavior</b> for Unreal, or <b>Mirrored Orientation</b> for studios that keep the same axis down the bone on both sides.',
+          'Rename anything. Rig state lives in the scene as connections, not name strings.',
+        ],
+      },
+      {
+        label: 'SKINNING',
+        tone: 'ember',
+        items: [
+          '<b>AutoSkin</b>, one button machine learning skinning that runs on your own GPU. It predicts the weights and writes them onto a fresh skinCluster in about two minutes, and it can generate the skeleton from the mesh as well.',
+          'Influences you locked keep the weights you painted by hand.',
+          '<b>Skin IO</b> and <b>Skeleton IO</b> for moving weights and skeletons between scenes and characters.',
+        ],
+      },
+      {
+        label: 'ANIMATION',
+        tone: 'plasma',
+        items: [
+          '<b>Animation Studio</b>, a pose and clip library that carries across characters, with selection sets to mask what an imported pose touches.',
+          'Animator friendly controls out of the box: IK and FK matching, space switching, smart pole vectors, and a marking menu on every control.',
+        ],
+      },
+      {
+        label: 'EXPORT',
+        tone: 'ember',
+        items: [
+          'Static, skeletal, and animation <b>FBX exporters</b>, with the rig layer understood so you can export an armature, built modules, or bare joints.',
+          'Structural checks run before a build and surface problems in <b>Build Issues</b>.',
+          '<b>Project Setup</b> holds per project paths, FBX presets, and session settings, from engine templates.',
+        ],
+      },
+      {
+        label: 'IN MAYA',
+        tone: 'plasma',
+        items: [
+          '<b>Bridge</b>, a compact toolbar that puts the whole toolset one click away.',
+          '<b>Reggie</b>, an AI Technical Artist you connect to your own AI key. Read only, enforced in code, and able to file a bug report for you with the details filled in.',
+          'Hover cards on the toolbar and palette, pulled from the same docs published on this site.',
+          'A one drag installer that wires the shelves, menu, and hotkeys, and a four step welcome tour on first launch.',
+        ],
+      },
+    ],
+  },
+];
+---
+<BaseLayout
+  title="Changelog | FabricatorStudio"
+  description="Every FabricatorStudio release, what changed in it, and when it shipped."
+>
+  <NavBar />
+
+  <article class="dd cl">
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; CHANGELOG</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
+    </header>
+
+    {RELEASES.map((rel) => (
+      <section class="cl-rel" aria-labelledby={`cl-${rel.version}`}>
+        <div class="cl-rail">
+          <div class="cl-ver">
+            <span class="cl-ver__dot" aria-hidden="true"></span>
+            <h2 id={`cl-${rel.version}`} class="cl-ver__num">v{rel.version}</h2>
+          </div>
+          <p class="cl-rail__tag">{rel.tag}</p>
+          <time class="cl-rail__date" datetime={rel.date}>{rel.dateLabel}</time>
+        </div>
+
+        <div class="cl-body">
+          <p class="cl-lede" set:html={rel.lede} />
+
+          {rel.groups.map((g) => (
+            <div class={`cl-group cl-group--${g.tone}`}>
+              <div class="cl-group__head">
+                <span class={`cl-group__bar cl-group__bar--${g.tone}`} aria-hidden="true"></span>
+                <h3 class={`cl-group__label cl-group__label--${g.tone}`}>{g.label}</h3>
+              </div>
+              <ul class="cl-list">
+                {g.items.map((item) => (
+                  <li class="cl-item">
+                    <span class={`cl-item__mark cl-item__mark--${g.tone}`} aria-hidden="true">&#9656;</span>
+                    <span set:html={item} />
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))}
+  </article>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  /* Centered page header, matching the licensing page's .lc .dd-header rule. */
+  .cl .dd-header { align-items: center; text-align: center; }
+
+  .cl-rel { display: grid; grid-template-columns: 16rem 1fr; gap: 3rem; align-items: start; margin: 0 0 4rem; }
+
+  /* Sticky version rail (design drop) */
+  .cl-rail { position: sticky; top: 2.5rem; display: flex; flex-direction: column; gap: 1rem; }
+  .cl-ver {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    width: fit-content;
+    padding: 0.55rem 1.15rem;
+    border-radius: var(--radius);
+    background: rgba(124, 255, 178, 0.12);
+    border: 1px solid rgba(124, 255, 178, 0.45);
+  }
+  .cl-ver__dot {
+    width: 0.65rem;
+    height: 0.65rem;
+    border-radius: 50%;
+    background: var(--plasma);
+    box-shadow: 0 0 10px rgba(124, 255, 178, 0.7);
+  }
+  .cl-ver__num { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 800; color: var(--plasma); margin: 0; }
+  .cl-rail__tag { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 800; color: var(--bone); margin: 0; letter-spacing: -0.01em; }
+  .cl-rail__date { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.14em; color: var(--bone-faint); }
+
+  .cl-body { min-width: 0; }
+  .cl-lede { color: var(--bone-dim); line-height: 1.6; font-size: 1.05rem; margin: 0 0 1.75rem; text-wrap: pretty; }
+  .cl-lede :global(b) { color: var(--bone); }
+
+  /* Drop used a #1C2126 -> #171C21 vertical fade. That second stop is off-palette and the
+     G6 gate rejects it; the shift was ~3% and invisible, so this is flat --iron instead. */
+  .cl-group {
+    background: var(--iron);
+    border: 1px solid rgba(124, 255, 178, 0.1);
+    border-radius: 18px;
+    padding: 1.85rem 2rem;
+    margin: 0 0 1.15rem;
+  }
+  .cl-group--ember { border-color: rgba(255, 122, 61, 0.1); }
+  .cl-group__head { display: flex; align-items: center; gap: 0.85rem; margin: 0 0 1.1rem; }
+  .cl-group__bar { width: 0.5rem; height: 1.6rem; border-radius: 3px; flex: none; }
+  .cl-group__bar--plasma { background: var(--plasma); }
+  .cl-group__bar--ember { background: var(--ember); }
+  .cl-group__label { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 800; letter-spacing: 0.06em; margin: 0; }
+  .cl-group__label--plasma { color: var(--plasma); }
+  .cl-group__label--ember { color: var(--ember); }
+
+  .cl-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.85rem; }
+  .cl-item { display: flex; gap: 0.9rem; color: var(--bone-dim); line-height: 1.55; font-size: 0.95rem; text-wrap: pretty; }
+  .cl-item :global(b) { color: var(--bone); }
+  .cl-item__mark { flex: none; }
+  .cl-item__mark--plasma { color: var(--plasma); }
+  .cl-item__mark--ember { color: var(--ember); }
+
+  @media (max-width: 60rem) {
+    .cl-rel { grid-template-columns: 1fr; gap: 1.5rem; }
+    .cl-rail { position: static; flex-direction: row; align-items: baseline; flex-wrap: wrap; gap: 0.9rem; }
+    .cl-rail__date { margin-left: auto; }
+  }
+  @media (max-width: 40rem) {
+    .cl-group { padding: 1.35rem 1.25rem; }
+    .cl-rail__tag { font-size: 1.2rem; }
+  }
+</style>

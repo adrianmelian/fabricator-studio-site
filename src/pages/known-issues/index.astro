@@ -1,0 +1,326 @@
+---
+// Known issues page (2026-07-20). Required by knowledge/launch-posture.md: "Pre-empting a
+// bug is credibility; being caught by one is not." Also carries the two other posture
+// commitments that need a public home: the bounded support promise and the founding-users
+// framing. The tracker is named here as the front door.
+//
+// VISUAL PASS: Adrian x Claude Design drop, 2026-07-20 (source: MrMiata inbox/HTML/
+// "Known Issues.html"). Adopted: the founding-users panel (left plasma rule, asymmetric
+// radius), outlined severity/status pills, the inset workaround block, section headers as
+// accent label plus muted sub, and hairline dividers in the support card. NOT adopted: the
+// drop's fixed 1740px canvas (ported responsive) and its raw hex palette (uses site tokens
+// instead, so these pages stay consistent with the rest of the site and keep passing the
+// brand gates). The drop held the copy verbatim, so there was no drift to reject.
+//
+// SOURCES, all real, nothing invented:
+//   - Open GitHub issues on adrianmelian/FabricatorStudio: #15, #16 (verified 2026-07-20)
+//   - MrMiata workspace/tasks.json known limitations: t17, t18, t19, t22, t24
+// The severities, statuses and workarounds below are FACTS from the tracker and the board,
+// not copy. A redesign may restyle them; it may not reword them into something untrue.
+// When an issue closes, remove its row here in the same pass. A stale known-issues page is
+// worse than none: it claims a bug still exists that you already fixed.
+//
+// PRE-PUBLISH NOTE: the tracker links 404 until the repo goes public (t16). This page must
+// not deploy before that flip, or every "report it" route on it is dead.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import '../../styles/designed-doc.css';
+
+const TITLE = 'KNOWN ISSUES';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+const TRACKER = 'https://github.com/adrianmelian/FabricatorStudio/issues';
+
+// #10 (canvas rename ping-pong, S2-major) FIXED before v1 shipped, confirmed by Adrian
+// 2026-07-20. Deliberately NOT added to the changelog: no public release ever carried the
+// bug, so listing the fix would imply users had it. Pre-release fixes leave no trace.
+const TRACKED = [
+  {
+    id: 15,
+    sev: 'Minor',
+    status: 'Confirmed',
+    title: 'World-targeted aimers get the reversing-frame flip when mirrored',
+    detail:
+      'Mirroring a component whose aimer targets World applies the reversing-frame flip that belongs to parent-targeted aimers.',
+    workaround: 'Re-aim the mirrored aimer by hand after the mirror.',
+  },
+  {
+    id: 16,
+    sev: 'Polish',
+    status: 'Confirmed',
+    title: 'Mirroring leaves stray localRef locators under the mirrored joints',
+    detail: 'Maya’s mirrorJoint copies the reference locators along with the joints.',
+    workaround: 'Delete the leftover locators. They do not affect the rig or the export.',
+  },
+];
+
+// Documented limitations: understood, deliberately not fixed for v1, each with a real
+// workaround. These are not defects to file; they are the honest edges of the toolset.
+const LIMITS = [
+  {
+    title: 'Automatic pole vectors can flicker at one extreme',
+    detail:
+      'When a limb crosses the plane perpendicular to its bind pose, the automatic pole vector can flip.',
+    workaround: 'Switch the pole vector space to World on that control.',
+  },
+  {
+    title: 'Root motion transfer is off in animation export',
+    detail:
+      'The compensation math for baking root motion is disabled, so exported animation keeps motion on the original node.',
+    workaround: 'Transfer root motion by hand. The steps are in the exporter doc.',
+  },
+  {
+    title: 'Armature control and aimer sizes reset on skeletal export',
+    detail:
+      'Exporting an Armature rig rebuilds it, and your custom control and aimer scale returns to the default. The tool warns when this happens.',
+    workaround: 'Cosmetic only. Set the sizes again after the export if you want them back.',
+  },
+  {
+    title: 'A circular space target reports as a Maya cycle warning',
+    detail:
+      'Pointing an AdvancedFK space at something that already follows it creates a loop, and Maya reports it rather than the tool catching it first.',
+    workaround: 'Check the space target is not downstream of the control you are setting up.',
+  },
+  {
+    title: 'No pre-export skin sanity check',
+    detail:
+      'Structural checks cover the rig before a build, but nothing yet catches skin-side artifacts such as stray bindPose nodes or orphaned skinClusters before an FBX goes out.',
+    workaround: 'Run Scene Cleanup before exporting a skinned character.',
+  },
+];
+---
+<BaseLayout
+  title="Known issues | FabricatorStudio"
+  description="Every bug we know about in FabricatorStudio v1, with a workaround for each, and an honest account of what has and has not been tested."
+>
+  <NavBar />
+
+  <article class="dd ki">
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; KNOWN ISSUES</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="dd-summary">Everything we know is wrong with v1, and what to do about it in the meantime.</p>
+    </header>
+
+    <section class="ki-honest" aria-labelledby="ki-honest-t">
+      <div class="ki-honest__label">FOUNDING USERS</div>
+      <h2 id="ki-honest-t" class="ki-honest__title">Where this actually is</h2>
+      <p class="ki-prose">FabricatorStudio v1 is production tested. It has rigged real characters and shipped them into Unreal. But it has been tested by <b>one person, on one machine, on one version of Maya</b>. You are among the first people running it anywhere else, which is exactly why some of this list exists and why the rest of it will grow.</p>
+      <p class="ki-prose">That is not a disclaimer, it is the reason your bug reports matter more right now than they ever will again. <b class="b-plasma">If something breaks, please say so.</b></p>
+      <a class="ki-cta" href={TRACKER} target="_blank" rel="noopener">Report an issue &rarr;</a>
+    </section>
+
+    <section class="ki-section" aria-labelledby="ki-open-t">
+      <div class="ki-head">
+        <h2 id="ki-open-t" class="ki-head__label ki-head__label--ember">OPEN ISSUES</h2>
+        <p class="ki-head__sub">Tracked defects, each with a workaround</p>
+      </div>
+
+      {TRACKED.map((it) => (
+        <div class="ki-card">
+          <div class="ki-card__top">
+            <span class="ki-chip ki-chip--plasma">{it.sev.toUpperCase()}</span>
+            <a class="ki-card__num" href={`${TRACKER}/${it.id}`} target="_blank" rel="noopener">#{it.id}</a>
+            <span class="ki-chip ki-chip--quiet">{it.status.toUpperCase()}</span>
+          </div>
+          <h3 class="ki-card__title">{it.title}</h3>
+          <p class="ki-prose ki-prose--card">{it.detail}</p>
+          <div class="ki-work">
+            <span class="ki-work__label">WORKAROUND</span>
+            <span class="ki-work__text">{it.workaround}</span>
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <section class="ki-section" aria-labelledby="ki-limits-t">
+      <div class="ki-head">
+        <h2 id="ki-limits-t" class="ki-head__label ki-head__label--plasma">KNOWN LIMITATIONS</h2>
+        <p class="ki-head__sub">Understood edges, not defects to report</p>
+      </div>
+
+      {LIMITS.map((it) => (
+        <div class="ki-card ki-card--limit">
+          <h3 class="ki-card__title">{it.title}</h3>
+          <p class="ki-prose ki-prose--card">{it.detail}</p>
+          <div class="ki-work ki-work--ember">
+            <span class="ki-work__label">WORKAROUND</span>
+            <span class="ki-work__text">{it.workaround}</span>
+          </div>
+        </div>
+      ))}
+    </section>
+
+    <section class="ki-section" aria-labelledby="ki-support-t">
+      <div class="ki-head">
+        <h2 id="ki-support-t" class="ki-head__label ki-head__label--plasma">SUPPORT</h2>
+        <p class="ki-head__sub">What we promise, and what we do not</p>
+      </div>
+      <div class="ki-card ki-card--support">
+        <p class="ki-prose ki-prose--card">Support is <b>best effort</b>. There is no service level agreement, no guaranteed response time, and no paid support tier. This is one person answering, between building the toolset and doing client work.</p>
+        <span class="ki-rule" aria-hidden="true"></span>
+        <p class="ki-prose ki-prose--card">We support the <b>latest two releases of Maya</b>. Older versions may work and are not tested.</p>
+        <span class="ki-rule" aria-hidden="true"></span>
+        <p class="ki-prose ki-prose--card">Bugs go in the <a href={TRACKER} target="_blank" rel="noopener">issue tracker</a>, not email. It is public on purpose: a bug someone else already hit is a bug you can read the answer to. <b>Reggie</b>, the AI TA built into the toolset, can file one for you with the details already filled in.</p>
+        <span class="ki-rule" aria-hidden="true"></span>
+        <p class="ki-prose ki-prose--card">Fixed issues move to the <a href="/changelog/">changelog</a>.</p>
+      </div>
+    </section>
+  </article>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  /* Centered page header, matching the licensing page's .lc .dd-header rule. */
+  .ki .dd-header { align-items: center; text-align: center; }
+
+  /* FOUNDING USERS panel: left plasma rule, asymmetric radius (design drop) */
+  .ki-honest {
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0.06), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.22);
+    border-left: 3px solid var(--plasma);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    padding: 2.25rem 2.5rem;
+    margin: 0 0 3.5rem;
+    box-shadow: 0 40px 90px -50px rgba(0, 0, 0, 0.85);
+  }
+  .ki-honest__label {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--plasma);
+    margin: 0 0 1rem;
+  }
+  .ki-honest__title {
+    font-family: var(--font-mono);
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    color: var(--bone);
+    margin: 0 0 1rem;
+  }
+
+  .ki-prose { color: var(--bone-dim); line-height: 1.65; margin: 0 0 1rem; text-wrap: pretty; }
+  .ki-prose--card { font-size: 0.95rem; }
+  .ki-prose b { color: var(--bone); }
+  .ki-prose .b-plasma { color: var(--plasma); }
+  .ki-prose a { color: var(--plasma); text-decoration: underline; }
+
+  .ki-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 0.9rem;
+    letter-spacing: 0.02em;
+    color: #052012;
+    background: var(--plasma);
+    border-radius: var(--radius);
+    padding: 0.75rem 1.5rem;
+    text-decoration: none;
+    margin-top: 0.5rem;
+    box-shadow: 0 0 32px -12px rgba(124, 255, 178, 0.7);
+  }
+  .ki-cta:hover { background: var(--plasma-dim); }
+
+  .ki-section { margin: 0 0 3.5rem; }
+  .ki-head { display: flex; align-items: baseline; gap: 1.15rem; flex-wrap: wrap; margin: 0 0 1.5rem; }
+  .ki-head__label {
+    font-family: var(--font-mono);
+    font-size: 1.35rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    color: var(--bone);
+    margin: 0;
+  }
+  .ki-head__label--ember { color: var(--ember); }
+  .ki-head__label--plasma { color: var(--plasma); }
+  .ki-head__sub { color: var(--bone-dim); font-size: 0.95rem; margin: 0; }
+
+  /* Issue / limitation cards */
+  /* Drop used a #1C2126 -> #171C21 vertical fade. That second stop is off-palette and the
+     G6 gate rejects it; the shift was ~3% and invisible, so this is flat --iron instead. */
+  .ki-card {
+    background: var(--iron);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 1.75rem 2rem;
+    margin: 0 0 1.15rem;
+  }
+  .ki-card--limit { border-color: rgba(255, 122, 61, 0.12); }
+  .ki-card--support { padding: 2rem 2.25rem; }
+  .ki-card__top { display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap; margin: 0 0 0.9rem; }
+  .ki-card__title {
+    font-family: var(--font-mono);
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--bone);
+    line-height: 1.3;
+    margin: 0 0 0.75rem;
+    text-wrap: pretty;
+  }
+  .ki-card__num { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 700; color: var(--bone-faint); text-decoration: none; }
+  .ki-card__num:hover { color: var(--plasma); }
+
+  /* Outlined pills (design drop swapped these from solid fills) */
+  .ki-chip {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    padding: 0.28rem 0.7rem;
+    border-radius: 7px;
+  }
+  .ki-chip--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .ki-chip--quiet { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--bone-dim); }
+
+  /* Inset workaround block */
+  .ki-work {
+    display: flex;
+    gap: 0.9rem;
+    background: #0F1317;
+    border-left: 2px solid var(--plasma);
+    border-radius: 0 9px 9px 0;
+    padding: 0.9rem 1.15rem;
+  }
+  .ki-work--ember { border-left-color: var(--ember); }
+  .ki-work__label {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    color: var(--plasma);
+    flex: none;
+    padding-top: 0.15rem;
+  }
+  .ki-work--ember .ki-work__label { color: var(--ember); }
+  .ki-work__text { font-size: 0.9rem; line-height: 1.5; color: var(--bone); }
+
+  /* Drop faded this hairline to transparent; the minifier folds that to #0000, which G6
+     reads as an off-palette stop. Flat --iron-3 reads the same at 1px. */
+  .ki-rule {
+    display: block;
+    height: 1px;
+    background: var(--iron-3);
+    margin: 0 0 1rem;
+  }
+  .ki-card--support .ki-prose:last-child { margin-bottom: 0; }
+
+  @media (max-width: 40rem) {
+    .ki-honest { padding: 1.5rem 1.5rem; }
+    .ki-card { padding: 1.25rem 1.25rem; }
+    .ki-card--support { padding: 1.5rem 1.25rem; }
+    .ki-work { flex-direction: column; gap: 0.4rem; }
+    .ki-head__label { font-size: 1.15rem; }
+  }
+</style>
