@@ -39,6 +39,24 @@ const TRACKER = 'https://github.com/adrianmelian/FabricatorStudio/issues';
 // bug, so listing the fix would imply users had it. Pre-release fixes leave no trace.
 const TRACKED = [
   {
+    id: 22,
+    sev: 'Major',
+    status: 'Fix merged',
+    title: 'AutoSkin’s engine installer fails on a machine without uv (and git)',
+    detail:
+      'On a fresh machine, installing the AutoSkin backend fails with "uv is not installed" because the installer assumed uv and git were already present. The fix bundles both automatically; it is in the code and ships in the next installer update.',
+    workaround: 'Install Git for Windows and uv (astral.sh/uv) first, then run Install Backend. The next update removes this step.',
+  },
+  {
+    id: 23,
+    sev: 'Minor',
+    status: 'Fix merged',
+    title: 'Uninstalling the AutoSkin backend leaves its repo folder behind on Windows',
+    detail:
+      'After uninstalling the backend, the repo folder (about 1.6 GB of model checkpoints) survives, because git marks its files read-only and the cleanup skips them. The fix is in the code and ships in the next installer update.',
+    workaround: 'Delete the leftover folder by hand from %LOCALAPPDATA%/FabricatorStudio/autoskin/. The next update removes it cleanly.',
+  },
+  {
     id: 15,
     sev: 'Minor',
     status: 'Confirmed',
@@ -126,9 +144,9 @@ const LIMITS = [
       {TRACKED.map((it) => (
         <div class="ki-card">
           <div class="ki-card__top">
-            <span class="ki-chip ki-chip--plasma">{it.sev.toUpperCase()}</span>
+            <span class={`ki-chip ki-chip--${it.sev === 'Major' ? 'ember' : 'plasma'}`}>{it.sev.toUpperCase()}</span>
             <a class="ki-card__num" href={`${TRACKER}/${it.id}`} target="_blank" rel="noopener">#{it.id}</a>
-            <span class="ki-chip ki-chip--quiet">{it.status.toUpperCase()}</span>
+            <span class={`ki-chip ${it.status.startsWith('Fix') ? 'ki-chip--fixed' : 'ki-chip--quiet'}`}>{it.status.toUpperCase()}</span>
           </div>
           <h3 class="ki-card__title">{it.title}</h3>
           <p class="ki-prose ki-prose--card">{it.detail}</p>
@@ -282,7 +300,10 @@ const LIMITS = [
     border-radius: 7px;
   }
   .ki-chip--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .ki-chip--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
   .ki-chip--quiet { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.12); color: var(--bone-dim); }
+  /* "Fix merged" reads as good news, not a warning: a filled plasma pill. */
+  .ki-chip--fixed { background: var(--plasma); border: 1px solid var(--plasma); color: #052012; }
 
   /* Inset workaround block */
   .ki-work {
