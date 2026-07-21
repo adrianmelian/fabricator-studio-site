@@ -33,6 +33,30 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
 const RELEASES = [
   {
+    version: '1.0.1',
+    date: '2026-07-21',
+    dateLabel: '2026 · 07 · 21',
+    tag: 'Patch',
+    lede: 'First patch, straight from the first outside installs. Thank you to everyone who ran it early and told us what broke.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>AutoSkin installs on a fresh machine</b>. The engine installer used to require uv and git to already be present and failed otherwise; it now downloads pinned, verified copies itself, so a clean artist machine installs with nothing pre-set-up.',
+          '<b>AutoSkin uninstall cleans up fully on Windows</b>. It used to leave its model checkpoints (about 1.6 GB) behind; now it removes everything it created.',
+        ],
+      },
+      {
+        label: 'IMPROVEMENTS',
+        tone: 'plasma',
+        items: [
+          '<b>Project bindings live in Project Setup now</b>. The per-project folder bindings and the shared configs pointer moved out of Settings and next to the project list they belong with. Settings keeps only the truly per-machine options.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.0.0',
     date: '2026-07-20',
     dateLabel: '2026 · 07 · 20',

@@ -37,25 +37,10 @@ const TRACKER = 'https://github.com/adrianmelian/FabricatorStudio/issues';
 // #10 (canvas rename ping-pong, S2-major) FIXED before v1 shipped, confirmed by Adrian
 // 2026-07-20. Deliberately NOT added to the changelog: no public release ever carried the
 // bug, so listing the fix would imply users had it. Pre-release fixes leave no trace.
+// #22 (AutoSkin install without uv/git) and #23 (uninstall leftover) SHIPPED FIXED in
+// v1.0.1 (2026-07-21). Removed from this list and recorded on the changelog instead; the
+// GitHub issues are closed. This is the founding-users loop closing: reported, fixed, shipped.
 const TRACKED = [
-  {
-    id: 22,
-    sev: 'Major',
-    status: 'Fix merged',
-    title: 'AutoSkin’s engine installer fails on a machine without uv (and git)',
-    detail:
-      'On a fresh machine, installing the AutoSkin backend fails with "uv is not installed" because the installer assumed uv and git were already present. The fix bundles both automatically; it is in the code and ships in the next installer update.',
-    workaround: 'Install Git for Windows and uv (astral.sh/uv) first, then run Install Backend. The next update removes this step.',
-  },
-  {
-    id: 23,
-    sev: 'Minor',
-    status: 'Fix merged',
-    title: 'Uninstalling the AutoSkin backend leaves its repo folder behind on Windows',
-    detail:
-      'After uninstalling the backend, the repo folder (about 1.6 GB of model checkpoints) survives, because git marks its files read-only and the cleanup skips them. The fix is in the code and ships in the next installer update.',
-    workaround: 'Delete the leftover folder by hand from %LOCALAPPDATA%/FabricatorStudio/autoskin/. The next update removes it cleanly.',
-  },
   {
     id: 15,
     sev: 'Minor',
