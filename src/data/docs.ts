@@ -41,6 +41,7 @@ export const DESIGNED_DOC_IDS = new Set([
   'tools/bridge',
   'tools/your-ai-ta',
   'tools/batch-runner',
+  'tools/installer',
 ]);
 
 export const DOC_CATEGORY_LABELS: Record<string, string> = {
