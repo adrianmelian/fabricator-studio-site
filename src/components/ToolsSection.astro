@@ -1,0 +1,197 @@
+---
+// The flagship tool cards and their Learn More popovers.
+//
+// Extracted out of the homepage 2026-07-22 (website overhaul, two-door architecture): the
+// product depth now lives on /tools/, which is free to grow as tools ship, and the homepage
+// carries one compact toolset block instead. Nothing here was redesigned in the move; the
+// card/popup pattern is the one thing on this site that already beats the field structurally
+// (scannable on the surface, deep on demand, both work), so it moved intact.
+import ToolCard from './ToolCard.astro';
+import FabricatorHero from './FabricatorHero.astro';
+import BridgeHero from './BridgeHero.astro';
+import AnimStudioHero from './AnimStudioHero.astro';
+import ReggieHero from './ReggieHero.astro';
+import { flagshipTools } from '../data/tools';
+
+// The animated GUI that rides inside each tool card, keyed by the tool's dialog. These are
+// the same components the Learn More popovers use, so a card and its popover always show the
+// same graphic. Each one scopes its own script to its own root (currentScript), so rendering
+// a second instance here is safe: the card's copy and the dialog's copy animate independently.
+const TOOL_UI: Record<string, any> = {
+  'pop-fabricator': FabricatorHero,
+  'pop-studio': AnimStudioHero,
+  'pop-bridge': BridgeHero,
+  'pop-reggie': ReggieHero,
+};
+---
+<section id="tools">
+  <div class="tools__stack">
+    {flagshipTools.map((t, i) => {
+      const Ui = t.dialogId ? TOOL_UI[t.dialogId] : undefined;
+      // Every card's GRAPHIC carries the copy now (Adrian 2026-07-14): rollout complete, all
+      // four graphics render their own heading/paras/CTA. A future card without a graphic
+      // still gets the classic copy column automatically.
+      const textInUi = Boolean(Ui);
+      return (
+        <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId} textInUi={textInUi}>
+          {Ui && <Ui slot="ui" bare heading={t.name} paras={t.paras} ctaHref={t.href} ctaDialog={t.dialogId} />}
+        </ToolCard>
+      );
+    })}
+  </div>
+</section>
+
+<dialog id="pop-fabricator" class="product-pop">
+  <div class="product-pop__inner">
+    <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
+    <FabricatorHero />
+    <div class="product-pop__body">
+      <h2 class="product-pop__headline">Animator Friendly Rigs. AutoSkinning. Non-linear workflow.</h2>
+      <p>Fabricator is a template-driven, network-based rigging system. Drag components onto your skeleton, build the whole rig in one pass, and never lose work to a rebuild.</p>
+      <ul>
+        <li>Non-destructive and non-linear. Unbuild, restructure, and rebuild, even while animation is already in production.</li>
+        <li>Rename anything. Rig state lives in your scene as network connections, not name strings, so nothing breaks.</li>
+        <li>Animator-friendly out of the box: IK/FK matching, space switching, smart pole vectors, and a marking menu on every control.</li>
+        <li>Save your perfect rig as a template and reuse it across your whole cast, even at different proportions.</li>
+      </ul>
+      <p class="product-pop__free">Free for solo developers, indies, and small teams. Pure Python, source available, nothing to compile, nothing hidden.</p>
+      <a class="product-pop__docs" href="/docs/tools/fabricator/">Read the full docs →</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="pop-studio" class="product-pop">
+  <div class="product-pop__inner">
+    <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
+    <AnimStudioHero />
+    <div class="product-pop__body">
+      <h2 class="product-pop__headline">Manage Animations &amp; Poses in one Library.</h2>
+      <p>Animation Studio saves poses and clips to a library that travels across every rig built with Fabricator. Capture a hero pose or a walk cycle, then drop it onto any character.</p>
+      <ul>
+        <li>Poses and clips apply by component identity, not node names, so they work on any Fabricator rig.</li>
+        <li>Place, insert, or replace clips on the timeline, with start and end anchors and root-motion control.</li>
+        <li>Selection sets mask a pose down to just the parts you want.</li>
+        <li>Thumbnails and hover previews keep a big library scannable.</li>
+      </ul>
+      <p class="product-pop__free">Build your library, and every new character starts ahead.</p>
+      <a class="product-pop__docs" href="/docs/tools/pose-anim-studio/">Read the full docs →</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="pop-bridge" class="product-pop">
+  <div class="product-pop__inner">
+    <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
+    <BridgeHero />
+    <div class="product-pop__body">
+      <h2 class="product-pop__headline">An entire pipeline, one click away.</h2>
+      <p>Bridge puts the entire FabricatorStudio toolbox into one compact, dockable toolbar inside Maya. Launch the big tools, fire the everyday utilities, and stop hunting through shelves and menus.</p>
+      <ul>
+        <li>Every tool a click away, in a single dockable strip.</li>
+        <li>Popover launchers keep it compact, no shelf sprawl, no menu digging.</li>
+        <li>Versioned builds, so "what version are you on" always has an answer.</li>
+        <li>Connect your own AI right from the strip: start the read-only bridge and copy the setup snippet for your client.</li>
+      </ul>
+      <p class="product-pop__free">Built for the way artists actually work.</p>
+      <a class="product-pop__docs" href="/docs/tools/bridge/">Read the full docs →</a>
+    </div>
+  </div>
+</dialog>
+
+<dialog id="pop-reggie" class="product-pop">
+  <div class="product-pop__inner">
+    <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
+    <ReggieHero />
+    <div class="product-pop__body">
+      <h2 class="product-pop__headline">AI Tech Art, on call, inside Maya.</h2>
+      <p>Reggie is an AI Technical Artist that is an expert on the FabricatorStudio toolset. It reads your actual scene, then helps you fix what broke. Ask why a build failed, where a rig went wrong, or how a tool works, and get answers immediately. No more waiting on a human TA.</p>
+      <ul>
+        <li>Connect your own AI: Claude Code, Claude Desktop, Cursor, any MCP client. Your model, your key, your machine.</li>
+        <li>Read-only, enforced in code. Reggie can see everything and change nothing. When something needs fixing, it hands you the script to run.</li>
+        <li>Trained on the FabricatorStudio pipeline: it troubleshoots from the docs, proposes the documented fix, and files a clean bug report only when a real bug remains.</li>
+      </ul>
+      <p class="product-pop__free">You have a TA sitting next to you, ready to help, always.</p>
+      <a class="product-pop__docs" href="/docs/tools/your-ai-ta/">Read the full docs →</a>
+    </div>
+  </div>
+</dialog>
+
+<script is:inline>
+  (function () {
+    document.querySelectorAll('[data-dialog-open]').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        var d = document.getElementById(btn.getAttribute('data-dialog-open'));
+        if (d && d.showModal) d.showModal();
+      });
+    });
+    document.querySelectorAll('dialog.product-pop').forEach(function (d) {
+      d.querySelectorAll('[data-dialog-close]').forEach(function (b) {
+        b.addEventListener('click', function () { d.close(); });
+      });
+      d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
+    });
+  })();
+</script>
+
+<style>
+  /* CP-D: full-bleed band stack, edge to edge, no gap between cards. Same 100vw breakout
+     technique as .hero-v2. */
+  #tools {
+    position: relative;
+    width: 100vw;
+    max-width: 100vw;
+    margin: 0 0 0 calc(50% - 50vw);
+    padding: 0;
+  }
+  .tools__stack { display: flex; flex-direction: column; gap: 0; text-align: left; }
+
+  /* Product popover (flagship Learn More) */
+  .product-pop {
+    margin: auto; /* restore the centering a global margin reset strips off the modal */
+    padding: 0;
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    background: #0B0E10;
+    color: var(--bone);
+    width: min(900px, 92vw);
+    max-width: 92vw;
+    max-height: 90vh;
+    overflow: hidden auto;
+  }
+  .product-pop::backdrop { background: rgba(11, 14, 16, 0.82); }
+  .product-pop__inner { position: relative; }
+  .product-pop__img { display: block; width: 100%; height: auto; }
+  .product-pop__close {
+    position: absolute;
+    top: 0.6rem;
+    right: 0.6rem;
+    z-index: 10;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    line-height: 1;
+    color: var(--bone);
+    background: rgba(11, 14, 16, 0.6);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    padding: 0.35rem 0.55rem;
+    cursor: pointer;
+  }
+  .product-pop__close:hover { color: var(--ember); border-color: var(--ember); }
+  .product-pop__body { padding: 1.75rem 2rem 2rem; text-align: left; }
+  .product-pop__headline { font-family: var(--font-mono); font-weight: 700; font-size: 1.375rem; color: var(--bone); }
+  .product-pop__body p { color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; margin-top: 0.75rem; }
+  .product-pop__body ul { margin: 1rem 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.4rem; }
+  .product-pop__body li { color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.5; }
+  .product-pop__free { color: var(--bone); }
+  .product-pop__docs {
+    display: inline-block;
+    margin-top: 1.25rem;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: var(--plasma);
+    text-decoration: none;
+  }
+  .product-pop__docs:hover { color: var(--plasma-dim); }
+</style>

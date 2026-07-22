@@ -1,0 +1,119 @@
+---
+// /tools/ — the product page.
+//
+// New 2026-07-22 (website overhaul, two-door architecture). The homepage used to carry the
+// whole product story, which meant it could not grow: four tools today, AutoSkin next, more
+// after, and every one added made the homepage more crowded. This page is where the toolset
+// lives and grows. The homepage keeps one compact block and a link.
+//
+// Page order is deliberate and is what kills the two-axis copy trap structurally: the free
+// toolset, then the free download, then the paid modules (FEATURE axis, everyone pays),
+// then the license (ORGANIZATION axis, only large organizations pay, whole toolset). A
+// reader sees the module price and the revenue threshold as two separate things on one page,
+// so nobody concludes ribbons are locked behind a corporate license.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import ToolsSection from '../../components/ToolsSection.astro';
+import DownloadBand from '../../components/DownloadBand.astro';
+import LicensingTiers from '../../components/LicensingTiers.astro';
+import BracketButton from '../../components/BracketButton.astro';
+---
+<BaseLayout
+  title="The Toolset | FabricatorStudio"
+  description="Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX exporters with an Unreal-ready contract. Free, open Python, nothing compiled."
+>
+  <NavBar />
+
+  <section id="toolset-intro">
+    <SectionHead
+      eyebrow="FABRICATORSTUDIO"
+      title="THE TOOLSET"
+      sub="A complete Maya to Unreal character pipeline. Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX exporters with an engine-ready contract. Pure Python, source available, nothing to compile, nothing hidden."
+    />
+    <div class="ts-ctas">
+      <BracketButton kind="hard" downloadGate label="Get the free toolset" />
+      <BracketButton kind="soft" href="/docs/" label="Read the docs" />
+    </div>
+  </section>
+
+  <ToolsSection />
+
+  <DownloadBand />
+
+  <section id="modules">
+    <SectionHead
+      eyebrow="ADVANCED MODULES"
+      title="RIBBON MODULES"
+      sub="The one paid part of the toolset, and it is a feature, not a tier."
+    />
+    <div class="mod-card">
+      <div class="mod-card__top">
+        <span class="mod-pill"><span class="mod-pill__dot" aria-hidden="true"></span>PAID MODULES</span>
+        <span class="mod-price">$199</span>
+      </div>
+      <p class="mod-lead">Ribbon-tech spine, arm, and leg. The deformation upgrade that sits on top of the free limbs, for the shoulders, hips, and spines that have to hold up in close-up.</p>
+      <div class="mod-rule" aria-hidden="true"></div>
+      <p class="mod-note"><b>Ribbon rigs animate for everyone.</b> If someone hands your animators a character built with these modules, it works, with nothing installed and nothing to buy. The deformation is baked Maya nodes. You need the modules to build and edit ribbon components, not to use a rig that has them.</p>
+      <p class="mod-axis">Paid for everyone, at any studio size. This is a feature you add, not a corporate tier. The revenue threshold below is a separate thing and it covers the whole toolset.</p>
+      <div class="mod-ctas">
+        <BracketButton kind="hard" href="/store/" label="See the modules" />
+      </div>
+    </div>
+  </section>
+
+  <section id="license-lead">
+    <p class="lic-lead">And the other axis, which has nothing to do with the modules above: whether your <b>organization</b> owes anything for the toolset at all. That is decided by revenue, and for most people reading this the answer is no.</p>
+  </section>
+
+  <LicensingTiers />
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .ts-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.75rem; }
+
+  #modules { display: flex; flex-direction: column; }
+  .mod-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    border-radius: 22px;
+    padding: 2rem 2.125rem 2.25rem;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 122, 61, 0.35);
+    box-shadow: var(--shadow-lg);
+  }
+  .mod-card__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+  .mod-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 9px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    background: rgba(255, 122, 61, 0.13);
+    border: 1px solid rgba(255, 122, 61, 0.45);
+    color: var(--ember);
+  }
+  .mod-pill__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--ember); box-shadow: 0 0 10px rgba(255, 122, 61, 0.7); }
+  .mod-price { font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.375rem, 2.6vw, 1.75rem); letter-spacing: -0.02em; color: var(--ember); }
+  .mod-lead { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: var(--bone); text-wrap: pretty; }
+  .mod-rule { height: 1px; background: linear-gradient(90deg, rgba(255, 122, 61, 0.3), rgba(255, 122, 61, 0)); }
+  /* The generosity line is the most trust-building sentence on the page, so it gets the
+     plasma treatment: this is the part that is FREE and stays free. */
+  .mod-note { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .mod-note b { color: var(--plasma); }
+  .mod-axis { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-faint); text-wrap: pretty; }
+  .mod-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
+
+  #license-lead { padding-bottom: 0; }
+  .lic-lead { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); max-width: 62rem; text-wrap: pretty; }
+  .lic-lead b { color: var(--bone); }
+</style>

@@ -1,0 +1,46 @@
+---
+// The outlined tri-color section heading (DNA section 4, the signature treatment).
+//
+// The homepage hand-rolled this glyph cycle three separate times (kf-, tb-, am- families,
+// three near-identical frontmatter blocks and three near-identical style blocks). Factored
+// into one component 2026-07-22 during the website overhaul so a fourth section does not
+// mean a fourth copy.
+//
+// Letters only cycle bone -> plasma -> ember; spaces hold a gap and do not advance the
+// cycle, matching the treatment on the designed docs pages. aria-label carries the real
+// string so the split-into-spans title stays one readable heading for assistive tech.
+interface Props { eyebrow?: string; title: string; sub?: string }
+const { eyebrow, title, sub } = Astro.props;
+
+const TRI = ['sh-bone', 'sh-plasma', 'sh-ember'];
+let i = 0;
+const glyphs = title.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'sh-gap' : TRI[i++ % 3] }));
+---
+<div class="sh-head">
+  {eyebrow && <div class="sh-eyebrow">{eyebrow}</div>}
+  <h2 class="sh-title" aria-label={title}>
+    {glyphs.map((g) =>
+      g.cls === 'sh-gap' ? <span class="sh-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+    )}
+  </h2>
+  {sub && <p class="sh-sub">{sub}</p>}
+</div>
+<style>
+  .sh-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
+  .sh-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
+  .sh-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: clamp(2rem, 4.8vw, 3.1rem);
+    line-height: 0.95;
+    letter-spacing: -0.02em;
+    -webkit-text-stroke: 0.08em #06090C;
+    paint-order: stroke fill;
+  }
+  .sh-title .sh-bone { color: var(--bone); }
+  .sh-title .sh-plasma { color: var(--plasma); }
+  .sh-title .sh-ember { color: var(--ember); }
+  .sh-title .sh-gap { display: inline-block; width: 0.4em; }
+  .sh-sub { margin: 0; font-size: 1.0625rem; line-height: 1.6; color: var(--bone-dim); max-width: 52rem; text-wrap: pretty; }
+</style>

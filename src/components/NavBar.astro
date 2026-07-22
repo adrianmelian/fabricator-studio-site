@@ -1,5 +1,5 @@
 ---
-import { LINKS } from '../data/links';
+// LINKS is no longer imported here: the Community dropdown moved to the footer 2026-07-22.
 import DownloadGate from './DownloadGate.astro';
 ---
 <nav class="navbar">
@@ -10,19 +10,20 @@ import DownloadGate from './DownloadGate.astro';
   <button class="navbar__burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
     <span></span><span></span><span></span>
   </button>
+  {/* Two doors at the top of every page, one per direction, which is the two-layer system
+      expressed in navigation instead of prose. Services is the hire door and carries the
+      outlined weight; Download is the toolset door and stays the loudest thing up here,
+      because most arrivals today are coming for the toolset.
+
+      Community moved to the footer in the same pass: it was a dropdown holding two social
+      links, and the nav needed the slot for Toolset and Store. Swap, not addition. */}
   <div class="navbar__menu" id="nav-menu">
-    <a class="navbar__tab" href="/tutorials/">Tutorials</a>
+    <a class="navbar__tab" href="/tools/">Toolset</a>
+    <a class="navbar__tab" href="/store/">Store</a>
     <a class="navbar__tab" href="/docs/">Docs</a>
-    <a class="navbar__tab" href="/services/">Services</a>
-    <details class="navbar__dropdown">
-      <summary class="navbar__tab">Community</summary>
-      <div class="navbar__panel">
-        {LINKS.community.map((c) => (
-          <a href={c.href} target="_blank" rel="noopener">{c.label}</a>
-        ))}
-      </div>
-    </details>
-    <button type="button" class="nav-download" data-download-open>Download</button>
+    <a class="navbar__tab" href="/tutorials/">Tutorials</a>
+    <a class="nav-services" href="/services/" data-goatcounter-click="nav-services">Services</a>
+    <button type="button" class="nav-download" data-download-open data-goatcounter-click="nav-download">Download</button>
   </div>
 </nav>
 <DownloadGate />
@@ -86,43 +87,28 @@ import DownloadGate from './DownloadGate.astro';
     list-style: none;
   }
   .navbar__tab:hover { color: var(--bone); }
-  .navbar__dropdown { position: relative; }
-  .navbar__dropdown summary { list-style: none; }
-  .navbar__dropdown summary::-webkit-details-marker { display: none; }
-  .navbar__panel {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 0.75rem;
-    background: var(--iron);
-    border: 1px solid var(--iron-3);
-    border-radius: var(--radius);
-    min-width: 10rem;
-  }
-  .navbar__panel a {
-    text-decoration: none;
-    color: var(--bone-dim);
-    font-size: 0.8125rem;
-    letter-spacing: 0.04em;
-    white-space: nowrap;
-  }
-  .navbar__panel a:hover { color: var(--plasma); }
+
+  /* The two doors, weighted the same way the hero weights them: the toolset door is filled,
+     the hire door is outlined. Same shape so they read as a pair, different weight so they
+     do not compete. */
+  .nav-services,
   .nav-download {
     font-family: var(--font-mono);
     font-weight: 700;
     font-size: 0.8125rem;
     letter-spacing: 0.06em;
-    color: var(--plasma);
+    text-transform: uppercase;
     text-decoration: none;
-    background: none;
-    border: none;
-    padding: 0;
+    border-radius: var(--radius-pill);
+    padding: 0.45rem 1.05rem;
     cursor: pointer;
+    white-space: nowrap;
+    transition: background var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
   }
-  .nav-download:hover { color: var(--plasma-dim); }
+  .nav-services { color: var(--bone); background: none; border: 1px solid rgba(232, 224, 208, 0.3); }
+  .nav-services:hover { color: var(--bone); border-color: var(--bone); }
+  .nav-download { color: var(--carbon); background: var(--plasma); border: 1px solid var(--plasma); }
+  .nav-download:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); color: var(--carbon); }
 
   /* Hamburger: hidden on desktop, shown on narrow screens. */
   .navbar__burger { display: none; }
@@ -167,14 +153,7 @@ import DownloadGate from './DownloadGate.astro';
     }
     .navbar__menu.is-open { display: flex; }
     .navbar__menu .navbar__tab { padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
-    .navbar__dropdown { width: 100%; padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
-    .navbar__panel {
-      position: static;
-      border: none;
-      background: none;
-      padding: 0.5rem 0 0 0.75rem;
-      min-width: 0;
-    }
-    .nav-download { padding: 1rem 0 0.25rem; align-self: flex-start; }
+    .nav-services,
+    .nav-download { align-self: flex-start; margin-top: 1rem; }
   }
 </style>

@@ -8,15 +8,20 @@
 // `downloadGate` is set.
 //
 // The component name is 1.0 baggage; it is renamed in the P2 sweep.
-interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline'; dialogTarget?: string; downloadGate?: boolean }
-const { href, label, kind = 'soft', dialogTarget, downloadGate } = Astro.props;
+// `event` tags the button for GoatCounter's click tracking (data-goatcounter-click). The
+// site has had pageview analytics since launch but no EVENT analytics, so which door a
+// visitor takes has never been measurable. The two-door homepage makes that gap matter:
+// without it there is no way to tell whether moving the tool cards to /tools/ cost
+// downloads. Named events, not paths, so the funnel reads the same from any page.
+interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline'; dialogTarget?: string; downloadGate?: boolean; event?: string }
+const { href, label, kind = 'soft', dialogTarget, downloadGate, event } = Astro.props;
 ---
 {downloadGate ? (
-  <button type="button" class={`btn cta-${kind}`} data-download-open>{label}</button>
+  <button type="button" class={`btn cta-${kind}`} data-download-open data-goatcounter-click={event}>{label}</button>
 ) : dialogTarget ? (
-  <button type="button" class={`btn cta-${kind}`} data-dialog-open={dialogTarget}>{label}</button>
+  <button type="button" class={`btn cta-${kind}`} data-dialog-open={dialogTarget} data-goatcounter-click={event}>{label}</button>
 ) : (
-  <a class={`btn cta-${kind}`} href={href}>{label}</a>
+  <a class={`btn cta-${kind}`} href={href} data-goatcounter-click={event}>{label}</a>
 )}
 <style>
   .btn {

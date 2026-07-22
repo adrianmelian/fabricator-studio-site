@@ -1,0 +1,323 @@
+---
+// /store/ — the Advanced Ribbon Modules.
+//
+// New 2026-07-22 (website overhaul). Structure follows the frozen store spec verbatim
+// (MrMiata: workspace/2026-07-22_website-posture-pass/STORE-PAGE.md, nine blocks): show the
+// thing before describing it, clarify the two paid axes high on the page, state what stays
+// free generously, and never use Pro / Premium / tier language.
+//
+// BUY_HREF is deliberately null. Two things gate a live checkout and neither is a web
+// problem: the storefront platform is still a call between Polar and Stripe Managed
+// Payments, and the pack artifact does not exist yet (build_ribbon_pack.py is behind the
+// release cut). Until both land, this page states availability honestly rather than pointing
+// a buy button at nothing. When the platform is chosen, set BUY_HREF and the button goes
+// live with no other change on this page.
+const BUY_HREF: string | null = null;
+
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import BracketButton from '../../components/BracketButton.astro';
+
+const PRICE = '$199';
+
+const PARTS = [
+  {
+    name: 'Ribbon Spine',
+    line: 'A continuous surface through the torso, so a heavy bend keeps its volume instead of creasing at one joint.',
+  },
+  {
+    name: 'Ribbon Arm',
+    line: 'Elbows and shoulders that hold their shape through the full range, including the twist that normally collapses a bicep.',
+  },
+  {
+    name: 'Ribbon Leg',
+    line: 'Hips and knees that stay round under deep flexion, where a standard limb chain pinches.',
+  },
+];
+
+const FAQ = [
+  {
+    q: 'Can I use these on client work?',
+    a: 'Yes. Same as the rest of the toolset. If your organization is under the revenue threshold, use it on anything you like, including paid client work, and keep it.',
+  },
+  {
+    q: 'Do my animators need to buy this?',
+    a: 'No. Ribbon rigs animate for everyone with nothing installed. You need the modules to build and edit ribbon components, not to animate a rig that already has them.',
+  },
+  {
+    q: 'What if my studio is over $2 million a year?',
+    a: 'That is a separate question from this page. The modules are the same price for everyone. The revenue threshold is about the toolset as a whole, and it is explained on the licensing page.',
+  },
+  {
+    q: 'Does it expire?',
+    a: 'No. One payment, perpetual, no seats and no renewal. Every version becomes fully open source four years after it ships, automatically.',
+  },
+  {
+    q: 'Which Maya versions are supported?',
+    a: 'The latest two Maya releases, best effort, no SLA. The same support promise the rest of the toolset carries.',
+  },
+  {
+    q: 'What exactly do I download?',
+    a: 'A build of the toolset that includes the ribbon modules. There is no key, no activation, no account, and nothing phones home.',
+  },
+];
+---
+<BaseLayout
+  title="Store | FabricatorStudio"
+  description="The Advanced Ribbon Modules: ribbon-tech spine, arm, and leg for FabricatorStudio. One payment, perpetual, and ribbon rigs animate for everyone."
+>
+  <NavBar />
+
+  <section id="store-head">
+    <SectionHead
+      eyebrow="STORE"
+      title="ADVANCED RIBBON MODULES"
+      sub="Ribbon-tech spine, arm, and leg. The deformation layer that sits on top of the free limbs, for the shoulders, hips, and spines that have to hold up in close-up."
+    />
+    <div class="st-price">
+      <span class="st-price__num">{PRICE}</span>
+      <span class="st-price__terms">one payment, perpetual, no seats</span>
+    </div>
+  </section>
+
+  {/* BLOCK 2 — the proof. This carries the entire argument for the page: same character,
+      same pose, same lighting, same camera, standard limb bend against ribbon limb bend.
+      Asset is Adrian's hands and is cut from the ribbons video shoot (see MrMiata:
+      workspace/2026-07-22_website-overhaul/SHOT-LIST.md). Until it lands the slot renders
+      as a visibly unfinished plate rather than quietly disappearing, because a store page
+      whose proof block is missing should look unfinished. */}
+  <section id="store-proof">
+    <div class="st-proof">
+      <div class="st-proof__slot" role="img" aria-label="Comparison loop pending: standard limb deformation beside ribbon limb deformation">
+        <span class="st-proof__tag">ASSET PENDING</span>
+        <span class="st-proof__line">Standard limb, then ribbon limb. Same character, same pose, same light.</span>
+      </div>
+    </div>
+    <p class="st-proof__cap">This is the whole argument. Everything below it is detail.</p>
+  </section>
+
+  {/* BLOCK 3 — the two-axis clarifier. High on the page, small, and load-bearing: it exists
+      to stop a small studio concluding that ribbons are locked behind a corporate license.
+      (MrMiata: workspace/2026-07-18_licensing-decision/DECISION.md.) */}
+  <section id="store-axes">
+    <div class="st-axes">
+      <p>The Advanced Modules are paid for everyone, at any studio size. They are not a corporate tier and they are not a subscription.</p>
+      <p>If your organization makes over $2 million a year, that is a separate thing, it covers the whole toolset, and it lives on the <a href="/licensing/">licensing page</a>.</p>
+    </div>
+  </section>
+
+  <section id="store-parts">
+    <SectionHead eyebrow="WHAT YOU GET" title="THREE MODULES" />
+    <div class="st-parts">
+      {PARTS.map((p) => (
+        <div class="st-part">
+          <h3 class="st-part__name">{p.name}</h3>
+          <p class="st-part__line">{p.line}</p>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  {/* BLOCK 5 — what stays free. The most trust-building block on the page, and it is true.
+      It says the paid product is not a hostage situation, which is a real differentiator
+      against a field of node-locked encrypted binaries. */}
+  <section id="store-free">
+    <div class="st-free">
+      <h2 class="st-free__head">Ribbon rigs animate for everyone.</h2>
+      <p>If someone hands your animators a character built with these modules, it works, with nothing installed and nothing to buy. The deformation is baked Maya nodes.</p>
+      <p>You need the modules to build and edit ribbon components. You do not need them to use a rig that has them.</p>
+    </div>
+  </section>
+
+  <section id="store-buy">
+    <div class="st-buy">
+      <div class="st-buy__top">
+        <span class="st-buy__num">{PRICE}</span>
+        <span class="st-buy__terms">One payment. Yours to keep. No seats, no renewal, no account.</span>
+      </div>
+      {BUY_HREF ? (
+        <>
+          <BracketButton kind="hard" href={BUY_HREF} label="Buy the modules" />
+          <p class="st-buy__next">You will get a download link by email straight after checkout.</p>
+        </>
+      ) : (
+        <>
+          <span class="st-buy__soon">Ships with the next release</span>
+          <p class="st-buy__next">The modules go on sale when the next build is cut. If you want the link the day it lands, mail <a href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a> and I will tell you.</p>
+        </>
+      )}
+    </div>
+  </section>
+
+  <section id="store-commit">
+    <div class="st-two">
+      <div class="st-note">
+        <h3 class="st-note__head">What buying commits me to</h3>
+        <p>Updates and Maya compatibility for the latest two Maya releases, best effort, no SLA. Selling this is a support commitment, and saying so out loud is what makes it worth anything.</p>
+      </div>
+      <div class="st-note">
+        <h3 class="st-note__head">Open Python, no DRM</h3>
+        <p>Source available, nothing compiled, no license checks, no phoning home, no activation server that can be switched off. Read it, change it, keep it.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="store-faq">
+    <SectionHead eyebrow="QUESTIONS" title="FAQ" />
+    <div class="st-faq">
+      {FAQ.map((f) => (
+        <details class="st-faq__item">
+          <summary class="st-faq__q">{f.q}</summary>
+          <p class="st-faq__a">{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .st-price { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }
+  .st-price__num { font-family: var(--font-mono); font-weight: 800; font-size: clamp(2rem, 4vw, 2.75rem); color: var(--ember); letter-spacing: -0.02em; }
+  .st-price__terms { font-family: var(--font-mono); font-size: 0.9375rem; letter-spacing: 0.06em; color: var(--bone-dim); }
+
+  #store-proof { padding-top: 0; }
+  .st-proof {
+    position: relative;
+    border-radius: 20px;
+    overflow: hidden;
+    border: 1px dashed rgba(255, 122, 61, 0.45);
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    box-shadow: var(--shadow-lg);
+  }
+  .st-proof__slot {
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    text-align: center;
+    padding: 2rem;
+  }
+  .st-proof__tag {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 0.8125rem;
+    letter-spacing: 0.24em;
+    color: var(--ember);
+    border: 1px solid rgba(255, 122, 61, 0.45);
+    background: rgba(255, 122, 61, 0.13);
+    border-radius: 9px;
+    padding: 0.4rem 0.9rem;
+  }
+  .st-proof__line { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--bone-dim); max-width: 34rem; line-height: 1.6; }
+  .st-proof__cap { margin: 1rem 0 0; font-size: 0.9375rem; color: var(--bone-faint); }
+
+  #store-axes { padding-top: 0; }
+  .st-axes {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    border-left: 3px solid var(--ember);
+    border-radius: 0 14px 14px 0;
+    background: linear-gradient(90deg, rgba(255, 122, 61, 0.09), rgba(255, 122, 61, 0));
+    padding: 1.25rem 1.5rem;
+  }
+  .st-axes p { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+
+  .st-parts { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.125rem; }
+  @media (max-width: 900px) { .st-parts { grid-template-columns: 1fr; } }
+  .st-part {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.75rem 1.625rem;
+    border-radius: 16px;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 122, 61, 0.16);
+    box-shadow: var(--shadow-md);
+  }
+  .st-part__name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; color: var(--bone); }
+  .st-part__line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+
+  .st-free {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2.25rem 2.5rem;
+    border-radius: 20px;
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.35);
+    border-left: 3px solid var(--plasma);
+    box-shadow: var(--shadow-lg);
+  }
+  .st-free__head { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.5rem, 3vw, 2rem); color: var(--plasma); line-height: 1.1; }
+  .st-free p { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone); text-wrap: pretty; }
+  @media (max-width: 640px) { .st-free { padding: 1.75rem 1.5rem; } }
+
+  .st-buy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 2.25rem 2.5rem;
+    border-radius: 20px;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 122, 61, 0.35);
+    box-shadow: var(--shadow-lg);
+  }
+  .st-buy__top { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
+  .st-buy__num { font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.75rem, 3.4vw, 2.25rem); color: var(--ember); }
+  .st-buy__terms { font-size: 0.9375rem; color: var(--bone-dim); }
+  .st-buy__soon {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 0.9375rem;
+    letter-spacing: 0.12em;
+    color: var(--bone);
+    border: 1px solid var(--iron-3);
+    background: var(--iron);
+    border-radius: var(--radius-pill);
+    padding: 0.75em 1.5em;
+  }
+  .st-buy__next { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); }
+
+  .st-two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.125rem; }
+  @media (max-width: 800px) { .st-two { grid-template-columns: 1fr; } }
+  .st-note {
+    display: flex;
+    flex-direction: column;
+    gap: 0.7rem;
+    padding: 1.75rem 1.625rem;
+    border-radius: 16px;
+    background: var(--iron);
+    border: 1px solid var(--iron-3);
+    box-shadow: var(--shadow-md);
+  }
+  .st-note__head { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
+  .st-note p { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+
+  .st-faq { display: flex; flex-direction: column; gap: 0.75rem; }
+  .st-faq__item {
+    border: 1px solid var(--iron-3);
+    border-radius: 14px;
+    background: var(--iron);
+    padding: 1rem 1.25rem;
+  }
+  .st-faq__q {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--bone);
+    cursor: pointer;
+    list-style: none;
+  }
+  .st-faq__q::-webkit-details-marker { display: none; }
+  .st-faq__q::before { content: '+'; color: var(--plasma); margin-right: 0.75rem; font-weight: 800; }
+  .st-faq__item[open] .st-faq__q::before { content: '\2212'; color: var(--ember); }
+  .st-faq__a { margin: 0.75rem 0 0.25rem; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+</style>

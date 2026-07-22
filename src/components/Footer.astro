@@ -1,19 +1,46 @@
 ---
-// GitHub + Report-a-bug are held until the toolset repo is public at v1 launch (private now;
-// they would 404). Contact routes feedback in the meantime. Restore both at launch.
+// Footer. Reworked 2026-07-22 (website overhaul).
+//
+// Three things changed and each pays for itself:
+//
+// 1. The cross-link to adrianmelian.com was a bare URL, so the two sites did not read as a
+//    pair. It is now labelled with what is on the other side and which visitor it is for.
+//    That is the cheapest half of the two-layer system the whole pass is about.
+// 2. Tutorials picked up a footer link, which is the debt the homepage tutorials grid left
+//    behind when it was cut.
+// 3. GitHub and Report-a-bug are RESTORED. The old comment here held them back because the
+//    toolset repo was private pre-launch and they would have 404'd. The repo went public at
+//    v1 on 2026-07-20, so the hold expired and the public tracker is the front door the
+//    launch posture promised.
+//
+// Community (YouTube, Instagram) moved down here from the nav in the same pass.
+import { LINKS } from '../data/links';
 ---
 <footer>
   <div class="footer__links">
+    <a href="/tools/">Toolset</a>
+    <a href="/store/">Store</a>
+    <a href="/tutorials/">Tutorials</a>
     <a href="/licensing/">Licensing</a>
     <a href="/changelog/">Changelog</a>
     <a href="/known-issues/">Known issues</a>
+    <a href="https://github.com/adrianmelian/FabricatorStudio" target="_blank" rel="noopener">Source</a>
+    <a href="https://github.com/adrianmelian/FabricatorStudio/issues/new/choose" target="_blank" rel="noopener">Report a bug</a>
     <a href="mailto:adrian@fabricator.studio">Contact</a>
-    <a href="https://adrianmelian.com">adrianmelian.com</a>
+    {LINKS.community.map((c) => (
+      <a href={c.href} target="_blank" rel="noopener">{c.label}</a>
+    ))}
   </div>
+  <p class="footer__pair">
+    <a class="footer__pair-link" href="https://adrianmelian.com">Adrian Melian &middot; Technical Director &middot; portfolio and hiring &rarr;</a>
+  </p>
   <p class="footer__name">Fabricator, by FabricatorStudio. Free for solo developers, indies, and small teams.</p>
 </footer>
 <style>
   footer { font-family: var(--font-mono); max-width: 72rem; margin: 0 auto; padding: 3rem 1.5rem 4rem; border-top: 1px solid var(--iron-2); text-align: center; }
   .footer__links { display: flex; gap: 1.5rem; flex-wrap: wrap; font-size: 0.9375rem; justify-content: center; }
+  .footer__pair { margin-top: 1.5rem; }
+  .footer__pair-link { font-size: 0.9375rem; color: var(--bone); text-decoration: none; border-bottom: 1px solid var(--iron-3); }
+  .footer__pair-link:hover { color: var(--ember); border-color: var(--ember); }
   .footer__name { margin-top: 1.25rem; color: var(--bone-faint); font-size: 0.875rem; }
 </style>

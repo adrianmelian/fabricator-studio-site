@@ -1,65 +1,80 @@
 ---
+// The homepage. Rebuilt 2026-07-22 (website overhaul, two-door architecture).
+//
+// What changed and why, so nobody re-litigates it from the diff:
+//
+// The page used to be a product page wearing a studio's name. Its first four screens offered
+// one action, nothing said a person was for hire until a visitor found the Services tab, and
+// it ended on the bio with no ask at all. It also argued twice: six adjective cards sat
+// directly under four blocks that DEMONSTRATED the same claims, and a tutorials grid spent a
+// whole section saying that a nav item exists.
+//
+// The governing rule of the pass was a FIXED SECTION BUDGET: every addition names the element
+// it replaces, and the page may end shorter but never longer. It ended shorter.
+//
+//   key features (6 adjective cards)  ->  BUILT WITH IT (the proof section)
+//   tutorials grid                    ->  WORK WITH ME (the closing ask, the page had none)
+//   hero sub 2 ("Generative AI era")  ->  the studio line, and it now leads the hero
+//   the 4th repeat of the free line   ->  the shipped record, credited to the person
+//   the four tool cards + popups      ->  relocated INTACT to /tools/, which can grow
+//   the licensing tiers               ->  relocated to /tools/, next to what they price
+//
+// Deliberately untouched: the hero video, the wordmark, the download gate and its
+// MailerLite/R2 path, the welcome video's position, the WHY quote (Adrian's verbatim story),
+// and Mindmeld 2.0 styling everywhere.
 import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BracketButton from '../components/BracketButton.astro';
-import ToolCard from '../components/ToolCard.astro';
-import FabricatorHero from '../components/FabricatorHero.astro';
-import BridgeHero from '../components/BridgeHero.astro';
-import AnimStudioHero from '../components/AnimStudioHero.astro';
-import ReggieHero from '../components/ReggieHero.astro';
-import downloadBanner from '../assets/download/download_card.png';
-import Footer from '../components/Footer.astro';
 import NavBar from '../components/NavBar.astro';
-import { flagshipTools } from '../data/tools';
-import { TUTORIALS } from '../data/tutorials';
-import { WHY_PARAS } from '../data/licensing';
+import Footer from '../components/Footer.astro';
 import WelcomeVideo from '../components/WelcomeVideo.astro';
-
-// Key Features section heading in the outlined tri-color treatment (Adrian x Claude
-// Design, 2026-07-17). Same glyph cycle as the designed docs pages: letters only,
-// continuing across word gaps.
-const KF_TITLE = 'KEY FEATURES';
-const KF_TRI = ['kf-bone', 'kf-plasma', 'kf-ember'];
-let kfi = 0;
-const kfGlyphs = KF_TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'kf-gap' : KF_TRI[kfi++ % 3] }));
+import SectionHead from '../components/SectionHead.astro';
+import DownloadBand from '../components/DownloadBand.astro';
+import FabricatorHero from '../components/FabricatorHero.astro';
+import { WHY_PARAS } from '../data/licensing';
 
 import aboutPortrait from '../assets/about/adrian.png';
 import heroWordmark from '../assets/hero/wordmark-banner.png';
 
-// About Me section heading, same tri-color treatment as Key Features (Adrian x Claude
-// Design, 2026-07-17).
-const AM_TITLE = 'ABOUT ME';
-const AM_TRI = ['am-bone', 'am-plasma', 'am-ember'];
-let ami = 0;
-const amGlyphs = AM_TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'am-gap' : AM_TRI[ami++ % 3] }));
-
-// The hero pipeline strip (Concept / Modeling / ... / Engine) was REMOVED 2026-07-22
-// (Adrian) along with the new hero copy. It was also the last blue in the hero.
-
-// Tutorials block heading, same treatment (Adrian x Claude Design, 2026-07-17; source
-// drop: MrMiata inbox/Docs/"Tutorials Block Docs.html"). The drop predates the uploads;
-// the cards carry the REAL thumbnails and links from the tutorials data.
-const TB_TITLE = 'TUTORIALS';
-const TB_TRI = ['tb-bone', 'tb-plasma', 'tb-ember'];
-let tbi = 0;
-const tbGlyphs = TB_TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'tb-gap' : TB_TRI[tbi++ % 3] }));
-
-// The animated GUI that rides inside each tool card, keyed by the tool's dialog. These are
-// the same components the Learn More popovers use, so a card and its popover always show the
-// same graphic. Each one scopes its own script to its own root (currentScript), so rendering
-// a second instance here is safe: the card's copy and the dialog's copy animate independently.
-const TOOL_UI: Record<string, any> = {
-  'pop-fabricator': FabricatorHero,
-  'pop-studio': AnimStudioHero,
-  'pop-bridge': BridgeHero,
-  'pop-reggie': ReggieHero,
-};
+// BUILT WITH IT. Three entries, not four: Archangel is held back until Adrian clears the
+// game's art direction for public view, and a filler fourth would weaken the three that
+// carry real weight. Every claim here is verifiable today, which is the entire point of the
+// section: we out-prove the field, we were just never showing it.
+//
+// `pill` is plasma for shipped/live states (DNA principle 2: plasma = success/correct).
+// Ember stays reserved for IN DEVELOPMENT, which nothing on this page currently carries.
+//
+// `shot` names the asset the entry is waiting on (MrMiata:
+// workspace/2026-07-22_website-overhaul/SHOT-LIST.md). Entries without a delivered image
+// render a visibly unfinished plate rather than silently collapsing, because this section is
+// the strongest thing the overhaul adds and it should look unfinished until it is finished.
+const PROOF = [
+  {
+    name: 'Reggie',
+    pill: 'LIVE',
+    claim: 'Rigged, skinned, and exported to Unreal entirely through the pipeline.',
+    detail:
+      'Built in Maya with Fabricator, skinned with AutoSkin, exported through the FBX skeletal exporter, and imported into Unreal against the same rig-binding contract every character in the pipeline uses. No hand-off, no cleanup pass, no separate export rig.',
+    shot: 'proof-reggie',
+    shotNote: 'Reggie in the Unreal viewport, posed and lit.',
+  },
+  {
+    name: 'QS_BipedRig',
+    pill: 'SHIPPED',
+    claim: 'The blueprint anyone downloads, built and validated on a vanilla Maya install.',
+    detail:
+      'The blueprint that ships with the toolset. It builds on a clean Maya install with nothing else present, which is the only test that matters for a rig anyone can download.',
+    shot: 'proof-qsbiped',
+    shotNote: 'The finished rig in the Maya viewport, controls visible.',
+  },
+];
 ---
 <BaseLayout
   title="FabricatorStudio | The Artist-Friendly Game Dev Pipeline"
-  description="Free Maya rigging toolset built by a 14-year AAA technical artist. Download Fabricator, and hire the TA who built it when you need him."
+  description="A one-person technical art studio. The free Maya to Unreal character pipeline, and the 14-year AAA technical artist who built it, available for hire."
 >
   <NavBar />
+
   <section id="hero" class="hero-v2">
     <video class="hero-media" autoplay muted loop playsinline
       poster="/demo/fs_hero_poster.jpg"
@@ -78,301 +93,126 @@ const TOOL_UI: Record<string, any> = {
         <span class="hero-divider__gem"></span>
         <span class="hero-divider__bar"></span>
       </div>
+      {/* The studio line LEADS now. This is the whole posture fix in one sentence swap: the
+          page declares what it is in the first six seconds, instead of a visitor having to
+          find the Services tab to learn a person is behind it. */}
+      <p class="hero-sub hero-sub--studio"><b>FabricatorStudio is a one-person technical art studio.</b> The pipeline is <b class="hero-sub__hl">free</b>. The technical artist who built it is <b class="hero-sub__ember">available for hire</b>.</p>
       <p class="hero-sub"><b>Next-gen Maya Studio Pipeline.</b> FabricatorStudio allows you to focus on <b class="hero-sub__hl">what matters most</b>, and <b class="hero-sub__ember">automates the rest</b>. Automated <b class="hero-sub__hl">high-end, animator-friendly rigs</b>, <b class="hero-sub__ember">autoskinning</b>, and <b class="hero-sub__hl">direct to engine delivery</b>.</p>
-      <p class="hero-sub hero-sub--free">Made for <b class="hero-sub__ember">solo developers, indies, and small studios</b> in the <b class="hero-sub__hl">Generative AI</b> era.</p>
+      {/* Two doors, unequal on purpose. Most arrivals today come for the toolset, so the free
+          download keeps the visual weight it has always had and the paid door sits beside it
+          rather than competing with it. Hiring is NOT in the hero: it is a different audience
+          and it converts better after the proof, in the closing band. */}
       <div class="hero-ctas">
-        <BracketButton kind="plasma-outline" downloadGate label="Free Download" />
+        <BracketButton kind="hard" downloadGate label="Get the free toolset" event="hero-download" />
+        <BracketButton kind="soft" href="/store/" label="Advanced Modules →" event="hero-store" />
       </div>
     </div>
   </section>
 
-  <!-- WELCOME VIDEO (Adrian x Claude Design, 2026-07-19). Sits between the hero and the
-       WHY story: the spoken introduction, then the written one. -->
+  {/* The spoken introduction, before any UI. A cold visitor gets a human voice first. */}
   <section id="welcome">
     <WelcomeVideo />
   </section>
 
-  <section id="tools">
-    <div class="tools__stack">
-      {flagshipTools.map((t, i) => {
-        const Ui = t.dialogId ? TOOL_UI[t.dialogId] : undefined;
-        // Every card's GRAPHIC carries the copy now (Adrian 2026-07-14): rollout complete, all
-        // four graphics render their own heading/paras/CTA. A future card without a graphic
-        // still gets the classic copy column automatically.
-        const textInUi = Boolean(Ui);
-        return (
-          <ToolCard name={t.name} paras={t.paras} href={t.href} image={t.image} alt={t.alt} align={i % 2 === 0 ? 'left' : 'right'} dialogId={t.dialogId} textInUi={textInUi}>
-            {/* The graphic's own text block carries the tool's real name and pitch, and the
-                Learn More CTA under it. Components that do not accept these yet simply ignore
-                them, so this rolls out per graphic. */}
-            {Ui && <Ui slot="ui" bare heading={t.name} paras={t.paras} ctaHref={t.href} ctaDialog={t.dialogId} />}
-          </ToolCard>
-        );
-      })}
-    </div>
-  </section>
-
-  <dialog id="pop-fabricator" class="product-pop">
-    <div class="product-pop__inner">
-      <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
-      <FabricatorHero />
-      <div class="product-pop__body">
-        <h2 class="product-pop__headline">Animator Friendly Rigs. AutoSkinning. Non-linear workflow.</h2>
-        <p>Fabricator is a template-driven, network-based rigging system. Drag components onto your skeleton, build the whole rig in one pass, and never lose work to a rebuild.</p>
-        <ul>
-          <li>Non-destructive and non-linear. Unbuild, restructure, and rebuild, even while animation is already in production.</li>
-          <li>Rename anything. Rig state lives in your scene as network connections, not name strings, so nothing breaks.</li>
-          <li>Animator-friendly out of the box: IK/FK matching, space switching, smart pole vectors, and a marking menu on every control.</li>
-          <li>Save your perfect rig as a template and reuse it across your whole cast, even at different proportions.</li>
-        </ul>
-        <p class="product-pop__free">Free for solo developers, indies, and small teams. Pure Python, source available, nothing to compile, nothing hidden.</p>
-        <a class="product-pop__docs" href="/docs/tools/fabricator/">Read the full docs →</a>
-      </div>
-    </div>
-  </dialog>
-
-  <dialog id="pop-studio" class="product-pop">
-    <div class="product-pop__inner">
-      <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
-      <AnimStudioHero />
-      <div class="product-pop__body">
-        <h2 class="product-pop__headline">Manage Animations &amp; Poses in one Library.</h2>
-        <p>Animation Studio saves poses and clips to a library that travels across every rig built with Fabricator. Capture a hero pose or a walk cycle, then drop it onto any character.</p>
-        <ul>
-          <li>Poses and clips apply by component identity, not node names, so they work on any Fabricator rig.</li>
-          <li>Place, insert, or replace clips on the timeline, with start and end anchors and root-motion control.</li>
-          <li>Selection sets mask a pose down to just the parts you want.</li>
-          <li>Thumbnails and hover previews keep a big library scannable.</li>
-        </ul>
-        <p class="product-pop__free">Build your library, and every new character starts ahead.</p>
-        <a class="product-pop__docs" href="/docs/tools/pose-anim-studio/">Read the full docs →</a>
-      </div>
-    </div>
-  </dialog>
-
-  <dialog id="pop-bridge" class="product-pop">
-    <div class="product-pop__inner">
-      <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
-      <BridgeHero />
-      <div class="product-pop__body">
-        <h2 class="product-pop__headline">An entire pipeline, one click away.</h2>
-        <p>Bridge puts the entire FabricatorStudio toolbox into one compact, dockable toolbar inside Maya. Launch the big tools, fire the everyday utilities, and stop hunting through shelves and menus.</p>
-        <ul>
-          <li>Every tool a click away, in a single dockable strip.</li>
-          <li>Popover launchers keep it compact, no shelf sprawl, no menu digging.</li>
-          <li>Versioned builds, so "what version are you on" always has an answer.</li>
-          <li>Connect your own AI right from the strip: start the read-only bridge and copy the setup snippet for your client.</li>
-        </ul>
-        <p class="product-pop__free">Built for the way artists actually work.</p>
-        <a class="product-pop__docs" href="/docs/tools/bridge/">Read the full docs →</a>
-      </div>
-    </div>
-  </dialog>
-
-  <dialog id="pop-reggie" class="product-pop">
-    <div class="product-pop__inner">
-      <button type="button" class="product-pop__close" data-dialog-close aria-label="Close">✕</button>
-      <ReggieHero />
-      <div class="product-pop__body">
-        <h2 class="product-pop__headline">AI Tech Art, on call, inside Maya.</h2>
-        <p>Reggie is an AI Technical Artist that is an expert on the FabricatorStudio toolset. It reads your actual scene, then helps you fix what broke. Ask why a build failed, where a rig went wrong, or how a tool works, and get answers immediately. No more waiting on a human TA.</p>
-        <ul>
-          <li>Connect your own AI: Claude Code, Claude Desktop, Cursor, any MCP client. Your model, your key, your machine.</li>
-          <li>Read-only, enforced in code. Reggie can see everything and change nothing. When something needs fixing, it hands you the script to run.</li>
-          <li>Trained on the FabricatorStudio pipeline: it troubleshoots from the docs, proposes the documented fix, and files a clean bug report only when a real bug remains.</li>
-        </ul>
-        <p class="product-pop__free">You have a TA sitting next to you, ready to help, always.</p>
-        <a class="product-pop__docs" href="/docs/tools/your-ai-ta/">Read the full docs →</a>
-      </div>
-    </div>
-  </dialog>
-  <script is:inline>
-    (function () {
-      document.querySelectorAll('[data-dialog-open]').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-          var d = document.getElementById(btn.getAttribute('data-dialog-open'));
-          if (d && d.showModal) d.showModal();
-        });
-      });
-      document.querySelectorAll('dialog.product-pop').forEach(function (d) {
-        d.querySelectorAll('[data-dialog-close]').forEach(function (b) {
-          b.addEventListener('click', function () { d.close(); });
-        });
-        d.addEventListener('click', function (e) { if (e.target === d) d.close(); });
-      });
-    })();
-  </script>
-
-  <!-- WHY moved into the About card 2026-07-22 (Adrian): it is his story, so it now sits with
-       his portrait and bio rather than standing as its own #why section between the tool cards
-       and Key Features. Copy still shared verbatim with /licensing (src/data/licensing.ts). -->
-
-  <section id="features">
-    <div class="kf-head">
-      <div class="kf-eyebrow">FABRICATORSTUDIO</div>
-      <h2 class="kf-title" aria-label={KF_TITLE}>
-        {kfGlyphs.map((g) =>
-          g.cls === 'kf-gap' ? <span class="kf-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
-        )}
-      </h2>
-    </div>
-    <div class="kf-grid">
-      <div class="kf-card kf-card--plasma">
-        <div class="kf-card__top">
-          <div class="kf-icon kf-icon--plasma">
-            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><path d="M8 15l5 5 9-11" stroke="#7CFFB2" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" /></svg>
+  {/* WAS: six key-feature cards. They claimed "Easy to use", "Studio-grade tools", and
+      "Non-destructive workflow" immediately after four blocks that demonstrated exactly
+      those things with real UI. Claims placed after proof are worse than useless; they
+      weaken the proof. This section shows what the pipeline has MADE instead. */}
+  <section id="proof">
+    <SectionHead
+      eyebrow="FABRICATORSTUDIO"
+      title="BUILT WITH IT"
+      sub="Not screenshots of the tools. The characters and the work that came out of them."
+    />
+    <div class="pf-grid">
+      {PROOF.map((p) => (
+        <article class="pf-card">
+          <div class="pf-media" role="img" aria-label={`${p.name}: image pending. ${p.shotNote}`}>
+            <span class="pf-shot">ASSET PENDING</span>
+            <span class="pf-shot__note">{p.shotNote}</span>
           </div>
-          <span class="kf-num" aria-hidden="true">01</span>
-        </div>
-        <h3 class="kf-card__name">Easy to use</h3>
-        <p class="kf-card__line">Elegant by design. Where most tools are button-and-option nightmares, these are <b>drag-and-drop and guided</b>. Light-weight, portable, and made for artists by an artist.</p>
-      </div>
-      <div class="kf-card kf-card--ember">
-        <div class="kf-card__top">
-          <div class="kf-icon kf-icon--ember">
-            <svg width="34" height="30" viewBox="0 0 34 30" fill="none" aria-hidden="true"><circle cx="6" cy="15" r="4" stroke="#FF7A3D" stroke-width="2.6" /><circle cx="28" cy="15" r="4" stroke="#FF7A3D" stroke-width="2.6" /><path d="M10 15h14" stroke="#FF7A3D" stroke-width="2.6" stroke-linecap="round" stroke-dasharray="1 5" /></svg>
-          </div>
-          <span class="kf-num" aria-hidden="true">02</span>
-        </div>
-        <h3 class="kf-card__name">End to end pipeline</h3>
-        <p class="kf-card__line">From <b>concept to animating in engine</b>, one kit helps carry your assets the whole way. Portable across projects, extendable when you need your own workflows, professional in design.</p>
-      </div>
-      <div class="kf-card kf-card--plasma">
-        <div class="kf-card__top">
-          <div class="kf-icon kf-icon--plasma">
-            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><ellipse cx="15" cy="15" rx="13" ry="8" stroke="#7CFFB2" stroke-width="2.4" /><circle cx="15" cy="15" r="3.4" fill="#7CFFB2" /></svg>
-          </div>
-          <span class="kf-num" aria-hidden="true">03</span>
-        </div>
-        <h3 class="kf-card__name">AI integration</h3>
-        <p class="kf-card__line">Connect your own AI and it becomes <b>Reggie</b>, the AI TA trained on the FabricatorStudio pipeline. Troubleshoots, proposes fixes, files bugs. <b class="kf-hl">Read-only, enforced in code</b>. Automation-ready APIs cover the rest.</p>
-      </div>
-      <div class="kf-card kf-card--plasma">
-        <div class="kf-card__top">
-          <div class="kf-icon kf-icon--plasma">
-            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><circle cx="8" cy="8" r="3.2" stroke="#7CFFB2" stroke-width="2.4" /><circle cx="22" cy="22" r="3.2" stroke="#7CFFB2" stroke-width="2.4" /><path d="M10.3 10.3l9.4 9.4" stroke="#7CFFB2" stroke-width="2.4" stroke-linecap="round" /></svg>
-          </div>
-          <span class="kf-num" aria-hidden="true">04</span>
-        </div>
-        <h3 class="kf-card__name">Animator-friendly rig modules</h3>
-        <p class="kf-card__line">Clean controls, space matching, and IK/FK matching that <b>holds the pose through the switch</b>. Rigs animators actually enjoy using. Networked rigs that never break on a name change.</p>
-      </div>
-      <div class="kf-card kf-card--ember">
-        <div class="kf-card__top">
-          <div class="kf-icon kf-icon--ember">
-            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><path d="M24 8a10 10 0 10 1.5 9" stroke="#FF7A3D" stroke-width="2.6" stroke-linecap="round" /><path d="M24 3v6h-6" stroke="#FF7A3D" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          </div>
-          <span class="kf-num" aria-hidden="true">05</span>
-        </div>
-        <h3 class="kf-card__name">Non-destructive workflow</h3>
-        <p class="kf-card__line">Non-destructive and non-linear: <b>tear down and rebuild at any stage</b>. Model and rig edits can run while animation is already in production.</p>
-      </div>
-      <div class="kf-card kf-card--plasma">
-        <div class="kf-card__top">
-          <div class="kf-icon kf-icon--plasma">
-            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" aria-hidden="true"><path d="M15 3l10 5v7c0 6-4.3 10-10 12-5.7-2-10-6-10-12V8l10-5z" stroke="#7CFFB2" stroke-width="2.4" stroke-linejoin="round" /><path d="M11 15l3 3 5-6" stroke="#7CFFB2" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" /></svg>
-          </div>
-          <span class="kf-num" aria-hidden="true">06</span>
-        </div>
-        <h3 class="kf-card__name">Studio-grade tools</h3>
-        <p class="kf-card__line">Network-based rigging that survives renames, rig versioning, and <b>export contracts that hold up</b> on a large production. Source available, transparent, verifiable: pure Python, nothing to compile, nothing hidden.</p>
-      </div>
-    </div>
-  </section>
-
-  <section id="download" class="download-v2" data-parallax-window>
-    <Image class="download-media" src={downloadBanner} alt="" aria-hidden="true" width={2048} loading="lazy" data-parallax />
-    <div class="download-scrim" aria-hidden="true"></div>
-    <div class="download-copy">
-      <BracketButton kind="plasma-outline" downloadGate label="Free Download" />
-    </div>
-  </section>
-
-  <!-- LICENSING (Adrian x Claude Design drop, 2026-07-18; source:
-       MrMiata inbox/Docs/"Licensing Block Docs.html"). Copy is the approved
-       COMMERCIAL-PAGE.md language, em-dash-free. Adrian's flow ruling 2026-07-18:
-       the deal sits AFTER download; the WHY story it used to carry now opens the
-       page as its own #why section. -->
-  <section id="licensing">
-    <div class="lcb-head">
-      <div class="lcb-eyebrow">LICENSING</div>
-    </div>
-    <div class="lcb-tiers">
-      <div class="lcb-tier lcb-tier--plasma">
-        <div class="lcb-tier__top">
-          <span class="lcb-pill lcb-pill--plasma"><span class="lcb-pill__dot" aria-hidden="true"></span>UNDER $2M / YEAR</span>
-          <span class="lcb-price lcb-price--plasma">Free</span>
-        </div>
-        <p class="lcb-tier__body">If your studio makes under <b>$2 million a year</b>, everything here is yours. Use it in production, ship your game, use it on client work, and keep it forever.</p>
-        <div class="lcb-tier__rule lcb-tier__rule--plasma" aria-hidden="true"></div>
-        <ul class="lcb-checks">
-          {['No seats', 'No trial', 'No feature gates', 'No phoning home'].map((c) => (
-            <li class="lcb-check">
-              <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10l3.5 3.5L15 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              {c}
-            </li>
-          ))}
-        </ul>
-      </div>
-      <div class="lcb-tier lcb-tier--ember">
-        <div class="lcb-tier__top">
-          <span class="lcb-pill lcb-pill--ember"><span class="lcb-pill__dot" aria-hidden="true"></span>ABOVE $2M / YEAR</span>
-          <span class="lcb-price lcb-price--ember">One license</span>
-        </div>
-        <p class="lcb-tier__body">Above $2 million, <b>one flat license covers your whole studio</b>, and it scales with your revenue, so it stays small when you're small.</p>
-        <div class="lcb-tier__rule lcb-tier__rule--ember" aria-hidden="true"></div>
-        <div class="lcb-star">
-          <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 3l3 6 6 1-4.5 4.3 1 6.2L13 20l-5.5 3 1-6.2L4 12.5 10 11z" stroke="#FF7A3D" stroke-width="2" stroke-linejoin="round" /></svg>
-          <p>One flat fee for the whole studio, no per-seat math.</p>
-        </div>
-      </div>
-    </div>
-    <div class="lcb-ctas">
-      <a class="lcb-cta lcb-cta--solid" href="/licensing/#pricing">See pricing &rarr;</a>
-      <a class="lcb-cta lcb-cta--ghost" href="/licensing/#license">Read the license</a>
-    </div>
-  </section>
-
-  {TUTORIALS.length > 0 && (
-    <section id="tutorials">
-      <div class="tb-head">
-        <div class="tb-eyebrow">FABRICATORSTUDIO</div>
-        <h2 class="tb-title" aria-label={TB_TITLE}>
-          {tbGlyphs.map((g) =>
-            g.cls === 'tb-gap' ? <span class="tb-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
-          )}
-        </h2>
-        <p class="tb-sub">Learn the kit.</p>
-      </div>
-      <div class="tb-grid">
-        {TUTORIALS.map((t) => (
-          <a class={`tb-card tb-card--${t.tone ?? 'plasma'}`} href={t.href} target="_blank" rel="noopener" aria-label={`Watch ${t.title} on YouTube`}>
-            <div class="tb-card__media">
-              {t.thumb && <img class="tb-card__thumb" src={t.thumb} alt="" loading="lazy" />}
-              <div class="tb-card__scrim" aria-hidden="true"></div>
-              {t.tag && <span class={`tb-card__tag tb-card__tag--${t.tone ?? 'plasma'}`}>{t.tag}</span>}
-              <span class={`tb-card__play tb-card__play--${t.tone ?? 'plasma'}`} aria-hidden="true"><span class="tb-card__tri"></span></span>
+          <div class="pf-body">
+            <div class="pf-top">
+              <h3 class="pf-name">{p.name}</h3>
+              <span class="pf-pill">{p.pill}</span>
             </div>
-            <div class="tb-card__body">
-              <span class={`tb-card__name tb-card__name--${t.tone ?? 'plasma'}`}>{t.name ?? t.title}</span>
-              {t.sub && <span class="tb-card__line">{t.sub}</span>}
-            </div>
-          </a>
-        ))}
+            <p class="pf-claim">{p.claim}</p>
+            <details class="pf-more">
+              <summary class="pf-more__q">How</summary>
+              <p class="pf-more__a">{p.detail}</p>
+            </details>
+          </div>
+        </article>
+      ))}
+
+      {/* The third entry's evidence is textual rather than photographic, so it is set as
+          type instead of faked as a screenshot. Every line below is checkable by clicking
+          it, which is a stronger argument than a picture of a repo page would have been. */}
+      <article class="pf-card">
+        <div class="pf-media pf-media--type">
+          <span class="pf-v">v1</span>
+          <span class="pf-v__lic">BUSL-1.1, source available</span>
+          <div class="pf-v__links">
+            <a href="/docs/">Docs</a>
+            <a href="/changelog/">Changelog</a>
+            <a href="/known-issues/">Known issues</a>
+            <a href="https://github.com/adrianmelian/FabricatorStudio" target="_blank" rel="noopener">Source</a>
+          </div>
+        </div>
+        <div class="pf-body">
+          <div class="pf-top">
+            <h3 class="pf-name">FabricatorStudio v1</h3>
+            <span class="pf-pill">SHIPPED</span>
+          </div>
+          <p class="pf-claim">Public source, full docs, a public issue tracker, and outside users.</p>
+          <details class="pf-more">
+            <summary class="pf-more__q">How</summary>
+            <p class="pf-more__a">Shipped 2026-07-20 under BUSL-1.1, with documentation, a public issue tracker, a changelog, and a known-issues page. Every version becomes fully open source four years after it ships, automatically.</p>
+          </details>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  {/* WAS: four full-bleed tool cards. They were the strongest thing on the site and they are
+      not lost: they moved to /tools/ intact, popups and all, where the toolset can grow
+      without making this page longer every time a tool ships. What stays here is one block
+      that names the box and gets out of the way, carrying the Fabricator graphic so the
+      homepage keeps a real visual anchor for the product. */}
+  <section id="toolset">
+    <SectionHead eyebrow="FABRICATORSTUDIO" title="THE TOOLSET" />
+    <div class="tk-grid">
+      <div class="tk-ui"><FabricatorHero /></div>
+      <div class="tk-body">
+        <p class="tk-lead">Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX exporters with an engine-ready contract.</p>
+        <p class="tk-line">Pure Python, source available, nothing to compile, nothing hidden.</p>
+        <p class="tk-lic">Free for studios under $2 million a year. <a href="/licensing/">See licensing</a>.</p>
+        <div class="tk-ctas">
+          <BracketButton kind="hard" href="/tools/" label="See the toolset" event="home-toolset" />
+        </div>
       </div>
-      <a class="tb-all" href="/tutorials/">All Tutorials &rarr;</a>
-    </section>
-  )}
+    </div>
+  </section>
+
+  <DownloadBand />
+
+  {/* WAS: the tutorials grid. It spent a full section telling a visitor that a page in the
+      nav exists, using YouTube's thumbnails, which made it the least on-brand block on the
+      page. Tutorials keep their nav item, their page, and a footer link. In its place, the
+      thing the homepage never had: an ask. */}
+  <section id="hire">
+    <div class="hb-card">
+      <h2 class="hb-head">Available for engagements.</h2>
+      <p class="hb-line">Rig and export setup, custom Maya tools, fractional TA and retainers. Delivered by the technical artist who built Fabricator, documented, and yours to keep.</p>
+      <div class="hb-ctas">
+        <BracketButton kind="hard" href="/services/" label="See services" event="home-services" />
+        <a class="hb-mail" href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>
+      </div>
+    </div>
+  </section>
 
   <section id="about">
-    <div class="am-head">
-      <div class="am-eyebrow">FABRICATORSTUDIO</div>
-      <h2 class="am-title" aria-label={AM_TITLE}>
-        {amGlyphs.map((g) =>
-          g.cls === 'am-gap' ? <span class="am-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
-        )}
-      </h2>
-    </div>
+    <SectionHead eyebrow="FABRICATORSTUDIO" title="ABOUT ME" />
     <div class="am-grid">
       <div class="am-portrait">
         <div class="am-portrait__frame">
@@ -386,7 +226,12 @@ const TOOL_UI: Record<string, any> = {
       </div>
       <div class="am-bio">
         <h3 class="am-bio__name">Hi, I'm Adrian Melian.</h3>
-        <p class="am-bio__para">I've spent <b>14 years as a Technical Artist</b> in AAA games, most recently leading the Tech Art team at <b class="am-plasma-b">Sledgehammer Games</b>. Along the way I've worked with Double Fine, Ubisoft, Camouflaj, and Meta, on games like Broken Age, Modern Warfare III, and South Park: The Fractured But Whole.</p>
+        {/* CREDENTIAL CORRECTION (approved). The live line said "most recently leading the
+            Tech Art team at Sledgehammer Games", which was wrong twice over: most recent was
+            Camouflaj, and compressing 14 years across six studios into a Sledgehammer lead
+            line breaks the credential-honesty rule. Two shipped Call of Duty titles, never
+            three. */}
+        <p class="am-bio__para">I've spent <b>14 years as a Technical Artist</b> in AAA games, at <b class="am-plasma-b">Sledgehammer Games</b>, Camouflaj, Meta, Double Fine, Ubisoft, and NCSoft. I led the Character and Weapons Tech Art teams at Sledgehammer and shipped two Call of Duty titles. Along the way: Broken Age, South Park: The Fractured But Whole, Horizon Worlds.</p>
         <p class="am-bio__para">Game dev is changing fast, and a new era of generative AI is here. Avoiding generic slop still takes <b>good tools</b>, ones that put the layers of polish where you want them. So I'm sharing my toolbox. <b class="am-ember-b">FabricatorStudio</b> is the rigging, skinning, animation, and export kit I built for indie teams and small studios, to the standard I held on AAA productions.</p>
         <figure class="lcb-why">
           <span class="lcb-why__mark lcb-why__mark--open" aria-hidden="true">“</span>
@@ -396,9 +241,18 @@ const TOOL_UI: Record<string, any> = {
           </blockquote>
           <figcaption class="lcb-why__cite"><span class="lcb-why__rule" aria-hidden="true"></span>Adrian</figcaption>
         </figure>
-        <div class="am-free">
-          <span class="am-free__dot" aria-hidden="true"></span>
-          <span class="am-free__line">The tools are free for solo developers, indies, and small teams.</span>
+        {/* WAS: "The tools are free for solo developers, indies, and small teams." By this
+            point the page had already said that in the hero, the toolset block, and the WHY
+            story. A fourth repetition of the price, sitting next to the bio, diluted the
+            credential it was standing on. This is the evidence that paragraph was missing.
+            Titles only, no aggregate count: every one below shipped, and a list is both
+            stronger and unarguable where "13 titles" keeps drifting. */}
+        <div class="am-record">
+          <div class="am-record__head">
+            <span class="am-record__tick" aria-hidden="true"></span>
+            <span class="am-record__label">14 YEARS &nbsp;&middot;&nbsp; SHIPPED</span>
+          </div>
+          <p class="am-record__list">Call of Duty: Vanguard &middot; Call of Duty: Modern Warfare III &middot; Broken Age &middot; Costume Quest 2 &middot; South Park: The Fractured But Whole &middot; Horizon Worlds &middot; Arizona Sunshine: Rampage &middot; Massive Chalice</p>
         </div>
       </div>
     </div>
@@ -437,6 +291,7 @@ const TOOL_UI: Record<string, any> = {
     })();
   </script>
 </BaseLayout>
+
 <style>
   .hero-v2 {
     position: relative;
@@ -444,22 +299,11 @@ const TOOL_UI: Record<string, any> = {
     width: 100vw;
     max-width: 100vw;
     margin: 0 0 0 calc(50% - 50vw);
-    /* No padding at all (Adrian 2026-07-14): the copy band is full-bleed and its bottom edge
-       sits flush with the hero's, so the band's own padding carries every inset. */
     padding: 0;
-    /* Fill the first screen exactly (Adrian 2026-07-14): 78vh left a sliver of the next
-       section showing on load, which pre-empted the hero. The NavBar is position:fixed and
-       body carries a matching padding-top, so the space actually visible below it is
-       100svh minus the header.
-
-       svh, not vh: on mobile, vh measures the viewport with the browser toolbars RETRACTED,
-       so a 100vh hero is taller than what you can actually see and the peek comes straight
-       back. svh is the small viewport (toolbars shown), which is the honest first-paint
-       height. The plain-vh line above it is the fallback for browsers without svh.
-
-       min-height, not height: the hero copy is tall (wordmark, tagline, paragraph, strip,
-       CTA), and .hero-v2 clips its overflow, so a fixed height would guillotine the CTA on
-       short screens. This way it fills the screen and can still grow past it if it must. */
+    /* svh, not vh: on mobile vh measures the viewport with the toolbars RETRACTED, so a
+       100vh hero is taller than what you can see and the next section peeks on load.
+       min-height, not height: .hero-v2 clips its overflow and a fixed height would
+       guillotine the CTAs on short screens. */
     min-height: calc(100vh - var(--header-h));
     min-height: calc(100svh - var(--header-h));
     display: flex;
@@ -487,12 +331,9 @@ const TOOL_UI: Record<string, any> = {
     z-index: 1;
     background: linear-gradient(to top, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0.55) 40%, rgba(11, 14, 16, 0) 65%);
   }
-  /* Same plate as the tool cards (Adrian 2026-07-14). The video is the worst offender for
-     this: it is MOVING, so a scrim that reads fine on one frame washes the copy out on the
-     next. A plate makes legibility independent of whatever frame is playing behind it. */
-  /* A full-bleed BAND, not a floating plate (Adrian 2026-07-14): stretches edge to edge,
-     square corners, roughly 60% of the hero tall, copy centered inside. Hairlines top and
-     bottom define the band; side borders are gone because the edges are the viewport's. */
+  /* A full-bleed BAND, not a floating plate. The video is the worst offender for legibility:
+     it MOVES, so a scrim that reads fine on one frame washes the copy out on the next. A
+     plate makes legibility independent of whatever frame is playing behind it. */
   .hero-copy {
     position: relative;
     z-index: 2;
@@ -507,8 +348,8 @@ const TOOL_UI: Record<string, any> = {
     min-height: calc(0.6 * (100svh - var(--header-h)));
     padding: 1.75rem 2rem;
     background: rgba(11, 14, 16, 0.31);
-    /* Unprefixed ONLY: see the note in ToolCard.astro. Hand-writing the -webkit- twin makes
-       lightningcss drop the standard property and Firefox loses the blur silently. */
+    /* Unprefixed ONLY: hand-writing the -webkit- twin makes lightningcss drop the standard
+       property and Firefox loses the blur silently. */
     backdrop-filter: blur(6px) saturate(115%);
     border: 0;
     border-top: 1px solid rgba(232, 224, 208, 0.1);
@@ -518,14 +359,10 @@ const TOOL_UI: Record<string, any> = {
   }
   /* Tests the STANDARD property only. ORing in the -webkit- alias would make this false on
      older Safari (which supports the alias) while the build emits no alias declaration, so
-     Safari would land on a see-through plate with no blur and no fallback. Testing the
-     standard property alone means anything without it gets the opaque plate instead. */
+     Safari would land on a see-through plate with no blur and no fallback. */
   @supports not (backdrop-filter: blur(1px)) {
     .hero-copy { background: rgba(11, 14, 16, 0.55); }
   }
-  /* The hero identity is Adrian's authored wordmark BANNER now (Adrian x Claude Design,
-     2026-07-17): the polished tri-color banner render replaces the mark + name text
-     lockup. 2205x320 source, shown at up to ~1180px wide. */
   .hero-wordmark { margin: 0; width: min(73.75rem, 100%); }
   .hero-wordmark :global(img) {
     display: block;
@@ -533,193 +370,162 @@ const TOOL_UI: Record<string, any> = {
     height: auto;
     filter: drop-shadow(0 18px 40px rgba(11, 14, 16, 0.55));
   }
-  /* Ember, letterspaced caps per the 2026-07-17 hero design (supersedes the 07-13 plasma
-     call); the plasma divider below carries the accent balance. */
   .hero-tagline { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: clamp(1rem, 2vw, 1.5rem); letter-spacing: 0.28em; color: var(--ember); }
   .hero-divider { display: flex; align-items: center; gap: 0.75rem; }
   .hero-divider__bar { width: 3rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
   .hero-divider__gem { width: 0.55rem; height: 0.55rem; background: var(--plasma); transform: rotate(45deg); }
-  /* Beige body, not dim grey (Adrian 2026-07-22): the hero text carries exactly three
-     colours now, beige + green + orange, and no dark grey. */
   .hero-sub { font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.7; color: var(--bone); max-width: 52rem; }
-  /* The closing promise line, COBALT (Adrian's ruling 2026-07-19): the free-tier promise
-     gets its own colour so it reads as a distinct claim, not more description. */
-  /* Blue is out of the hero copy (Adrian 2026-07-21): this line was fully cobalt; it is now
-     neutral with green/orange emphasis inside, same two-accent rule as the paragraph above. */
-  .hero-sub--free { font-family: var(--font-mono); font-weight: 700; color: var(--bone); }
+  /* The posture line reads a step up from the description under it: mono, slightly larger,
+     so the first thing a visitor parses is what this place IS. */
+  .hero-sub--studio { font-family: var(--font-mono); font-size: clamp(1.0625rem, 1.6vw, 1.1875rem); }
   .hero-sub b { color: var(--bone); }
   .hero-sub .hero-sub__hl { color: var(--plasma); }
   .hero-sub .hero-sub__ember { color: var(--ember); }
   .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; }
 
-  /* CP-D: full-bleed band stack, edge to edge below the hero,
-     no gap between cards. Same 100vw breakout technique as .hero-v2. */
-  #tools {
-    position: relative;
-    width: 100vw;
-    max-width: 100vw;
-    margin: 0 0 0 calc(50% - 50vw);
-    padding: 0;
+  /* BUILT WITH IT. Reuses the card furniture the key-features grid used, so this cost
+     styling work rather than design work, and the section it replaces is not missed. */
+  #proof { text-align: left; }
+  .pf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.125rem; }
+  @media (max-width: 900px) { .pf-grid { grid-template-columns: 1fr; } }
+  .pf-card {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.14);
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
   }
-  .tools__stack { display: flex; flex-direction: column; gap: 0; text-align: left; }
-
-  /* Product popover (flagship Learn More) */
-  .product-pop {
-    margin: auto; /* restore the centering a global margin reset strips off the modal */
-    padding: 0;
-    border: 1px solid var(--iron-3);
-    border-radius: var(--radius);
-    background: #0B0E10;
-    color: var(--bone);
-    width: min(900px, 92vw);
-    max-width: 92vw;
-    max-height: 90vh;
-    overflow: hidden auto;
+  .pf-media {
+    aspect-ratio: 16 / 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 1.25rem;
+    text-align: center;
+    border-bottom: 1px dashed rgba(255, 122, 61, 0.35);
+    background: radial-gradient(120% 120% at 50% 38%, var(--iron-2), var(--carbon));
   }
-  .product-pop::backdrop { background: rgba(11, 14, 16, 0.82); }
-  .product-pop__inner { position: relative; }
-  .product-pop__img { display: block; width: 100%; height: auto; }
-  .product-pop__close {
-    position: absolute;
-    top: 0.6rem;
-    right: 0.6rem;
-    z-index: 10;
+  .pf-shot {
     font-family: var(--font-mono);
-    font-size: 0.85rem;
-    line-height: 1;
-    color: var(--bone);
-    background: rgba(11, 14, 16, 0.6);
-    border: 1px solid var(--iron-3);
-    border-radius: var(--radius);
-    padding: 0.35rem 0.55rem;
-    cursor: pointer;
+    font-weight: 800;
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    color: var(--ember);
+    border: 1px solid rgba(255, 122, 61, 0.45);
+    background: rgba(255, 122, 61, 0.13);
+    border-radius: 8px;
+    padding: 0.3rem 0.7rem;
   }
-  .product-pop__close:hover { color: var(--ember); border-color: var(--ember); }
-  .product-pop__body { padding: 1.75rem 2rem 2rem; text-align: left; }
-  .product-pop__headline { font-family: var(--font-mono); font-weight: 700; font-size: 1.375rem; color: var(--bone); }
-  .product-pop__body p { color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; margin-top: 0.75rem; }
-  .product-pop__body ul { margin: 1rem 0 0; padding-left: 1.1rem; display: flex; flex-direction: column; gap: 0.4rem; }
-  .product-pop__body li { color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.5; }
-  .product-pop__free { color: var(--bone); }
-  .product-pop__docs {
-    display: inline-block;
-    margin-top: 1.25rem;
+  .pf-shot__note { font-size: 0.8125rem; line-height: 1.5; color: var(--bone-faint); max-width: 18rem; }
+
+  /* The v1 entry: its evidence is textual, so it is set as type rather than faked. */
+  .pf-media--type { border-bottom: 1px solid rgba(124, 255, 178, 0.18); gap: 0.5rem; }
+  .pf-v { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.5rem, 6vw, 3.5rem); line-height: 1; color: var(--plasma); }
+  .pf-v__lic { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; color: var(--bone-dim); }
+  .pf-v__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1rem; margin-top: 0.5rem; }
+  .pf-v__links a { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--bone); text-decoration: none; border-bottom: 1px solid rgba(124, 255, 178, 0.4); }
+  .pf-v__links a:hover { color: var(--plasma); }
+
+  .pf-body { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.5rem 1.5rem 1.625rem; }
+  .pf-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
+  .pf-name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.1875rem; line-height: 1.1; color: var(--bone); }
+  /* plasma = success / correct (principle 2). Ember stays reserved for IN DEVELOPMENT. */
+  .pf-pill {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: 0.14em;
+    color: var(--plasma);
+    background: rgba(124, 255, 178, 0.13);
+    border: 1px solid rgba(124, 255, 178, 0.45);
+    border-radius: 8px;
+    padding: 0.25rem 0.6rem;
+    white-space: nowrap;
+  }
+  .pf-claim { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone); text-wrap: pretty; }
+  /* Scan on the surface, deep on demand, both work: the same promise the tool cards make,
+     without a second modal system to maintain for one paragraph of detail. */
+  .pf-more { margin-top: auto; }
+  .pf-more__q {
     font-family: var(--font-mono);
     font-weight: 700;
     font-size: 0.8125rem;
-    letter-spacing: 0.04em;
+    letter-spacing: 0.06em;
     color: var(--plasma);
-    text-decoration: none;
+    cursor: pointer;
+    list-style: none;
   }
-  .product-pop__docs:hover { color: var(--plasma-dim); }
+  .pf-more__q::-webkit-details-marker { display: none; }
+  .pf-more__q::after { content: ' +'; }
+  .pf-more[open] .pf-more__q::after { content: ' \2212'; }
+  .pf-more__a { margin: 0.75rem 0 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
 
-  /* Key Features (Adrian x Claude Design, 2026-07-17): tri-color section heading, six
-     icon cards with ghost numbers. The ghost number is iron-3, snapped from the drop's
-     off-palette #2A323B. */
-  #features { text-align: left; }
-  .kf-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
-  .kf-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
-  .kf-title {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(2rem, 4.8vw, 3.1rem);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    -webkit-text-stroke: 0.08em #06090C;
-    paint-order: stroke fill;
+  /* THE TOOLSET: one compact block where four full-bleed cards used to be. */
+  #toolset { text-align: left; }
+  .tk-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 2.5rem; align-items: center; }
+  @media (max-width: 900px) { .tk-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
+  .tk-ui { border-radius: 16px; overflow: hidden; border: 1px solid var(--iron-3); box-shadow: var(--shadow-lg); }
+  .tk-body { display: flex; flex-direction: column; gap: 1rem; }
+  .tk-lead { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: var(--bone); text-wrap: pretty; }
+  .tk-line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); }
+  .tk-lic { margin: 0; font-family: var(--font-mono); font-size: 0.875rem; color: var(--bone-faint); }
+  .tk-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
+
+  /* WORK WITH ME: the page's only ask. It had none. */
+  .hb-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 2.5rem 2.75rem;
+    border-radius: 20px;
+    background: linear-gradient(120deg, rgba(255, 122, 61, 0.1), rgba(255, 122, 61, 0)), var(--carbon);
+    border: 1px solid rgba(255, 122, 61, 0.35);
+    border-left: 3px solid var(--ember);
+    box-shadow: var(--shadow-lg);
   }
-  .kf-title .kf-bone { color: var(--bone); }
-  .kf-title .kf-plasma { color: var(--plasma); }
-  .kf-title .kf-ember { color: var(--ember); }
-  .kf-title .kf-gap { display: inline-block; width: 0.4em; }
+  @media (max-width: 640px) { .hb-card { padding: 1.75rem 1.5rem; } }
+  .hb-head { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3.2vw, 2.25rem); line-height: 1.05; color: var(--bone); }
+  .hb-line { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); max-width: 54rem; text-wrap: pretty; }
+  .hb-ctas { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+  .hb-mail { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--bone-dim); text-decoration: none; border-bottom: 1px solid var(--iron-3); }
+  .hb-mail:hover { color: var(--ember); border-color: var(--ember); }
 
-  .kf-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.125rem; }
-  @media (max-width: 900px) { .kf-grid { grid-template-columns: repeat(2, 1fr); } }
-  @media (max-width: 600px) { .kf-grid { grid-template-columns: 1fr; } }
-  .kf-card {
-    box-sizing: border-box;
-    background: linear-gradient(180deg, var(--iron), var(--carbon));
+  #about { text-align: left; }
+  .am-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
+  .am-portrait { display: flex; flex-direction: column; gap: 0.9rem; }
+  .am-portrait__frame {
+    position: relative;
     border-radius: 16px;
-    padding: 1.75rem 1.625rem;
-    display: flex;
-    flex-direction: column;
-    gap: 0.9rem;
-    box-shadow: var(--shadow-md);
-  }
-  .kf-card--plasma { border: 1px solid rgba(124, 255, 178, 0.14); }
-  .kf-card--ember { border: 1px solid rgba(255, 122, 61, 0.16); }
-  .kf-card__top { display: flex; align-items: center; justify-content: space-between; }
-  .kf-icon {
-    width: 2.75rem;
-    height: 2.75rem;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .kf-icon--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); }
-  .kf-icon--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); }
-  .kf-num { font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--iron-3); }
-  .kf-card__name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.25rem; line-height: 1.1; color: var(--bone); }
-  .kf-card__line { margin: 0; color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; text-wrap: pretty; }
-  .kf-card__line b { color: var(--bone); }
-  .kf-card__line .kf-hl { color: var(--plasma); }
-
-  .download-v2 {
-    position: relative;
     overflow: hidden;
-    width: 100vw;
-    max-width: 100vw;
-    margin: 0 0 0 calc(50% - 50vw);
-    padding: 1.5rem;
-    height: clamp(340px, 34vw, 560px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    /* the image is this much taller than the window; it travels through it on scroll */
-    --dl-travel: clamp(160px, 24vw, 380px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(124, 255, 178, 0.14);
   }
-  .download-media {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: calc(100% + var(--dl-travel));
-    object-fit: cover;
-    z-index: 0;
-    /* rest position is centered; the scroll-driven animation (or JS fallback) drives it */
-    --parallax-travel: var(--dl-travel);
-    transform: translateY(calc(var(--dl-travel) / -2));
-    will-change: transform;
-  }
-  .download-scrim {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(to bottom, rgba(11, 14, 16, 0) 0%, rgba(11, 14, 16, 0.72) 45%, rgba(11, 14, 16, 0) 100%);
-  }
-  .download-copy {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1.25rem;
-    text-align: center;
-  }
-  .download-line { font-family: var(--font-mono); font-weight: 700; font-size: 1.5rem; color: var(--bone); }
+  .am-portrait__frame :global(img) { width: 100%; height: auto; display: block; }
+  .am-portrait__edge { position: absolute; top: 10px; bottom: 10px; left: -2px; width: 3px; z-index: 1; background: linear-gradient(180deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.85), rgba(124, 255, 178, 0)); }
+  .am-portrait__cap { display: flex; align-items: center; gap: 0.9rem; padding-left: 0.25rem; }
+  .am-portrait__tick { width: 2.25rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
+  .am-portrait__line { font-family: var(--font-mono); font-size: 0.9375rem; letter-spacing: 0.08em; color: var(--bone-dim); }
 
+  .am-bio { display: flex; flex-direction: column; gap: 1.25rem; }
+  .am-bio__name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.375rem); line-height: 1.02; letter-spacing: -0.02em; color: var(--bone); }
+  .am-bio__para { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .am-bio__para b { color: var(--bone); }
+  .am-bio__para .am-plasma-b { color: var(--plasma); }
+  .am-bio__para .am-ember-b { color: var(--ember); }
 
-  /* Licensing block (Adrian x Claude Design, 2026-07-18): two tier cards under the hero. */
-  #licensing { display: flex; flex-direction: column; gap: 1.75rem; }
-  .lcb-head { display: flex; flex-direction: column; gap: 0.75rem; }
-  .lcb-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
-  .lcb-title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.5rem, 3.4vw, 2.25rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--bone); text-wrap: pretty; }
-
-  /* The story as a pull-quote: plasma spine on the left, squared to it. */
+  /* The story as a pull-quote: plasma spine on the left, squared to it. Presentation lives
+     here, NOT in src/data/licensing.ts, which /licensing also renders. */
   .lcb-why {
     box-sizing: border-box;
+    position: relative;
+    margin: 0;
+    overflow: hidden;
     display: flex;
     flex-direction: column;
     gap: 1.125rem;
@@ -727,16 +533,9 @@ const TOOL_UI: Record<string, any> = {
     border: 1px solid rgba(124, 255, 178, 0.22);
     border-left: 3px solid var(--plasma);
     border-radius: 0 20px 20px 0;
-    padding: 2.25rem 2.75rem;
+    padding: 2.5rem 3rem 2.25rem;
     box-shadow: var(--shadow-lg);
   }
-  /* The quote box (Claude Design, 2026-07-19): plasma spine, oversized decorative marks,
-     brighter quoted body, ember-ruled attribution. The marks are aria-hidden and the copy
-     stays a real blockquote inside a figure, so it reads as an attributed quotation.
-     Presentation lives here, NOT in src/data/licensing.ts, which /licensing also renders. */
-  /* position: relative anchors the absolute marks to this box; without it they escape to
-     the nearest positioned ancestor and land off the card entirely. */
-  .lcb-why { position: relative; margin: 0; overflow: hidden; padding: 2.5rem 3rem 2.25rem; }
   .lcb-why__mark {
     position: absolute;
     font-size: 11rem;
@@ -774,243 +573,22 @@ const TOOL_UI: Record<string, any> = {
     .lcb-why__mark--close { right: 1rem; bottom: -2.5rem; }
   }
 
-  .lcb-tiers { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.25rem; }
-  .lcb-tier {
-    box-sizing: border-box;
+  /* The shipped record. Type, not a logo ticker (the profile rules those out), and credited
+     to the person rather than the tool (DNA principle 10). */
+  .am-record {
     display: flex;
     flex-direction: column;
-    gap: 1.1rem;
-    border-radius: 22px;
-    padding: 2rem 2.125rem 2.25rem;
-    box-shadow: var(--shadow-lg);
-  }
-  /* The free tier: iron falling into a plasma-tinted dark, per the drop. */
-  .lcb-tier--plasma {
-    background: linear-gradient(180deg, rgba(124, 255, 178, 0) 30%, rgba(124, 255, 178, 0.07)), linear-gradient(180deg, var(--iron), var(--carbon));
-    border: 1px solid rgba(124, 255, 178, 0.4);
-    box-shadow: var(--shadow-lg), 0 0 40px -24px rgba(124, 255, 178, 0.3);
-  }
-  .lcb-tier--ember {
-    background: linear-gradient(180deg, var(--iron), var(--carbon));
-    border: 1px solid rgba(255, 122, 61, 0.35);
-  }
-  .lcb-tier__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-  .lcb-pill {
-    display: inline-flex;
-    align-items: center;
     gap: 0.6rem;
-    padding: 0.4rem 0.9rem;
-    border-radius: 9px;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.8125rem;
-    letter-spacing: 0.12em;
+    align-self: stretch;
+    background: linear-gradient(90deg, rgba(232, 224, 208, 0.05), rgba(232, 224, 208, 0)), var(--carbon);
+    border: 1px solid var(--iron-3);
+    border-radius: 14px;
+    padding: 1.125rem 1.375rem;
   }
-  .lcb-pill--plasma { background: rgba(124, 255, 178, 0.13); border: 1px solid rgba(124, 255, 178, 0.45); color: var(--plasma); }
-  .lcb-pill--ember { background: rgba(255, 122, 61, 0.13); border: 1px solid rgba(255, 122, 61, 0.45); color: var(--ember); }
-  .lcb-pill__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; }
-  .lcb-pill--plasma .lcb-pill__dot { background: var(--plasma); box-shadow: 0 0 10px rgba(124, 255, 178, 0.7); }
-  .lcb-pill--ember .lcb-pill__dot { background: var(--ember); box-shadow: 0 0 10px rgba(255, 122, 61, 0.7); }
-  .lcb-price { font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.375rem, 2.6vw, 1.75rem); letter-spacing: -0.02em; }
-  .lcb-price--plasma { color: var(--plasma); }
-  .lcb-price--ember { color: var(--ember); }
-  .lcb-tier__body { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
-  .lcb-tier__body b { color: var(--bone); }
-  .lcb-tier__rule { height: 1px; }
-  .lcb-tier__rule--plasma { background: linear-gradient(90deg, rgba(124, 255, 178, 0.3), rgba(124, 255, 178, 0)); }
-  .lcb-tier__rule--ember { background: linear-gradient(90deg, rgba(255, 122, 61, 0.3), rgba(255, 122, 61, 0)); }
-  .lcb-checks { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.6rem 1.25rem; }
-  .lcb-check { display: flex; align-items: center; gap: 0.7rem; font-size: 0.9375rem; color: var(--bone-dim); }
-  .lcb-check svg { flex: none; }
-  .lcb-star { display: flex; align-items: center; gap: 0.85rem; font-size: 0.9375rem; color: var(--bone-dim); line-height: 1.5; }
-  .lcb-star svg { flex: none; }
-  .lcb-star p { margin: 0; }
-
-  .lcb-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
-  .lcb-cta {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 1rem 2.125rem;
-    border-radius: 12px;
-    font-family: var(--font-mono);
-    font-weight: 800;
-    font-size: 1.0625rem;
-    letter-spacing: 0.03em;
-    text-decoration: none;
-    transition: background var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
-  }
-  .lcb-cta--solid { background: var(--plasma); color: #06120B; box-shadow: 0 0 32px -12px rgba(124, 255, 178, 0.7); }
-  .lcb-cta--solid:hover { background: var(--plasma-dim); }
-  .lcb-cta--ghost { font-weight: 700; background: rgba(232, 224, 208, 0); border: 1px solid rgba(232, 224, 208, 0.3); color: var(--bone); }
-  .lcb-cta--ghost:hover { border-color: var(--bone); }
-
-  @media (max-width: 800px) {
-    .lcb-tiers { grid-template-columns: 1fr; }
-  }
-
-  /* Tutorials block (Adrian x Claude Design, 2026-07-17): tri-color head, the nine
-     Quick Start cards with real thumbnails, and the All Tutorials chip. */
-  #tutorials { display: flex; flex-direction: column; }
-  .tb-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
-  .tb-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
-  .tb-title {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(2rem, 4.8vw, 3.1rem);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    -webkit-text-stroke: 0.08em #06090C;
-    paint-order: stroke fill;
-  }
-  .tb-title .tb-bone { color: var(--bone); }
-  .tb-title .tb-plasma { color: var(--plasma); }
-  .tb-title .tb-ember { color: var(--ember); }
-  .tb-title .tb-gap { display: inline-block; width: 0.4em; }
-  .tb-sub { margin: 0; font-family: var(--font-mono); font-weight: 500; font-size: 1.0625rem; letter-spacing: 0.08em; color: var(--bone-dim); }
-
-  .tb-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.125rem; }
-  .tb-card {
-    display: flex;
-    flex-direction: column;
-    background: var(--iron);
-    border: 1px solid rgba(255, 59, 59, 0.16);
-    border-radius: 18px;
-    overflow: hidden;
-    text-decoration: none;
-    box-shadow: 0 26px 60px -38px rgba(0, 0, 0, 0.8);
-    transition: border-color var(--t-fast) var(--ease-out), transform var(--t-fast) var(--ease-out);
-  }
-  .tb-card--ember { border-color: rgba(255, 59, 59, 0.16); }
-  .tb-card--plasma:hover,
-  .tb-card--ember:hover { border-color: rgba(255, 59, 59, 0.55); transform: translateY(-2px); }
-
-  .tb-card__media { position: relative; aspect-ratio: 16 / 9; background: radial-gradient(120% 120% at 50% 38%, var(--iron), var(--carbon)); }
-  .tb-card__thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
-  /* Carbon-at-alpha scrim so the tag and play badge read over any thumbnail. */
-  .tb-card__scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 14, 16, 0.55), rgba(11, 14, 16, 0) 45%); }
-  .tb-card__tag {
-    position: absolute;
-    left: 0.9rem;
-    top: 0.7rem;
-    padding: 0.2rem 0.55rem;
-    border-radius: 6px;
-    background: rgba(11, 14, 16, 0.65);
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.6875rem;
-    letter-spacing: 0.15em;
-  }
-  .tb-card__tag--plasma,
-  .tb-card__tag--ember { color: var(--magma); }
-  .tb-card__play {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    width: 3.25rem;
-    height: 3.25rem;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(11, 14, 16, 0.55);
-    border: 2px solid rgba(255, 59, 59, 0.55);
-  }
-  .tb-card__play--ember { border-color: rgba(255, 59, 59, 0.55); }
-  .tb-card__tri { width: 0; height: 0; border-top: 0.55rem solid transparent; border-bottom: 0.55rem solid transparent; border-left: 0.9rem solid var(--magma); margin-left: 0.3rem; }
-  .tb-card__play--ember .tb-card__tri { border-left-color: var(--magma); }
-
-  .tb-card__body { padding: 1.25rem 1.375rem 1.375rem; display: flex; flex-direction: column; gap: 0.35rem; }
-  .tb-card__name { font-family: var(--font-mono); font-weight: 800; font-size: 1.0625rem; }
-  .tb-card__name--plasma,
-  .tb-card__name--ember { color: var(--magma); }
-  .tb-card__line { font-size: 0.9375rem; line-height: 1.4; color: var(--bone-dim); }
-
-  .tb-all {
-    align-self: center;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-top: 2rem;
-    padding: 1rem 2.25rem;
-    border-radius: 12px;
-    background: rgba(124, 255, 178, 0.1);
-    border: 1px solid rgba(124, 255, 178, 0.4);
-    color: var(--plasma);
-    font-family: var(--font-mono);
-    font-weight: 800;
-    font-size: 1.0625rem;
-    letter-spacing: 0.04em;
-    text-decoration: none;
-    transition: background var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out);
-  }
-  .tb-all:hover { background: var(--plasma); color: #06120B; }
-
-  @media (max-width: 900px) { .tb-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
-  @media (max-width: 600px) { .tb-grid { grid-template-columns: 1fr; } }
-
-  #rigs { text-align: center; }
-  #rigs .prose { margin-inline: auto; }
-  .rigs__ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 1.5rem; }
-
-  /* About Me (Adrian x Claude Design, 2026-07-17): tri-color heading, portrait with the
-     plasma edge, big bio, the free-for-small-teams callout, studios and shipped-on chips. */
-  #about { text-align: left; }
-  .am-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
-  .am-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
-  .am-title {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: clamp(2rem, 4.8vw, 3.1rem);
-    line-height: 0.95;
-    letter-spacing: -0.02em;
-    -webkit-text-stroke: 0.08em #06090C;
-    paint-order: stroke fill;
-  }
-  .am-title .am-bone { color: var(--bone); }
-  .am-title .am-plasma { color: var(--plasma); }
-  .am-title .am-ember { color: var(--ember); }
-  .am-title .am-gap { display: inline-block; width: 0.4em; }
-
-  .am-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
-  .am-portrait { display: flex; flex-direction: column; gap: 0.9rem; }
-  .am-portrait__frame {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(124, 255, 178, 0.14);
-  }
-  .am-portrait__frame :global(img) { width: 100%; height: auto; display: block; }
-  .am-portrait__edge { position: absolute; top: 10px; bottom: 10px; left: -2px; width: 3px; z-index: 1; background: linear-gradient(180deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.85), rgba(124, 255, 178, 0)); }
-  .am-portrait__cap { display: flex; align-items: center; gap: 0.9rem; padding-left: 0.25rem; }
-  .am-portrait__tick { width: 2.25rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
-  .am-portrait__line { font-family: var(--font-mono); font-size: 0.9375rem; letter-spacing: 0.08em; color: var(--bone-dim); }
-
-  .am-bio { display: flex; flex-direction: column; gap: 1.25rem; }
-  .am-bio__name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.375rem); line-height: 1.02; letter-spacing: -0.02em; color: var(--bone); }
-  .am-bio__para { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
-  .am-bio__para b { color: var(--bone); }
-  .am-bio__para .am-plasma-b { color: var(--plasma); }
-  .am-bio__para .am-ember-b { color: var(--ember); }
-
-  /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
-  .am-free {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.7rem;
-    align-self: flex-start;
-    background: linear-gradient(90deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
-    border: 1px solid rgba(124, 255, 178, 0.4);
-    border-radius: 12px;
-    padding: 0.8rem 1.25rem;
-    box-shadow: 0 0 34px -18px rgba(124, 255, 178, 0.4);
-  }
-  .am-free__dot { width: 0.625rem; height: 0.625rem; border-radius: 50%; background: var(--plasma); box-shadow: 0 0 12px rgba(124, 255, 178, 0.7); }
-  .am-free__line { font-family: var(--font-mono); font-weight: 700; font-size: 0.9860rem; color: var(--plasma); letter-spacing: 0.03em; }
+  .am-record__head { display: flex; align-items: center; gap: 0.8rem; }
+  .am-record__tick { width: 1.75rem; height: 3px; background: var(--ember); border-radius: var(--radius-pill); }
+  .am-record__label { font-family: var(--font-mono); font-weight: 800; font-size: 0.8125rem; letter-spacing: 0.18em; color: var(--ember); }
+  .am-record__list { margin: 0; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.8; color: var(--bone-dim); text-wrap: pretty; }
 
   @media (max-width: 820px) {
     .am-grid { grid-template-columns: 1fr; }
