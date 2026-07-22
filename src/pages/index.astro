@@ -44,10 +44,18 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 // `pill` is plasma for shipped/live states (DNA principle 2: plasma = success/correct).
 // Ember stays reserved for IN DEVELOPMENT, which nothing on this page currently carries.
 //
-// `shot` names the asset the entry is waiting on (MrMiata:
-// workspace/2026-07-22_website-overhaul/SHOT-LIST.md). Entries without a delivered image
-// render a visibly unfinished plate rather than silently collapsing, because this section is
-// the strongest thing the overhaul adds and it should look unfinished until it is finished.
+// Media: a poster still that carries the card on its own, and a six-second silent loop that
+// plays on hover or keyboard focus. NOT autoplay. The hero already autoplays a video, three
+// more loops firing on load would cost real weight and battery for motion most visitors
+// never look at, and the still is what has to read at thumbnail size regardless. On touch,
+// under reduced-motion, and with JS off, the poster simply stands on its own.
+//
+// Both clips are 4:3, which is why the media box is no longer 16:10: both subjects are
+// standing figures, and a wide box spent most of its area on floor and empty background.
+//
+// `shot` names the asset an entry is still waiting on (MrMiata:
+// workspace/2026-07-22_website-overhaul/SHOT-LIST.md). An entry with no media renders a
+// visibly unfinished plate rather than silently collapsing.
 const PROOF = [
   {
     name: 'Reggie',
@@ -55,8 +63,9 @@ const PROOF = [
     claim: 'Rigged, skinned, and exported to Unreal entirely through the pipeline.',
     detail:
       'Built in Maya with Fabricator, skinned with AutoSkin, exported through the FBX skeletal exporter, and imported into Unreal against the same rig-binding contract every character in the pipeline uses. No hand-off, no cleanup pass, no separate export rig.',
-    shot: 'proof-reggie',
-    shotNote: 'Reggie in the Unreal viewport, posed and lit.',
+    video: '/proof/proof-reggie.mp4',
+    poster: '/proof/proof-reggie.jpg',
+    alt: 'Reggie, a rabbit character in a suit, animating in the Unreal viewport.',
   },
   {
     name: 'QS_BipedRig',
@@ -64,8 +73,9 @@ const PROOF = [
     claim: 'The blueprint anyone downloads, built and validated on a vanilla Maya install.',
     detail:
       'The blueprint that ships with the toolset. It builds on a clean Maya install with nothing else present, which is the only test that matters for a rig anyone can download.',
-    shot: 'proof-qsbiped',
-    shotNote: 'The finished rig in the Maya viewport, controls visible.',
+    video: '/proof/proof-qsbiped.mp4',
+    poster: '/proof/proof-qsbiped.jpg',
+    alt: 'The QS_BipedRig in the Maya viewport, animation controls visible on the character.',
   },
 ];
 ---
@@ -127,9 +137,17 @@ const PROOF = [
     <div class="pf-grid">
       {PROOF.map((p) => (
         <article class="pf-card">
-          <div class="pf-media" role="img" aria-label={`${p.name}: image pending. ${p.shotNote}`}>
-            <span class="pf-shot">ASSET PENDING</span>
-            <span class="pf-shot__note">{p.shotNote}</span>
+          <div class="pf-media">
+            {p.video ? (
+              <>
+                <video class="pf-vid" src={p.video} poster={p.poster} muted loop playsinline preload="none" aria-label={p.alt}></video>
+                <span class="pf-play" aria-hidden="true"></span>
+              </>
+            ) : (
+              <div class="pf-pending" role="img" aria-label={`${p.name}: media pending`}>
+                <span class="pf-shot">ASSET PENDING</span>
+              </div>
+            )}
           </div>
           <div class="pf-body">
             <div class="pf-top">
@@ -259,6 +277,37 @@ const PROOF = [
   </section>
 
   <Footer />
+
+  {/* Proof cards: poster by default, loop on hover or keyboard focus.
+      Bails entirely on touch (no hover pointer) and under reduced-motion, where the poster
+      is the whole experience and preload="none" means the clip is never even fetched. */}
+  <script is:inline>
+    (function () {
+      var mm = window.matchMedia;
+      if (!mm) return;
+      if (mm('(prefers-reduced-motion: reduce)').matches) return;
+      if (!mm('(hover: hover)').matches) return;
+      document.querySelectorAll('.pf-card').forEach(function (card) {
+        var v = card.querySelector('.pf-vid');
+        if (!v) return;
+        function play() {
+          card.classList.add('is-playing');
+          var p = v.play();
+          // Autoplay policy can still reject a programmatic play(); swallow it rather than
+          // throwing an unhandled rejection into the console on every hover.
+          if (p && p.catch) p.catch(function () { card.classList.remove('is-playing'); });
+        }
+        function stop() {
+          v.pause();
+          card.classList.remove('is-playing');
+        }
+        card.addEventListener('pointerenter', play);
+        card.addEventListener('pointerleave', stop);
+        card.addEventListener('focusin', play);
+        card.addEventListener('focusout', stop);
+      });
+    })();
+  </script>
 
   <script is:inline>
     (function () {
@@ -398,8 +447,49 @@ const PROOF = [
     overflow: hidden;
     box-shadow: var(--shadow-md);
   }
+  /* 4:3, not 16:10. Both proof subjects are standing figures, and a wide box spent most of
+     its area on floor and empty background. */
   .pf-media {
-    aspect-ratio: 16 / 10;
+    position: relative;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(124, 255, 178, 0.18);
+    background: radial-gradient(120% 120% at 50% 38%, var(--iron-2), var(--carbon));
+  }
+  .pf-vid { display: block; width: 100%; height: 100%; object-fit: cover; }
+  /* The affordance, and the only thing that says the still is also a clip. It fades out
+     once playback starts, so a playing card is not wearing a play button. */
+  .pf-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.75rem;
+    height: 2.75rem;
+    margin: -1.375rem 0 0 -1.375rem;
+    border-radius: 50%;
+    background: rgba(11, 14, 16, 0.55);
+    border: 1px solid rgba(124, 255, 178, 0.5);
+    pointer-events: none;
+    transition: opacity var(--t-base) var(--ease-out);
+  }
+  .pf-play::after {
+    content: '';
+    position: absolute;
+    left: 55%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-top: 0.45rem solid transparent;
+    border-bottom: 0.45rem solid transparent;
+    border-left: 0.75rem solid var(--plasma);
+  }
+  .pf-card.is-playing .pf-play { opacity: 0; }
+  /* No hover pointer means no hover affordance to advertise. */
+  @media (hover: none) {
+    .pf-play { display: none; }
+  }
+
+  .pf-pending {
+    height: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -407,8 +497,6 @@ const PROOF = [
     gap: 0.75rem;
     padding: 1.25rem;
     text-align: center;
-    border-bottom: 1px dashed rgba(255, 122, 61, 0.35);
-    background: radial-gradient(120% 120% at 50% 38%, var(--iron-2), var(--carbon));
   }
   .pf-shot {
     font-family: var(--font-mono);
@@ -421,10 +509,16 @@ const PROOF = [
     border-radius: 8px;
     padding: 0.3rem 0.7rem;
   }
-  .pf-shot__note { font-size: 0.8125rem; line-height: 1.5; color: var(--bone-faint); max-width: 18rem; }
-
   /* The v1 entry: its evidence is textual, so it is set as type rather than faked. */
-  .pf-media--type { border-bottom: 1px solid rgba(124, 255, 178, 0.18); gap: 0.5rem; }
+  .pf-media--type {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    text-align: center;
+  }
   .pf-v { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.5rem, 6vw, 3.5rem); line-height: 1; color: var(--plasma); }
   .pf-v__lic { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; color: var(--bone-dim); }
   .pf-v__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1rem; margin-top: 0.5rem; }
