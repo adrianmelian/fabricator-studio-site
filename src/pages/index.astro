@@ -203,20 +203,9 @@ const TOOL_UI: Record<string, any> = {
     })();
   </script>
 
-  <!-- WHY (Adrian x Claude Design, 2026-07-18): his own story, its own section. Adrian moved it
-       2026-07-19 to sit between the tool cards and Key Features: see the tools first,
-       then why they exist, then what makes them good. Copy is shared verbatim with /licensing (src/data/licensing.ts). -->
-  <section id="why">
-    <h2 class="lcb-title">Free for solo developers, indies, and small teams.</h2>
-    <figure class="lcb-why">
-      <span class="lcb-why__mark lcb-why__mark--open" aria-hidden="true">“</span>
-      <span class="lcb-why__mark lcb-why__mark--close" aria-hidden="true">”</span>
-      <blockquote class="lcb-why__quote">
-        {WHY_PARAS.map((p) => <p class="lcb-why__para" set:html={p} />)}
-      </blockquote>
-      <figcaption class="lcb-why__cite"><span class="lcb-why__rule" aria-hidden="true"></span>Adrian</figcaption>
-    </figure>
-  </section>
+  <!-- WHY moved into the About card 2026-07-22 (Adrian): it is his story, so it now sits with
+       his portrait and bio rather than standing as its own #why section between the tool cards
+       and Key Features. Copy still shared verbatim with /licensing (src/data/licensing.ts). -->
 
   <section id="features">
     <div class="kf-head">
@@ -399,6 +388,14 @@ const TOOL_UI: Record<string, any> = {
         <h3 class="am-bio__name">Hi, I'm Adrian Melian.</h3>
         <p class="am-bio__para">I've spent <b>14 years as a Technical Artist</b> in AAA games, most recently leading the Tech Art team at <b class="am-plasma-b">Sledgehammer Games</b>. Along the way I've worked with Double Fine, Ubisoft, Camouflaj, and Meta, on games like Broken Age, Modern Warfare III, and South Park: The Fractured But Whole.</p>
         <p class="am-bio__para">Game dev is changing fast, and a new era of generative AI is here. Avoiding generic slop still takes <b>good tools</b>, ones that put the layers of polish where you want them. So I'm sharing my toolbox. <b class="am-ember-b">FabricatorStudio</b> is the rigging, skinning, animation, and export kit I built for indie teams and small studios, to the standard I held on AAA productions.</p>
+        <figure class="lcb-why">
+          <span class="lcb-why__mark lcb-why__mark--open" aria-hidden="true">“</span>
+          <span class="lcb-why__mark lcb-why__mark--close" aria-hidden="true">”</span>
+          <blockquote class="lcb-why__quote">
+            {WHY_PARAS.map((p) => <p class="lcb-why__para" set:html={p} />)}
+          </blockquote>
+          <figcaption class="lcb-why__cite"><span class="lcb-why__rule" aria-hidden="true"></span>Adrian</figcaption>
+        </figure>
         <div class="am-free">
           <span class="am-free__dot" aria-hidden="true"></span>
           <span class="am-free__line">The tools are free for solo developers, indies, and small teams.</span>
@@ -715,7 +712,7 @@ const TOOL_UI: Record<string, any> = {
 
 
   /* Licensing block (Adrian x Claude Design, 2026-07-18): two tier cards under the hero. */
-  #licensing, #why { display: flex; flex-direction: column; gap: 1.75rem; }
+  #licensing { display: flex; flex-direction: column; gap: 1.75rem; }
   .lcb-head { display: flex; flex-direction: column; gap: 0.75rem; }
   .lcb-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
   .lcb-title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.5rem, 3.4vw, 2.25rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--bone); text-wrap: pretty; }
