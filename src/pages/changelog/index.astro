@@ -33,6 +33,49 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
 const RELEASES = [
   {
+    version: '1.1.0',
+    date: '2026-07-22',
+    dateLabel: '2026 · 07 · 22',
+    tag: 'Feature release',
+    lede: 'Fabricator opens into an empty window, and its two ways in are the two least visible controls in it. This release is the fix for that first minute, plus four things the first outside users asked for.',
+    groups: [
+      {
+        label: 'GETTING STARTED',
+        tone: 'plasma',
+        items: [
+          '<b>A guided tour of Fabricator</b>, offered the first time you open it and available any time after from File > Take the Tour. Eight stops in two parts: one names the four regions of the window, the other builds a rig with you.',
+          '<b>The hands-on stops wait for you</b>. They advance when the template actually loads, when the build actually finishes, and when you actually drop back to Edit Mode, and each one says what it is waiting for. Nothing to accidentally click past.',
+          '<b>The tour reads your scene</b> rather than assuming an empty one. If you already have a rig loaded it starts where you are, and if that rig is built it offers to drop you back to Edit Mode first.',
+          '<b>Armature Tools is now a labelled group</b>, and the Components, Rig Outliner and Properties headers pick up the same accent, so the window reads as four named regions instead of loose chrome.',
+        ],
+      },
+      {
+        label: 'ARMATURE',
+        tone: 'ember',
+        items: [
+          '<b>Solo handles</b>. Drag one joint without taking its whole subtree with it. The main control still moves the whole branch. Show, hide and reset live under Skeleton.',
+          '<b>Straighten Mid Joint</b>. The classic knee or elbow fix, corrected on one axis only so the deliberate forward bend survives. Most straighten tools snap the joint onto the line between its neighbours, which eats the bend. This one picks the error axis for you and says which it chose.',
+          '<b>Aim All at Child</b>. Points every aimer down its chain in one pass. This is the repair for an imported skeleton whose aimers all sit on Local with nothing aimed at anything, which used to mean setting every target by hand in the Channel Box.',
+        ],
+      },
+      {
+        label: 'EXPORT',
+        tone: 'plasma',
+        items: [
+          '<b>Right-click a row to export just that entry or clip</b>, in either exporter. No checkboxes, no multi-select.',
+        ],
+      },
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          'The first launch welcome tour ended early instead of skipping a stop when the button it wanted to point at was not on your toolbar.',
+          'Fabricator could open a second window on top of a live one if a rebuild raced a window that had not finished closing.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.0.1',
     date: '2026-07-21',
     dateLabel: '2026 · 07 · 21',
