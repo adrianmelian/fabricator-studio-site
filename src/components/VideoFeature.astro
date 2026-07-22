@@ -1,0 +1,206 @@
+---
+// Shared single-video feature card (2026-07-21). Adrian's call: the tutorials-page
+// "Watch on YouTube" panel was the best video card on the site, so it is now THE video
+// card everywhere. Lifted verbatim from the old inline .tut-feature / .tut-playcard
+// (tutorials/index.astro), with two changes: the play-card carries the video's REAL
+// thumbnail behind the chrome instead of an empty gradient, and every string is a prop
+// so a docs page can title it after its own tool. Replaces DocsWatchCard.
+//
+// MAGMA on the play affordance and the card border (Adrian's 2026-07-18 test): YouTube's
+// red, so every video card reads as YouTube on sight. The CTA button stays EMBER, so the
+// brand's functional-accent law (DNA principle 1: magma never takes a CTA) still holds.
+//
+// Self-contained: uses tokens.css variables only, never designed-doc.css, so it drops
+// into any page without inheriting a stylesheet.
+import type { Tutorial } from '../data/tutorials';
+import { Image } from 'astro:assets';
+import fsMonogram from '../assets/docs/fs-monogram.png';
+
+interface Props {
+  video: Tutorial;
+  eyebrow?: string;
+  title?: string;
+  sub?: string;
+  ctaLabel?: string;
+  ctaHref?: string;
+  strap?: string;
+  /* Banner height instead of the full panel. Same card, same chrome, a third of the
+     vertical spend: for reference pages where the video is a pointer, not the point. */
+  compact?: boolean;
+}
+
+const {
+  video,
+  eyebrow = 'WATCH THE VIDEO',
+  title = video.name ?? video.title,
+  sub = video.sub,
+  ctaLabel = 'Watch on YouTube',
+  ctaHref = video.href,
+  strap = video.tag,
+  compact = false,
+} = Astro.props;
+
+// Unique per video, so a page carrying two cards (the exporter) still labels both.
+const headingId = `vf-${video.href.split('v=').pop()}`;
+---
+<section class:list={['vf', compact && 'vf--compact']} aria-labelledby={headingId}>
+  <div class="vf__copy">
+    <div class="vf__eyebrow">{eyebrow}</div>
+    <h2 id={headingId} class="vf__title">{title}</h2>
+    {sub && <p class="vf__sub">{sub}</p>}
+    <a class="vf__cta" href={ctaHref} target="_blank" rel="noopener">
+      <svg width="30" height="22" viewBox="0 0 30 22" fill="none" aria-hidden="true"><rect x="1" y="1" width="28" height="20" rx="6" fill="#1A0A02" /><path d="M12 6.5v9l8-4.5z" fill="#FF7A3D" /></svg>
+      {ctaLabel} &rarr;
+    </a>
+  </div>
+
+  <a class="vf__card" href={video.href} target="_blank" rel="noopener" aria-label={`Watch ${video.title} on YouTube`}>
+    {video.thumb && <img class="vf__thumb" src={video.thumb} alt="" loading="lazy" />}
+    <div class="vf__scrim" aria-hidden="true"></div>
+    <div class="vf__glow" aria-hidden="true"></div>
+    <Image class="vf__mark" src={fsMonogram} alt="" aria-hidden="true" densities={[1, 2]} />
+    <div class="vf__circle" aria-hidden="true">
+      <div class="vf__triangle"></div>
+    </div>
+    {strap && <div class="vf__strap" aria-hidden="true">{strap}</div>}
+  </a>
+</section>
+
+<style>
+  .vf {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr);
+    gap: 2.5rem;
+    align-items: center;
+    box-sizing: border-box;
+    /* Matches .dd-panel--ember, so the card sits in the docs series as furniture, not as
+       a foreign object. No vertical margin: .dd is a flex column with its own gap. */
+    padding: 2rem 2.25rem;
+    border-radius: 16px;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 122, 61, 0.12);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .vf__copy { display: flex; flex-direction: column; gap: 1rem; min-width: 0; }
+  .vf__eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.25em; color: var(--ember); }
+  .vf__title { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3.2vw, 2.375rem); line-height: 1.05; color: var(--bone); text-wrap: balance; }
+  .vf__sub { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .vf__cta {
+    align-self: flex-start;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.9rem 1.5rem;
+    border-radius: 12px;
+    background: var(--ember);
+    color: #1A0A02;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.0625rem;
+    letter-spacing: 0.03em;
+    text-decoration: none;
+    box-shadow: 0 0 34px -12px rgba(255, 122, 61, 0.6);
+  }
+  .vf__cta:hover { background: var(--ember-dim); color: #1A0A02; }
+
+  .vf__card {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    background: radial-gradient(120% 120% at 50% 40%, var(--iron-2), var(--carbon));
+    border: 1px solid rgba(255, 59, 59, 0.35);
+    box-shadow: var(--shadow-lg), 0 0 40px -16px rgba(255, 59, 59, 0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    transition: border-color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
+  }
+  .vf__card:hover { border-color: rgba(255, 59, 59, 0.6); box-shadow: var(--shadow-lg), 0 0 48px -12px rgba(255, 59, 59, 0.45); }
+
+  .vf__thumb { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+  /* Keeps the monogram, the play circle, and the strap legible over any frame. */
+  .vf__scrim { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(11, 14, 16, 0.6), rgba(11, 14, 16, 0.3) 45%, rgba(11, 14, 16, 0.75)); }
+  .vf__glow { position: absolute; top: 0; left: 14px; right: 14px; height: 3px; background: linear-gradient(90deg, rgba(255, 59, 59, 0), rgba(255, 59, 59, 0.9), rgba(255, 59, 59, 0)); }
+  .vf__mark { position: absolute; left: 1.5rem; top: 1.25rem; height: 2.5rem; width: auto; opacity: 0.9; }
+
+  .vf__circle {
+    position: relative;
+    width: 5.5rem;
+    height: 5.5rem;
+    border-radius: 50%;
+    background: rgba(255, 59, 59, 0.15);
+    border: 2px solid rgba(255, 59, 59, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 40px -8px rgba(255, 59, 59, 0.5);
+    backdrop-filter: blur(2px);
+    transition: transform var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out);
+  }
+  .vf__card:hover .vf__circle { transform: scale(1.06); background: rgba(255, 59, 59, 0.25); }
+  .vf__triangle { width: 0; height: 0; border-top: 1.3rem solid transparent; border-bottom: 1.3rem solid transparent; border-left: 2.1rem solid var(--magma); margin-left: 0.5rem; }
+
+  .vf__strap {
+    position: absolute;
+    left: 1rem;
+    right: 1rem;
+    bottom: 1.25rem;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.18em;
+    color: var(--bone-dim);
+  }
+
+  /* ── compact: the reference-page banner ──
+     Same component, same chrome, roughly a third of the height. The thumbnail runs flush
+     to the panel edge and the panel itself carries the magma border, so the card still
+     reads as YouTube at a glance. The CTA drops to a text link; the strap drops entirely. */
+  .vf--compact {
+    grid-template-columns: minmax(0, 21rem) minmax(0, 1fr);
+    gap: 1.5rem;
+    padding: 0;
+    overflow: hidden;
+    align-items: stretch;
+    background: var(--carbon);
+    border-color: rgba(255, 59, 59, 0.35);
+    box-shadow: var(--shadow-md), 0 0 40px -16px rgba(255, 59, 59, 0.25);
+    transition: border-color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
+  }
+  .vf--compact:hover { border-color: rgba(255, 59, 59, 0.6); box-shadow: var(--shadow-md), 0 0 48px -12px rgba(255, 59, 59, 0.4); }
+
+  .vf--compact .vf__card { border: 0; border-radius: 0; box-shadow: none; }
+  .vf--compact .vf__card:hover { box-shadow: none; }
+  .vf--compact .vf__copy { justify-content: center; gap: 0.4rem; padding: 1.25rem 1.75rem 1.25rem 0; }
+  .vf--compact .vf__eyebrow { font-size: 0.6875rem; letter-spacing: 0.2em; color: var(--magma); }
+  .vf--compact .vf__title { font-size: 1.1875rem; line-height: 1.25; }
+  .vf--compact .vf__sub { font-size: 0.9375rem; line-height: 1.5; }
+  .vf--compact .vf__cta {
+    margin-top: 0.35rem;
+    padding: 0;
+    gap: 0;
+    background: none;
+    box-shadow: none;
+    border-radius: 0;
+    color: var(--ember);
+    font-size: 0.9375rem;
+    font-weight: 700;
+  }
+  .vf--compact .vf__cta:hover { background: none; color: var(--ember-dim); }
+  .vf--compact .vf__cta svg { display: none; }
+  .vf--compact .vf__mark { left: 0.9rem; top: 0.8rem; height: 1.5rem; }
+  .vf--compact .vf__circle { width: 3.25rem; height: 3.25rem; box-shadow: 0 0 28px -8px rgba(255, 59, 59, 0.5); }
+  .vf--compact .vf__triangle { border-top-width: 0.7rem; border-bottom-width: 0.7rem; border-left-width: 1.15rem; margin-left: 0.3rem; }
+  .vf--compact .vf__strap { display: none; }
+
+  @media (max-width: 900px) {
+    .vf:not(.vf--compact) { grid-template-columns: 1fr; gap: 1.75rem; padding: 1.5rem; }
+  }
+  @media (max-width: 700px) {
+    .vf--compact { grid-template-columns: 1fr; gap: 0; }
+    .vf--compact .vf__copy { padding: 1.125rem 1.25rem; }
+  }
+</style>

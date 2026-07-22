@@ -10,7 +10,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 import LazyVideos from '../../../components/LazyVideos.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
-import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import VideoFeature from '../../../components/VideoFeature.astro';
 import ToolbarLocator from '../../../components/ToolbarLocator.astro';
 import { tutorialByName } from '../../../data/tutorials';
 import toolbarIcon from '../../../assets/docs/toolbar/icons/fabricator.png';
@@ -39,7 +39,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       <p class="dd-summary">{SUMMARY}</p>
     </header>
 
-    <DocsWatchCard video={tutorialByName('Fabricator')} />
+    <VideoFeature video={tutorialByName('Fabricator')} compact />
 
 
     <ToolbarLocator icon={toolbarIcon} name="Fabricator" button="fabricator mark" x={908} y={28} />

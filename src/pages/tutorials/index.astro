@@ -9,8 +9,9 @@ import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import { Image } from 'astro:assets';
 import '../../styles/designed-doc.css';
+import VideoFeature from '../../components/VideoFeature.astro';
 import fsMonogram from '../../assets/docs/fs-monogram.png';
-import { TUTORIALS, CHANNEL, PLAYLIST } from '../../data/tutorials';
+import { TUTORIALS, CHANNEL, PLAYLIST, tutorialByName } from '../../data/tutorials';
 
 const TITLE = 'TUTORIALS';
 const TRI = ['t-bone', 't-plasma', 't-ember'];
@@ -39,26 +40,19 @@ const pad = (n: number) => String(n).padStart(2, '0');
       <p class="tut-subtitle">Learn the kit, from install to in-engine.</p>
     </header>
 
-    <!-- YOUTUBE FEATURE -->
-    <section class="dd-panel dd-panel--ember tut-feature" aria-labelledby="tut-yt">
-      <div class="tut-feature__copy">
-        <div class="tut-feature__eyebrow">FABRICATORSTUDIO ON YOUTUBE</div>
-        <h2 id="tut-yt" class="tut-feature__title">Watch on YouTube</h2>
-        <p class="tut-feature__sub">Every tutorial lives on the channel: tool walkthroughs, pipeline deep-dives, and the full path from concept to in-engine. Subscribe to catch new ones the day they land.</p>
-        <a class="tut-feature__cta" href={CHANNEL} target="_blank" rel="noopener">
-          <svg width="30" height="22" viewBox="0 0 30 22" fill="none" aria-hidden="true"><rect x="1" y="1" width="28" height="20" rx="6" fill="#1A0A02" /><path d="M12 6.5v9l8-4.5z" fill="#FF7A3D" /></svg>
-          Visit the channel &rarr;
-        </a>
-      </div>
-      <a class="tut-playcard" href={PLAYLIST} target="_blank" rel="noopener" aria-label="Watch the FabricatorStudio Quick Start playlist on YouTube">
-        <div class="tut-playcard__glow" aria-hidden="true"></div>
-        <Image class="tut-playcard__mark" src={fsMonogram} alt="" aria-hidden="true" densities={[1, 2]} />
-        <div class="tut-playcard__circle" aria-hidden="true">
-          <div class="tut-playcard__triangle"></div>
-        </div>
-        <div class="tut-playcard__strap" aria-hidden="true">TOOL WALKTHROUGHS &nbsp;&middot;&nbsp; PIPELINE DEEP-DIVES</div>
-      </a>
-    </section>
+    <!-- YOUTUBE FEATURE. The play-card used to open the playlist; 2026-07-21 Adrian
+         repointed it at the newest upload (the full concept-to-engine biped build), so
+         the panel leads with real work instead of a generic series link. The CTA still
+         goes to the channel. -->
+    <VideoFeature
+      video={tutorialByName('AI to Game Ready')}
+      eyebrow="FABRICATORSTUDIO ON YOUTUBE"
+      title="Watch on YouTube"
+      sub="Every tutorial lives on the channel: tool walkthroughs, pipeline deep-dives, and the full path from concept to in-engine. Subscribe to catch new ones the day they land."
+      ctaLabel="Visit the channel"
+      ctaHref={CHANNEL}
+      strap="NEWEST · A FULL CHARACTER, START TO FINISH"
+    />
 
     <!-- START HERE: the Quick Start series -->
     <section class="tut-rail" aria-labelledby="tut-start">
@@ -101,59 +95,8 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .tut-monogram { height: 2.5rem; width: auto; }
   .tut-subtitle { margin: 0; font-family: var(--font-mono); font-weight: 500; font-size: clamp(1rem, 2.2vw, 1.25rem); letter-spacing: 0.08em; color: var(--bone-dim); }
 
-  .tut-feature { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 0.85fr); gap: 2.5rem; align-items: center; margin-top: 2.5rem; }
-  .tut-feature__copy { display: flex; flex-direction: column; gap: 1rem; }
-  .tut-feature__eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.25em; color: var(--ember); }
-  .tut-feature__title { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3.2vw, 2.375rem); line-height: 1.05; color: var(--bone); }
-  .tut-feature__sub { margin: 0; font-size: 1rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
-  .tut-feature__cta {
-    align-self: flex-start;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.9rem 1.5rem;
-    border-radius: 12px;
-    background: var(--ember);
-    color: #1A0A02;
-    font-family: var(--font-mono);
-    font-weight: 800;
-    font-size: 1.0625rem;
-    letter-spacing: 0.03em;
-    text-decoration: none;
-    box-shadow: 0 0 34px -12px rgba(255, 122, 61, 0.6);
-  }
-  .tut-feature__cta:hover { background: var(--ember-dim); color: #1A0A02; }
-
-  .tut-playcard {
-    position: relative;
-    aspect-ratio: 16 / 9;
-    border-radius: 16px;
-    overflow: hidden;
-    background: radial-gradient(120% 120% at 50% 40%, var(--iron), var(--carbon));
-    border: 1px solid rgba(255, 59, 59, 0.35);
-    box-shadow: var(--shadow-lg), 0 0 40px -16px rgba(255, 59, 59, 0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    text-decoration: none;
-    transition: border-color var(--t-fast) var(--ease-out), box-shadow var(--t-fast) var(--ease-out);
-  }
-  .tut-playcard:hover { border-color: rgba(255, 59, 59, 0.6); box-shadow: var(--shadow-lg), 0 0 48px -12px rgba(255, 59, 59, 0.45); }
-  .tut-playcard__glow { position: absolute; top: 0; left: 14px; right: 14px; height: 3px; background: linear-gradient(90deg, rgba(255, 59, 59, 0), rgba(255, 59, 59, 0.9), rgba(255, 59, 59, 0)); }
-  .tut-playcard__mark { position: absolute; left: 1.5rem; top: 1.25rem; height: 2.5rem; width: auto; opacity: 0.9; }
-  .tut-playcard__circle {
-    width: 5.5rem;
-    height: 5.5rem;
-    border-radius: 50%;
-    background: rgba(255, 59, 59, 0.15);
-    border: 2px solid rgba(255, 59, 59, 0.6);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 0 40px -8px rgba(255, 59, 59, 0.5);
-  }
-  .tut-playcard__triangle { width: 0; height: 0; border-top: 1.3rem solid transparent; border-bottom: 1.3rem solid transparent; border-left: 2.1rem solid var(--magma); margin-left: 0.5rem; }
-  .tut-playcard__strap { position: absolute; left: 0; right: 0; bottom: 1.25rem; text-align: center; font-family: var(--font-mono); font-size: 0.8125rem; letter-spacing: 0.18em; color: var(--bone-dim); }
+  /* The feature panel and its play-card moved into components/VideoFeature.astro
+     (2026-07-21) so every video card on the site is the same card. */
 
   .tut-rail { margin-top: 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
   .tut-rail__head { display: flex; align-items: center; gap: 1rem; }
@@ -230,7 +173,6 @@ const pad = (n: number) => String(n).padStart(2, '0');
   .tut-card__playlist-cta { margin-top: 0.25rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--plasma); }
 
   @media (max-width: 900px) {
-    .tut-feature { grid-template-columns: 1fr; }
     .tut-grid { grid-template-columns: repeat(2, 1fr); }
   }
   @media (max-width: 600px) {

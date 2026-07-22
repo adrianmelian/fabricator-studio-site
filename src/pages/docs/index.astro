@@ -8,6 +8,8 @@
 import DocsLayout from '../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../styles/designed-doc.css';
+import VideoFeature from '../../components/VideoFeature.astro';
+import { tutorialByName } from '../../data/tutorials';
 import fsMonogram from '../../assets/docs/fs-monogram.png';
 import reggiePortrait from '../../assets/docs/reggie-portrait.png';
 
@@ -77,6 +79,15 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       <p class="gs-subtitle">with the FabricatorStudio Toolset</p>
       <p class="dd-summary gs-intro">Build a game character the way a professional studio does, from an empty project to an in-engine asset, without a pipeline team behind you. <b>Five steps</b>, each with its own tool and its own docs.</p>
     </header>
+
+    <!-- WATCH FIRST (2026-07-21): the install-and-first-project video, ahead of the five
+         written steps, because it IS step zero. -->
+    <VideoFeature
+      video={tutorialByName('Getting Started')}
+      eyebrow="WATCH FIRST"
+      title="Install it and set up your first project"
+      sub="Four minutes, start to finish: drag the installer into Maya, get the toolbar, and set up a project you can actually build in."
+    />
 
     <!-- MEET REGGIE (Adrian's 2026-07-18 amendment to the Getting Started drop) -->
     <aside class="gs-reggie" aria-labelledby="gs-reggie-t">

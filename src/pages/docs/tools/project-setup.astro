@@ -8,7 +8,7 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
-import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import VideoFeature from '../../../components/VideoFeature.astro';
 import ToolbarLocator from '../../../components/ToolbarLocator.astro';
 import { tutorialByName } from '../../../data/tutorials';
 import mindmeldWindow from '../../../assets/docs/project-setup/mindmeld-window.png';
@@ -135,7 +135,7 @@ const FACTS = [
       <p class="dd-summary">{SUMMARY}</p>
     </header>
 
-    <DocsWatchCard video={tutorialByName('Mindmeld')} />
+    <VideoFeature video={tutorialByName('Mindmeld')} compact />
 
     <ToolbarLocator icon={toolbarIcon} name="MindMeld" sub="Project Setup" button="light bulb" x={238} />
 

@@ -14,6 +14,8 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
+import VideoFeature from '../../../components/VideoFeature.astro';
+import { tutorialByName } from '../../../data/tutorials';
 import installerWindow from '../../../assets/docs/installer/installer-window.png';
 
 const SUMMARY =
@@ -128,6 +130,8 @@ const UNINSTALL = [
       </h1>
       <p class="dd-summary">{SUMMARY}</p>
     </header>
+
+    <VideoFeature video={tutorialByName('Getting Started')} compact />
 
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="in-what">

@@ -9,7 +9,7 @@
 import DocsLayout from '../../../layouts/DocsLayout.astro';
 import { Image } from 'astro:assets';
 import '../../../styles/designed-doc.css';
-import DocsWatchCard from '../../../components/DocsWatchCard.astro';
+import VideoFeature from '../../../components/VideoFeature.astro';
 import { tutorialByName } from '../../../data/tutorials';
 import armatureControls from '../../../assets/docs/armature/armature-controls.png';
 import builtRig from '../../../assets/docs/armature/built-rig.png';
@@ -43,9 +43,10 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
     <!-- No standalone Armature upload exists; the Fabricator Quick Start covers the
          armature workflow. -->
-    <DocsWatchCard
+    <VideoFeature
       video={tutorialByName('Fabricator')}
-      name="Fabricator: The Animation Rig Authoring Framework"
+      compact
+      title="Fabricator: The Animation Rig Authoring Framework"
       sub="Covers the armature workflow: joints, posing, and Build Rig."
     />
 
