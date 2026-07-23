@@ -59,4 +59,15 @@ import downloadBanner from '../assets/download/download_card.png';
     gap: 1.25rem;
     text-align: center;
   }
+  /* Phones: the wide collage cover-crops to an arbitrary fragment at this aspect, and the
+     art's own captions collide with the button. A carbon plate separates the CTA from
+     whatever the crop happens to show. */
+  @media (max-width: 720px) {
+    .download-copy {
+      padding: 1rem 1.25rem;
+      background: rgba(11, 14, 16, 0.55);
+      border: 1px solid rgba(232, 224, 208, 0.1);
+      border-radius: var(--radius);
+    }
+  }
 </style>
