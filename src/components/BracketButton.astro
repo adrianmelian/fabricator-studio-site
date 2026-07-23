@@ -19,7 +19,7 @@ interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma
 const { href, label, kind = 'soft', dialogTarget, installer, event } = Astro.props;
 ---
 {installer ? (
-  <a class={`btn cta-${kind}`} href={LINKS.installer} data-goatcounter-click={event}>{label}</a>
+  <a class={`btn cta-${kind}`} href={LINKS.installer} data-installer data-goatcounter-click={event}>{label}</a>
 ) : dialogTarget ? (
   <button type="button" class={`btn cta-${kind}`} data-dialog-open={dialogTarget} data-goatcounter-click={event}>{label}</button>
 ) : (
