@@ -1,0 +1,177 @@
+---
+// Post-download newsletter ask (Adrian 2026-07-23). The email gate is retired; downloads
+// are one click. This is the OPTIONAL relationship ask that replaced it: clicking any
+// installer link ([data-installer]) starts the download in place (cross-origin +
+// Content-Disposition: attachment, so the page never navigates), and a beat later this
+// dialog says thanks and offers updates. The browser exposes no save-vs-cancel signal for
+// a link download, so the pop fires on the click either way, by design.
+//
+// Shows ONCE per browser: any outcome (subscribed, dismissed, backdrop click) writes a
+// localStorage flag and the pop never auto-opens again. A repeat visitor who downloads
+// twice is exactly who must not be nagged twice.
+//
+// Endpoint: the launch-era MailerLite embedded form (public client-side id, not a secret).
+// Its group still triggers the installer-delivery email, which doubles as the welcome mail
+// for now. When Adrian creates a dedicated Newsletter form, swap this ONE constant.
+const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192763576695392191/subscribe';
+const STORAGE_KEY = 'fs-newsletter-pop';
+---
+<dialog id="news-pop" class="news-pop" aria-labelledby="news-pop-title">
+  <div class="news-pop__inner">
+    <button type="button" class="news-pop__close" data-news-close aria-label="Close">✕</button>
+    <p class="news-pop__label">THANKS FOR DOWNLOADING</p>
+    <h2 id="news-pop-title" class="news-pop__title">Want the updates?</h2>
+    <div class="news-pop__body" id="news-pop-body">
+      <p class="news-pop__sub">New tools, releases, and pipeline tips, straight to your inbox. No spam, unsubscribe anytime.</p>
+      <form class="news-pop__form" id="news-pop-form" novalidate>
+        <label class="news-pop__sronly" for="news-pop-email">Email address</label>
+        <input class="news-pop__input" id="news-pop-email" type="email" name="fields[email]" inputmode="email" autocomplete="email" placeholder="you@studio.com" required />
+        <input class="news-pop__hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+        <button class="news-pop__submit" type="submit" data-goatcounter-click="newsletter-subscribe">Keep me posted</button>
+        <button class="news-pop__decline" type="button" data-news-close>No thanks</button>
+        <p class="news-pop__error" id="news-pop-error" hidden>Please enter a valid email.</p>
+      </form>
+    </div>
+    <div class="news-pop__done" id="news-pop-done" hidden>
+      <p class="news-pop__sub">You're on the list. Check your inbox and confirm the opt-in and you're set.</p>
+    </div>
+  </div>
+</dialog>
+<script define:vars={{ action: MAILERLITE_ACTION, storageKey: STORAGE_KEY }}>
+  (function () {
+    var dlg = document.getElementById('news-pop');
+    if (!dlg || !dlg.showModal) return;
+    var form = document.getElementById('news-pop-form');
+    var email = document.getElementById('news-pop-email');
+    var error = document.getElementById('news-pop-error');
+    var body = document.getElementById('news-pop-body');
+    var done = document.getElementById('news-pop-done');
+
+    function seen() {
+      try { return !!localStorage.getItem(storageKey); } catch (e) { return false; }
+    }
+    function mark(v) {
+      try { localStorage.setItem(storageKey, v); } catch (e) {}
+    }
+
+    // Delegated so it catches every installer link on the page, wherever it renders. The
+    // default is NOT prevented: the download must start regardless of what this dialog does.
+    document.addEventListener('click', function (e) {
+      var trigger = e.target.closest && e.target.closest('[data-installer]');
+      if (!trigger || seen()) return;
+      setTimeout(function () { if (!seen()) dlg.showModal(); }, 1200);
+    });
+
+    // Any close path counts as an answer; never auto-nag the same browser again.
+    dlg.querySelectorAll('[data-news-close]').forEach(function (b) {
+      b.addEventListener('click', function () { mark('dismissed'); dlg.close(); });
+    });
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) { mark('dismissed'); dlg.close(); } });
+    dlg.addEventListener('cancel', function () { mark('dismissed'); });
+
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var val = (email.value || '').trim();
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val)) { if (error) error.hidden = false; email.focus(); return; }
+        var hp = form.querySelector('.news-pop__hp');
+        var isBot = hp && hp.value;
+        mark('subscribed');
+        if (body) body.hidden = true;
+        if (done) done.hidden = false;
+        if (action && !isBot) {
+          fetch(action, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'fields[email]=' + encodeURIComponent(val) + '&ml-submit=1&anticsrf=true',
+          });
+        }
+      });
+    }
+  })();
+</script>
+<style>
+  .news-pop {
+    margin: auto;
+    max-width: 30rem;
+    width: calc(100vw - 3rem);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    background: var(--carbon);
+    color: var(--bone);
+    padding: 0;
+    box-shadow: var(--shadow-lg);
+  }
+  .news-pop::backdrop { background: rgba(0, 0, 0, 0.7); }
+  .news-pop__inner { position: relative; padding: 2rem; }
+  .news-pop__close {
+    position: absolute;
+    top: 0.75rem;
+    right: 0.75rem;
+    background: none;
+    border: none;
+    color: var(--bone-dim);
+    font-size: 1rem;
+    cursor: pointer;
+    line-height: 1;
+  }
+  .news-pop__close:hover { color: var(--bone); }
+  .news-pop__label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    color: var(--plasma);
+    letter-spacing: 0.08em;
+    font-size: 0.75rem;
+    margin: 0 0 0.5rem;
+  }
+  .news-pop__title {
+    font-family: var(--font-mono);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.5rem;
+    color: var(--bone);
+  }
+  .news-pop__sub { color: var(--bone-dim); font-size: 0.9rem; line-height: 1.5; margin: 0 0 1.25rem; }
+  .news-pop__done .news-pop__sub { margin: 0; }
+  .news-pop__form { display: flex; flex-direction: column; gap: 0.75rem; }
+  .news-pop__input {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--iron);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    color: var(--bone);
+    font-family: var(--font-mono);
+    font-size: 0.95rem;
+    padding: 0.7rem 0.8rem;
+  }
+  .news-pop__input::placeholder { color: var(--bone-faint); }
+  .news-pop__input:focus { outline: none; border-color: var(--plasma-dim); }
+  .news-pop__hp { position: absolute; left: -9999px; width: 1px; height: 1px; opacity: 0; }
+  .news-pop__submit {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    color: var(--carbon);
+    background: var(--plasma);
+    border: 1px solid var(--plasma);
+    border-radius: var(--radius);
+    padding: 0.7rem 1rem;
+    cursor: pointer;
+  }
+  .news-pop__submit:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); }
+  .news-pop__decline {
+    background: none;
+    border: none;
+    color: var(--bone-faint);
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    cursor: pointer;
+    padding: 0.25rem;
+    align-self: center;
+  }
+  .news-pop__decline:hover { color: var(--bone-dim); }
+  .news-pop__error { color: var(--ember); font-size: 0.8rem; margin: 0; font-family: var(--font-mono); }
+  .news-pop__sronly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+</style>
