@@ -34,10 +34,17 @@ const scrimStyle = align === 'right'
     </div>
   ) : null}
   <div class={`tool-banner__copy${hasUi && !textInUi ? ' tool-banner__copy--split' : ''}${textInUi ? ' tool-banner__copy--uitext' : ''}`}>
-    {textInUi ? null : (
-      /* Text-in-graphic cards render no copy column at all: the graphic's title block is real,
-         readable content now (its root dropped role="img" when the CTA moved inside), so an
-         sr-only duplicate here would just make screen readers hear the card twice. */
+    {textInUi ? (
+      /* Text-in-graphic cards: the graphic's own title block is the card's copy on desktop,
+         so this column exists for PHONES ONLY (the graphic's cqw-sized type lands at ~5px on
+         a 390px screen; the graphics hide their copy at <=720px and this takes over). It is
+         display:none on desktop, which also keeps screen readers hearing exactly one copy of
+         the text at any width. */
+      <div class="tool-banner__text tool-banner__text--phone">
+        <h3 class="tool-banner__name">{name}</h3>
+        {paras.map((p) => <p class="tool-banner__para prose">{p}</p>)}
+      </div>
+    ) : (
       <div class="tool-banner__text">
         <h3 class="tool-banner__name">{name}</h3>
         {paras.map((p) => <p class="tool-banner__para prose">{p}</p>)}
@@ -207,6 +214,8 @@ const scrimStyle = align === 'right'
     gap: 0.75rem;
     min-width: 0;
   }
+  /* Desktop: the in-graphic copy carries the card; see the <=720px block. */
+  .tool-banner__text--phone { display: none; }
   /* min-width:0 matters: a grid item defaults to min-content width, and the GUIs are wide,
      so without it the column refuses to shrink and blows the plate past the band. */
   .tool-banner__ui { min-width: 0; }
@@ -259,6 +268,9 @@ const scrimStyle = align === 'right'
     .tool-banner__copy--uitext .tool-banner__ui > :global(*) { width: 100%; height: auto; }
     /* The phone-sized CTA: the in-graphic one hides at this width (see ReggieHero). */
     .tool-banner__footer--uitext { display: block; }
+    /* The phone-sized copy: the in-graphic text hides at this width too (each hero's own
+       <=720px rule), and this column is what makes the card readable at all on a phone. */
+    .tool-banner__text--phone { display: flex; }
 
     /* Stack on phones. The order:-1 flip MUST be reset, or right-aligned cards would put the
        GUI above the heading while left-aligned ones put it below, and the four cards would

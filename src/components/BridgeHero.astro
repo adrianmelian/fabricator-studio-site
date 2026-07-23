@@ -78,10 +78,16 @@ const hasCta = Boolean(ctaHref || ctaDialog);
     if (!content || !lens || !mag) return;
 
     /* Card mode moves the pieces (toolbar to a bottom band, magnifier left and larger);
-       these constants MUST match the .has-copy CSS overrides below. */
+       these constants MUST match the .has-copy CSS overrides below. On phones the copy
+       leaves the graphic (see the <=720px CSS), so the magnifier recentres: (1920 - 600) / 2
+       = 660. Read once, like every other script on these pages; a live resize across 720px
+       keeps the old constants until reload, which no phone does. */
     var hasCopy = root.classList.contains('has-copy');
+    var phone = window.matchMedia && window.matchMedia('(max-width: 720px)').matches;
     var IMG = { l: (1920 - 1500) / 2, t: hasCopy ? 850 : 438, w: 1500, h: 33.9 };
-    var PANEL = hasCopy ? { l: 300, t: 422, w: 600, h: 235 } : { l: 623, t: 596, w: 384, h: 150 };
+    var PANEL = hasCopy
+      ? { l: phone ? 660 : 300, t: 422, w: 600, h: 235 }
+      : { l: 623, t: 596, w: 384, h: 150 };
     var ZOOM = 2.5, LOOP = 12, mY = 9;
 
     function ease(u) {
@@ -196,8 +202,15 @@ const hasCta = Boolean(ctaHref || ctaDialog);
   .bh-para { font-size: 25px; font-weight: 400; line-height: 1.6; color: rgba(232, 224, 208, 0.82); margin: 0; }
   .bh-para.is-accent { color: var(--ember); font-weight: 500; }
   .bh-cta { align-self: flex-start; margin-top: 10px; font-size: 25px; }
-  /* Phones: the stage is too small for an in-graphic button; the card's footer CTA takes over. */
-  @media (max-width: 720px) { .bh-cta { display: none; } }
+  /* Phones: the 1920 stage scales to ~0.2 at 390px, so 25px body copy renders at ~5px; card
+     mode hands the text block to the card's plate column and footer CTA (see ToolCard's
+     <=720px block). The magnifier recentres into the vacated space; the JS scan constants
+     above carry the matching phone branch, so the leader line still lands on the panel. */
+  @media (max-width: 720px) {
+    .bh-cta { display: none; }
+    .bridgehero.has-copy .bh-copy { display: none; }
+    .bridgehero.has-copy .bh-panel { left: 660px; }
+  }
   .bridgehero.is-bare .bh-eyebrow,
   .bridgehero.is-bare .bh-title,
   .bridgehero.is-bare .bh-tagline,

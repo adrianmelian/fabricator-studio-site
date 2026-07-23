@@ -24,7 +24,7 @@ const hasCta = Boolean(ctaHref || ctaDialog);
 // the standalone popover keeps its original h1.
 const Heading = hasCopy ? 'h3' : 'h1';
 ---
-<div class:list={["reggiehero", bare && "is-bare"]}>
+<div class:list={["reggiehero", bare && "is-bare", hasCopy && "has-copy"]}>
   <div data-reggie-stage>
     <div class="grid" aria-hidden="true"></div>
 
@@ -188,9 +188,15 @@ const Heading = hasCopy ? 'h3' : 'h1';
      scales with the text it belongs to; font-size matches the paras so the pair reads as one
      register. align-self, because the title column would otherwise stretch it full width. */
   .title .cta{ align-self:flex-start; margin-top:10px; font-size:25px; }
-  /* On phones the whole stage scales far down and an in-graphic button would be too small to
-     read or tap; the card's own footer button takes over there (see ToolCard). */
-  @media (max-width: 720px){ .title .cta{ display:none; } }
+  /* On phones the whole stage scales far down (390/1920 = ~0.2, so 25px body copy renders at
+     ~5px); card mode hands the entire text block to the card's plate column and footer CTA
+     (see ToolCard's <=720px block), and the chat panel recentres into the vacated space:
+     (1920 - 560) / 2 = 680. The standalone popover keeps its title untouched. */
+  @media (max-width: 720px){
+    .title .cta{ display:none; }
+    .reggiehero.has-copy .title{ display:none; }
+    .reggiehero.has-copy .panel-wrap{ left:680px; }
+  }
 
   .reggiehero{
     --carbon:#0B0E10; --iron:#262C33; --bone:#E8E0D0; --ember:#FF7A3D; --plasma:#7CFFB2;

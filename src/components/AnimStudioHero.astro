@@ -18,7 +18,7 @@ const hasCopy = Array.isArray(paras) && paras.length > 0;
 const hasCta = Boolean(ctaHref || ctaDialog);
 ---
 <div
-  class:list={["animhero", bare && "is-bare"]}
+  class:list={["animhero", bare && "is-bare", hasCopy && "has-copy"]}
   role={hasCopy ? undefined : 'img'}
   aria-label={hasCopy ? undefined : 'Animation Studio, pose and clip library in Maya'}
 >
@@ -255,8 +255,15 @@ const hasCta = Boolean(ctaHref || ctaDialog);
   .headline--copy .para{ font-size:50px; font-weight:400; line-height:1.6; color:rgba(232,224,208,.82); margin:0; }
   .headline--copy .para--accent{ color:var(--ember); font-weight:500; }
   .headline--copy .cta{ align-self:flex-start; margin-top:20px; font-size:50px; }
-  /* Phones: the stage is too small for an in-graphic button; the card's footer CTA takes over. */
-  @media (max-width:720px){ .headline--copy .cta{ display:none; } }
+  /* Phones: the 3840 stage scales to ~0.1 at 390px, so 50px body copy renders at ~5px; card
+     mode hands the text block to the card's plate column and footer CTA (see ToolCard's
+     <=720px block), and the window plane recentres: (3840 - 1985) / 2 = 927. The standalone
+     popover keeps its BUILD YOUR LIBRARY headline untouched. */
+  @media (max-width:720px){
+    .headline--copy .cta{ display:none; }
+    .animhero.has-copy .headline{ display:none; }
+    .animhero.has-copy .plane-wrap{ left:927px; }
+  }
 
   .animhero{ position:relative; width:100%; aspect-ratio:16/9; overflow:hidden;
     background:#1C2126; border:1px solid var(--iron-3); border-radius:var(--radius);
