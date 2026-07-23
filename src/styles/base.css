@@ -140,8 +140,7 @@ a:hover { color: var(--plasma-dim); }
 }
 
 /* Modals sit furthest off the ground. */
-dialog.product-pop,
-dialog.dl-gate { box-shadow: var(--shadow-lg); }
+dialog.product-pop { box-shadow: var(--shadow-lg); }
 
 /* The fixed nav separates from the content it scrolls over. */
 .navbar { box-shadow: var(--shadow-sm); }

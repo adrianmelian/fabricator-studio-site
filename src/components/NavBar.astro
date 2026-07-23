@@ -1,6 +1,7 @@
 ---
-// LINKS is no longer imported here: the Community dropdown moved to the footer 2026-07-22.
-import DownloadGate from './DownloadGate.astro';
+// LINKS is back (2026-07-23): the email gate is retired and Download is a direct link to
+// the stable installer key on R2 (see links.ts). DownloadGate is gone with it.
+import { LINKS } from '../data/links';
 ---
 <nav class="navbar">
   <a class="navbar__brand" href="/">
@@ -23,10 +24,9 @@ import DownloadGate from './DownloadGate.astro';
     <a class="navbar__tab" href="/docs/">Docs</a>
     <a class="navbar__tab" href="/tutorials/">Tutorials</a>
     <a class="nav-services" href="/services/" data-goatcounter-click="nav-services">Services</a>
-    <button type="button" class="nav-download" data-download-open data-goatcounter-click="nav-download">Download</button>
+    <a class="nav-download" href={LINKS.installer} data-goatcounter-click="nav-download">Download</a>
   </div>
 </nav>
-<DownloadGate />
 <script is:inline>
   (function () {
     var burger = document.querySelector('.navbar__burger');
