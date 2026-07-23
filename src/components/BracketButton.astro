@@ -4,8 +4,9 @@
 // Label renders in natural case now; shouty caps were a 1.0 console motif.
 //
 // Renders an <a> by default, a modal-trigger <button> when `dialogTarget` is set (the
-// flagship cards' Learn More popovers), or the email download-gate trigger when
-// `downloadGate` is set.
+// flagship cards' Learn More popovers), or a direct link to the installer zip when
+// `installer` is set (the email gate is retired, Adrian 2026-07-23; the URL is the stable
+// R2 key in links.ts, so the button never changes at a release cut).
 //
 // The component name is 1.0 baggage; it is renamed in the P2 sweep.
 // `event` tags the button for GoatCounter's click tracking (data-goatcounter-click). The
@@ -13,11 +14,12 @@
 // visitor takes has never been measurable. The two-door homepage makes that gap matter:
 // without it there is no way to tell whether moving the tool cards to /tools/ cost
 // downloads. Named events, not paths, so the funnel reads the same from any page.
-interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline'; dialogTarget?: string; downloadGate?: boolean; event?: string }
-const { href, label, kind = 'soft', dialogTarget, downloadGate, event } = Astro.props;
+import { LINKS } from '../data/links';
+interface Props { href?: string; label: string; kind?: 'hard' | 'soft' | 'plasma-outline'; dialogTarget?: string; installer?: boolean; event?: string }
+const { href, label, kind = 'soft', dialogTarget, installer, event } = Astro.props;
 ---
-{downloadGate ? (
-  <button type="button" class={`btn cta-${kind}`} data-download-open data-goatcounter-click={event}>{label}</button>
+{installer ? (
+  <a class={`btn cta-${kind}`} href={LINKS.installer} data-goatcounter-click={event}>{label}</a>
 ) : dialogTarget ? (
   <button type="button" class={`btn cta-${kind}`} data-dialog-open={dialogTarget} data-goatcounter-click={event}>{label}</button>
 ) : (
