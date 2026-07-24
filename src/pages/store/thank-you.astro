@@ -1,0 +1,72 @@
+---
+// Post-purchase delivery page for the Advanced Ribbon Modules (2026-07-23).
+//
+// This page IS the fulfillment step: Stripe Managed Payments' payment link redirects here
+// after a successful checkout (MP payment links don't support custom confirmation text, so
+// the download can't ride the receipt). The download URL below is the UNLISTED sales key on
+// R2 — same obscurity model as every delivery key: unguessable, linked only from this page,
+// rotate it if it ever leaks (one edit here, one upload). noindex: this page must never be
+// reachable through search, only through the checkout redirect.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import BracketButton from '../../components/BracketButton.astro';
+
+const RIBBON_ZIP = 'https://downloads.fabricator.studio/dl/fa58cfdce06d6757/FabricatorRibbonPack.zip';
+---
+<BaseLayout
+  title="Thank you | FabricatorStudio"
+  description="Your Advanced Ribbon Modules download."
+  noindex
+>
+  <NavBar />
+
+  <section id="thanks">
+    <p class="ty-eyebrow">ADVANCED RIBBON MODULES</p>
+    <h1 class="ty-head">Thank you. They're yours.</h1>
+    <p class="ty-sub">One payment, permanent license, no seats, no phoning home. Your receipt arrives by email from Stripe.</p>
+
+    <div class="ty-card">
+      <BracketButton kind="hard" href={RIBBON_ZIP} label="Download the modules" event="thankyou-download" />
+      <p class="ty-keep">Keep this link: it always serves the current build of the pack, so an update is just a re-download.</p>
+    </div>
+
+    <div class="ty-steps">
+      <h2 class="ty-steps__head">Install (about a minute)</h2>
+      <ol class="ty-steps__list">
+        <li>Unzip the download anywhere.</li>
+        <li>With Maya open (Fabricator already installed), drag <code>RibbonPack_Install.py</code> into the viewport.</li>
+        <li>Click <b>Install</b>. The ribbon Spine, Arm, and Leg appear in the Build Modules picker right away.</li>
+      </ol>
+      <p class="ty-note">Needs the free FabricatorStudio toolset v1.1.0 or newer. Anything misbehaving? <a href="https://github.com/adrianmelian/FabricatorStudio/issues">The tracker</a> is the fastest way to reach me, or <a href="mailto:contact@fabricator.studio">contact@fabricator.studio</a>.</p>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  #thanks { text-align: left; max-width: 46rem; }
+  .ty-eyebrow { margin: 2rem 0 0.5rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.18em; color: var(--ember); }
+  .ty-head { margin: 0 0 0.75rem; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.9rem, 4vw, 2.75rem); line-height: 1.05; color: var(--bone); }
+  .ty-sub { margin: 0 0 1.75rem; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .ty-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 1.75rem;
+    border-radius: 16px;
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.22);
+    border-left: 3px solid var(--plasma);
+    box-shadow: var(--shadow-lg);
+  }
+  .ty-keep { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); }
+  .ty-steps { margin-top: 2rem; }
+  .ty-steps__head { margin: 0 0 0.75rem; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
+  .ty-steps__list { margin: 0 0 1rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; }
+  .ty-steps__list code { color: var(--plasma); }
+  .ty-steps__list b { color: var(--bone); }
+  .ty-note { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); }
+</style>

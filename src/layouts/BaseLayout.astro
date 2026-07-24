@@ -1,8 +1,8 @@
 ---
 import '../styles/tokens.css';
 import '../styles/base.css';
-interface Props { title: string; description: string }
-const { title, description } = Astro.props;
+interface Props { title: string; description: string; noindex?: boolean }
+const { title, description, noindex = false } = Astro.props;
 const goat = import.meta.env.PUBLIC_GOATCOUNTER_CODE;
 ---
 <!doctype html>
@@ -15,6 +15,8 @@ const goat = import.meta.env.PUBLIC_GOATCOUNTER_CODE;
         As a meta tag it applies before the stylesheet loads, so there is no first-paint flash. */}
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0B0E10" />
+    {/* Post-purchase and other unlisted pages must never rank or be discoverable via search. */}
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="icon" href="/favicon.ico" sizes="any" />
