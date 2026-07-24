@@ -6,13 +6,12 @@
 // thing before describing it, clarify the two paid axes high on the page, state what stays
 // free generously, and never use Pro / Premium / tier language.
 //
-// BUY_HREF is deliberately null. Two things gate a live checkout and neither is a web
-// problem: the storefront platform is still a call between Polar and Stripe Managed
-// Payments, and the pack artifact does not exist yet (build_ribbon_pack.py is behind the
-// release cut). Until both land, this page states availability honestly rather than pointing
-// a buy button at nothing. When the platform is chosen, set BUY_HREF and the button goes
-// live with no other change on this page.
-const BUY_HREF: string | null = null;
+// LIVE 2026-07-24. Both former gates cleared: the platform call went to Stripe Managed
+// Payments (MoR; decision + fee math in MrMiata workspace/2026-07-23_ribbon-pack-first-cut/)
+// and the pack artifact exists (built from the v1.1.0 tag, field-proven). The link is a
+// Stripe payment link; after payment it redirects to /store/thank-you/, which IS the
+// delivery (unlisted R2 key lives there and nowhere else).
+const BUY_HREF: string | null = 'https://buy.stripe.com/6oUcN42AZaqG1Tc0uA4Rq00';
 
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
@@ -60,7 +59,11 @@ const FAQ = [
   },
   {
     q: 'What exactly do I download?',
-    a: 'A build of the toolset that includes the ribbon modules. There is no key, no activation, no account, and nothing phones home.',
+    a: 'A small add-on pack: drag its installer into a Maya viewport with the free toolset already installed (v1.1.0 or newer), and the ribbon components appear in the picker. There is no key, no activation, no account, and nothing phones home.',
+  },
+  {
+    q: 'What is the refund policy?',
+    a: 'Fourteen days, no questions. If the modules are not what you needed, reply to your receipt email within 14 days and you get your money back.',
   },
 ];
 ---
@@ -139,8 +142,8 @@ const FAQ = [
       </div>
       {BUY_HREF ? (
         <>
-          <BracketButton kind="hard" href={BUY_HREF} label="Buy the modules" />
-          <p class="st-buy__next">You will get a download link by email straight after checkout.</p>
+          <BracketButton kind="hard" href={BUY_HREF} label="Buy the modules" event="store-buy" />
+          <p class="st-buy__next">Checkout hands you straight to your download. Receipt arrives by email. 14-day refund, no questions.</p>
         </>
       ) : (
         <>
