@@ -33,6 +33,22 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
 const RELEASES = [
   {
+    version: '1.1.1',
+    date: '2026-07-25',
+    dateLabel: '2026 · 07 · 25',
+    tag: 'Patch',
+    lede: 'One fix, shipped the day after it was reported.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Templates load onto an existing skeleton again</b>. Dropping a template into a scene that already held its skeleton failed with "Armature: no root joint". The load now adopts the joints already in your scene, creates only what is missing, and stands the Armature up as usual. Partial matches (just the root, or part of the hierarchy) work too.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.1.0',
     date: '2026-07-22',
     dateLabel: '2026 · 07 · 22',
