@@ -33,6 +33,23 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 
 const RELEASES = [
   {
+    version: '1.1.2',
+    date: '2026-07-25',
+    dateLabel: '2026 · 07 · 25',
+    tag: 'Patch',
+    lede: 'Second fix of the day, also from the field. If you own the Advanced Ribbon Pack, take this one.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Updating Fabricator no longer removes the Advanced Ribbon Pack</b>. The updater rebuilds the install folder from the new version, and that step was silently deleting the pack’s ribbon modules and Advanced templates. It now carries add-on pack files across the update, including packs installed before this fix.',
+          '<b>Ribbon Pack 1.0.1</b> records what it installed, which is what makes the carry-over exact. If your pack already went missing after the last update: re-run RibbonPack_Install.py once and restart Maya. From here on, updates keep it.',
+        ],
+      },
+    ],
+  },
+  {
     version: '1.1.1',
     date: '2026-07-25',
     dateLabel: '2026 · 07 · 25',
