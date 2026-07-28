@@ -1,0 +1,364 @@
+---
+// Privacy policy (2026-07-28).
+//
+// WHY THIS EXISTS: the site has run a MailerLite newsletter signup, a Web3Forms contact form
+// and a live Stripe store since launch with no privacy notice at all. That is a GDPR gap, and
+// the practical cost is not enforcement (nobody pursues a solo dev's newsletter) but studio
+// procurement, which looks for exactly this page before buying from a one-person company.
+//
+// SOURCE OF TRUTH for the copy: MrMiata workspace/2026-07-28_privacy-policy/PRIVACY-POLICY.md.
+// Edit there first, then port, so the two never drift.
+//
+// THE PROCESSOR LIST IS AUDITED, NOT ASSUMED. Every entry was verified in this repo's source
+// on 2026-07-28:
+//   - Stripe        src/pages/store/index.astro (BUY_HREF -> buy.stripe.com), store/thank-you
+//   - MailerLite    src/components/NewsletterPop.astro -> assets.mailerlite.com
+//   - Web3Forms     src/components/ContactForm.astro -> api.web3forms.com/submit
+//   - GoatCounter   src/layouts/BaseLayout.astro -> gc.zgo.at/count.js
+//   - GitHub Pages  .github/workflows/deploy.yml -> actions/deploy-pages
+//   - Cloudflare    DNS + R2 installer download
+// If you add ANY third-party script, form endpoint, or payment route, add it to the table
+// below in the same commit. A privacy policy that omits a live processor is worse than none,
+// because it is a written statement that is false.
+//
+// NOT YET TRUE, DELIBERATELY ABSENT: Armature accounts and licence activation. Those do not
+// exist yet, and a policy describing unbuilt practice is a lie with a date on it. The block to
+// add at Armature launch is drafted in the MrMiata task folder's NOTES.md, matched to EULA
+// v0.2 sections 5 and 6. Confirm the transmitted fields against the built implementation
+// before publishing it.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import '../../styles/designed-doc.css';
+
+const TITLE = 'PRIVACY';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+const UPDATED = '28 July 2026';
+
+const COLLECTED = [
+  {
+    id: 'updates',
+    heading: 'If you subscribe to updates',
+    what: 'Your email address, and the date you subscribed.',
+    why: 'To send you release notes, new tools, and pipeline tips.',
+    basis: 'Your consent, which you give by confirming your subscription.',
+    kept: 'Until you unsubscribe, after which we remove you from the list.',
+    note: 'Every email we send has an unsubscribe link. You can also email us and we will remove you.',
+  },
+  {
+    id: 'buy',
+    heading: 'If you buy something from us',
+    what: 'Your name, email address, and the billing details needed to complete the sale and charge the correct tax.',
+    why: 'To take payment, send your receipt and your download, and keep the records tax law requires.',
+    basis: 'Performance of our agreement with you, and our legal obligation to keep tax records.',
+    kept: 'As long as tax and accounting law requires us to keep the record, which is several years.',
+    note: 'Payments are processed by Stripe. We never see or store your card number. It goes to Stripe directly and we receive only confirmation that the payment succeeded, along with the information we need to send your purchase and account for the sale.',
+  },
+  {
+    id: 'contact',
+    heading: 'If you contact us',
+    what: 'Your name, your email address, and whatever you write in your message.',
+    why: 'To read your message and reply to it.',
+    basis: 'Our legitimate interest in answering people who contact us.',
+    kept: 'As long as we need to handle your enquiry and any work that follows from it.',
+    note: 'The contact form is delivered by Web3Forms, which passes your message to our email and does not use it for anything else.',
+  },
+  {
+    id: 'visit',
+    heading: 'When you visit the site',
+    what: 'The page you viewed, the site that referred you, your browser type and screen size, and the country you are in.',
+    why: 'To understand which pages and tools people find useful.',
+    basis: 'Our legitimate interest in understanding how the site is used.',
+    kept: 'Indefinitely, as aggregate counts that are not linked to any person.',
+    note: 'We use GoatCounter for this. It sets no cookies, does not track you across other websites, and does not build a profile of you. Your IP address is used to determine your country and is then discarded rather than stored.',
+  },
+];
+
+const PROCESSORS = [
+  { name: 'Stripe', does: 'Takes payment and issues receipts', gets: 'Your name, email, and billing and payment details' },
+  { name: 'MailerLite', does: 'Sends our email updates', gets: 'Your email address, if you subscribed' },
+  { name: 'Web3Forms', does: 'Delivers contact form messages to us', gets: 'Your name, email, and message' },
+  { name: 'GoatCounter', does: 'Counts page visits', gets: 'Page and browser information, no personal data' },
+  { name: 'GitHub Pages', does: 'Hosts this website', gets: 'Standard server logs' },
+  { name: 'Cloudflare', does: 'Domain routing and file downloads', gets: 'Standard server logs' },
+];
+
+const RIGHTS = [
+  ['Access', 'Ask what we hold and get a copy.'],
+  ['Correction', 'Ask us to fix anything inaccurate.'],
+  ['Deletion', 'Ask us to delete it. We may need to keep purchase records that tax law requires us to hold.'],
+  ['Restriction and objection', 'Ask us to stop or limit how we use it.'],
+  ['Portability', 'Get your data in a machine-readable form.'],
+  ['Withdraw consent', 'Unsubscribe at any time, without affecting anything we did before you did.'],
+];
+---
+
+<BaseLayout
+  title="Privacy | FabricatorStudio"
+  description="What FabricatorStudio collects, why, and who else handles it. We collect very little, and your models, rigs and projects never leave your machine."
+>
+  <NavBar />
+
+  <article class="dd pv">
+    <header class="dd-header">
+      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; PRIVACY POLICY</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) => <span class={g.cls}>{g.ch}</span>)}
+      </h1>
+      <p class="dd-summary">
+        What we collect, why, and who else handles it. Last updated {UPDATED}.
+      </p>
+    </header>
+
+    <section class="pv-short" aria-labelledby="pv-short-t">
+      <h2 id="pv-short-t" class="pv-short__title">The short version</h2>
+      <p>
+        We collect very little. If you subscribe to our updates we store your email address so we
+        can send them. If you buy something, our payment provider handles the transaction and we
+        never see your card details. If you message us, we get what you typed. We count page
+        visits with a tool that sets no cookies and does not identify you.
+      </p>
+      <p class="pv-short__punch">
+        Our software runs on your computer. Your models, your rigs, your skin weights and your
+        projects stay there. We never receive them.
+      </p>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-who-t">
+      <h2 id="pv-who-t" class="dd-label">WHO WE ARE</h2>
+      <p class="pv-p">
+        FabricatorStudio LLC, 13481 Pecos St., Westminster, CO 80234, United States. We make Maya
+        pipeline tools and the Armature application, and we publish this site.
+      </p>
+      <p class="pv-p">
+        If you want to reach us about anything on this page, email
+        <a href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>.
+      </p>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-collect-t">
+      <h2 id="pv-collect-t" class="dd-label">WHAT WE COLLECT, AND WHY</h2>
+
+      {COLLECTED.map((c) => (
+        <div class="pv-block">
+          <h3 class="pv-block__head">{c.heading}</h3>
+          <dl class="pv-dl">
+            <div class="pv-dl__row"><dt>What</dt><dd>{c.what}</dd></div>
+            <div class="pv-dl__row"><dt>Why</dt><dd>{c.why}</dd></div>
+            <div class="pv-dl__row"><dt>Legal basis</dt><dd>{c.basis}</dd></div>
+            <div class="pv-dl__row"><dt>How long</dt><dd>{c.kept}</dd></div>
+          </dl>
+          <p class="pv-block__note">{c.note}</p>
+        </div>
+      ))}
+
+      <div class="pv-block">
+        <h3 class="pv-block__head">When you download our software</h3>
+        <p class="pv-block__note">
+          Our hosting and download providers keep standard server logs, which include IP
+          addresses, as a normal part of delivering files and defending against abuse. We do not
+          use these logs to identify individuals, and we do not combine them with anything else.
+        </p>
+      </div>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-not-t">
+      <h2 id="pv-not-t" class="dd-label">WHAT OUR SOFTWARE DOES NOT DO</h2>
+      <p class="pv-p">
+        The FabricatorStudio Maya toolset and the Armature application run locally on your
+        machine.
+      </p>
+      <ul class="pv-list">
+        <li>They do not upload your meshes, skeletons, skin weights, projects, or exported files.</li>
+        <li>They do not send us usage analytics or telemetry.</li>
+        <li>Automatic skinning runs on your own GPU. Nothing you skin is transmitted anywhere.</li>
+      </ul>
+      <p class="pv-p">
+        Where the software downloads a component the first time you use a feature, such as the
+        machine learning model used for automatic skin weights, it tells you before it does, it
+        happens only because you asked for that feature, and it is fetched from the component's
+        publisher rather than from us.
+      </p>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-proc-t">
+      <h2 id="pv-proc-t" class="dd-label">WHO ELSE HANDLES YOUR DATA</h2>
+      <p class="pv-p">
+        We use a small number of service providers. Each one only receives what it needs to do
+        its job, and each acts on our instructions.
+      </p>
+      <div class="pv-table" role="table" aria-label="Service providers">
+        <div class="pv-table__head" role="row">
+          <span role="columnheader">Provider</span>
+          <span role="columnheader">What it does</span>
+          <span role="columnheader">What it receives</span>
+        </div>
+        {PROCESSORS.map((p) => (
+          <div class="pv-table__row" role="row">
+            <span class="pv-table__name" role="cell">{p.name}</span>
+            <span role="cell">{p.does}</span>
+            <span role="cell">{p.gets}</span>
+          </div>
+        ))}
+      </div>
+      <p class="pv-p pv-p--strong">
+        We do not sell your personal information. We do not share it for advertising. We have
+        never done either and we do not intend to.
+      </p>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-xfer-t">
+      <h2 id="pv-xfer-t" class="dd-label">WHERE YOUR DATA GOES</h2>
+      <p class="pv-p">
+        We are based in the United States, and some of our providers are too. MailerLite is based
+        in the European Union. If you are in the EU, UK, or another region with data transfer
+        rules, your information may be transferred to and stored in the United States under the
+        standard safeguards our providers have in place.
+      </p>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-rights-t">
+      <h2 id="pv-rights-t" class="dd-label">YOUR RIGHTS</h2>
+      <p class="pv-p">
+        Depending on where you live, you have some or all of the following rights over the
+        personal data we hold about you.
+      </p>
+      <ul class="pv-rights">
+        {RIGHTS.map(([name, detail]) => (
+          <li><strong>{name}.</strong> {detail}</li>
+        ))}
+      </ul>
+      <p class="pv-p">
+        Email us and we will action any of these. We will not charge you and we will not make it
+        difficult. If you are in the EU or UK and you think we have handled your data badly, you
+        have the right to complain to your national data protection authority.
+      </p>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-cookie-t">
+      <h2 id="pv-cookie-t" class="dd-label">COOKIES AND LOCAL STORAGE</h2>
+      <p class="pv-p">We do not use tracking cookies or advertising cookies.</p>
+      <p class="pv-p">
+        The site stores one small item in your browser's local storage to remember that you have
+        already seen the newsletter prompt, so it does not keep reappearing. It contains no
+        personal information, it never leaves your browser, and clearing your browser data
+        removes it.
+      </p>
+      <p class="pv-p">
+        Stripe may set cookies necessary to process your payment securely and to prevent fraud,
+        on its own checkout pages.
+      </p>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-kids-t">
+      <h2 id="pv-kids-t" class="dd-label">CHILDREN</h2>
+      <p class="pv-p">
+        Our tools are made for professional and hobbyist developers and artists. They are not
+        directed at children, and we do not knowingly collect personal information from anyone
+        under 16. If you believe a child has given us their information, email us and we will
+        delete it.
+      </p>
+    </section>
+
+    <section class="pv-section" aria-labelledby="pv-changes-t">
+      <h2 id="pv-changes-t" class="dd-label">CHANGES TO THIS POLICY</h2>
+      <p class="pv-p">
+        If we change how we handle your data, we will update this page and change the date at the
+        top. If the change is significant and you are subscribed to our updates, we will tell you
+        in an email rather than expecting you to notice.
+      </p>
+    </section>
+
+    <section class="pv-section pv-section--last" aria-labelledby="pv-contact-t">
+      <h2 id="pv-contact-t" class="dd-label">CONTACT</h2>
+      <address class="pv-address">
+        FabricatorStudio LLC<br />
+        13481 Pecos St.<br />
+        Westminster, CO 80234<br />
+        United States<br />
+        <a href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>
+      </address>
+    </section>
+  </article>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .pv { padding-bottom: 2rem; }
+
+  .pv-short {
+    border-left: 2px solid var(--plasma);
+    background: var(--iron);
+    border-radius: 0 14px 14px 0;
+    padding: 1.5rem 1.75rem;
+    margin: 2.5rem 0 3rem;
+  }
+  .pv-short__title { font-size: 1.125rem; margin: 0 0 0.75rem; color: var(--bone); }
+  .pv-short p { margin: 0 0 0.75rem; color: var(--bone-dim); line-height: 1.7; }
+  .pv-short p:last-child { margin-bottom: 0; }
+  .pv-short__punch { color: var(--bone) !important; }
+
+  .pv-section { margin: 0 0 2.75rem; }
+  .pv-section--last { margin-bottom: 1rem; }
+
+  .pv-p { color: var(--bone-dim); line-height: 1.7; margin: 0 0 1rem; }
+  .pv-p--strong { color: var(--bone); }
+  .pv-p a, .pv-address a { color: var(--plasma); }
+
+  .pv-list, .pv-rights { color: var(--bone-dim); line-height: 1.7; padding-left: 1.25rem; margin: 0 0 1rem; }
+  .pv-list li, .pv-rights li { margin-bottom: 0.5rem; }
+  .pv-rights strong { color: var(--bone); }
+
+  .pv-block {
+    border: 1px solid var(--iron-2);
+    border-radius: 14px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.25rem;
+    background: var(--iron);
+  }
+  .pv-block__head { font-size: 1rem; color: var(--bone); margin: 0 0 1rem; }
+  .pv-block__note { color: var(--bone-dim); line-height: 1.7; margin: 1rem 0 0; font-size: 0.9375rem; }
+
+  .pv-dl { margin: 0; }
+  .pv-dl__row {
+    display: grid;
+    grid-template-columns: 9rem 1fr;
+    gap: 1rem;
+    padding: 0.5rem 0;
+    border-top: 1px solid var(--iron-2);
+  }
+  .pv-dl__row:first-child { border-top: none; padding-top: 0; }
+  .pv-dl dt { color: var(--ember); font-size: 0.8125rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .pv-dl dd { margin: 0; color: var(--bone-dim); line-height: 1.6; }
+
+  .pv-table { border: 1px solid var(--iron-2); border-radius: 14px; overflow: hidden; margin: 0 0 1.25rem; }
+  .pv-table__head, .pv-table__row {
+    display: grid;
+    grid-template-columns: 10rem 1fr 1.2fr;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    align-items: start;
+  }
+  .pv-table__head {
+    background: var(--iron-2);
+    color: var(--bone);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .pv-table__row { border-top: 1px solid var(--iron-2); color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; }
+  .pv-table__name { color: var(--bone); }
+
+  .pv-address { font-style: normal; color: var(--bone-dim); line-height: 1.8; }
+
+  @media (max-width: 40rem) {
+    .pv-dl__row { grid-template-columns: 1fr; gap: 0.25rem; }
+    .pv-table__head { display: none; }
+    .pv-table__row { grid-template-columns: 1fr; gap: 0.25rem; padding: 1rem 1.25rem; }
+    .pv-table__name { font-size: 1rem; }
+  }
+</style>

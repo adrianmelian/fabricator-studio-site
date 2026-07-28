@@ -30,6 +30,8 @@ const STORAGE_KEY = 'fs-newsletter-pop';
         <button class="news-pop__submit" type="submit" data-goatcounter-click="newsletter-subscribe">Keep me posted</button>
         <button class="news-pop__decline" type="button" data-news-close>No thanks</button>
         <p class="news-pop__error" id="news-pop-error" hidden>Please enter a valid email.</p>
+        {/* The notice belongs at the point of collection, not only in the footer. */}
+        <p class="news-pop__privacy">We store your email to send the updates, nothing else. <a href="/privacy/">Privacy</a>.</p>
       </form>
     </div>
     <div class="news-pop__done" id="news-pop-done" hidden>
@@ -173,5 +175,8 @@ const STORAGE_KEY = 'fs-newsletter-pop';
   }
   .news-pop__decline:hover { color: var(--bone-dim); }
   .news-pop__error { color: var(--ember); font-size: 0.8rem; margin: 0; font-family: var(--font-mono); }
+  .news-pop__privacy { color: var(--bone-faint); font-size: 0.75rem; line-height: 1.5; margin: 0.75rem 0 0; font-family: var(--font-mono); }
+  .news-pop__privacy a { color: var(--bone-dim); }
+  .news-pop__privacy a:hover { color: var(--plasma); }
   .news-pop__sronly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 </style>
