@@ -175,7 +175,7 @@ const STAGES = [
                   Request early access
                 </button>
               </div>
-              <p class="reassure">Email about Armature only. One click to unsubscribe.</p>
+              <p class="reassure">Email about Armature only. One click to unsubscribe. We store your address to send it, nothing else. <a href="/privacy/">Privacy</a>.</p>
               <p class="form-msg form-msg--ok" role="status" hidden>You are on the list. Watch your inbox.</p>
               <p class="form-msg form-msg--error" role="alert" hidden>
                 That email address did not look right. Try again.
@@ -402,7 +402,7 @@ const STAGES = [
                 Request early access
               </button>
             </div>
-            <p class="reassure">Email about Armature only. One click to unsubscribe.</p>
+            <p class="reassure">Email about Armature only. One click to unsubscribe. We store your address to send it, nothing else. <a href="/privacy/">Privacy</a>.</p>
             <p class="form-msg form-msg--ok" role="status" hidden>You are on the list. Watch your inbox.</p>
             <p class="form-msg form-msg--error" role="alert" hidden>
               That email address did not look right. Try again.
@@ -1217,6 +1217,10 @@ const STAGES = [
     font-size: 12.5px;
     color: var(--bone-dim);
   }
+  /* The privacy notice belongs at the point of collection, not only in the footer.
+     Matches the pattern already on the newsletter prompt. */
+  .reassure a { color: var(--bone); border-bottom: 1px solid var(--iron-3); }
+  .reassure a:hover { color: var(--plasma); border-color: var(--plasma); }
 
   .form-msg {
     margin-top: 12px;
