@@ -23,7 +23,10 @@
       <p class="lcb-tier__body">If your studio makes under <b>$2 million a year</b>, everything here is yours. Use it in production, ship your game, use it on client work, and keep it forever.</p>
       <div class="lcb-tier__rule lcb-tier__rule--plasma" aria-hidden="true"></div>
       <ul class="lcb-checks">
-        {['No seats', 'No trial', 'No feature gates', 'No phoning home'].map((c) => (
+        {/* Chips scoped 2026-07-28: 'No seats' and 'No phoning home' were true of the toolset
+            but read as company-wide promises, and Armature ships with seats and activation.
+            Replacements are equally true of the toolset and survive that launch. */}
+        {['Yours forever', 'No trial', 'No feature gates', 'Source available'].map((c) => (
           <li class="lcb-check">
             <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10l3.5 3.5L15 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
             {c}
