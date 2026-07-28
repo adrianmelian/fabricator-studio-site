@@ -48,6 +48,11 @@ const FAQ = [
   },
   {
     tone: 'ember',
+    q: 'What about Armature, the standalone app?',
+    a: 'Separate product, separate terms. Armature is free for personal, learning and portfolio work, and free for commercial work under $100k a year. Above that it is $149 per artist. Nothing on this page applies to it: the $2 million threshold and the flat studio license are about the Maya toolset. <a href="/armature/">See Armature</a>.',
+  },
+  {
+    tone: 'ember',
     q: 'What about the Advanced Ribbon Modules?',
     a: "Those are a separate paid product for everyone, at any size. A commercial license covers the free toolset for a large organization; it doesn't include the Ribbon Modules, and buying the Ribbon Modules doesn't remove the need for a commercial license if you're over the threshold.",
   },
@@ -78,6 +83,10 @@ const FAQ = [
         )}
       </h1>
       <p class="dd-summary lc-lede">FabricatorStudio is free for solo developers, indies, and small teams.</p>
+      {/* Scoping line added 2026-07-28. Armature is a separate product on a different threshold
+          ($100k) and a different model (per seat), and this page reads as the definitive answer
+          for the whole studio. Without this a reader leaves with a confident wrong number. */}
+      <p class="lc-prose lc-prose--dim lc-scope">This page covers <b>the Maya toolset</b>. <a href="/armature/">Armature</a>, the standalone app, is a separate product with its own pricing, and the <a href="/store/">Advanced Ribbon Modules</a> are a separate paid add-on.</p>
     </header>
 
     <!-- FREE TIER -->
@@ -116,7 +125,10 @@ const FAQ = [
         <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 3v20M7 9l6-6 6 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
         <p>Crossing $2 million costs you <b class="b-plasma">$1,000 a year</b>, less than a single Maya seat. That's on purpose. You shouldn't get punished for a good year.</p>
       </div>
-      <p class="lc-prose lc-prose--dim">No percentages. No per-seat counting. No reporting, no audits, no license server. You look at one row, you know your number, and you can budget it a year ahead.</p>
+      {/* "no license server" was cut 2026-07-28: Armature ships with activation and a licence
+          server, and the claim read sitewide rather than as a fact about the toolset licence.
+          "No per-seat counting" is kept, scoped, because it is the Epic comparison. */}
+      <p class="lc-prose lc-prose--dim">No percentages. No per-seat counting for the toolset. No reporting and no audits. You look at one row, you know your number, and you can budget it a year ahead.</p>
     </section>
 
     <!-- WHY IT WORKS THIS WAY -->
@@ -173,6 +185,8 @@ const FAQ = [
   .lc .dd-header { align-items: center; text-align: center; }
   .lc .dd-title { justify-content: center; }
   .lc-lede { max-width: 52rem; margin-inline: auto; font-size: 1.125rem; }
+  .lc-scope { max-width: 52rem; margin-inline: auto; margin-top: 0.75rem; font-size: 0.9375rem; }
+  .lc-scope a { color: var(--plasma); }
 
   .lc-section, .lc-why, .lc-license { display: flex; flex-direction: column; gap: 1.5rem; }
 
