@@ -29,6 +29,7 @@ import NavBar from '../components/NavBar.astro';
 import Footer from '../components/Footer.astro';
 import WelcomeVideo from '../components/WelcomeVideo.astro';
 import SectionHead from '../components/SectionHead.astro';
+import Pill from '../components/Pill.astro';
 import DownloadBand from '../components/DownloadBand.astro';
 import FabricatorHero from '../components/FabricatorHero.astro';
 import { WHY_PARAS } from '../data/licensing';
@@ -214,6 +215,40 @@ const PROOF = [
 
   <DownloadBand />
 
+  {/* ARMATURE. Placed AFTER the free Maya toolset and its download band on purpose: the whole
+      point of the product is that it is the same work without a Maya seat, so it only reads
+      correctly once a visitor has just been told what the Maya toolset is. It sits before the
+      hire ask because it is a product beat, not a services one.
+
+      Copy is lifted verbatim from the /armature/ hero (headline plus the sentence that
+      finishes it), so the card and the page it opens never drift. */}
+  <section id="armature">
+    <SectionHead eyebrow="FABRICATORSTUDIO" title="ARMATURE" />
+    <div class="arm-grid">
+      <a class="arm-media" href="/armature/" aria-label="Armature, a standalone character rigging application">
+        <video
+          class="arm-vid"
+          src="/armature/teaser.mp4"
+          poster="/armature/teaser-poster.jpg"
+          muted
+          loop
+          playsinline
+          preload="none"
+          aria-hidden="true"></video>
+        <span class="arm-play" aria-hidden="true"></span>
+      </a>
+      <div class="arm-body">
+        <Pill text="Coming soon" tone="plasma" />
+        <h3 class="arm-head">High End Character Rigging</h3>
+        <p class="arm-lead">has always lived inside expensive applications. Armature is for the indie dev who cannot justify one, and the veteran rigger who wants to move faster.</p>
+        <p class="arm-note">Armature is a new standalone application.</p>
+        <div class="arm-ctas">
+          <BracketButton kind="hard" href="/armature/" label="See Armature" event="home-armature" />
+        </div>
+      </div>
+    </div>
+  </section>
+
   {/* WAS: the tutorials grid. It spent a full section telling a visitor that a page in the
       nav exists, using YouTube's thumbnails, which made it the least on-brand block on the
       page. Tutorials keep their nav item, their page, and a footer link. In its place, the
@@ -287,8 +322,8 @@ const PROOF = [
       if (!mm) return;
       if (mm('(prefers-reduced-motion: reduce)').matches) return;
       if (!mm('(hover: hover)').matches) return;
-      document.querySelectorAll('.pf-card').forEach(function (card) {
-        var v = card.querySelector('.pf-vid');
+      document.querySelectorAll('.pf-card, .arm-media').forEach(function (card) {
+        var v = card.querySelector('.pf-vid, .arm-vid');
         if (!v) return;
         function play() {
           card.classList.add('is-playing');
@@ -569,6 +604,66 @@ const PROOF = [
   .tk-line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); }
   .tk-lic { margin: 0; font-family: var(--font-mono); font-size: 0.875rem; color: var(--bone-faint); }
   .tk-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
+
+  /* ARMATURE: the teaser carries this block, so the media column leads on desktop. The clip is
+     a 9:16 vertical cut, which is why this grid is portrait-first rather than the landscape
+     media the rest of the page uses. */
+  #armature { text-align: left; }
+  .arm-grid { display: grid; grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr); gap: 2.75rem; align-items: center; }
+  @media (max-width: 900px) { .arm-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
+
+  .arm-media {
+    position: relative;
+    display: block;
+    aspect-ratio: 9 / 16;
+    max-height: 30rem;
+    margin-inline: auto;
+    width: 100%;
+    max-width: 17rem;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--iron-3);
+    background: var(--iron);
+    box-shadow: var(--shadow-lg);
+    transition: border-color var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
+  }
+  .arm-media:hover, .arm-media:focus-visible { border-color: var(--plasma-dim); transform: translateY(-2px); }
+  .arm-vid { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+  /* Same affordance the proof cards use: a play glyph that fades out once the clip runs. */
+  .arm-play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 3.25rem;
+    height: 3.25rem;
+    margin: -1.625rem 0 0 -1.625rem;
+    border-radius: 50%;
+    background: rgba(11, 14, 16, 0.55);
+    border: 1px solid rgba(124, 255, 178, 0.5);
+    pointer-events: none;
+    transition: opacity var(--t-base) var(--ease-out);
+  }
+  .arm-play::after {
+    content: '';
+    position: absolute;
+    left: 55%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-top: 0.5rem solid transparent;
+    border-bottom: 0.5rem solid transparent;
+    border-left: 0.85rem solid var(--plasma);
+  }
+  .arm-media.is-playing .arm-play { opacity: 0; }
+  @media (hover: none) { .arm-play { display: none; } }
+
+  .arm-body { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
+  .arm-head { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--bone); }
+  /* The headline and this sentence are one sentence across two sizes, exactly as on the
+     landing page, so the gap between them stays tight. */
+  .arm-lead { margin: -0.35rem 0 0; font-size: 1.0625rem; line-height: 1.6; color: var(--bone); max-width: 40rem; text-wrap: pretty; }
+  .arm-note { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); max-width: 40rem; text-wrap: pretty; }
+  .arm-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
 
   /* WORK WITH ME: the page's only ask. It had none. */
   .hb-card {

@@ -6,16 +6,19 @@
 // PROMPT-CLAUDE-DESIGN.md. That file carries Adrian's approved wording and the copy law that
 // goes with it: the layout bends around the copy, never the other way. Edit there first.
 //
-// WHY THIS PAGE HAS NO NAVBAR. It is a single-conversion landing page for traffic arriving
-// cold from a 15 second vertical video. Site chrome offers that visitor eight ways to leave
-// before they have read what the product is. The two text links out (fabricator.studio in the
-// studio section and in the footer) are deliberate and sufficient.
+// THE NAVBAR IS ON THIS PAGE (Adrian, 2026-07-28), reversing the chromeless build. The
+// argument for leaving it off was that a visitor arriving cold from a 15 second video gets
+// eight ways to leave before learning what the product is. The argument that won: someone who
+// lands here from a video and DOES want the rest of the studio should not have to guess, and
+// this page is now linked from the homepage, so it is part of the site rather than a detached
+// landing page.
 //
 // THE EMAIL FORM IS NOT LIVE UNTIL ML_ACTION BELOW IS FILLED IN. See the note on it.
 //
 // COPY REVISIONS since the design prompt are listed in that task folder's PORT.md. The prompt
 // is the original brief; PORT.md is what actually shipped.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
 import Wordmark from '../../components/Wordmark.astro';
 import { Image } from 'astro:assets';
 
@@ -97,6 +100,8 @@ const STAGES = [
 
 <BaseLayout title={TITLE} description={DESCRIPTION}>
   <a class="skip-link" href="#main">Skip to content</a>
+
+  <NavBar />
 
   {/* Marks the document as scripted BEFORE first paint. Every scroll reveal starts at
       opacity 0 and is switched on by IntersectionObserver, so without this flag a reader with
@@ -659,14 +664,6 @@ const STAGES = [
     }
   })();
 </script>
-
-<style is:global>
-  /* This page carries no NavBar, so the global clearance for the fixed header has to go or the
-     hero opens with a band of dead space. */
-  body:has(.shell > main) {
-    padding-top: 0;
-  }
-</style>
 
 <style>
   .shell {
