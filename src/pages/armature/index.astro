@@ -1,0 +1,1838 @@
+---
+// The Armature product landing page (2026-07-28). Lives at /armature, which is the URL the
+// vertical teaser ends on.
+//
+// SOURCE OF TRUTH for every copy block: MrMiata workspace/2026-07-28_armature-landing/
+// PROMPT-CLAUDE-DESIGN.md. That file carries Adrian's approved wording and the copy law that
+// goes with it: the layout bends around the copy, never the other way. Edit there first.
+//
+// WHY THIS PAGE HAS NO NAVBAR. It is a single-conversion landing page for traffic arriving
+// cold from a 15 second vertical video. Site chrome offers that visitor eight ways to leave
+// before they have read what the product is. The two text links out (fabricator.studio in the
+// studio section and in the footer) are deliberate and sufficient.
+//
+// THE EMAIL FORM IS NOT LIVE UNTIL ML_ACTION BELOW IS FILLED IN. See the note on it.
+//
+// COPY REVISIONS since the design prompt are listed in that task folder's PORT.md. The prompt
+// is the original brief; PORT.md is what actually shipped.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import Wordmark from '../../components/Wordmark.astro';
+import { Image } from 'astro:assets';
+
+// The [FS monogram] + [ToolName] lockup (DNA principle 7), source Icons/fs_armature.png in
+// the FabricatorStudio repo. Supersedes the bare Armature wordmark used earlier.
+import wordmark from '../../assets/armature/armature-lockup.png';
+import stageLoad from '../../assets/armature/stage-load.png';
+import stageFit from '../../assets/armature/stage-fit.png';
+import stageSkeleton from '../../assets/armature/stage-skeleton.png';
+import stageSkin from '../../assets/armature/stage-skin.png';
+import stageExport from '../../assets/armature/stage-export.png';
+import proofUnreal from '../../assets/armature/proof-unreal.png';
+import portrait from '../../assets/about/adrian.png';
+
+// The Armature early-access MailerLite endpoint. Same shape and same precedent as
+// NewsletterPop.astro: a public client-side form id, not a secret, so it lives in the source
+// rather than an env var (this repo has no .env, and its one public var is a literal in the
+// deploy workflow). Only the form id differs from the launch form.
+//
+// Its OWN form and group, not the launch installer-delivery list: the line under the field
+// promises "Email about Armature only".
+//
+// DERIVED, not copied. Adrian supplied the share link
+// https://preview.mailerlite.io/forms/2504656/194223063038952649/share, which carries the
+// account and form ids but is not the submit endpoint. If a submission ever fails to arrive,
+// check this against the `action` in MailerLite's own embed code FIRST: the post below is
+// mode 'no-cors', so a wrong URL fails silently and forever.
+const ML_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/194223063038952649/subscribe';
+
+const TITLE = 'Armature, by FabricatorStudio';
+// Tracks the hero sentence. The old description quoted copy that is no longer on the page.
+const DESCRIPTION =
+  'High end character rigging has always lived inside expensive applications. Armature is for the indie dev who cannot justify one, and the veteran rigger who wants to move faster.';
+
+// Seven sections, so eight joints (one per boundary, plus the closing one) and seven bones.
+const SPINE_JOINTS = 8;
+const SPINE_BONES = 7;
+
+const STAGES = [
+  {
+    key: 'load',
+    label: 'LOAD',
+    text: 'Bring in a textured mesh.',
+    img: stageLoad,
+    alt: 'The Armature start screen, with recent characters and a drop target for a character mesh',
+  },
+  {
+    key: 'fit',
+    label: 'FIT',
+    text: 'Orient and size the character so symmetry and placement behave.',
+    img: stageFit,
+    alt: 'The Fitting Room in Armature, sizing a samurai character against a height reference',
+  },
+  {
+    key: 'skeleton',
+    label: 'SKELETON',
+    // "creature" cut 2026-07-28 (Adrian): the module library ships Biped, Quadruped, Root and
+    // Prop, so the screenshot beside this line contradicted the word.
+    text: 'Start from a biped, quadruped, or prop template, or build from nothing. Live symmetry, limb duplication, chain editing, and a finger count you state instead of the machine guessing.',
+    img: stageSkeleton,
+    alt: 'The Skeleton stage in Armature, with a joint chain placed through a samurai character and the module library open',
+  },
+  {
+    key: 'skin',
+    label: 'SKIN',
+    text: 'Weights generated locally on your own GPU, and a full painting suite with layers and non-destructive passes for when you want to fix them by hand.',
+    img: stageSkin,
+    alt: 'The Skin stage in Armature, showing generated weights on a samurai character with the influence list and weight brush',
+  },
+  {
+    key: 'export',
+    label: 'EXPORT',
+    text: 'One USD file carrying mesh, skeleton, orientations, and weights together.',
+    img: stageExport,
+    alt: 'The Export panel in Armature, writing a single USD file for a samurai character',
+  },
+];
+---
+
+<BaseLayout title={TITLE} description={DESCRIPTION}>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  {/* Marks the document as scripted BEFORE first paint. Every scroll reveal starts at
+      opacity 0 and is switched on by IntersectionObserver, so without this flag a reader with
+      JS disabled gets a hero and six blank screens. Gated in CSS on html.js. */}
+  <script is:inline>
+    document.documentElement.classList.add('js');
+  </script>
+
+  <div class="shell">
+    {/* The page skeleton: one continuous cobalt line, a joint at every section boundary. It is
+        drawn in markup rather than built by script so it still renders with JS disabled, and so
+        Astro's scoped styles reach it. */}
+    <div class="spine" id="spine" aria-hidden="true">
+      <div class="spine__track"></div>
+      <div class="spine__draw" id="spine-draw"></div>
+      {Array.from({ length: SPINE_BONES }).map(() => <span class="bone"></span>)}
+      {Array.from({ length: SPINE_JOINTS }).map(() => <span class="joint"></span>)}
+    </div>
+
+    <main id="main">
+      {/* 1. HERO */}
+      <header class="section hero" data-spine-section>
+        <div class="wrap hero__inner">
+          <div class="hero__lead">
+            <Image
+              class="hero__wordmark reveal r1"
+              src={wordmark}
+              alt="Armature"
+              widths={[360, 720]}
+              sizes="(min-width: 720px) 300px, 230px"
+              loading="eager"
+            />
+
+            <p class="hero__kicker reveal r2">ARMATURE, by <b>FabricatorStudio</b></p>
+
+            {/* The headline and the paragraph under it are ONE sentence, split across two type
+                sizes. No full stop on the h1, and the paragraph opens lowercase on purpose.
+                Keep them visually adjacent or the device stops reading as a sentence. */}
+            <h1 class="hero__title reveal r3">High End Character Rigging</h1>
+
+            <div class="hero__copy reveal r4">
+              <p>
+                has always lived inside expensive applications. Armature is for the indie dev who
+                cannot justify one, and the veteran rigger who wants to move faster.
+              </p>
+            </div>
+
+            <p class="hero__status reveal r5">
+              <span class="pill"><span class="pill__dot"></span>Coming soon</span>
+            </p>
+
+            <form class="signup reveal r6" action="" data-form="mailerlite" novalidate>
+              {/* One instrument, not an input sitting next to a button. The leading joint is the
+                  page's own glyph: it lights plasma on focus exactly like the spine joints light
+                  on scroll, so the conversion belongs to the same skeleton. */}
+              <div class="signup__shell">
+                <span class="signup__joint" aria-hidden="true"></span>
+                <label class="sr-only" for="email-hero">Email address</label>
+                <input
+                  class="field"
+                  id="email-hero"
+                  name="fields[email]"
+                  type="email"
+                  required
+                  autocomplete="email"
+                  inputmode="email"
+                  placeholder="you@studio.com"
+                />
+                <input class="hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+                <button class="btn" type="submit" data-goatcounter-click="armature-early-access">
+                  Request early access
+                </button>
+              </div>
+              <p class="reassure">Email about Armature only. One click to unsubscribe.</p>
+              <p class="form-msg form-msg--ok" role="status" hidden>You are on the list. Watch your inbox.</p>
+              <p class="form-msg form-msg--error" role="alert" hidden>
+                That email address did not look right. Try again.
+              </p>
+            </form>
+          </div>
+
+          {/* The inline loop is silent because every browser requires that of an autoplay video.
+              The overlay button opens the same cut full size WITH sound. The button sits OVER
+              the video rather than wrapping it, so no interactive element is nested in another. */}
+          <figure class="slot hero__media reveal r7">
+            <video
+              id="teaser-loop"
+              src="/armature/teaser.mp4"
+              poster="/armature/teaser-poster.jpg"
+              muted
+              loop
+              playsinline
+              autoplay
+              preload="metadata"
+              aria-hidden="true"></video>
+            <button class="shot-open shot-open--overlay" type="button" data-teaser-open aria-label="Play the Armature teaser with sound">
+              <span class="shot-open__badge shot-open__badge--play" aria-hidden="true">▶</span>
+            </button>
+          </figure>
+        </div>
+      </header>
+
+      {/* 2. THE WORKFLOW */}
+      <section class="section workflow" data-spine-section aria-labelledby="workflow-title">
+        <div class="wrap">
+          <div class="workflow__head reveal">
+            <p class="eyebrow">The workflow</p>
+            <h2 class="section-title" id="workflow-title">Five stages, one app.</h2>
+          </div>
+
+          <ol class="stages">
+            {
+              STAGES.map((stage, i) => (
+                <li class="stage" data-stage>
+                  <div class="stage__rail" aria-hidden="true">
+                    <span class="stage__joint"></span>
+                    <span class="stage__bone"></span>
+                  </div>
+                  <div class="stage__body">
+                    <p class="stage__index">{String(i + 1).padStart(2, '0')}</p>
+                    <p class="stage__text">
+                      <b>{stage.label}:</b> {stage.text}
+                    </p>
+                  </div>
+                  <figure class="slot stage__shot">
+                    <button
+                      class="shot-open"
+                      type="button"
+                      data-shot={stage.key}
+                      aria-label={`Enlarge the ${stage.label} screenshot`}
+                    >
+                      <Image src={stage.img} alt={stage.alt} widths={[640, 1280]} sizes="(min-width: 1100px) 40vw, 92vw" />
+                      <span class="shot-open__badge" aria-hidden="true">+</span>
+                    </button>
+                    <figcaption class="slot__tag">{stage.label}</figcaption>
+                  </figure>
+                </li>
+              ))
+            }
+          </ol>
+
+          {/* At the size these sit on the page the panels are texture, not reading material, so
+              each one opens full size. Native <dialog>: Escape, focus trapping and focus return
+              are the platform's job rather than hand-rolled JS. The full-size Image is lazy and
+              lives inside a CLOSED dialog, so nothing downloads until a reader opens one. */}
+          {
+            STAGES.map((stage) => (
+              <dialog class="shot-dialog" id={`shot-${stage.key}`} aria-label={`${stage.label} stage, full size`}>
+                <div class="shot-dialog__inner">
+                  <Image src={stage.img} alt={stage.alt} widths={[1920]} sizes="94vw" loading="lazy" />
+                  <p class="slot__tag shot-dialog__tag">{stage.label}</p>
+                  <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
+                    <span aria-hidden="true">✕</span>
+                  </button>
+                </div>
+              </dialog>
+            ))
+          }
+        </div>
+      </section>
+
+      {/* 3. THE PILLAR */}
+      <section class="section pillar" data-spine-section aria-labelledby="pillar-title">
+        <div class="wrap">
+          <h2 class="mantra" id="pillar-title">
+            <span>Design the look.</span>
+            <span>Design the motion.</span>
+            <span>The pipeline does the rest.</span>
+          </h2>
+
+          <div class="pillar__copy reveal">
+            <p>
+              A character pipeline holds two acts of authorship. The look, which is concept. The
+              motion, which is where the joints go. Everything after that is execution: weights,
+              rig assembly, export, engine ingest.
+            </p>
+            <p>
+              Where a joint sits decides how a character bends, where it creases, and what
+              silhouettes it can reach. The industry files that under technical setup, which is why
+              it is the step that gets rushed. Armature automates everything around it so you
+              focus on the part that matters.
+            </p>
+          </div>
+
+          <p class="pillar__note reveal">A skeleton is the blueprint of motion.</p>
+        </div>
+      </section>
+
+      {/* 4. BUILT AND VERIFIED */}
+      <section class="section status" data-spine-section aria-labelledby="status-title">
+        <div class="wrap">
+          <div class="reveal">
+            <p class="eyebrow">Status</p>
+            <h2 class="section-title" id="status-title">Built for Production</h2>
+          </div>
+
+          <div class="status__grid">
+            <div class="status__panels">
+              <div class="panel reveal">
+                <p class="panel__head"><span class="pill"><span class="pill__dot"></span>Verified</span></p>
+                <p class="panel__text">
+                  The exported USD imports into both Unreal and Maya with joint orientations
+                  intact. The Fabricator Maya and Unreal Control Rigs are built procedurally from
+                  Armature's export data.
+                </p>
+              </div>
+            </div>
+
+            <figure class="slot status__proof reveal">
+              <Image
+                src={proofUnreal}
+                alt="A samurai character exported from Armature, open in Unreal Engine on a Control Rig generated from its export data"
+                widths={[640, 1280]}
+                sizes="(min-width: 720px) 52vw, 92vw"
+              />
+              <figcaption class="slot__tag">PROOF</figcaption>
+            </figure>
+          </div>
+        </div>
+      </section>
+
+      {/* 5. WHO BUILT IT */}
+      <section class="section studio" data-spine-section aria-labelledby="studio-title">
+        <div class="wrap">
+          <div class="reveal">
+            <p class="eyebrow">FabricatorStudio</p>
+            <h2 class="section-title" id="studio-title">Who built it.</h2>
+          </div>
+
+          <div class="studio__grid">
+            <figure class="slot studio__portrait reveal">
+              <Image
+                src={portrait}
+                alt="Adrian Melian, the technical artist behind FabricatorStudio"
+                widths={[400, 800]}
+                sizes="(min-width: 720px) 34vw, 280px"
+              />
+            </figure>
+
+            <div class="studio__copy reveal">
+              <p>
+                FabricatorStudio is a one-person technical art studio. I am a technical artist with
+                fourteen years in the game industry. I joined Sledgehammer Games as a Senior
+                Technical Artist on Call of Duty: Vanguard and was promoted to Lead for Modern
+                Warfare III, where I led the Character Tech Art team and the Weapons Tech Art team.
+                Before and after that, Camouflaj, Double Fine, Ubisoft, and NCSoft.
+              </p>
+              {/* Keep "at" and the link on ONE line. Astro trims the whitespace at the start of
+                  a wrapped line, so a newline before an inline tag welds it to the word above. */}
+              <p>
+                The Maya pipeline I built is already free and public at <a href="https://fabricator.studio">fabricator.studio</a>. Armature is the same
+                work, done again for people who do not have Maya.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 6. WHAT IT COSTS */}
+      <section class="section pricing" data-spine-section aria-labelledby="pricing-title">
+        <div class="wrap">
+          <div class="reveal">
+            <p class="eyebrow">Pricing</p>
+            <h2 class="section-title" id="pricing-title">What it costs.</h2>
+          </div>
+          <p class="pricing__lede reveal">
+            Free for personal, learning, and portfolio work, and free for commercial work under
+            $100k a year. If you qualify for Maya Indie, Armature is free. Above that it is <b>$149 per artist, once</b>, with a year of updates.
+          </p>
+          <p class="pricing__note reveal">
+            Armature is a new standalone application. It is not the Armature step inside the Maya
+            toolset, and it is not part of that free download.
+          </p>
+        </div>
+      </section>
+
+      {/* 7. CLOSE */}
+      <section class="section close" data-spine-section aria-labelledby="close-title">
+        <div class="wrap">
+          <h2 class="close__title reveal" id="close-title">Armature is coming.</h2>
+
+          <form class="signup signup--close reveal" action="" data-form="mailerlite" novalidate>
+            <div class="signup__shell">
+              <span class="signup__joint" aria-hidden="true"></span>
+              <label class="sr-only" for="email-close">Email address</label>
+              <input
+                class="field"
+                id="email-close"
+                name="fields[email]"
+                type="email"
+                required
+                autocomplete="email"
+                inputmode="email"
+                placeholder="you@studio.com"
+              />
+              <input class="hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
+              <button class="btn" type="submit" data-goatcounter-click="armature-early-access">
+                Request early access
+              </button>
+            </div>
+            <p class="reassure">Email about Armature only. One click to unsubscribe.</p>
+            <p class="form-msg form-msg--ok" role="status" hidden>You are on the list. Watch your inbox.</p>
+            <p class="form-msg form-msg--error" role="alert" hidden>
+              That email address did not look right. Try again.
+            </p>
+          </form>
+        </div>
+      </section>
+      {/* Loads nothing until it is opened: preload="none" plus a separate audio-bearing file, so
+          the silent inline loop stays the only thing a visitor pays for. */}
+      <dialog class="shot-dialog shot-dialog--video" id="teaser-dialog" aria-label="Armature teaser">
+        <div class="shot-dialog__inner shot-dialog__inner--video">
+          <video
+            id="teaser-full"
+            src="/armature/teaser-full.mp4"
+            poster="/armature/teaser-poster.jpg"
+            controls
+            playsinline
+            preload="none"></video>
+          <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
+            <span aria-hidden="true">✕</span>
+          </button>
+        </div>
+      </dialog>
+    </main>
+
+    <footer class="footer">
+      <div class="footer__inner">
+        {/* The signature treatment, not plain bold type (brand DNA section 4). */}
+        <p class="footer__wordmark"><Wordmark /></p>
+        <div class="footer__meta">
+          <nav class="footer__links" aria-label="Footer">
+            <a href="https://fabricator.studio">fabricator.studio</a>
+            <a href="/privacy/">Privacy</a>
+          </nav>
+          <p class="footer__legal">&copy; 2026 FabricatorStudio LLC</p>
+        </div>
+      </div>
+    </footer>
+  </div>
+</BaseLayout>
+
+<script is:inline define:vars={{ action: ML_ACTION }}>
+  (function () {
+    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+    var spine = document.getElementById('spine');
+    var draw = document.getElementById('spine-draw');
+    var shell = document.querySelector('.shell');
+    var sections = Array.prototype.slice.call(document.querySelectorAll('[data-spine-section]'));
+    var joints = Array.prototype.slice.call(spine.querySelectorAll('.joint'));
+    var bones = Array.prototype.slice.call(spine.querySelectorAll('.bone'));
+
+    // A joint sits at every section boundary; a bone spans the gap between two joints.
+    function placeSpine() {
+      var shellTop = shell.getBoundingClientRect().top + window.scrollY;
+      var points = sections.map(function (s) {
+        return s.getBoundingClientRect().top + window.scrollY - shellTop;
+      });
+      var last = sections[sections.length - 1];
+      points.push(last.getBoundingClientRect().bottom + window.scrollY - shellTop);
+
+      points.forEach(function (y, i) {
+        // The first boundary is the top of the document, where a centred joint would be cut in
+        // half by the viewport edge. Nudge only that one down.
+        var top = i === 0 ? Math.max(y, 22) : y;
+        if (joints[i]) joints[i].style.top = top + 'px';
+        if (bones[i] && points[i + 1] != null) {
+          bones[i].style.top = top + 14 + 'px';
+          bones[i].style.height = Math.max(0, points[i + 1] - top - 28) + 'px';
+        }
+      });
+    }
+
+    function updateDraw() {
+      if (reduced.matches) return;
+      var top = shell.getBoundingClientRect().top + window.scrollY;
+      var progress = window.scrollY + window.innerHeight * 0.62 - top;
+      draw.style.height = Math.max(0, Math.min(progress, shell.offsetHeight)) + 'px';
+    }
+
+    placeSpine();
+    updateDraw();
+
+    var ticking = false;
+    window.addEventListener(
+      'scroll',
+      function () {
+        if (ticking) return;
+        ticking = true;
+        window.requestAnimationFrame(function () {
+          updateDraw();
+          ticking = false;
+        });
+      },
+      { passive: true }
+    );
+
+    var resizeTimer;
+    window.addEventListener('resize', function () {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(function () {
+        placeSpine();
+        updateDraw();
+      }, 150);
+    });
+
+    // Images settle after the spine is first measured, so re-measure once everything has loaded.
+    window.addEventListener('load', function () {
+      placeSpine();
+      updateDraw();
+    });
+
+    function lightSection(section) {
+      var i = sections.indexOf(section);
+      if (i > -1) {
+        if (joints[i]) joints[i].classList.add('is-lit');
+        if (joints[i + 1]) joints[i + 1].classList.add('is-lit');
+        if (bones[i]) bones[i].classList.add('is-lit');
+      }
+      section.classList.add('is-in');
+      Array.prototype.forEach.call(section.querySelectorAll('.reveal'), function (el, n) {
+        el.style.transitionDelay = Math.min(n * 70, 350) + 'ms';
+        el.classList.add('is-in');
+      });
+    }
+
+    if ('IntersectionObserver' in window && !reduced.matches) {
+      var sectionObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (e) {
+            if (!e.isIntersecting) return;
+            lightSection(e.target);
+            sectionObserver.unobserve(e.target);
+          });
+        },
+        { rootMargin: '0px 0px -12% 0px', threshold: 0.08 }
+      );
+      sections.forEach(function (s) {
+        sectionObserver.observe(s);
+      });
+
+      var stageObserver = new IntersectionObserver(
+        function (entries) {
+          entries.forEach(function (e) {
+            if (!e.isIntersecting) return;
+            e.target.classList.add('is-in');
+            stageObserver.unobserve(e.target);
+          });
+        },
+        { rootMargin: '0px 0px -18% 0px', threshold: 0.25 }
+      );
+      document.querySelectorAll('[data-stage]').forEach(function (s) {
+        stageObserver.observe(s);
+      });
+    } else {
+      sections.forEach(lightSection);
+      document.querySelectorAll('[data-stage]').forEach(function (s) {
+        s.classList.add('is-in');
+      });
+    }
+
+    // Anything already on screen at load lights immediately, observer or not.
+    sections.forEach(function (s) {
+      if (s.getBoundingClientRect().top < window.innerHeight * 0.9) lightSection(s);
+    });
+
+    if (reduced.matches) {
+      document.querySelectorAll('video[autoplay]').forEach(function (v) {
+        v.removeAttribute('autoplay');
+        v.pause();
+      });
+    }
+
+    // With no action configured the field still validates and shows its states, and nothing is
+    // sent. See the note at the top of this page.
+    document.querySelectorAll('form[data-form="mailerlite"]').forEach(function (form) {
+      var ok = form.querySelector('.form-msg--ok');
+      var err = form.querySelector('.form-msg--error');
+      var input = form.querySelector('input[type="email"]');
+      var hp = form.querySelector('.hp');
+
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var value = (input.value || '').trim();
+        var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+        ok.hidden = !valid;
+        err.hidden = valid;
+        if (!valid) {
+          input.focus();
+          return;
+        }
+        input.value = '';
+        if (action && !(hp && hp.value)) {
+          fetch(action, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: 'fields[email]=' + encodeURIComponent(value) + '&ml-submit=1&anticsrf=true',
+          });
+        }
+      });
+
+      input.addEventListener('input', function () {
+        ok.hidden = true;
+        err.hidden = true;
+      });
+    });
+
+    /* ---- enlargeable shots and the teaser player ---- */
+    var loop = document.getElementById('teaser-loop');
+    var full = document.getElementById('teaser-full');
+
+    function wireDialog(dlg) {
+      if (!dlg) return;
+      // Clicking the backdrop means clicking the dialog element itself, which only works
+      // because the dialog carries no padding of its own.
+      dlg.addEventListener('click', function (e) {
+        if (e.target === dlg) dlg.close();
+      });
+      dlg.querySelectorAll('[data-shot-close]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          dlg.close();
+        });
+      });
+    }
+    document.querySelectorAll('.shot-dialog').forEach(wireDialog);
+
+    document.querySelectorAll('[data-shot]').forEach(function (trigger) {
+      trigger.addEventListener('click', function () {
+        var dlg = document.getElementById('shot-' + trigger.getAttribute('data-shot'));
+        if (dlg && dlg.showModal) dlg.showModal();
+      });
+    });
+
+    var teaserDialog = document.getElementById('teaser-dialog');
+    var teaserOpen = document.querySelector('[data-teaser-open]');
+    if (teaserDialog && teaserOpen && teaserDialog.showModal) {
+      teaserOpen.addEventListener('click', function () {
+        teaserDialog.showModal();
+        if (loop) loop.pause();
+        if (full) {
+          full.currentTime = 0;
+          // Started by a real click, so sound is allowed here where the inline loop can never
+          // have it. If the browser still refuses, fall back to playing it muted.
+          var p = full.play();
+          if (p && p.catch) {
+            p.catch(function () {
+              full.muted = true;
+              full.play();
+            });
+          }
+        }
+      });
+      // Covers every close path: the button, the backdrop and Escape.
+      teaserDialog.addEventListener('close', function () {
+        if (full) full.pause();
+        if (loop && !reduced.matches) loop.play();
+      });
+    }
+  })();
+</script>
+
+<style is:global>
+  /* This page carries no NavBar, so the global clearance for the fixed header has to go or the
+     hero opens with a band of dead space. */
+  body:has(.shell > main) {
+    padding-top: 0;
+  }
+</style>
+
+<style>
+  .shell {
+    --rail: 30px;
+    --gutter: 20px;
+    --col: 34em;
+    position: relative;
+  }
+
+  .skip-link {
+    position: absolute;
+    left: var(--rail);
+    top: 8px;
+    z-index: 50;
+    padding: 10px 16px;
+    background: var(--iron);
+    border: 1px solid var(--plasma);
+    border-radius: var(--radius-pill);
+    color: var(--plasma);
+    font-size: 13px;
+    text-decoration: none;
+    transform: translateY(-200%);
+  }
+  .skip-link:focus-visible {
+    transform: translateY(0);
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* ---------- the spine ---------- */
+
+  /* The sections stay full bleed, but their inner column is capped and centred. Past about
+     1330px the spine would otherwise be stranded against the viewport edge with a growing void
+     between it and the copy it is supposed to be the skeleton of, so it tracks the same
+     centring. Below that width the max() resolves to 0 and nothing moves. */
+  .spine {
+    position: absolute;
+    top: 0;
+    left: max(0px, calc((100vw - var(--rail) - var(--gutter) - 1180px) / 2));
+    width: var(--rail);
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .spine__track,
+  .spine__draw {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 2px;
+    margin-left: -1px;
+    border-radius: var(--radius-pill);
+    background: var(--cobalt);
+  }
+  .spine__track {
+    height: 100%;
+    opacity: 0.16;
+  }
+  .spine__draw {
+    height: 0;
+    opacity: 0.55;
+    transition: height 120ms linear;
+  }
+
+  /* Joints and bones are placed by script from the real section offsets. With no script they
+     have no `top` and would pile up at the head of the rail, so the rail falls back to the
+     plain undrawn line. */
+  :global(html:not(.js)) .joint,
+  :global(html:not(.js)) .bone {
+    display: none;
+  }
+
+  .bone {
+    position: absolute;
+    left: 50%;
+    width: 11px;
+    margin-left: -5.5px;
+    background: var(--cobalt);
+    opacity: 0.22;
+    clip-path: polygon(0% 0%, 100% 0%, 62% 100%, 38% 100%);
+    transition: opacity 600ms var(--ease-out);
+  }
+  .bone.is-lit {
+    opacity: 0.4;
+  }
+
+  .joint {
+    position: absolute;
+    left: 50%;
+    width: 18px;
+    height: 18px;
+    margin-left: -9px;
+    margin-top: -9px;
+    border-radius: 50%;
+    border: 1.5px solid var(--cobalt);
+    background: var(--carbon);
+    opacity: 0.4;
+    display: grid;
+    place-items: center;
+    transition:
+      opacity 500ms var(--ease-out),
+      border-color 500ms var(--ease-out),
+      transform 620ms var(--ease-spring),
+      box-shadow 500ms var(--ease-out);
+  }
+  .joint::after {
+    content: '';
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--cobalt);
+    transition: background 500ms var(--ease-out);
+  }
+  .joint.is-lit {
+    opacity: 1;
+    border-color: var(--plasma);
+    transform: scale(1.18);
+    box-shadow: 0 0 0 5px var(--plasma-glow);
+  }
+  .joint.is-lit::after {
+    background: var(--plasma);
+  }
+
+  /* ---------- layout primitives ---------- */
+
+  main {
+    position: relative;
+    z-index: 2;
+  }
+
+  /* base.css carries a global `section { max-width: 72rem; margin: 0 auto }` element rule. It
+     insets every <section> by 144px at 1440 while the <header> hero stays full bleed, so the
+     hero and every section below it sit on two different left edges. Reset it here: this page
+     runs its own rail-based measure. */
+  .section {
+    max-width: none;
+    margin: 0;
+    padding: 0 var(--gutter) 0 var(--rail);
+  }
+  .wrap {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-left: 12px;
+  }
+
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    color: var(--ember);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .section-title {
+    font-size: clamp(26px, 6.4vw, 44px);
+    font-weight: 700;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    text-wrap: pretty;
+  }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 7px 15px 7px 12px;
+    border-radius: var(--radius-pill);
+    border: 1px solid var(--iron-3);
+    background: var(--iron);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.06em;
+    color: var(--bone);
+  }
+  .pill__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--plasma);
+    box-shadow: 0 0 0 4px var(--plasma-glow);
+  }
+
+  .slot {
+    position: relative;
+    border-radius: var(--radius);
+    border: 1px solid var(--iron-2);
+    background-color: var(--iron);
+    background-image: var(--shine);
+    overflow: hidden;
+    box-shadow: var(--shadow-md);
+  }
+  .slot :global(img),
+  .slot video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .slot__tag {
+    position: absolute;
+    left: 10px;
+    bottom: 10px;
+    padding: 4px 10px;
+    border-radius: var(--radius-sm);
+    background: var(--carbon);
+    border: 1px solid var(--iron-3);
+    color: var(--bone-dim);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+  }
+
+  /* ---------- enlargeable shots ---------- */
+
+  .shot-open {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: zoom-in;
+  }
+  .shot-open :global(img) {
+    transition: transform 480ms var(--ease-out);
+  }
+  .shot-open:hover :global(img) {
+    transform: scale(1.015);
+  }
+
+  /* For the video, the trigger sits OVER the frame instead of wrapping it. */
+  .shot-open--overlay {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+  }
+
+  .shot-open__badge {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+    color: var(--bone-dim);
+    font-size: 15px;
+    font-weight: 700;
+    line-height: 1;
+    opacity: 0;
+    transform: translateY(4px);
+    transition:
+      opacity 260ms var(--ease-out),
+      transform 320ms var(--ease-spring),
+      border-color 260ms var(--ease-out),
+      color 260ms var(--ease-out);
+  }
+  .shot-open__badge--play {
+    font-size: 12px;
+    padding-left: 2px;
+  }
+  .shot-open:hover .shot-open__badge,
+  .shot-open:focus-visible .shot-open__badge {
+    opacity: 1;
+    transform: none;
+    border-color: var(--plasma);
+    color: var(--plasma);
+  }
+  /* A pointer is a hover affordance. On touch there is no hover, so it just shows. */
+  @media (hover: none) {
+    .shot-open__badge {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .shot-dialog {
+    /* base.css sets a global `* { margin: 0 }`, which wipes the UA stylesheet's `margin: auto`
+       on <dialog> and drops every modal into the top left corner. Put it back. */
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    max-width: 96vw;
+    max-height: 95vh;
+    overflow: visible;
+    color: var(--bone);
+  }
+  .shot-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.84);
+  }
+  .shot-dialog__inner {
+    position: relative;
+    border-radius: var(--radius);
+    border: 1px solid var(--iron-3);
+    background: var(--iron);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    line-height: 0;
+  }
+  .shot-dialog :global(img),
+  .shot-dialog video {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 94vw;
+    max-height: 88vh;
+    object-fit: contain;
+  }
+  /* A 9:16 cut wants height, not width. */
+  .shot-dialog--video :global(video) {
+    max-width: min(94vw, 52vh);
+    max-height: 92vh;
+  }
+  .shot-dialog__tag {
+    pointer-events: none;
+  }
+  .shot-dialog__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+    color: var(--bone-dim);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      color var(--t-base) var(--ease-out),
+      border-color var(--t-base) var(--ease-out);
+  }
+  .shot-dialog__close:hover {
+    color: var(--plasma);
+    border-color: var(--plasma);
+  }
+
+  /* ---------- hero ---------- */
+
+  .hero {
+    padding-top: 26px;
+    padding-bottom: 64px;
+  }
+
+  .hero__wordmark {
+    width: min(230px, 60vw);
+    height: auto;
+    object-fit: contain;
+    object-position: left center;
+    margin-bottom: 14px;
+  }
+
+  .hero__kicker {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.2em;
+    color: var(--bone-dim);
+    margin-bottom: 10px;
+  }
+  .hero__kicker b {
+    color: var(--bone);
+    font-weight: 700;
+  }
+
+  .hero__title {
+    font-size: clamp(33px, 8.8vw, 76px);
+    font-weight: 700;
+    line-height: 1.05;
+    letter-spacing: -0.035em;
+    max-width: 15ch;
+    text-wrap: balance;
+    /* Tight, because the paragraph below finishes this sentence. */
+    margin-bottom: 12px;
+  }
+
+  .hero__copy {
+    display: grid;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  .hero__copy p {
+    font-size: 14.5px;
+    line-height: 1.5;
+    max-width: var(--col);
+    text-wrap: pretty;
+  }
+  .hero__copy p + p {
+    color: var(--bone-dim);
+  }
+
+  .hero__status {
+    margin-bottom: 16px;
+  }
+
+  .signup {
+    max-width: 540px;
+  }
+
+  /* The control is ONE object: a soft iron capsule holding the joint, the field and the button.
+     Depth is the sanctioned kind, a hairline plus a shine plus a soft shadow. The whole capsule
+     is the focus indicator, which is why the field itself carries no border and no ring. */
+  .signup__shell {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    gap: 0 10px;
+    padding: 10px;
+    border-radius: 24px;
+    border: 1px solid var(--iron-3);
+    background-color: var(--iron);
+    background-image: var(--shine);
+    box-shadow: var(--shadow-sm);
+    transition:
+      border-color var(--t-base) var(--ease-out),
+      box-shadow var(--t-base) var(--ease-out);
+  }
+  .signup__shell:hover {
+    border-color: var(--bone-faint);
+  }
+  .signup__shell:focus-within {
+    border-color: var(--plasma);
+    box-shadow:
+      0 0 0 3px var(--plasma-glow),
+      var(--shadow-md);
+  }
+
+  /* The page's own glyph. Neutral at rest so it never reads as a state, plasma the moment the
+     field takes focus, which is plasma doing its sanctioned job. */
+  .signup__joint {
+    width: 16px;
+    height: 16px;
+    margin-left: 6px;
+    border-radius: 50%;
+    border: 1.5px solid var(--bone-faint);
+    display: grid;
+    place-items: center;
+    flex: none;
+    transition:
+      border-color 320ms var(--ease-out),
+      box-shadow 320ms var(--ease-out),
+      transform 420ms var(--ease-spring);
+  }
+  .signup__joint::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--bone-faint);
+    transition: background 320ms var(--ease-out);
+  }
+  .signup__shell:focus-within .signup__joint {
+    border-color: var(--plasma);
+    box-shadow: 0 0 0 4px var(--plasma-glow);
+    transform: scale(1.12);
+  }
+  .signup__shell:focus-within .signup__joint::after {
+    background: var(--plasma);
+  }
+
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    opacity: 0;
+  }
+
+  .field {
+    width: 100%;
+    min-height: 44px;
+    padding: 10px 4px;
+    border: 0;
+    background: transparent;
+    color: var(--bone);
+    font-family: var(--font-mono);
+    font-size: 16px;
+  }
+  .field::placeholder {
+    color: var(--bone-faint);
+  }
+  /* The capsule is the focus indicator; a second ring on the field inside it reads as a bug. */
+  .field:focus,
+  .field:focus-visible {
+    outline: none;
+  }
+  /* Chrome paints autofilled inputs on a hard white field, which would put a white slab inside
+     a carbon page. The inset shadow is the only way to override it. */
+  .field:-webkit-autofill,
+  .field:-webkit-autofill:hover,
+  .field:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--bone);
+    -webkit-box-shadow: inset 0 0 0 100px var(--iron);
+    caret-color: var(--bone);
+  }
+
+  .btn {
+    grid-column: 1 / -1;
+    margin-top: 10px;
+    min-height: 48px;
+    padding: 12px 26px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--plasma);
+    color: var(--carbon);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    /* The label is the conversion. Let the input give up width before this wraps. */
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      transform 220ms var(--ease-spring),
+      box-shadow 220ms var(--ease-out),
+      background 220ms var(--ease-out);
+  }
+  .btn:hover {
+    background: var(--bone);
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 6px var(--plasma-glow),
+      var(--shadow-md);
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.985);
+    background: var(--plasma-dim);
+    box-shadow: none;
+  }
+
+  .reassure {
+    margin-top: 11px;
+    font-size: 12.5px;
+    color: var(--bone-dim);
+  }
+
+  .form-msg {
+    margin-top: 12px;
+    padding: 11px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    border: 1px solid var(--iron-3);
+    background: var(--iron);
+  }
+  .form-msg[hidden] {
+    display: none;
+  }
+  .form-msg--ok {
+    border-color: var(--plasma-dim);
+    color: var(--plasma);
+  }
+  .form-msg--error {
+    border-color: var(--ember-dim);
+    color: var(--ember);
+  }
+
+  /* The teaser is a 9:16 cut, so it stays 9:16 at every width. A vertical film pillarboxed
+     into a wide frame reads as a mistake. */
+  .hero__media {
+    margin-top: 26px;
+    aspect-ratio: 9 / 16;
+    width: min(100%, 300px);
+  }
+
+  /* ---------- workflow ---------- */
+
+  .workflow {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+  .workflow__head {
+    margin-bottom: 34px;
+  }
+
+  .stages {
+    list-style: none;
+    padding: 0;
+    margin: 30px 0 0;
+    display: grid;
+  }
+
+  /* Explicit placement, because the three children have to land differently at each width: on a
+     phone the shot stacks UNDER its text in the same column, on desktop it takes a third column
+     beside it. Left implicit, the figure auto-flows into the 30px rail column and renders as a
+     sliver. */
+  .stage {
+    display: grid;
+    grid-template-columns: 30px 1fr;
+    gap: 16px;
+  }
+
+  .stage__rail {
+    grid-column: 1;
+    grid-row: 1 / span 2;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .stage__joint {
+    width: 16px;
+    height: 16px;
+    margin-top: 4px;
+    border-radius: 50%;
+    border: 1.5px solid var(--cobalt);
+    background: var(--carbon);
+    display: grid;
+    place-items: center;
+    flex: none;
+    transition:
+      border-color 500ms var(--ease-out),
+      transform 620ms var(--ease-spring),
+      box-shadow 500ms var(--ease-out);
+  }
+  .stage__joint::after {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--cobalt);
+    transition: background 500ms var(--ease-out);
+  }
+  .stage.is-in .stage__joint {
+    border-color: var(--plasma);
+    transform: scale(1.15);
+    box-shadow: 0 0 0 5px var(--plasma-glow);
+  }
+  .stage.is-in .stage__joint::after {
+    background: var(--plasma);
+  }
+
+  .stage__bone {
+    flex: 1;
+    width: 9px;
+    min-height: 24px;
+    margin: 6px 0;
+    background: var(--cobalt);
+    opacity: 0.22;
+    clip-path: polygon(0% 0%, 100% 0%, 64% 100%, 36% 100%);
+  }
+  .stage:last-child .stage__bone {
+    display: none;
+  }
+
+  .stage__body {
+    grid-column: 2;
+    grid-row: 1;
+    padding-bottom: 16px;
+  }
+  .stage:last-child .stage__body {
+    padding-bottom: 0;
+  }
+
+  .stage__index {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--bone-faint);
+    letter-spacing: 0.14em;
+    margin-bottom: 6px;
+  }
+  .stage__text {
+    font-size: 15.5px;
+    line-height: 1.6;
+    max-width: var(--col);
+    text-wrap: pretty;
+    margin-bottom: 16px;
+  }
+  .stage__text b {
+    color: var(--ember);
+    font-weight: 700;
+    letter-spacing: 0.04em;
+  }
+  /* The shot column carries its own bottom gap. Without it consecutive screenshots butt edge to
+     edge and read as one broken image. */
+  .stage__shot {
+    grid-column: 2;
+    grid-row: 2;
+    aspect-ratio: 16 / 10;
+    margin-bottom: 40px;
+  }
+  .stage:last-child .stage__shot {
+    margin-bottom: 0;
+  }
+
+  /* ---------- pillar ---------- */
+
+  .pillar {
+    padding-top: 92px;
+    padding-bottom: 92px;
+    border-top: 1px solid var(--iron-2);
+    border-bottom: 1px solid var(--iron-2);
+    background-image: var(--shine);
+  }
+
+  .mantra {
+    font-size: clamp(28px, 8vw, 62px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 44px;
+    max-width: 16ch;
+  }
+  .mantra span {
+    display: block;
+    transition:
+      opacity 700ms var(--ease-out),
+      transform 700ms var(--ease-spring);
+  }
+  :global(html.js) .mantra span {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  .mantra span:nth-child(2) {
+    transition-delay: 160ms;
+  }
+  .mantra span:nth-child(3) {
+    transition-delay: 320ms;
+    color: var(--plasma);
+  }
+  .is-in .mantra span {
+    opacity: 1;
+    transform: none;
+  }
+
+  .pillar__copy {
+    display: grid;
+    gap: 20px;
+    max-width: var(--col);
+  }
+  .pillar__copy p {
+    font-size: 15.5px;
+    line-height: 1.68;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+
+  .pillar__note {
+    margin-top: 52px;
+    padding-top: 30px;
+    border-top: 1px solid var(--iron-2);
+    font-size: clamp(19px, 4.6vw, 30px);
+    line-height: 1.35;
+    color: var(--bone-dim);
+    letter-spacing: -0.01em;
+    max-width: 22ch;
+  }
+
+  /* ---------- status ---------- */
+
+  .status {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+  .status__grid {
+    display: grid;
+    gap: 16px;
+    margin-top: 30px;
+  }
+
+  .panel {
+    padding: 22px;
+    border-radius: var(--radius);
+    border: 1px solid var(--iron-2);
+    background-color: var(--iron);
+    background-image: var(--shine);
+    box-shadow: var(--shadow-sm);
+  }
+  .panel__head {
+    margin-bottom: 12px;
+  }
+  .panel__text {
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .status__proof {
+    aspect-ratio: 16 / 10;
+  }
+
+  /* ---------- studio ---------- */
+
+  .studio {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+  .studio__grid {
+    display: grid;
+    gap: 26px;
+    margin-top: 30px;
+  }
+  /* Square, because the source is square. A 4:5 crop of this frame cuts into his face. */
+  .studio__portrait {
+    aspect-ratio: 1 / 1;
+    max-width: 280px;
+  }
+  .studio__copy {
+    display: grid;
+    gap: 18px;
+    max-width: var(--col);
+  }
+  .studio__copy p {
+    font-size: 15.5px;
+    line-height: 1.66;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .studio__copy p:first-child {
+    color: var(--bone);
+  }
+
+  /* ---------- pricing ---------- */
+
+  .pricing {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+  .pricing__lede {
+    margin-top: 26px;
+    font-size: clamp(17px, 4.3vw, 24px);
+    line-height: 1.55;
+    letter-spacing: -0.01em;
+    max-width: 30ch;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .pricing__lede b {
+    color: var(--bone);
+    font-weight: 700;
+  }
+  .pricing__note {
+    margin-top: 24px;
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    max-width: var(--col);
+    text-wrap: pretty;
+  }
+
+  /* ---------- close ---------- */
+
+  .close {
+    padding-top: 96px;
+    padding-bottom: 96px;
+    border-top: 1px solid var(--iron-2);
+  }
+  .close__title {
+    font-size: clamp(30px, 8.6vw, 66px);
+    font-weight: 700;
+    line-height: 1.08;
+    letter-spacing: -0.03em;
+    margin-bottom: 30px;
+  }
+
+  /* ---------- footer ---------- */
+
+  .footer {
+    position: relative;
+    z-index: 2;
+    padding: 34px var(--gutter) 44px var(--rail);
+    border-top: 1px solid var(--iron-2);
+  }
+  .footer__inner {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding-left: 12px;
+    display: grid;
+    gap: 18px;
+  }
+  .footer__wordmark {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+  }
+  .footer__links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    font-size: 13px;
+  }
+  .footer__links a {
+    color: var(--plasma);
+    text-underline-offset: 4px;
+  }
+  .footer__links a:hover {
+    color: var(--bone);
+  }
+  .footer__legal {
+    font-size: 12px;
+    color: var(--bone-faint);
+  }
+
+  /* ---------- reveal ---------- */
+
+  .reveal {
+    transition:
+      opacity 780ms var(--ease-out),
+      transform 780ms var(--ease-out);
+  }
+  :global(html.js) .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  :global(html.js) .reveal.is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* The hero is one orchestrated load rather than a scroll trigger, so it animates on its own
+     clock and never waits for an observer. */
+  .hero .reveal {
+    animation: rise 820ms var(--ease-spring) both;
+    transition: none;
+  }
+  /* Beats the html.js hidden state above: the hero animates on its own clock and must never
+     wait on the observer. The animation's `both` fill still owns what is actually painted. */
+  :global(html.js) .hero .reveal {
+    opacity: 1;
+    transform: none;
+  }
+  .hero .r1 {
+    animation-delay: 40ms;
+  }
+  .hero .r2 {
+    animation-delay: 130ms;
+  }
+  .hero .r3 {
+    animation-delay: 220ms;
+  }
+  .hero .r4 {
+    animation-delay: 320ms;
+  }
+  .hero .r5 {
+    animation-delay: 420ms;
+  }
+  .hero .r6 {
+    animation-delay: 520ms;
+  }
+  .hero .r7 {
+    animation-delay: 640ms;
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* ---------- desktop ---------- */
+
+  @media (min-width: 720px) {
+    .shell {
+      --rail: 76px;
+      --gutter: 40px;
+    }
+
+    .joint {
+      width: 22px;
+      height: 22px;
+      margin-left: -11px;
+      margin-top: -11px;
+    }
+    .joint::after {
+      width: 9px;
+      height: 9px;
+    }
+    .bone {
+      width: 14px;
+      margin-left: -7px;
+    }
+
+    .hero {
+      padding-top: 60px;
+      padding-bottom: 110px;
+    }
+    .hero__wordmark {
+      width: 300px;
+      margin-bottom: 20px;
+    }
+    .hero__title {
+      font-size: clamp(46px, 5.4vw, 62px);
+    }
+    .hero__copy p {
+      /* Larger than ordinary body copy: this paragraph finishes the headline's sentence, and
+         a full body-size drop makes the two read as separate thoughts. */
+      font-size: 18px;
+      line-height: 1.55;
+    }
+    .hero__media {
+      margin-top: 34px;
+      width: min(100%, 330px);
+    }
+
+    .signup__shell {
+      grid-template-columns: auto minmax(0, 1fr) auto;
+      border-radius: var(--radius-pill);
+      padding: 7px 7px 7px 10px;
+    }
+    .btn {
+      grid-column: auto;
+      margin-top: 0;
+      min-height: 44px;
+    }
+
+    .workflow {
+      padding-top: 120px;
+      padding-bottom: 120px;
+    }
+    .stage {
+      grid-template-columns: 34px minmax(0, 1fr) minmax(0, 0.9fr);
+      align-items: start;
+      gap: 24px;
+    }
+    .stage__rail {
+      grid-row: 1;
+    }
+    .stage__body {
+      padding-bottom: 56px;
+    }
+    .stage__shot {
+      grid-column: 3;
+      grid-row: 1;
+      margin-bottom: 56px;
+    }
+    .stage__text {
+      margin-bottom: 0;
+    }
+
+    .pillar {
+      padding-top: 150px;
+      padding-bottom: 150px;
+    }
+    .pillar__note {
+      margin-top: 68px;
+    }
+
+    .status {
+      padding-top: 120px;
+      padding-bottom: 120px;
+    }
+    .status__grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+      align-items: start;
+      gap: 26px;
+    }
+    .status__panels {
+      display: grid;
+      gap: 16px;
+    }
+
+    .studio {
+      padding-top: 120px;
+      padding-bottom: 120px;
+    }
+    .studio__grid {
+      grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
+      gap: 56px;
+      align-items: start;
+    }
+    .studio__portrait {
+      max-width: none;
+    }
+
+    .pricing {
+      padding-top: 120px;
+      padding-bottom: 120px;
+    }
+
+    .close {
+      padding-top: 170px;
+      padding-bottom: 170px;
+    }
+
+    .footer__inner {
+      grid-template-columns: auto 1fr;
+      align-items: center;
+      gap: 32px;
+    }
+    .footer__meta {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 26px;
+      flex-wrap: wrap;
+    }
+  }
+
+  @media (min-width: 1100px) {
+    .shell {
+      --rail: 108px;
+    }
+    .stage {
+      grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr);
+      gap: 34px;
+    }
+  }
+
+  /* The hero only goes two-column once each column can carry display type. */
+  @media (min-width: 1150px) {
+    .hero {
+      padding-top: 74px;
+    }
+    .hero__inner {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+      gap: 56px;
+      align-items: center;
+    }
+    .hero__title {
+      font-size: clamp(50px, 4.3vw, 70px);
+    }
+    .hero__copy p {
+      font-size: 19px;
+    }
+    .hero__media {
+      margin-top: 0;
+      width: min(100%, 360px);
+      justify-self: end;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-delay: 0ms !important;
+      transition-duration: 1ms !important;
+    }
+    .reveal {
+      opacity: 1;
+      transform: none;
+    }
+    .mantra span {
+      opacity: 1;
+      transform: none;
+    }
+    .spine__draw {
+      display: none;
+    }
+    .joint,
+    .stage__joint {
+      opacity: 1;
+    }
+  }
+</style>
