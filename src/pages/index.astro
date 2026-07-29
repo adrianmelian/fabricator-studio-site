@@ -75,14 +75,21 @@ const PROOF = [
     alt: 'A samurai, a ninja and a lumberjack character animating in the Unreal viewport.',
   },
   {
-    name: 'QS_BipedRig',
-    pill: 'SHIPPED',
-    claim: 'The blueprint anyone downloads, built and validated on a vanilla Maya install.',
+    // Replaced the QS_BipedRig card 2026-07-29 (Adrian). Its clip and poster stay in
+    // public/proof/, so restoring it is a data change and nothing else.
+    //
+    // The clip shows Maya and Unreal, and it says so itself with both logos in frame. What it
+    // cannot show is that neither rig was authored: both are generated from the same export.
+    name: 'The Fabricator control rig',
+    pill: 'MAYA + UNREAL',
+    claim: 'Built procedurally in both, from one export.',
     detail:
-      'The blueprint that ships with the toolset. It builds on a clean Maya install with nothing else present, which is the only test that matters for a rig anyone can download.',
-    video: '/proof/proof-qsbiped.mp4',
-    poster: '/proof/proof-qsbiped.jpg',
-    alt: 'The QS_BipedRig in the Maya viewport, animation controls visible on the character.',
+      'The USD export carries control rig build data alongside the mesh, skeleton and weights. Both rigs are generated from it, so the controls, their shapes and their hierarchy match without anyone rebuilding them on the far side.',
+    video: '/proof/proof-controlrig.mp4',
+    poster: '/proof/proof-controlrig.jpg',
+    // Poster is the crossfade frame at t=3.5, where both logos and both rigs are on screen at
+    // once. It makes the point before anyone presses play.
+    alt: 'The same character and control rig shown in Maya and then in Unreal.',
   },
 ];
 ---
