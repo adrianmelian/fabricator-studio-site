@@ -59,14 +59,17 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 // visibly unfinished plate rather than silently collapsing.
 const PROOF = [
   {
-    name: 'Reggie',
-    pill: 'LIVE',
-    claim: 'Rigged, skinned, and exported to Unreal entirely through the pipeline.',
+    // Replaced the Reggie card 2026-07-29 (Adrian). Three characters carry more weight than
+    // one, and these are the ones the pipeline is being built on now. Reggie's clip and poster
+    // are still in public/proof/ if this needs reverting.
+    name: 'Samurai, Ninja, Lumberjack',
+    pill: 'IN UNREAL',
+    claim: 'Three characters rigged, skinned, and animating in Unreal, through the same pipeline.',
     detail:
-      'Built in Maya with Fabricator, skinned with AutoSkin, exported through the FBX skeletal exporter, and imported into Unreal against the same rig-binding contract every character in the pipeline uses. No hand-off, no cleanup pass, no separate export rig.',
-    video: '/proof/proof-reggie.mp4',
-    poster: '/proof/proof-reggie.jpg',
-    alt: 'Reggie, a rabbit character in a suit, animating in the Unreal viewport.',
+      'Joints placed by hand, skin weights solved on the machine, and one USD file carrying the mesh, skeleton, orientations and weights into Unreal, where the Fabricator control rig is built procedurally from that same export data. Three different bodies, one route through.',
+    video: '/proof/proof-unreal-montage.mp4',
+    poster: '/proof/proof-unreal-montage.jpg',
+    alt: 'A samurai, a ninja and a lumberjack character animating in the Unreal viewport.',
   },
   {
     name: 'QS_BipedRig',
