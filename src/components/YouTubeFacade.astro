@@ -1,0 +1,140 @@
+---
+// A YouTube player that loads NOTHING from Google until someone clicks it.
+//
+// WHY A FACADE RATHER THAN AN <iframe>. A plain embed pulls roughly a megabyte of Google
+// script and sets third-party cookies on page load, for every visitor, including the ones who
+// scroll straight past. That is a real performance cost and a real privacy one: it makes
+// Google a processor for people who never asked to watch anything. Here the poster is our own
+// image in our own frame, and the iframe is created on click, which is the visitor opting in.
+//
+// PRIVACY: the moment this component can load a player, Google is a processor and belongs in
+// the /privacy table. It is listed there. If this component is added to a new surface that is
+// still true, so do not quietly drop it onto a page and skip that.
+//
+// youtube-nocookie.com is YouTube's privacy-enhanced host, and rel=0 keeps the end-of-video
+// suggestions inside our own channel instead of handing the viewer to somebody else.
+import { Image } from 'astro:assets';
+
+interface Props {
+  id: string;
+  title: string;
+  poster: ImageMetadata;
+  posterAlt: string;
+  widths?: number[];
+  sizes?: string;
+  class?: string;
+}
+const { id, title, poster, posterAlt, widths = [720, 1440], sizes = '(min-width: 900px) 55vw, 92vw', class: cls = '' } = Astro.props;
+---
+
+<div class={`yt ${cls}`.trim()} data-yt={id} data-yt-title={title}>
+  <button class="yt__btn" type="button" aria-label={`Play the video: ${title}`}>
+    <Image class="yt__poster" src={poster} alt={posterAlt} widths={widths} sizes={sizes} loading="lazy" />
+    <span class="yt__play" aria-hidden="true"></span>
+  </button>
+</div>
+
+<script is:inline>
+  (function () {
+    document.querySelectorAll('.yt').forEach(function (box) {
+      var btn = box.querySelector('.yt__btn');
+      if (!btn) return;
+      btn.addEventListener('click', function () {
+        var id = box.getAttribute('data-yt');
+        var title = box.getAttribute('data-yt-title') || 'Video';
+        var frame = document.createElement('iframe');
+        frame.className = 'yt__frame';
+        frame.src =
+          'https://www.youtube-nocookie.com/embed/' + id + '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+        frame.title = title;
+        frame.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+        frame.referrerPolicy = 'strict-origin-when-cross-origin';
+        frame.allowFullscreen = true;
+        box.replaceChildren(frame);
+        frame.focus();
+      });
+    });
+  })();
+</script>
+
+<style>
+  .yt {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    border-radius: 16px;
+    overflow: hidden;
+    border: 1px solid var(--iron-3);
+    background: var(--iron);
+    box-shadow: var(--shadow-lg);
+  }
+  .yt__btn {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+  .yt__poster {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 520ms var(--ease-out), opacity 320ms var(--ease-out);
+  }
+  .yt__btn:hover .yt__poster {
+    transform: scale(1.015);
+    opacity: 0.92;
+  }
+
+  /* Same play glyph the proof cards use, so a video reads as a video everywhere on the site. */
+  .yt__play {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 4.25rem;
+    height: 4.25rem;
+    margin: -2.125rem 0 0 -2.125rem;
+    border-radius: 50%;
+    background: rgba(11, 14, 16, 0.6);
+    border: 1px solid rgba(124, 255, 178, 0.5);
+    pointer-events: none;
+    transition: background var(--t-base) var(--ease-out), border-color var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
+  }
+  .yt__play::after {
+    content: '';
+    position: absolute;
+    left: 55%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    border-top: 0.7rem solid transparent;
+    border-bottom: 0.7rem solid transparent;
+    border-left: 1.15rem solid var(--plasma);
+  }
+  .yt__btn:hover .yt__play,
+  .yt__btn:focus-visible .yt__play {
+    background: rgba(11, 14, 16, 0.75);
+    border-color: var(--plasma);
+    transform: scale(1.06);
+  }
+
+  /* :global, because this iframe is CREATED BY SCRIPT and so never carries Astro's scoping
+     attribute. Without it the player renders at the browser default 300x150. */
+  .yt :global(.yt__frame) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .yt__poster,
+    .yt__play {
+      transition: none;
+    }
+    .yt__btn:hover .yt__poster {
+      transform: none;
+    }
+  }
+</style>

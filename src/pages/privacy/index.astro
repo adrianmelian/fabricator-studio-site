@@ -17,6 +17,10 @@
 //   - GoatCounter   src/layouts/BaseLayout.astro -> gc.zgo.at/count.js
 //   - GitHub Pages  .github/workflows/deploy.yml -> actions/deploy-pages
 //   - Cloudflare    DNS + R2 installer download
+//   - YouTube       src/components/YouTubeFacade.astro + src/pages/armature -> youtube-nocookie.com
+//                   Both are FACADES: no request reaches Google until a visitor presses play,
+//                   so a reader who never starts a video is never exposed to it. Listed anyway,
+//                   because the table describes what CAN happen, not what usually does.
 // If you add ANY third-party script, form endpoint, or payment route, add it to the table
 // below in the same commit. A privacy policy that omits a live processor is worse than none,
 // because it is a written statement that is false.
@@ -82,6 +86,7 @@ const PROCESSORS = [
   { name: 'MailerLite', does: 'Sends our email updates', gets: 'Your email address, if you subscribed' },
   { name: 'Web3Forms', does: 'Delivers contact form messages to us', gets: 'Your name, email, and message' },
   { name: 'GoatCounter', does: 'Counts page visits', gets: 'Page and browser information, no personal data' },
+  { name: 'YouTube (Google)', does: 'Plays our videos, only if you press play', gets: 'Nothing at all unless you start a video. If you do, YouTube receives your IP address and device information and may set cookies' },
   { name: 'GitHub Pages', does: 'Hosts this website', gets: 'Standard server logs' },
   { name: 'Cloudflare', does: 'Domain routing and file downloads', gets: 'Standard server logs' },
 ];

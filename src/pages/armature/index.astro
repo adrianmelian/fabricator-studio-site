@@ -197,7 +197,7 @@ const STAGES = [
               autoplay
               preload="metadata"
               aria-hidden="true"></video>
-            <button class="shot-open shot-open--overlay" type="button" data-teaser-open aria-label="Play the Armature teaser with sound">
+            <button class="shot-open shot-open--overlay" type="button" data-teaser-open aria-label="Watch the Armature trailer">
               <span class="shot-open__badge shot-open__badge--play" aria-hidden="true">▶</span>
             </button>
           </figure>
@@ -410,17 +410,15 @@ const STAGES = [
           </form>
         </div>
       </section>
-      {/* Loads nothing until it is opened: preload="none" plus a separate audio-bearing file, so
-          the silent inline loop stays the only thing a visitor pays for. */}
-      <dialog class="shot-dialog shot-dialog--video" id="teaser-dialog" aria-label="Armature teaser">
-        <div class="shot-dialog__inner shot-dialog__inner--video">
-          <video
-            id="teaser-full"
-            src="/armature/teaser-full.mp4"
-            poster="/armature/teaser-poster.jpg"
-            controls
-            playsinline
-            preload="none"></video>
+      {/* The silent inline loop is the 24-second teaser, which is what it was built for. The
+          click opens the 86-second VOICEOVER trailer, which is a watch asset, not a loop, and
+          lives on YouTube so the channel gets the view.
+
+          Nothing reaches Google until this dialog opens, because the iframe is created then and
+          not before. That is also why Google sits in the /privacy processor table: once a
+          visitor can open this, they can be tracked by it. */}
+      <dialog class="shot-dialog shot-dialog--video" id="teaser-dialog" aria-label="Armature trailer">
+        <div class="shot-dialog__inner shot-dialog__inner--video" id="trailer-mount">
           <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
             <span aria-hidden="true">✕</span>
           </button>
@@ -613,7 +611,6 @@ const STAGES = [
 
     /* ---- enlargeable shots and the teaser player ---- */
     var loop = document.getElementById('teaser-loop');
-    var full = document.getElementById('teaser-full');
 
     function wireDialog(dlg) {
       if (!dlg) return;
@@ -639,26 +636,35 @@ const STAGES = [
 
     var teaserDialog = document.getElementById('teaser-dialog');
     var teaserOpen = document.querySelector('[data-teaser-open]');
-    if (teaserDialog && teaserOpen && teaserDialog.showModal) {
+    var trailerMount = document.getElementById('trailer-mount');
+    var TRAILER_ID = 'PhHXmcpcGKk';
+    if (teaserDialog && teaserOpen && trailerMount && teaserDialog.showModal) {
       teaserOpen.addEventListener('click', function () {
         teaserDialog.showModal();
         if (loop) loop.pause();
-        if (full) {
-          full.currentTime = 0;
-          // Started by a real click, so sound is allowed here where the inline loop can never
-          // have it. If the browser still refuses, fall back to playing it muted.
-          var p = full.play();
-          if (p && p.catch) {
-            p.catch(function () {
-              full.muted = true;
-              full.play();
-            });
-          }
+        if (!trailerMount.querySelector('iframe')) {
+          var frame = document.createElement('iframe');
+          frame.className = 'trailer-frame';
+          // youtube-nocookie is YouTube's privacy-enhanced host; rel=0 keeps the end-of-video
+          // suggestions inside our own channel rather than handing the viewer away from a page
+          // whose only job is the signup.
+          frame.src =
+            'https://www.youtube-nocookie.com/embed/' + TRAILER_ID +
+            '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
+          frame.title = 'Armature | Standalone Rigging and Skinning App | Unreal';
+          frame.allow =
+            'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+          frame.referrerPolicy = 'strict-origin-when-cross-origin';
+          frame.allowFullscreen = true;
+          trailerMount.insertBefore(frame, trailerMount.firstChild);
         }
       });
-      // Covers every close path: the button, the backdrop and Escape.
+      // Covers every close path: the button, the backdrop and Escape. The iframe is destroyed
+      // rather than paused, because there is no way to pause someone else's player from here
+      // and a hidden dialog would otherwise keep talking.
       teaserDialog.addEventListener('close', function () {
-        if (full) full.pause();
+        var frame = trailerMount.querySelector('iframe');
+        if (frame) frame.remove();
         if (loop && !reduced.matches) loop.play();
       });
     }
@@ -988,10 +994,20 @@ const STAGES = [
     max-height: 88vh;
     object-fit: contain;
   }
-  /* A 9:16 cut wants height, not width. */
-  .shot-dialog--video :global(video) {
-    max-width: min(94vw, 52vh);
-    max-height: 92vh;
+  /* The trailer is 16:9, so this frame is width-led. */
+  .shot-dialog--video .shot-dialog__inner {
+    width: min(94vw, 1400px);
+    aspect-ratio: 16 / 9;
+    max-height: 88vh;
+  }
+  /* :global, because this iframe is CREATED BY SCRIPT and so never carries Astro's scoping
+     attribute. A plain scoped rule silently does not match it and the player renders at the
+     browser default 300x150 in the corner of the frame. */
+  .shot-dialog--video :global(.trailer-frame) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
   }
   .shot-dialog__tag {
     pointer-events: none;

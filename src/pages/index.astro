@@ -30,11 +30,11 @@ import Footer from '../components/Footer.astro';
 import WelcomeVideo from '../components/WelcomeVideo.astro';
 import SectionHead from '../components/SectionHead.astro';
 import Pill from '../components/Pill.astro';
+import YouTubeFacade from '../components/YouTubeFacade.astro';
 import DownloadBand from '../components/DownloadBand.astro';
 import FabricatorHero from '../components/FabricatorHero.astro';
-import { WHY_PARAS } from '../data/licensing';
 
-import aboutPortrait from '../assets/about/adrian.png';
+import trailerPoster from '../assets/armature/trailer-poster.jpg';
 import heroWordmark from '../assets/hero/wordmark-banner.png';
 
 // BUILT WITH IT. Three entries, not four: Archangel is held back until Adrian clears the
@@ -120,9 +120,37 @@ const PROOF = [
     </div>
   </section>
 
-  {/* The spoken introduction, before any UI. A cold visitor gets a human voice first. */}
-  <section id="welcome">
-    <WelcomeVideo />
+  {/* ARMATURE, directly under the hero (Adrian, 2026-07-29). It was mid-page, after the free
+      Maya toolset, on the argument that "the same work without a Maya seat" only reads once a
+      visitor knows what the Maya toolset is. That argument loses to the simpler one: Armature
+      is the newest thing the studio has, and burying the newest thing below four sections is
+      how announcements get missed.
+
+      The media is the 86-second voiceover trailer on YouTube, loaded through a facade so
+      nothing reaches Google until a visitor actually clicks play. Copy is lifted verbatim from
+      the /armature/ hero, so the card and the page it opens cannot drift. */}
+  <section id="armature">
+    <SectionHead eyebrow="FABRICATORSTUDIO" title="ARMATURE" />
+    <div class="arm-grid">
+      <YouTubeFacade
+        class="arm-media"
+        id="PhHXmcpcGKk"
+        title="Armature | Standalone Rigging & Skinning App | Unreal"
+        poster={trailerPoster}
+        posterAlt="A samurai character rigged in Armature, from the Armature trailer"
+        widths={[720, 1440]}
+        sizes="(min-width: 900px) 56vw, 92vw"
+      />
+      <div class="arm-body">
+        <Pill text="Coming soon" tone="plasma" />
+        <h3 class="arm-head">High End Character Rigging</h3>
+        <p class="arm-lead">has always lived inside expensive applications. Armature is for the indie dev who cannot justify one, and the veteran rigger who wants to move faster.</p>
+        <p class="arm-note">Armature is a new standalone application.</p>
+        <div class="arm-ctas">
+          <BracketButton kind="hard" href="/armature/" label="See Armature" event="home-armature" />
+        </div>
+      </div>
+    </div>
   </section>
 
   {/* WAS: six key-feature cards. They claimed "Easy to use", "Studio-grade tools", and
@@ -215,40 +243,6 @@ const PROOF = [
 
   <DownloadBand />
 
-  {/* ARMATURE. Placed AFTER the free Maya toolset and its download band on purpose: the whole
-      point of the product is that it is the same work without a Maya seat, so it only reads
-      correctly once a visitor has just been told what the Maya toolset is. It sits before the
-      hire ask because it is a product beat, not a services one.
-
-      Copy is lifted verbatim from the /armature/ hero (headline plus the sentence that
-      finishes it), so the card and the page it opens never drift. */}
-  <section id="armature">
-    <SectionHead eyebrow="FABRICATORSTUDIO" title="ARMATURE" />
-    <div class="arm-grid">
-      <a class="arm-media" href="/armature/" aria-label="Armature, a standalone character rigging application">
-        <video
-          class="arm-vid"
-          src="/armature/teaser.mp4"
-          poster="/armature/teaser-poster.jpg"
-          muted
-          loop
-          playsinline
-          preload="none"
-          aria-hidden="true"></video>
-        <span class="arm-play" aria-hidden="true"></span>
-      </a>
-      <div class="arm-body">
-        <Pill text="Coming soon" tone="plasma" />
-        <h3 class="arm-head">High End Character Rigging</h3>
-        <p class="arm-lead">has always lived inside expensive applications. Armature is for the indie dev who cannot justify one, and the veteran rigger who wants to move faster.</p>
-        <p class="arm-note">Armature is a new standalone application.</p>
-        <div class="arm-ctas">
-          <BracketButton kind="hard" href="/armature/" label="See Armature" event="home-armature" />
-        </div>
-      </div>
-    </div>
-  </section>
-
   {/* WAS: the tutorials grid. It spent a full section telling a visitor that a page in the
       nav exists, using YouTube's thumbnails, which made it the least on-brand block on the
       page. Tutorials keep their nav item, their page, and a footer link. In its place, the
@@ -264,51 +258,19 @@ const PROOF = [
     </div>
   </section>
 
+  {/* ABOUT ME is now the spoken introduction rather than a wall of prose (Adrian, 2026-07-29).
+      The welcome video used to sit directly under the hero; Armature took that slot, and this
+      is where it landed. A section titled ABOUT ME whose content is Adrian talking to camera
+      is a better answer to "who is this" than three paragraphs and a pull quote were.
+
+      REMOVED with the prose, and worth knowing rather than discovering later: the bio
+      paragraphs, the WHY pull quote, and the "14 YEARS / SHIPPED" title list. The WHY story is
+      still live on /licensing, and the full credential is still on /armature under "Who built
+      it", so neither is lost from the site. It IS gone from the homepage. Restoring the
+      shipped-titles strip alone is a small edit if that trade turns out to be wrong. */}
   <section id="about">
     <SectionHead eyebrow="FABRICATORSTUDIO" title="ABOUT ME" />
-    <div class="am-grid">
-      <div class="am-portrait">
-        <div class="am-portrait__frame">
-          <div class="am-portrait__edge" aria-hidden="true"></div>
-          <Image src={aboutPortrait} alt="Adrian Melian" widths={[660, 1320]} sizes="(max-width: 820px) 92vw, 560px" />
-        </div>
-        <div class="am-portrait__cap">
-          <span class="am-portrait__tick" aria-hidden="true"></span>
-          <span class="am-portrait__line">Technical Artist &nbsp;&middot;&nbsp; 14 years in AAA</span>
-        </div>
-      </div>
-      <div class="am-bio">
-        <h3 class="am-bio__name">Hi, I'm Adrian Melian.</h3>
-        {/* CREDENTIAL CORRECTION (approved). The live line said "most recently leading the
-            Tech Art team at Sledgehammer Games", which was wrong twice over: most recent was
-            Camouflaj, and compressing 14 years across six studios into a Sledgehammer lead
-            line breaks the credential-honesty rule. Two shipped Call of Duty titles, never
-            three. */}
-        <p class="am-bio__para">I've spent <b>14 years as a Technical Artist</b> in AAA games, at <b class="am-plasma-b">Sledgehammer Games</b>, Camouflaj, Meta, Double Fine, Ubisoft, and NCSoft. I led the Character and Weapons Tech Art teams at Sledgehammer and shipped two Call of Duty titles. Along the way: Broken Age, South Park: The Fractured But Whole, Horizon Worlds.</p>
-        <p class="am-bio__para">Game dev is changing fast, and a new era of generative AI is here. Avoiding generic slop still takes <b>good tools</b>, ones that put the layers of polish where you want them. So I'm sharing my toolbox. <b class="am-ember-b">FabricatorStudio</b> is the rigging, skinning, animation, and export kit I built for indie teams and small studios, to the standard I held on AAA productions.</p>
-        <figure class="lcb-why">
-          <span class="lcb-why__mark lcb-why__mark--open" aria-hidden="true">“</span>
-          <span class="lcb-why__mark lcb-why__mark--close" aria-hidden="true">”</span>
-          <blockquote class="lcb-why__quote">
-            {WHY_PARAS.map((p) => <p class="lcb-why__para" set:html={p} />)}
-          </blockquote>
-          <figcaption class="lcb-why__cite"><span class="lcb-why__rule" aria-hidden="true"></span>Adrian</figcaption>
-        </figure>
-        {/* WAS: "The tools are free for solo developers, indies, and small teams." By this
-            point the page had already said that in the hero, the toolset block, and the WHY
-            story. A fourth repetition of the price, sitting next to the bio, diluted the
-            credential it was standing on. This is the evidence that paragraph was missing.
-            Titles only, no aggregate count: every one below shipped, and a list is both
-            stronger and unarguable where "13 titles" keeps drifting. */}
-        <div class="am-record">
-          <div class="am-record__head">
-            <span class="am-record__tick" aria-hidden="true"></span>
-            <span class="am-record__label">14 YEARS &nbsp;&middot;&nbsp; SHIPPED</span>
-          </div>
-          <p class="am-record__list">Call of Duty: Vanguard &middot; Call of Duty: Modern Warfare III &middot; Broken Age &middot; Costume Quest 2 &middot; South Park: The Fractured But Whole &middot; Horizon Worlds &middot; Arizona Sunshine: Contagion Z &middot; Massive Chalice</p>
-        </div>
-      </div>
-    </div>
+    <WelcomeVideo />
   </section>
 
   <Footer />
@@ -322,8 +284,8 @@ const PROOF = [
       if (!mm) return;
       if (mm('(prefers-reduced-motion: reduce)').matches) return;
       if (!mm('(hover: hover)').matches) return;
-      document.querySelectorAll('.pf-card, .arm-media').forEach(function (card) {
-        var v = card.querySelector('.pf-vid, .arm-vid');
+      document.querySelectorAll('.pf-card').forEach(function (card) {
+        var v = card.querySelector('.pf-vid');
         if (!v) return;
         function play() {
           card.classList.add('is-playing');
@@ -605,57 +567,12 @@ const PROOF = [
   .tk-lic { margin: 0; font-family: var(--font-mono); font-size: 0.875rem; color: var(--bone-faint); }
   .tk-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
 
-  /* ARMATURE: the teaser carries this block, so the media column leads on desktop. The clip is
-     a 9:16 vertical cut, which is why this grid is portrait-first rather than the landscape
-     media the rest of the page uses. */
+  /* ARMATURE: the 86-second trailer carries this block, so the media leads and takes the wider
+     column. It is 16:9 now (the block used to be built portrait-first around the vertical
+     teaser cut). The frame itself is the YouTubeFacade component's. */
   #armature { text-align: left; }
-  .arm-grid { display: grid; grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr); gap: 2.75rem; align-items: center; }
+  .arm-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 2.75rem; align-items: center; }
   @media (max-width: 900px) { .arm-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
-
-  .arm-media {
-    position: relative;
-    display: block;
-    aspect-ratio: 9 / 16;
-    max-height: 30rem;
-    margin-inline: auto;
-    width: 100%;
-    max-width: 17rem;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid var(--iron-3);
-    background: var(--iron);
-    box-shadow: var(--shadow-lg);
-    transition: border-color var(--t-base) var(--ease-out), transform var(--t-base) var(--ease-out);
-  }
-  .arm-media:hover, .arm-media:focus-visible { border-color: var(--plasma-dim); transform: translateY(-2px); }
-  .arm-vid { display: block; width: 100%; height: 100%; object-fit: cover; }
-
-  /* Same affordance the proof cards use: a play glyph that fades out once the clip runs. */
-  .arm-play {
-    position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 3.25rem;
-    height: 3.25rem;
-    margin: -1.625rem 0 0 -1.625rem;
-    border-radius: 50%;
-    background: rgba(11, 14, 16, 0.55);
-    border: 1px solid rgba(124, 255, 178, 0.5);
-    pointer-events: none;
-    transition: opacity var(--t-base) var(--ease-out);
-  }
-  .arm-play::after {
-    content: '';
-    position: absolute;
-    left: 55%;
-    top: 50%;
-    transform: translate(-50%, -50%);
-    border-top: 0.5rem solid transparent;
-    border-bottom: 0.5rem solid transparent;
-    border-left: 0.85rem solid var(--plasma);
-  }
-  .arm-media.is-playing .arm-play { opacity: 0; }
-  @media (hover: none) { .arm-play { display: none; } }
 
   .arm-body { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
   .arm-head { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3.4vw, 2.4rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--bone); }
@@ -686,100 +603,4 @@ const PROOF = [
   .hb-mail:hover { color: var(--ember); border-color: var(--ember); }
 
   #about { text-align: left; }
-  .am-grid { display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1fr); gap: 2.5rem; align-items: start; }
-  .am-portrait { display: flex; flex-direction: column; gap: 0.9rem; }
-  .am-portrait__frame {
-    position: relative;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.08);
-    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(124, 255, 178, 0.14);
-  }
-  .am-portrait__frame :global(img) { width: 100%; height: auto; display: block; }
-  .am-portrait__edge { position: absolute; top: 10px; bottom: 10px; left: -2px; width: 3px; z-index: 1; background: linear-gradient(180deg, rgba(124, 255, 178, 0), rgba(124, 255, 178, 0.85), rgba(124, 255, 178, 0)); }
-  .am-portrait__cap { display: flex; align-items: center; gap: 0.9rem; padding-left: 0.25rem; }
-  .am-portrait__tick { width: 2.25rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
-  .am-portrait__line { font-family: var(--font-mono); font-size: 0.9375rem; letter-spacing: 0.08em; color: var(--bone-dim); }
-
-  .am-bio { display: flex; flex-direction: column; gap: 1.25rem; }
-  .am-bio__name { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.6rem, 3vw, 2.375rem); line-height: 1.02; letter-spacing: -0.02em; color: var(--bone); }
-  .am-bio__para { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
-  .am-bio__para b { color: var(--bone); }
-  .am-bio__para .am-plasma-b { color: var(--plasma); }
-  .am-bio__para .am-ember-b { color: var(--ember); }
-
-  /* The story as a pull-quote: plasma spine on the left, squared to it. Presentation lives
-     here, NOT in src/data/licensing.ts, which /licensing also renders. */
-  .lcb-why {
-    box-sizing: border-box;
-    position: relative;
-    margin: 0;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    gap: 1.125rem;
-    background: linear-gradient(120deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
-    border: 1px solid rgba(124, 255, 178, 0.22);
-    border-left: 3px solid var(--plasma);
-    border-radius: 0 20px 20px 0;
-    padding: 2.5rem 3rem 2.25rem;
-    box-shadow: var(--shadow-lg);
-  }
-  .lcb-why__mark {
-    position: absolute;
-    font-size: 11rem;
-    line-height: 1;
-    font-weight: 800;
-    color: rgba(124, 255, 178, 0.14);
-    pointer-events: none;
-    user-select: none;
-  }
-  .lcb-why__mark--open { top: 0.25rem; left: 1.75rem; }
-  .lcb-why__mark--close { bottom: -4rem; right: 2.5rem; }
-  .lcb-why__quote { position: relative; margin: 0; display: flex; flex-direction: column; gap: 1.25rem; }
-  .lcb-why__para { position: relative; margin: 0; max-width: 62rem; font-size: 1.1875rem; line-height: 1.65; color: var(--bone); text-wrap: pretty; }
-  .lcb-why__para :global(b) { color: var(--bone); }
-  .lcb-why__para :global(.b-plasma) { color: var(--plasma); }
-  .lcb-why__para :global(.b-cobalt) { color: var(--cobalt); }
-  .lcb-why__cite {
-    position: relative;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-top: 1.5rem;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 1.0625rem;
-    letter-spacing: 0.04em;
-    color: var(--ember);
-  }
-  .lcb-why__rule { width: 2.5rem; height: 2px; background: var(--ember); }
-
-  @media (max-width: 640px) {
-    .lcb-why { padding: 1.75rem 1.5rem 1.5rem; }
-    .lcb-why__mark { font-size: 7rem; }
-    .lcb-why__mark--open { left: 0.75rem; }
-    .lcb-why__mark--close { right: 1rem; bottom: -2.5rem; }
-  }
-
-  /* The shipped record. Type, not a logo ticker (the profile rules those out), and credited
-     to the person rather than the tool (DNA principle 10). */
-  .am-record {
-    display: flex;
-    flex-direction: column;
-    gap: 0.6rem;
-    align-self: stretch;
-    background: linear-gradient(90deg, rgba(232, 224, 208, 0.05), rgba(232, 224, 208, 0)), var(--carbon);
-    border: 1px solid var(--iron-3);
-    border-radius: 14px;
-    padding: 1.125rem 1.375rem;
-  }
-  .am-record__head { display: flex; align-items: center; gap: 0.8rem; }
-  .am-record__tick { width: 1.75rem; height: 3px; background: var(--ember); border-radius: var(--radius-pill); }
-  .am-record__label { font-family: var(--font-mono); font-weight: 800; font-size: 0.8125rem; letter-spacing: 0.18em; color: var(--ember); }
-  .am-record__list { margin: 0; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.8; color: var(--bone-dim); text-wrap: pretty; }
-
-  @media (max-width: 820px) {
-    .am-grid { grid-template-columns: 1fr; }
-  }
 </style>
