@@ -175,11 +175,14 @@ const RIGHTS = [
           <div class="pv-dl__row"><dt>Legal basis</dt><dd>Performance of our agreement with you.</dd></div>
           <div class="pv-dl__row"><dt>How long</dt><dd>As long as your account or licence is active. Devices you deactivate come off your seat list.</dd></div>
         </dl>
+        {/* No grace-window number here: EULA §6.4 deliberately says "reasonable periods" so
+            changing the window is a product change, not a licence amendment; a published
+            policy carrying "30 days" would rebuild that coupling (R16 edit 1). */}
         <p class="pv-block__note">
           Those fields are the only things the activation call sends. No project data, no file
           names, no usage information rides along with it. Once activated, Armature keeps
-          working offline for 30 days at a time and re-checks silently when you are back
-          online.
+          working offline for a period without contacting us, and re-checks silently when you
+          are back online.
         </p>
         <p class="pv-block__note">
           Licence keys and sign-in links are stored hashed on our server, so a stolen copy of
@@ -187,7 +190,8 @@ const RIGHTS = [
         </p>
         <p class="pv-block__note">
           Armature also checks for updates by fetching a small version file from our download
-          host. That is an ordinary file download and sends nothing about you.
+          host. It sends no account or licence information. Like any download it reaches our
+          host with your IP address, which is covered by the server logs described above.
         </p>
       </div>
 

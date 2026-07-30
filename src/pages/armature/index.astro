@@ -54,7 +54,11 @@ const STAGES = [
   {
     key: 'load',
     label: 'LOAD',
-    text: 'Bring in a textured mesh.',
+    // R14 version A (2026-07-30): USD import is NOT in the shipping build, and the LOAD
+    // screenshot's drop target (OBJ, FBX, GLB, glTF) is the half telling the truth. Switch to
+    // R14 version B ONLY if USD import lands by t01, confirmed at the Aug 2 dress rehearsal,
+    // never guessed forward.
+    text: 'Drop in your character. Armature reads OBJ, FBX, GLB and glTF, and everything leaves as USD.',
     img: stageLoad,
     alt: 'The Armature start screen, with recent characters and a drop target for a character mesh',
   },
@@ -143,7 +147,8 @@ const STAGES = [
             </div>
 
             <p class="hero__status reveal r5">
-              <span class="pill"><span class="pill__dot"></span>Early Access &middot; {ARMATURE.version}</span>
+              {/* "Early Access" is retired from public surfaces (Adrian, 2026-07-30). */}
+              <span class="pill"><span class="pill__dot"></span>Out now &middot; {ARMATURE.version}</span>
             </p>
 
             <div class="getblock reveal r6">
