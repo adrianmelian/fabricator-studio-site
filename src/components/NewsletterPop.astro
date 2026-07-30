@@ -13,8 +13,23 @@
 // Endpoint: the launch-era MailerLite embedded form (public client-side id, not a secret).
 // Its group still triggers the installer-delivery email, which doubles as the welcome mail
 // for now. When Adrian creates a dedicated Newsletter form, swap this ONE constant.
+//
+// DISCORD ADDED 2026-07-29, ALONGSIDE the email ask and not instead of it (Adrian's call).
+// The email list converts (about 20 at the time of writing) and it is the only channel we
+// OWN: Discord is rented, needs an account, and reaches whoever is online, whereas a mail
+// reaches everyone who ever downloaded. That matters most on the day Armature goes paid.
+//
+// The two asks are NOT presented as a fork. Discord appears in BOTH states, including the
+// post-submit confirmation, because someone who just handed over their email is the warmest
+// person in the funnel and the likeliest to also join. Forcing a choice between them leaves
+// value on the table.
+//
+// Clicking Discord marks the flag (they answered, never nag again) but deliberately does NOT
+// close the dialog, and the link opens in a new tab, so a visitor can join AND still enter
+// their email in the same visit.
 const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192763576695392191/subscribe';
 const STORAGE_KEY = 'fs-newsletter-pop';
+const DISCORD_HREF = '/discord/';
 ---
 <dialog id="news-pop" class="news-pop" aria-labelledby="news-pop-title">
   <div class="news-pop__inner">
@@ -28,6 +43,15 @@ const STORAGE_KEY = 'fs-newsletter-pop';
         <input class="news-pop__input" id="news-pop-email" type="email" name="fields[email]" inputmode="email" autocomplete="email" placeholder="you@studio.com" required />
         <input class="news-pop__hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
         <button class="news-pop__submit" type="submit" data-goatcounter-click="newsletter-subscribe">Keep me posted</button>
+        <p class="news-pop__or"><span>or</span></p>
+        <a
+          class="news-pop__discord"
+          href={DISCORD_HREF}
+          target="_blank"
+          rel="noopener"
+          data-news-discord
+          data-goatcounter-click="newsletter-pop-discord"
+        >Come ask questions in the Discord &rarr;</a>
         <button class="news-pop__decline" type="button" data-news-close>No thanks</button>
         <p class="news-pop__error" id="news-pop-error" hidden>Please enter a valid email.</p>
         {/* The notice belongs at the point of collection, not only in the footer. */}
@@ -36,6 +60,14 @@ const STORAGE_KEY = 'fs-newsletter-pop';
     </div>
     <div class="news-pop__done" id="news-pop-done" hidden>
       <p class="news-pop__sub">You're on the list. Check your inbox and confirm the opt-in and you're set.</p>
+      <p class="news-pop__sub">One more thing. The Discord is where I answer questions when something does not work, and where people post what they are rigging.</p>
+      <a
+        class="news-pop__discord news-pop__discord--solo"
+        href={DISCORD_HREF}
+        target="_blank"
+        rel="noopener"
+        data-goatcounter-click="newsletter-pop-discord-done"
+      >Join the Discord &rarr;</a>
     </div>
   </div>
 </dialog>
@@ -71,6 +103,13 @@ const STORAGE_KEY = 'fs-newsletter-pop';
     dlg.addEventListener('click', function (e) { if (e.target === dlg) { mark('dismissed'); dlg.close(); } });
     dlg.addEventListener('cancel', function () { mark('dismissed'); });
 
+    // Clicking through to Discord counts as an answer, so this browser is never nagged
+    // again. It does NOT close the dialog: the link opens in a new tab and the email field
+    // stays available, so one visitor can do both in one visit.
+    dlg.querySelectorAll('[data-news-discord]').forEach(function (a) {
+      a.addEventListener('click', function () { mark('discord'); });
+    });
+
     if (form) {
       form.addEventListener('submit', function (e) {
         e.preventDefault();
@@ -81,6 +120,10 @@ const STORAGE_KEY = 'fs-newsletter-pop';
         mark('subscribed');
         if (body) body.hidden = true;
         if (done) done.hidden = false;
+        // The heading lives outside both panels, so without this the confirmation still
+        // reads "Want the updates?" at someone who just said yes to exactly that.
+        var title = document.getElementById('news-pop-title');
+        if (title) title.textContent = "You're in.";
         if (action && !isBot) {
           fetch(action, {
             method: 'POST',
@@ -135,7 +178,10 @@ const STORAGE_KEY = 'fs-newsletter-pop';
     color: var(--bone);
   }
   .news-pop__sub { color: var(--bone-dim); font-size: 0.9rem; line-height: 1.5; margin: 0 0 1.25rem; }
-  .news-pop__done .news-pop__sub { margin: 0; }
+  /* The done state stacks two paragraphs (confirmation, then the Discord pitch). Zeroing the
+     margin on ALL of them ran the two together as one wall of text, so only the last loses it. */
+  .news-pop__done .news-pop__sub { margin: 0 0 0.85rem; }
+  .news-pop__done .news-pop__sub:last-of-type { margin-bottom: 0; }
   .news-pop__form { display: flex; flex-direction: column; gap: 0.75rem; }
   .news-pop__input {
     width: 100%;
@@ -163,6 +209,37 @@ const STORAGE_KEY = 'fs-newsletter-pop';
     cursor: pointer;
   }
   .news-pop__submit:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); }
+  /* Hairline rule with a centred "or", so the two asks read as alternatives of equal
+     legitimacy rather than a primary and an afterthought. */
+  .news-pop__or {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 0.25rem 0;
+    color: var(--bone-faint);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+  .news-pop__or::before,
+  .news-pop__or::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--iron-3);
+  }
+  .news-pop__discord {
+    display: block;
+    text-align: center;
+    font-family: var(--font-mono);
+    font-size: 0.9rem;
+    color: var(--bone);
+    text-decoration: none;
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    padding: 0.7rem 1rem;
+  }
+  .news-pop__discord:hover { color: var(--plasma); border-color: var(--plasma-dim); }
+  .news-pop__discord--solo { margin-top: 1.25rem; }
   .news-pop__decline {
     background: none;
     border: none;
