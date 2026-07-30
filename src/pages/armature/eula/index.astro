@@ -1,0 +1,54 @@
+---
+// The Armature EULA page: ONE EULA, TWO NAMED GRANTS (Indie / Commercial).
+//
+// SHELL ONLY until the EULA lane's final text lands (R11, due Aug 1). The text arrives from
+// that lane and is seated here as a paste; nothing on this page is drafted locally, per the
+// R10 rule that the site lane never writes licence language. The grant section skeleton below
+// mirrors the two picker rows so the paste is mechanical.
+//
+// This page must render the final text before the armature-launch branch merges. Merging the
+// shell with placeholder copy live is a launch-gate failure.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import NavBar from '../../../components/NavBar.astro';
+import Footer from '../../../components/Footer.astro';
+import '../../../styles/designed-doc.css';
+
+const TITLE = 'EULA';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+// Set to the shipping date when the final text is seated.
+const UPDATED = 'PENDING-EULA-LANE';
+---
+<BaseLayout
+  title="Armature EULA | FabricatorStudio"
+  description="The Armature end user licence agreement: one licence, two grants, Indie and Commercial."
+>
+  <NavBar />
+
+  <article class="dd eu">
+    <header class="dd-header">
+      <div class="dd-eyebrow">ARMATURE &middot; END USER LICENCE AGREEMENT</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) => <span class={g.cls}>{g.ch}</span>)}
+      </h1>
+      <p class="dd-summary">One licence, two grants. Last updated {UPDATED}.</p>
+    </header>
+
+    {/* ==== EULA LANE TEXT LANDS HERE (R11) ====
+        Structure ready for the paste: full agreement text, with the two named grants
+        (Indie, Commercial) as the load-bearing sections. Do not draft content here. */}
+    <section class="eu-body" aria-label="Agreement text">
+      <p class="eu-pending">The final agreement text is seated here at the release cut.</p>
+    </section>
+  </article>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .eu { padding-bottom: 2rem; }
+  .eu-body { margin-top: 2rem; }
+  .eu-pending { color: var(--bone-dim); line-height: 1.7; }
+</style>

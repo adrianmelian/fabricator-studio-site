@@ -1,0 +1,89 @@
+---
+// Post-purchase page for an Armature Commercial seat (launch block, R10).
+//
+// The Stripe LIVE payment link redirects here after checkout (configure the link's
+// confirmation redirect to /armature/thank-you/ when Adrian creates it on Aug 1). The
+// licence key does NOT live on this page: the licence service's Stripe webhook issues and
+// emails it (workspace/2026-07-22_authoring-platform/licensing, /v1/stripe/webhook). This
+// page delivers the installer and says where the key went.
+//
+// The download button carries the COMMERCIAL GoatCounter event, distinct from the picker's
+// Indie event, which is what makes the two paths measurable (R10 acceptance).
+// noindex: reachable only through the checkout redirect, never through search.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import BracketButton from '../../components/BracketButton.astro';
+import { ARMATURE, INSTALLER_NAME } from '../../data/armature';
+---
+<BaseLayout
+  title="Thank you | FabricatorStudio"
+  description="Your Armature download."
+  noindex
+>
+  <NavBar />
+
+  <section id="thanks">
+    <p class="ty-eyebrow">ARMATURE &middot; COMMERCIAL</p>
+    <h1 class="ty-head">Thank you. Check your inbox.</h1>
+    <p class="ty-sub">
+      Your licence key is on its way to the email you used at checkout, along with your Stripe
+      receipt. The download does not wait for it.
+    </p>
+
+    <div class="ty-card">
+      <BracketButton kind="hard" href={ARMATURE.installer} label="Download Armature" event="armature-download-commercial" />
+      {/* Inline tags stay on the same line as the word before them: Astro trims the
+          whitespace at the start of a wrapped line and welds the word to the tag. */}
+      <p class="ty-keep">
+        Windows SmartScreen will warn you the first time you run a new installer. Click <b>More info</b>, then <b>Run anyway</b>. The SHA-256 is published beside the download
+        on the <a href="/armature/">Armature page</a> if you want to verify <code>{INSTALLER_NAME}</code> yourself.
+      </p>
+    </div>
+
+    <div class="ty-steps">
+      <h2 class="ty-steps__head">Getting started</h2>
+      <ol class="ty-steps__list">
+        <li>Run the installer.</li>
+        <li>Open Armature and enter your licence key when it asks.</li>
+        <li>Load a mesh and go. Auto-update handles every release after this one.</li>
+      </ol>
+      <p class="ty-note">
+        No key within a few minutes? Check spam first, then email
+        <a href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a> and it gets
+        sorted by a human.
+      </p>
+    </div>
+  </section>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  #thanks { text-align: left; max-width: 46rem; }
+  .ty-eyebrow { margin: 2rem 0 0.5rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.18em; color: var(--ember); }
+  .ty-head { margin: 0 0 0.75rem; font-family: var(--font-display); font-weight: 800; font-size: clamp(1.9rem, 4vw, 2.75rem); line-height: 1.05; color: var(--bone); }
+  .ty-sub { margin: 0 0 1.75rem; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .ty-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+    padding: 1.75rem;
+    border-radius: 16px;
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
+    border: 1px solid rgba(124, 255, 178, 0.22);
+    border-left: 3px solid var(--plasma);
+    box-shadow: var(--shadow-lg);
+  }
+  .ty-keep { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); }
+  .ty-keep b { color: var(--bone); }
+  .ty-keep a { color: var(--plasma); }
+  .ty-keep code { color: var(--plasma); }
+  .ty-steps { margin-top: 2rem; }
+  .ty-steps__head { margin: 0 0 0.75rem; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
+  .ty-steps__list { margin: 0 0 1rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; }
+  .ty-steps__list b { color: var(--bone); }
+  .ty-note { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); }
+  .ty-note a { color: var(--plasma); }
+</style>

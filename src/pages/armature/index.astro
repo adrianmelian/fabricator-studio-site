@@ -33,20 +33,13 @@ import stageExport from '../../assets/armature/stage-export.png';
 import proofUnreal from '../../assets/armature/proof-unreal.png';
 import portrait from '../../assets/about/adrian.png';
 
-// The Armature early-access MailerLite endpoint. Same shape and same precedent as
-// NewsletterPop.astro: a public client-side form id, not a secret, so it lives in the source
-// rather than an env var (this repo has no .env, and its one public var is a literal in the
-// deploy workflow). Only the form id differs from the launch form.
-//
-// Its OWN form and group, not the launch installer-delivery list: the line under the field
-// promises "Email about Armature only".
-//
-// DERIVED, not copied. Adrian supplied the share link
-// https://preview.mailerlite.io/forms/2504656/194223063038952649/share, which carries the
-// account and form ids but is not the submit endpoint. If a submission ever fails to arrive,
-// check this against the `action` in MailerLite's own embed code FIRST: the post below is
-// mode 'no-cors', so a wrong URL fails silently and forever.
-const ML_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/194223063038952649/subscribe';
+// LAUNCH BLOCK (2026-08-03, R10). The early-access MailerLite signup is retired: the product
+// is out, so both signup instruments became download instruments. The launch config (update
+// feed, installer URL, SHA-256, the LIVE Stripe link) lives in src/data/armature.ts; the
+// picker rows are data-driven there so the education grant lands as a third row without a
+// page rewrite. Picker and SmartScreen copy: MrMiata
+// workspace/2026-07-30_armature-launch-dispatch/COPY-LAUNCH.md, shipped verbatim.
+import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../../data/armature';
 
 const TITLE = 'Armature, by FabricatorStudio';
 // Tracks the hero sentence. The old description quoted copy that is no longer on the page.
@@ -150,37 +143,63 @@ const STAGES = [
             </div>
 
             <p class="hero__status reveal r5">
-              <span class="pill"><span class="pill__dot"></span>Coming soon</span>
+              <span class="pill"><span class="pill__dot"></span>Early Access &middot; {ARMATURE.version}</span>
             </p>
 
-            <form class="signup reveal r6" action="" data-form="mailerlite" novalidate>
-              {/* One instrument, not an input sitting next to a button. The leading joint is the
-                  page's own glyph: it lights plasma on focus exactly like the spine joints light
-                  on scroll, so the conversion belongs to the same skeleton. */}
-              <div class="signup__shell">
-                <span class="signup__joint" aria-hidden="true"></span>
-                <label class="sr-only" for="email-hero">Email address</label>
-                <input
-                  class="field"
-                  id="email-hero"
-                  name="fields[email]"
-                  type="email"
-                  required
-                  autocomplete="email"
-                  inputmode="email"
-                  placeholder="you@studio.com"
-                />
-                <input class="hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-                <button class="btn" type="submit" data-goatcounter-click="armature-early-access">
-                  Request early access
-                </button>
-              </div>
-              <p class="reassure">Email about Armature only. One click to unsubscribe. We store your address to send it, nothing else. <a href="/privacy/">Privacy</a>.</p>
-              <p class="form-msg form-msg--ok" role="status" hidden>You are on the list. Watch your inbox.</p>
-              <p class="form-msg form-msg--error" role="alert" hidden>
-                That email address did not look right. Try again.
-              </p>
-            </form>
+            <div class="getblock reveal r6">
+              <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+                Download for Windows
+              </button>
+              <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
+
+              {/* The dialog needs script to open; without it the same rows render as links. */}
+              <noscript>
+                <ul class="picker__rows picker__rows--inline">
+                  {PICKER_ROWS.map((row) => (
+                    <li class="picker__row">
+                      <div class="picker__copy">
+                        <p class="picker__name"><b>{row.name}.</b> <span class="picker__price">{row.price}.</span></p>
+                        <p class="picker__line">{row.line}</p>
+                      </div>
+                      {row.cta === 'download' ? (
+                        <a class="btn picker__cta" href={ARMATURE.installer} data-goatcounter-click={row.event}>Download</a>
+                      ) : ARMATURE.stripeCommercial ? (
+                        <a class="btn picker__cta" href={ARMATURE.stripeCommercial} data-goatcounter-click={row.event}>Continue to checkout</a>
+                      ) : (
+                        <button class="btn picker__cta" type="button" disabled>Continue to checkout</button>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </noscript>
+
+              {/* The SmartScreen pre-empt (COPY-LAUNCH.md §1, verbatim). Beside the download,
+                  above the fold, BEFORE the click: the warning is what a first-time visitor
+                  sees, and an unexplained one reads as malware. More load-bearing than the
+                  certificate itself. */}
+              <aside class="smartscreen" aria-labelledby="smartscreen-title">
+                <h3 class="smartscreen__title" id="smartscreen-title">Windows will warn you the first time you run this</h3>
+                {/* "Click <b>" stays on ONE line: Astro trims the whitespace before an inline
+                    tag at the start of a wrapped line and welds the word to the tag. */}
+                <p>
+                  Armature is a new installer from a new publisher, so Windows SmartScreen shows a
+                  blue "Windows protected your PC" screen the first time you open it. Click <b>More info</b>, then <b>Run anyway</b>.
+                </p>
+                <p>
+                  SmartScreen is rating the installer's reputation. It trusts files that have been
+                  downloaded many times, or signed with a certificate that has already built up
+                  history. This one is new on both counts. An EV code signing certificate is on the
+                  way. Until it lands, this is what a brand new installer looks like on Windows.
+                </p>
+                <p>To check the file yourself, compare it against the SHA-256 published beside the download:</p>
+                <pre class="smartscreen__code"><code>Get-FileHash .\{INSTALLER_NAME} -Algorithm SHA256</code></pre>
+                {ARMATURE.sha256 ? (
+                  <p class="smartscreen__hash">SHA-256: <code>{ARMATURE.sha256}</code></p>
+                ) : (
+                  <p class="smartscreen__hash">SHA-256: <code>published at release</code></p>
+                )}
+              </aside>
+            </div>
           </div>
 
           {/* The inline loop is silent because every browser requires that of an autoplay video.
@@ -375,39 +394,24 @@ const STAGES = [
             Armature is a new standalone application. It is not the Armature step inside the Maya
             toolset, and it is not part of that free download.
           </p>
+          {/* A132. */}
+          <p class="pricing__contact reveal">
+            Bringing an existing rig into Armature? <a href="mailto:adrian@fabricator.studio?subject=Armature%3A%20existing%20rig">Talk to us</a>.
+          </p>
         </div>
       </section>
 
       {/* 7. CLOSE */}
       <section class="section close" data-spine-section aria-labelledby="close-title">
         <div class="wrap">
-          <h2 class="close__title reveal" id="close-title">Armature is coming.</h2>
+          <h2 class="close__title reveal" id="close-title">Armature is out.</h2>
 
-          <form class="signup signup--close reveal" action="" data-form="mailerlite" novalidate>
-            <div class="signup__shell">
-              <span class="signup__joint" aria-hidden="true"></span>
-              <label class="sr-only" for="email-close">Email address</label>
-              <input
-                class="field"
-                id="email-close"
-                name="fields[email]"
-                type="email"
-                required
-                autocomplete="email"
-                inputmode="email"
-                placeholder="you@studio.com"
-              />
-              <input class="hp" type="text" name="hp" tabindex="-1" autocomplete="off" aria-hidden="true" />
-              <button class="btn" type="submit" data-goatcounter-click="armature-early-access">
-                Request early access
-              </button>
-            </div>
-            <p class="reassure">Email about Armature only. One click to unsubscribe. We store your address to send it, nothing else. <a href="/privacy/">Privacy</a>.</p>
-            <p class="form-msg form-msg--ok" role="status" hidden>You are on the list. Watch your inbox.</p>
-            <p class="form-msg form-msg--error" role="alert" hidden>
-              That email address did not look right. Try again.
-            </p>
-          </form>
+          <div class="getblock reveal">
+            <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+              Download for Windows
+            </button>
+            <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
+          </div>
         </div>
       </section>
       {/* The silent inline loop is the 24-second teaser, which is what it was built for. The
@@ -424,6 +428,42 @@ const STAGES = [
           </button>
         </div>
       </dialog>
+
+      {/* The licence picker (COPY-LAUNCH.md §2, verbatim; ruling 2026-07-28b). Download opens
+          this rather than downloading. Eligibility leads, price follows: a user reading these
+          cannot pick wrongly by accident. Rows are data-driven from src/data/armature.ts so
+          the education grant lands as a third row without touching this markup. The selection
+          here is a default; the installer's click-through selection is the operative one
+          (EULA §3.4). */}
+      <dialog class="shot-dialog picker" id="picker-dialog" aria-labelledby="picker-title">
+        <div class="picker__inner">
+          <p class="picker__head" id="picker-title">Download Armature {ARMATURE.version}</p>
+          <ul class="picker__rows">
+            {PICKER_ROWS.map((row) => (
+              <li class="picker__row">
+                <div class="picker__copy">
+                  <p class="picker__name">
+                    <b>{row.name}.</b> <span class="picker__price">{row.price}.</span>
+                  </p>
+                  <p class="picker__line">{row.line}</p>
+                </div>
+                {row.cta === 'download' ? (
+                  <a class="btn picker__cta" href={ARMATURE.installer} data-goatcounter-click={row.event}>Download</a>
+                ) : ARMATURE.stripeCommercial ? (
+                  <a class="btn picker__cta" href={ARMATURE.stripeCommercial} data-goatcounter-click={row.event}>Continue to checkout</a>
+                ) : (
+                  // The live payment link is seated at the cut (Aug 1). An empty config value
+                  // degrades to a visibly disabled control, never a dead href.
+                  <button class="btn picker__cta" type="button" disabled>Continue to checkout</button>
+                )}
+              </li>
+            ))}
+          </ul>
+          <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
+            <span aria-hidden="true">✕</span>
+          </button>
+        </div>
+      </dialog>
     </main>
 
     <footer class="footer">
@@ -434,6 +474,7 @@ const STAGES = [
           <nav class="footer__links" aria-label="Footer">
             <a href="https://fabricator.studio">fabricator.studio</a>
             <a href="/privacy/">Privacy</a>
+            <a href="/armature/eula/">EULA</a>
           </nav>
           <p class="footer__legal">&copy; 2026 FabricatorStudio LLC</p>
         </div>
@@ -442,7 +483,7 @@ const STAGES = [
   </div>
 </BaseLayout>
 
-<script is:inline define:vars={{ action: ML_ACTION }}>
+<script is:inline>
   (function () {
     var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
 
@@ -574,41 +615,6 @@ const STAGES = [
       });
     }
 
-    // With no action configured the field still validates and shows its states, and nothing is
-    // sent. See the note at the top of this page.
-    document.querySelectorAll('form[data-form="mailerlite"]').forEach(function (form) {
-      var ok = form.querySelector('.form-msg--ok');
-      var err = form.querySelector('.form-msg--error');
-      var input = form.querySelector('input[type="email"]');
-      var hp = form.querySelector('.hp');
-
-      form.addEventListener('submit', function (e) {
-        e.preventDefault();
-        var value = (input.value || '').trim();
-        var valid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-        ok.hidden = !valid;
-        err.hidden = valid;
-        if (!valid) {
-          input.focus();
-          return;
-        }
-        input.value = '';
-        if (action && !(hp && hp.value)) {
-          fetch(action, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-            body: 'fields[email]=' + encodeURIComponent(value) + '&ml-submit=1&anticsrf=true',
-          });
-        }
-      });
-
-      input.addEventListener('input', function () {
-        ok.hidden = true;
-        err.hidden = true;
-      });
-    });
-
     /* ---- enlargeable shots and the teaser player ---- */
     var loop = document.getElementById('teaser-loop');
 
@@ -634,6 +640,16 @@ const STAGES = [
       });
     });
 
+    // The licence picker. Download opens the picker rather than downloading. With JS disabled
+    // the dialog cannot open, so the hero getblock carries a <noscript> fallback rendering the
+    // same rows as plain links.
+    var pickerDialog = document.getElementById('picker-dialog');
+    document.querySelectorAll('[data-picker-open]').forEach(function (trigger) {
+      trigger.addEventListener('click', function () {
+        if (pickerDialog && pickerDialog.showModal) pickerDialog.showModal();
+      });
+    });
+
     var teaserDialog = document.getElementById('teaser-dialog');
     var teaserOpen = document.querySelector('[data-teaser-open]');
     var trailerMount = document.getElementById('trailer-mount');
@@ -647,7 +663,7 @@ const STAGES = [
           frame.className = 'trailer-frame';
           // youtube-nocookie is YouTube's privacy-enhanced host; rel=0 keeps the end-of-video
           // suggestions inside our own channel rather than handing the viewer away from a page
-          // whose only job is the signup.
+          // whose only job is the download.
           frame.src =
             'https://www.youtube-nocookie.com/embed/' + TRAILER_ID +
             '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
@@ -1094,110 +1110,11 @@ const STAGES = [
     margin-bottom: 16px;
   }
 
-  .signup {
-    max-width: 540px;
-  }
-
-  /* The control is ONE object: a soft iron capsule holding the joint, the field and the button.
-     Depth is the sanctioned kind, a hairline plus a shine plus a soft shadow. The whole capsule
-     is the focus indicator, which is why the field itself carries no border and no ring. */
-  .signup__shell {
-    display: grid;
-    grid-template-columns: auto minmax(0, 1fr);
-    align-items: center;
-    gap: 0 10px;
-    padding: 10px;
-    border-radius: 24px;
-    border: 1px solid var(--iron-3);
-    background-color: var(--iron);
-    background-image: var(--shine);
-    box-shadow: var(--shadow-sm);
-    transition:
-      border-color var(--t-base) var(--ease-out),
-      box-shadow var(--t-base) var(--ease-out);
-  }
-  .signup__shell:hover {
-    border-color: var(--bone-faint);
-  }
-  .signup__shell:focus-within {
-    border-color: var(--plasma);
-    box-shadow:
-      0 0 0 3px var(--plasma-glow),
-      var(--shadow-md);
-  }
-
-  /* The page's own glyph. Neutral at rest so it never reads as a state, plasma the moment the
-     field takes focus, which is plasma doing its sanctioned job. */
-  .signup__joint {
-    width: 16px;
-    height: 16px;
-    margin-left: 6px;
-    border-radius: 50%;
-    border: 1.5px solid var(--bone-faint);
-    display: grid;
-    place-items: center;
-    flex: none;
-    transition:
-      border-color 320ms var(--ease-out),
-      box-shadow 320ms var(--ease-out),
-      transform 420ms var(--ease-spring);
-  }
-  .signup__joint::after {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--bone-faint);
-    transition: background 320ms var(--ease-out);
-  }
-  .signup__shell:focus-within .signup__joint {
-    border-color: var(--plasma);
-    box-shadow: 0 0 0 4px var(--plasma-glow);
-    transform: scale(1.12);
-  }
-  .signup__shell:focus-within .signup__joint::after {
-    background: var(--plasma);
-  }
-
-  .hp {
-    position: absolute;
-    left: -9999px;
-    width: 1px;
-    height: 1px;
-    opacity: 0;
-  }
-
-  .field {
-    width: 100%;
-    min-height: 44px;
-    padding: 10px 4px;
-    border: 0;
-    background: transparent;
-    color: var(--bone);
-    font-family: var(--font-mono);
-    font-size: 16px;
-  }
-  .field::placeholder {
-    color: var(--bone-faint);
-  }
-  /* The capsule is the focus indicator; a second ring on the field inside it reads as a bug. */
-  .field:focus,
-  .field:focus-visible {
-    outline: none;
-  }
-  /* Chrome paints autofilled inputs on a hard white field, which would put a white slab inside
-     a carbon page. The inset shadow is the only way to override it. */
-  .field:-webkit-autofill,
-  .field:-webkit-autofill:hover,
-  .field:-webkit-autofill:focus {
-    -webkit-text-fill-color: var(--bone);
-    -webkit-box-shadow: inset 0 0 0 100px var(--iron);
-    caret-color: var(--bone);
+  .getblock {
+    max-width: 560px;
   }
 
   .btn {
-    grid-column: 1 / -1;
-    margin-top: 10px;
     min-height: 48px;
     padding: 12px 26px;
     border: 0;
@@ -1233,29 +1150,153 @@ const STAGES = [
     font-size: 12.5px;
     color: var(--bone-dim);
   }
-  /* The privacy notice belongs at the point of collection, not only in the footer.
-     Matches the pattern already on the newsletter prompt. */
   .reassure a { color: var(--bone); border-bottom: 1px solid var(--iron-3); }
   .reassure a:hover { color: var(--plasma); border-color: var(--plasma); }
 
-  .form-msg {
-    margin-top: 12px;
-    padding: 11px 14px;
-    border-radius: var(--radius-sm);
-    font-size: 13px;
-    border: 1px solid var(--iron-3);
-    background: var(--iron);
+  /* ---------- SmartScreen pre-empt ---------- */
+
+  /* Ember is label / attention doing its sanctioned job: this panel is a heads-up, not an
+     error. It sits directly under the download control so it is on screen before the click. */
+  .smartscreen {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--iron-2);
+    border-left: 3px solid var(--ember);
+    background-color: var(--iron);
+    background-image: var(--shine);
+    box-shadow: var(--shadow-sm);
   }
-  .form-msg[hidden] {
-    display: none;
-  }
-  .form-msg--ok {
-    border-color: var(--plasma-dim);
-    color: var(--plasma);
-  }
-  .form-msg--error {
-    border-color: var(--ember-dim);
+  .smartscreen__title {
+    font-size: 13.5px;
+    font-weight: 700;
     color: var(--ember);
+    margin-bottom: 10px;
+  }
+  .smartscreen p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .smartscreen p + p {
+    margin-top: 8px;
+  }
+  .smartscreen p b {
+    color: var(--bone);
+  }
+  .smartscreen__code {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+    overflow-x: auto;
+  }
+  .smartscreen__code code {
+    font-size: 12px;
+    color: var(--bone);
+    white-space: pre;
+  }
+  .smartscreen__hash {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .smartscreen__hash code {
+    color: var(--bone);
+    word-break: break-all;
+  }
+
+  /* ---------- the licence picker ---------- */
+
+  .picker {
+    width: min(94vw, 560px);
+  }
+  .picker__inner {
+    position: relative;
+    border-radius: var(--radius);
+    border: 1px solid var(--iron-3);
+    background-color: var(--iron);
+    background-image: var(--shine);
+    box-shadow: var(--shadow-lg);
+    padding: 22px;
+  }
+  .picker__head {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--bone);
+    margin-bottom: 16px;
+    padding-right: 40px;
+  }
+  .picker__rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .picker__row {
+    display: grid;
+    gap: 12px;
+    align-items: center;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+  }
+  .picker__name {
+    font-size: 15px;
+    color: var(--bone);
+  }
+  .picker__name b {
+    font-weight: 700;
+  }
+  .picker__price {
+    color: var(--bone);
+  }
+  .picker__line {
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .picker__cta {
+    justify-self: start;
+    min-height: 42px;
+    padding: 9px 20px;
+    font-size: 14px;
+  }
+  .picker__cta[disabled] {
+    background: var(--iron-3);
+    color: var(--bone-faint);
+    cursor: not-allowed;
+  }
+  /* The no-JS fallback renders the same rows inline under the hero button. */
+  .picker__rows--inline {
+    margin-top: 14px;
+  }
+
+  @media (min-width: 480px) {
+    .picker__row {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .picker__cta {
+      justify-self: end;
+    }
+  }
+
+  .pricing__contact {
+    margin-top: 18px;
+    font-size: 14px;
+    color: var(--bone-dim);
+  }
+  .pricing__contact a {
+    color: var(--plasma);
+    text-underline-offset: 4px;
+  }
+  .pricing__contact a:hover {
+    color: var(--bone);
   }
 
   /* The teaser is a 9:16 cut, so it stays 9:16 at every width. A vertical film pillarboxed
@@ -1700,14 +1741,7 @@ const STAGES = [
       width: min(100%, 330px);
     }
 
-    .signup__shell {
-      grid-template-columns: auto minmax(0, 1fr) auto;
-      border-radius: var(--radius-pill);
-      padding: 7px 7px 7px 10px;
-    }
     .btn {
-      grid-column: auto;
-      margin-top: 0;
       min-height: 44px;
     }
 

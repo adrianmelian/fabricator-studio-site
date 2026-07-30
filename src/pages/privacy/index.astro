@@ -25,11 +25,13 @@
 // below in the same commit. A privacy policy that omits a live processor is worse than none,
 // because it is a written statement that is false.
 //
-// NOT YET TRUE, DELIBERATELY ABSENT: Armature accounts and licence activation. Those do not
-// exist yet, and a policy describing unbuilt practice is a lie with a date on it. The block to
-// add at Armature launch is drafted in the MrMiata task folder's NOTES.md, matched to EULA
-// v0.2 sections 5 and 6. Confirm the transmitted fields against the built implementation
-// before publishing it.
+// ARMATURE ACCOUNTS AND ACTIVATION: added for the 2026-08-03 launch (Adrian approved
+// 2026-07-30; draft of record: MrMiata workspace/2026-07-30_armature-launch-dispatch/
+// PRIVACY-ARMATURE-SECTION.md). The transmitted fields are confirmed against the licence
+// service contract (workspace/2026-07-22_authoring-platform/licensing/README.md, EULA §6.2:
+// account identifier or licence key, device identifier, device name, app version, and
+// nothing else). Resend joined the processor table with it: it is the licence service's
+// transactional mailer (sign-in links, licence keys), not a site-embedded script.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
@@ -40,7 +42,7 @@ const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
-const UPDATED = '28 July 2026';
+const UPDATED = '3 August 2026';
 
 const COLLECTED = [
   {
@@ -84,11 +86,12 @@ const COLLECTED = [
 const PROCESSORS = [
   { name: 'Stripe', does: 'Takes payment and issues receipts', gets: 'Your name, email, and billing and payment details' },
   { name: 'MailerLite', does: 'Sends our email updates', gets: 'Your email address, if you subscribed' },
+  { name: 'Resend', does: 'Emails your sign-in links and licence keys', gets: 'Your email address' },
   { name: 'Web3Forms', does: 'Delivers contact form messages to us', gets: 'Your name, email, and message' },
   { name: 'GoatCounter', does: 'Counts page visits', gets: 'Page and browser information, no personal data' },
   { name: 'YouTube (Google)', does: 'Plays our videos, only if you press play', gets: 'Nothing at all unless you start a video. If you do, YouTube receives your IP address and device information and may set cookies' },
   { name: 'GitHub Pages', does: 'Hosts this website', gets: 'Standard server logs' },
-  { name: 'Cloudflare', does: 'Domain routing and file downloads', gets: 'Standard server logs' },
+  { name: 'Cloudflare', does: 'Domain routing, file downloads, and our licence service', gets: 'Standard server logs, and the activation data described above' },
 ];
 
 const RIGHTS = [
@@ -160,6 +163,34 @@ const RIGHTS = [
         </div>
       ))}
 
+      {/* Armature accounts and activation (Adrian approved 2026-07-30). Hand-written rather
+          than a COLLECTED entry because it carries three notes, not one. Fields confirmed
+          against the licence service contract; see the header comment. */}
+      <div class="pv-block">
+        <h3 class="pv-block__head">If you use Armature</h3>
+        <p class="pv-block__note">Armature is licensed software, so it checks your licence with our server.</p>
+        <dl class="pv-dl">
+          <div class="pv-dl__row"><dt>What</dt><dd>Your email address if you sign in for the free Indie licence, or your licence key if you bought a Commercial seat. When Armature activates, it also sends a device identifier, the device name, and the app version.</dd></div>
+          <div class="pv-dl__row"><dt>Why</dt><dd>To confirm your licence is valid, unlock the app, and enforce the two-device seat limit.</dd></div>
+          <div class="pv-dl__row"><dt>Legal basis</dt><dd>Performance of our agreement with you.</dd></div>
+          <div class="pv-dl__row"><dt>How long</dt><dd>As long as your account or licence is active. Devices you deactivate come off your seat list.</dd></div>
+        </dl>
+        <p class="pv-block__note">
+          Those fields are the only things the activation call sends. No project data, no file
+          names, no usage information rides along with it. Once activated, Armature keeps
+          working offline for 30 days at a time and re-checks silently when you are back
+          online.
+        </p>
+        <p class="pv-block__note">
+          Licence keys and sign-in links are stored hashed on our server, so a stolen copy of
+          our database would not contain a usable key.
+        </p>
+        <p class="pv-block__note">
+          Armature also checks for updates by fetching a small version file from our download
+          host. That is an ordinary file download and sends nothing about you.
+        </p>
+      </div>
+
       <div class="pv-block">
         <h3 class="pv-block__head">When you download our software</h3>
         <p class="pv-block__note">
@@ -186,6 +217,11 @@ const RIGHTS = [
         machine learning model used for automatic skin weights, it tells you before it does, it
         happens only because you asked for that feature, and it is fetched from the component's
         publisher rather than from us.
+      </p>
+      <p class="pv-p">
+        Armature does contact our licence server when you sign in or activate, and the "If you
+        use Armature" section above lists exactly what that check sends. It is the only call
+        the app makes about you.
       </p>
     </section>
 
