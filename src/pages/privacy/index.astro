@@ -170,11 +170,20 @@ const RIGHTS = [
         <h3 class="pv-block__head">If you use Armature</h3>
         <p class="pv-block__note">Armature is licensed software, so it checks your licence with our server.</p>
         <dl class="pv-dl">
-          <div class="pv-dl__row"><dt>What</dt><dd>Your email address if you sign in for the free Indie licence, or your licence key if you bought a Commercial seat. When Armature activates, it also sends a device identifier, the device name, and the app version.</dd></div>
+          <div class="pv-dl__row"><dt>What</dt><dd>Your email address if you sign in for the free Indie licence, or your licence key if you bought a Commercial seat. When Armature activates, it also sends a random identifier the app generates for that installation, a fixed device label, and the app version.</dd></div>
           <div class="pv-dl__row"><dt>Why</dt><dd>To confirm your licence is valid, unlock the app, and enforce the two-device seat limit.</dd></div>
           <div class="pv-dl__row"><dt>Legal basis</dt><dd>Performance of our agreement with you.</dd></div>
           <div class="pv-dl__row"><dt>How long</dt><dd>As long as your account or licence is active. Devices you deactivate come off your seat list.</dd></div>
         </dl>
+        {/* R18: the identifier facts are checkable in app/src/license/store.ts — random UUID
+            in local storage, deviceName a hardcoded constant. A verifiable property beats a
+            reassurance. */}
+        <p class="pv-block__note">
+          The installation identifier is a random value the app creates on your machine. It is
+          not derived from your hardware, and it is not your computer's name: the device label
+          is the same fixed text for every installation. Reinstalling or clearing app data
+          creates a new identifier.
+        </p>
         {/* No grace-window number here: EULA §6.4 deliberately says "reasonable periods" so
             changing the window is a product change, not a licence amendment; a published
             policy carrying "30 days" would rebuild that coupling (R16 edit 1). */}
