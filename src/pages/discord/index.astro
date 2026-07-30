@@ -1,0 +1,73 @@
+---
+// /discord/ - the permanent, ours-forever door to the community Discord (created 2026-07-29).
+//
+// WHY THIS PAGE EXISTS INSTEAD OF PUBLISHING THE INVITE DIRECTLY:
+//   1. A discord.gg code baked into a published YouTube description cannot be edited after
+//      upload. If the invite is ever rotated, revoked, or the server is recreated, every
+//      video, LinkedIn post and email signature pointing at the bare code dies at once.
+//      This URL is ours, so the invite becomes a one-line change here.
+//   2. GoatCounter counts the hit. A raw discord.gg link in a video description is
+//      invisible to us, exactly like the raw R2 installer URL (see links.ts). Routing
+//      through the site is the only way we ever learn how many people go to Discord.
+//
+// WHY A SCRIPT REDIRECT AND NOT A 301: the site is GitHub Pages (see .github/workflows/
+// deploy.yml), which cannot serve a real 301 for an arbitrary path. A `<meta http-equiv=
+// "refresh">` would need to sit in <head>, and BaseLayout takes no head slot. So the
+// redirect is an inline script plus a visible link that works with no JS at all, which
+// also degrades more honestly than a silent meta refresh.
+//
+// noindex because this is a doorway, not content. It must never compete with a real page
+// in search results.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { LINKS } from '../../data/links';
+---
+
+<BaseLayout
+  title="Join the FabricatorStudio Discord"
+  description="The FabricatorStudio community Discord: help with the toolset and Armature, bug reports, and what people are rigging."
+  noindex={true}
+>
+  <main class="door">
+    <p class="door__kicker">FabricatorStudio</p>
+    <h1 class="door__title">Taking you to Discord</h1>
+    <p class="door__body">
+      Rigging help, bug reports, and what people are building. If your browser does not move
+      on its own, use the link below.
+    </p>
+    <a class="door__cta" href={LINKS.discordInvite} rel="noopener">Open the invite</a>
+  </main>
+
+  <script is:inline define:vars={{ invite: LINKS.discordInvite }}>
+    // replace() so the back button returns to wherever the visitor came from rather than
+    // bouncing them through this doorway a second time.
+    window.location.replace(invite);
+  </script>
+</BaseLayout>
+
+<style>
+  .door {
+    font-family: var(--font-mono);
+    max-width: 34rem;
+    margin: 0 auto;
+    padding: 8rem 1.5rem;
+    text-align: center;
+  }
+  .door__kicker {
+    color: var(--bone-faint);
+    font-size: 0.875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .door__title { margin-top: 0.75rem; font-size: 1.75rem; }
+  .door__body { margin-top: 1rem; color: var(--bone-faint); font-size: 0.9375rem; line-height: 1.6; }
+  .door__cta {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 0.9375rem;
+    color: var(--bone);
+    text-decoration: none;
+    border: 1px solid var(--iron-3);
+  }
+  .door__cta:hover { color: var(--ember); border-color: var(--ember); }
+</style>
