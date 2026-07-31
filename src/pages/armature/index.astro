@@ -38,7 +38,7 @@ import portrait from '../../assets/about/adrian.png';
 // picker rows are data-driven there so the education grant lands as a third row without a
 // page rewrite. Picker and SmartScreen copy: MrMiata
 // workspace/2026-07-30_armature-launch-dispatch/COPY-LAUNCH.md, shipped verbatim.
-import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../../data/armature';
+import { ARMATURE, PICKER_ROWS, INSTALLER_NAME, MAYA_CONTROL_RIG } from '../../data/armature';
 import { ARMATURE_TUTORIALS as WALKTHROUGHS } from '../../data/tutorials';
 
 const TITLE = 'Armature, by FabricatorStudio';
@@ -159,6 +159,22 @@ const STAGES = [
                 Download for Windows
               </button>
               <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
+
+              {/* R25: what a user can execute TODAY, next to the download rather than buried in
+                  a proof panel. This is the whole free path stated once, and it is a bigger
+                  claim than the app alone: mesh to animatable Maya rig with nothing to buy. */}
+              {MAYA_CONTROL_RIG ? (
+                <p class="getblock__today">
+                  Armature exports one USD carrying the mesh, skeleton, weights and control rig
+                  build data. In Maya, the free <a href="/tools/">Fabricator toolset</a> reads it
+                  and builds the control rig for you. Free the whole way.
+                </p>
+              ) : (
+                <p class="getblock__today">
+                  Armature exports one USD carrying the mesh, skeleton, weights and textures. It
+                  imports into Unreal and Maya with joint orientations intact.
+                </p>
+              )}
 
               {/* The dialog needs script to open; without it the same rows render as links. */}
               <noscript>
@@ -327,11 +343,30 @@ const STAGES = [
             <div class="status__panels">
               <div class="panel reveal">
                 <p class="panel__head"><span class="pill"><span class="pill__dot"></span>Verified</span></p>
+                {/* SHIPPED vs DEMONSTRATED, separated 2026-07-31 per R25. This panel used to
+                    read "The Fabricator Maya and Unreal Control Rigs are built procedurally",
+                    which is true of the footage and false as an instruction: the Maya builder
+                    ships with the toolset, the Unreal one does not yet. A reader who watches
+                    the clip, downloads, and cannot reproduce the second half concludes they
+                    were sold something, which is the most expensive first impression there is.
+                    The USD claim is unchanged because it is true for both engines. */}
                 <p class="panel__text">
                   The exported USD imports into both Unreal and Maya with joint orientations
-                  intact. The Fabricator Maya and Unreal Control Rigs are built procedurally from
-                  Armature's export data.
+                  intact.
                 </p>
+                {MAYA_CONTROL_RIG ? (
+                  <p class="panel__text">
+                    In Maya, the free <a href="/tools/">Fabricator toolset</a> reads that same
+                    file and builds the control rig for you. The Unreal control rig in this clip
+                    was built procedurally from the same export data, and its builder is what we
+                    are working on next.
+                  </p>
+                ) : (
+                  <p class="panel__text">
+                    Both control rigs in this clip were built procedurally from that same export
+                    data. The builders that do it are what we are working on next.
+                  </p>
+                )}
               </div>
             </div>
 
@@ -1233,6 +1268,22 @@ const STAGES = [
   .reassure a { color: var(--bone); border-bottom: 1px solid var(--iron-3); }
   .reassure a:hover { color: var(--plasma); border-color: var(--plasma); }
 
+  .getblock__today {
+    margin-top: 14px;
+    padding: 12px 14px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--iron-2);
+    border-left: 3px solid var(--plasma);
+    background-color: var(--iron);
+    background-image: var(--shine);
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .getblock__today a { color: var(--plasma); }
+  .getblock__today a:hover { color: var(--bone); }
+
   /* ---------- SmartScreen pre-empt ---------- */
 
   /* Ember is label / attention doing its sanctioned job: this panel is a heads-up, not an
@@ -1683,6 +1734,19 @@ const STAGES = [
     line-height: 1.6;
     color: var(--bone-dim);
     text-wrap: pretty;
+  }
+  /* The panel carries TWO statements since R25 split shipped from demonstrated. Without a gap
+     they butt together and read as one run-on claim, which defeats the whole point of the
+     split. */
+  .panel__text + .panel__text {
+    margin-top: 12px;
+  }
+  .panel__text a {
+    color: var(--plasma);
+    text-underline-offset: 3px;
+  }
+  .panel__text a:hover {
+    color: var(--bone);
   }
   /* 4:3, because the clip is 1200x900. Same rule the 16:10 still followed: the slot takes the
      asset's shape rather than cropping it. */

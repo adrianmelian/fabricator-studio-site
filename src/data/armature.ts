@@ -9,6 +9,18 @@
 // open in the SHIPPING build.
 export const USD_IMPORT = false;
 
+// The MAYA control rig builder: does a user who downloads today actually get it?
+// R25 (2026-07-31) rules that it ships with Armature and that the page may say so. This flag
+// exists because that claim has a dependency the relay does not name: the builder has to be
+// in a DOWNLOADABLE toolset release, and no shipped release note mentions one (latest public
+// toolset is 1.1.3). If the toolset release carrying it does not land by launch, this is the
+// exact "demonstrated, not shipped" error R25 was written to correct, one level up.
+//
+// True = the page says Maya builds your control rig for you, free.
+// False = the page keeps the honest USD claim and says nothing a user cannot execute.
+// Flip it in one place; the hero line and the VERIFIED panel both read it.
+export const MAYA_CONTROL_RIG = true;
+
 // The STABLE update-feed base (R10-ack item 1). electron-updater fetches
 // `${UPDATE_BASE}latest.yml` unauthenticated; the directory never changes across releases.
 // The Armature lane seats this same string in the app's publish config before t01.
