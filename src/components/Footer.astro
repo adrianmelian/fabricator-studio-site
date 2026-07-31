@@ -35,7 +35,10 @@ import { LINKS } from '../data/links';
   <p class="footer__pair">
     <a class="footer__pair-link" href="https://adrianmelian.com">Adrian Melian &middot; Technical Director &middot; portfolio and hiring &rarr;</a>
   </p>
-  <p class="footer__name">Fabricator, by FabricatorStudio. Free for solo developers, indies, and small teams.</p>
+  {/* Names the product the free claim belongs to (Adrian, 2026-07-30). This footer ships on
+      every page including Armature's EULA, where "Fabricator, by FabricatorStudio. Free
+      for..." read as a claim about the page you were actually on. */}
+  <p class="footer__name">The FabricatorStudio Maya Toolset. Free for solo developers, indies, and small teams.</p>
 </footer>
 <style>
   footer { font-family: var(--font-mono); max-width: 72rem; margin: 0 auto; padding: 3rem 1.5rem 4rem; border-top: 1px solid var(--iron-2); text-align: center; }

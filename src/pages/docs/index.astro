@@ -63,7 +63,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 ---
 <DocsLayout
   title="Docs | FabricatorStudio"
-  description="Getting started with the FabricatorStudio toolset: from an empty project to an in-engine asset in five steps."
+  description="Getting started with the FabricatorStudio Maya Toolset: from an empty project to an in-engine asset in five steps."
 >
   <article class="dd gs">
     <header class="dd-header">
@@ -71,12 +71,12 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         <Image class="gs-monogram" src={fsMonogram} alt="" aria-hidden="true" densities={[1, 2]} />
         <div class="dd-eyebrow">FABRICATORSTUDIO &middot; DOCS</div>
       </div>
-      <h1 class="dd-title gs-title" aria-label="Getting Started with the FabricatorStudio Toolset">
+      <h1 class="dd-title gs-title" aria-label="Getting Started with the FabricatorStudio Maya Toolset">
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}
       </h1>
-      <p class="gs-subtitle">with the FabricatorStudio Toolset</p>
+      <p class="gs-subtitle">with the FabricatorStudio Maya Toolset</p>
       <p class="dd-summary gs-intro">Build a game character the way a professional studio does, from an empty project to an in-engine asset, without a pipeline team behind you. <b>Five steps</b>, each with its own tool and its own docs.</p>
     </header>
 

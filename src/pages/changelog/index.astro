@@ -154,7 +154,7 @@ const RELEASES = [
     date: '2026-07-20',
     dateLabel: '2026 · 07 · 20',
     tag: 'First release',
-    lede: 'The first public release of FabricatorStudio: a Maya rigging, skinning, animation, and export pipeline, <b>free for solo developers, indies, and small teams</b>.',
+    lede: 'The first public release of the FabricatorStudio Maya Toolset: a Maya rigging, skinning, animation, and export pipeline, <b>free for solo developers, indies, and small teams</b>.',
     groups: [
       {
         label: 'RIGGING',
@@ -210,19 +210,22 @@ const RELEASES = [
 ---
 <BaseLayout
   title="Changelog | FabricatorStudio"
-  description="Every FabricatorStudio release, what changed in it, and when it shipped."
+  description="Every FabricatorStudio Maya Toolset release, what changed in it, and when it shipped."
 >
   <NavBar />
 
   <article class="dd cl">
     <header class="dd-header">
-      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; CHANGELOG</div>
+      <div class="dd-eyebrow">MAYA TOOLSET &middot; CHANGELOG</div>
       <h1 class="dd-title" aria-label={TITLE}>
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}
       </h1>
-      <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
+      {/* Scoped to the toolset (Adrian, 2026-07-30). Armature ships its own version line
+          (2.0.0) and its releases are announced in the Discord changelog channel; if they
+          ever want a page here, it is a SECOND changelog, not more rows in this one. */}
+      <p class="dd-summary">What shipped in the Maya Toolset, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
     </header>
 
     {RELEASES.map((rel) => (

@@ -109,7 +109,10 @@ const FAQ = [
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}
       </h1>
-      <p class="dd-summary lc-lede">FabricatorStudio is free for solo developers, indies, and small teams.</p>
+      {/* Names the PRODUCT, not the studio (Adrian, 2026-07-30). With Armature shipping as a
+          second product on its own threshold, "FabricatorStudio is free" stopped being true:
+          the studio is not free, one of its two products is. */}
+      <p class="dd-summary lc-lede">The FabricatorStudio Maya Toolset is free for solo developers, indies, and small teams.</p>
       {/* Scoping line added 2026-07-28. Armature is a separate product on a different threshold
           ($100k) and a different model (per seat), and this page reads as the definitive answer
           for the whole studio. Without this a reader leaves with a confident wrong number. */}

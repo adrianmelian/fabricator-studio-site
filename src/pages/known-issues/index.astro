@@ -97,25 +97,27 @@ const LIMITS = [
 ---
 <BaseLayout
   title="Known issues | FabricatorStudio"
-  description="Every bug we know about in FabricatorStudio v1, with a workaround for each, and an honest account of what has and has not been tested."
+  description="Every bug we know about in the FabricatorStudio Maya Toolset v1, with a workaround for each, and an honest account of what has and has not been tested."
 >
   <NavBar />
 
   <article class="dd ki">
     <header class="dd-header">
-      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; KNOWN ISSUES</div>
+      <div class="dd-eyebrow">MAYA TOOLSET &middot; KNOWN ISSUES</div>
       <h1 class="dd-title" aria-label={TITLE}>
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}
       </h1>
-      <p class="dd-summary">Everything we know is wrong with v1, and what to do about it in the meantime.</p>
+      {/* Scoped to the toolset (Adrian, 2026-07-30): Armature is a separate product with its
+          own version line and its own known-issues list in the Discord. */}
+      <p class="dd-summary">Everything we know is wrong with the Maya Toolset v1, and what to do about it in the meantime.</p>
     </header>
 
     <section class="ki-honest" aria-labelledby="ki-honest-t">
       <div class="ki-honest__label">FOUNDING USERS</div>
       <h2 id="ki-honest-t" class="ki-honest__title">Where this actually is</h2>
-      <p class="ki-prose">FabricatorStudio v1 is production tested. It has rigged real characters and shipped them into Unreal. But it has been tested by <b>one person, on one machine, on one version of Maya</b>. You are among the first people running it anywhere else, which is exactly why some of this list exists and why the rest of it will grow.</p>
+      <p class="ki-prose">The FabricatorStudio Maya Toolset v1 is production tested. It has rigged real characters and shipped them into Unreal. But it has been tested by <b>one person, on one machine, on one version of Maya</b>. You are among the first people running it anywhere else, which is exactly why some of this list exists and why the rest of it will grow.</p>
       <p class="ki-prose">That is not a disclaimer, it is the reason your bug reports matter more right now than they ever will again. <b class="b-plasma">If something breaks, please say so.</b></p>
       <a class="ki-cta" href={TRACKER} target="_blank" rel="noopener">Report an issue &rarr;</a>
     </section>
