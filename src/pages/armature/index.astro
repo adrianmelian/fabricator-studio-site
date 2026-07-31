@@ -30,7 +30,6 @@ import stageFit from '../../assets/armature/stage-fit.png';
 import stageSkeleton from '../../assets/armature/stage-skeleton.png';
 import stageSkin from '../../assets/armature/stage-skin.png';
 import stageExport from '../../assets/armature/stage-export.png';
-import proofUnreal from '../../assets/armature/proof-unreal.png';
 import portrait from '../../assets/about/adrian.png';
 
 // LAUNCH BLOCK (2026-08-03, R10). The early-access MailerLite signup is retired: the product
@@ -336,13 +335,31 @@ const STAGES = [
               </div>
             </div>
 
-            <figure class="slot status__proof reveal">
-              <Image
-                src={proofUnreal}
-                alt="A samurai character exported from Armature, open in Unreal Engine on a Control Rig generated from its export data"
-                widths={[640, 1280]}
-                sizes="(min-width: 720px) 52vw, 92vw"
-              />
+            {/* The control-rig clip, shared with the homepage proof card (Adrian, 2026-07-30),
+                replacing the static Unreal still. It shows the same character and rig in Maya
+                and then in Unreal, which is the claim this panel makes, and a still could only
+                ever show one of the two.
+
+                Poster by default, loop on hover or keyboard focus, NOT autoplay: the hero on
+                this page already autoplays the teaser, and preload="none" means a reader who
+                never hovers pays nothing. Same convention as the homepage cards, including
+                bailing entirely on touch and under reduced motion, where the poster is the
+                whole experience. */}
+            <figure class="slot status__proof reveal" id="proof-clip">
+              <video
+                class="status__vid"
+                src="/proof/proof-controlrig.mp4"
+                poster="/proof/proof-controlrig.jpg"
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-label="The same character and control rig shown in Maya and then in Unreal, both generated from one Armature export."
+              ></video>
+              {/* Always visible, not hover-revealed: a hover-to-play clip that gives no hint
+                  it can play reads as a still. Same bottom-right magma badge as the
+                  walkthrough cards above, so "this moves" looks the same everywhere here. */}
+              <span class="status__play" aria-hidden="true">&#9654;</span>
               <figcaption class="slot__tag">PROOF</figcaption>
             </figure>
           </div>
@@ -647,6 +664,27 @@ const STAGES = [
         v.removeAttribute('autoplay');
         v.pause();
       });
+    }
+
+    // The proof clip: poster by default, loop on hover or keyboard focus. Same convention as
+    // the homepage proof cards. Bails on touch and under reduced motion, where the poster is
+    // the whole experience and preload="none" means the clip is never fetched at all.
+    var proofFig = document.getElementById('proof-clip');
+    var proofVid = proofFig && proofFig.querySelector('video');
+    if (proofVid && !reduced.matches && window.matchMedia('(hover: hover)').matches) {
+      var playProof = function () {
+        var p = proofVid.play();
+        // Autoplay policy can still reject a programmatic play(); swallow it rather than
+        // throwing an unhandled rejection into the console on every hover.
+        if (p && p.catch) p.catch(function () {});
+      };
+      var stopProof = function () { proofVid.pause(); };
+      proofFig.addEventListener('pointerenter', playProof);
+      proofFig.addEventListener('pointerleave', stopProof);
+      proofFig.addEventListener('focusin', playProof);
+      proofFig.addEventListener('focusout', stopProof);
+      // Keyboard reachable, since the figure is not otherwise focusable.
+      proofFig.setAttribute('tabindex', '0');
     }
 
     /* ---- enlargeable shots and the teaser player ---- */
@@ -1628,8 +1666,40 @@ const STAGES = [
     color: var(--bone-dim);
     text-wrap: pretty;
   }
+  /* 4:3, because the clip is 1200x900. Same rule the 16:10 still followed: the slot takes the
+     asset's shape rather than cropping it. */
   .status__proof {
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 4 / 3;
+  }
+  .status__vid {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .status__play {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: 46px;
+    height: 46px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--carbon);
+    border: 1px solid var(--magma);
+    color: var(--magma);
+    font-size: 15px;
+    padding-left: 3px;
+    transition:
+      transform 320ms var(--ease-spring),
+      opacity 260ms var(--ease-out);
+  }
+  /* It has done its job once the clip is running. */
+  .status__proof:hover .status__play,
+  .status__proof:focus-within .status__play {
+    opacity: 0;
+    transform: scale(0.9);
   }
 
   /* ---------- studio ---------- */
