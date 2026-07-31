@@ -27,10 +27,18 @@ export const ARMATURE = {
   // Empty renders a "published at release" placeholder instead of a wrong hash.
   sha256: '',
 
-  // The LIVE Stripe payment link, supplied by Adrian on Aug 1. NEVER a test-mode URL: this
-  // value is the only place the Commercial picker reads, so a test link here ships a test
-  // link. Empty renders the Commercial CTA disabled rather than a dead href.
-  stripeCommercial: '',
+  // The LIVE Stripe payment link (R22, seated 2026-07-31). NEVER a test-mode URL: this value
+  // is the only place the Commercial picker reads, so a wrong value here ships everywhere.
+  // Empty renders the Commercial CTA disabled rather than a dead href.
+  //
+  // Two settings on the link that this build depends on:
+  //   - Confirmation redirect goes to /armature/thank-you/, which is what delivers the
+  //     installer and tells the buyer their key is in their inbox.
+  //   - Adjustable quantity is OFF, and must stay off. The licensing Worker issues ONE seat
+  //     per checkout.session.completed and never reads quantity, so a multi-seat purchase
+  //     would take payment for N and issue one. Changing that is a Worker change first and a
+  //     Stripe setting second, never the reverse.
+  stripeCommercial: 'https://buy.stripe.com/00w28qcbzeGWapIcdi4Rq01',
 };
 
 // Data-driven picker rows (ruling 2026-07-28b): the education grant lands later as a third
