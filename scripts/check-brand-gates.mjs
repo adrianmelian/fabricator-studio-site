@@ -82,13 +82,21 @@ for (const f of htmlFiles) {
 // The license honesty rule, mechanized: the built site must never say "open source"
 // (any casing, spacing, or hyphenation) or reference Apache. Raw scan rather than
 // visibleText, so the string dies in metas, alt text, attributes, and comments too.
-// Two sanctioned truths (Adrian's Option A ruling, SITE-LIC-R2 2026-07-18):
+// Three sanctioned truths (Adrian's Option A ruling, SITE-LIC-R2 2026-07-18; the third
+// added 2026-07-30 when the Armature EULA was seated):
 //   1. /licensing discusses the license as a subject, including saying what it is NOT;
 //      that one page is exempt.
 //   2. The canonical four-year BSL promise may appear anywhere, byte-for-byte only, so
 //      any drift in its wording still fails the gate.
+//   3. /armature/eula IS the licence. Its section 10 names the licenses of the third-party
+//      components inside Armature ("permissive licenses such as MIT and Apache 2.0"), which
+//      a contract has to state accurately. The alternative was editing a contract to satisfy
+//      a marketing gate, which is backwards, and R20 forbids altering the delivered text at
+//      all. The exemption is deliberately the PAGE, not the string: a stray "open source"
+//      claim about our own products still fails everywhere else, verified against a planted
+//      violation when this was added.
 const LIC = /open[\s-]+source|apache/i;
-const LIC_EXEMPT_PAGE = /[\\/]licensing[\\/]index\.html$/;
+const LIC_EXEMPT_PAGE = /[\\/](licensing|armature[\\/]eula)[\\/]index\.html$/;
 const FOUR_YEAR = 'Every version becomes fully open source four years after it ships, automatically.';
 for (const f of htmlFiles) {
   if (LIC_EXEMPT_PAGE.test(f)) continue;

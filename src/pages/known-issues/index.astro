@@ -40,6 +40,35 @@ const TRACKER = 'https://github.com/adrianmelian/FabricatorStudio/issues';
 // #22 (AutoSkin install without uv/git) and #23 (uninstall leftover) SHIPPED FIXED in
 // v1.0.1 (2026-07-21). Removed from this list and recorded on the changelog instead; the
 // GitHub issues are closed. This is the founding-users loop closing: reported, fixed, shipped.
+// ARMATURE (the standalone app) rows, added 2026-07-30 per R21. They live HERE rather than
+// in a new Discord #known-issues channel, because two systems carrying the same list
+// guarantees drift and a known-issues page that disagrees with itself is worse than none.
+//
+// Kept in their own banded section, NOT merged into the toolset's list: different products,
+// different version lines, and a reader who conflates them files a bug against the wrong one.
+//
+// Copy is COPY-LAUNCH.md §3, shipped as written. A fourth row on import formats is drafted
+// there and must NOT publish until the rehearsal confirms it against the built artifact,
+// which is why it is absent rather than commented in: a row nobody can see is a row nobody
+// can accidentally ship.
+const ARMATURE_ISSUES = [
+  {
+    title: 'The installer is unsigned',
+    detail:
+      'Windows SmartScreen will warn you. Click More info, then Run anyway. The SHA-256 is published beside the download if you want to verify the file. An EV certificate is on the way.',
+  },
+  {
+    title: 'AutoSkin is a separate download',
+    detail:
+      'The skinning model is not bundled with the installer. Armature fetches it from the model’s own publisher the first time you use it, so the app stays small and the weights come from the people who trained them.',
+  },
+  {
+    title: 'Activation is online only right now',
+    detail:
+      'Armature checks your licence with our server. If you are on an airgapped or NDA machine, mail us before you buy: offline licence files are designed and coming, and they are not being issued yet.',
+  },
+];
+
 const TRACKED = [
   {
     id: 15,
@@ -122,9 +151,31 @@ const LIMITS = [
       <a class="ki-cta" href={TRACKER} target="_blank" rel="noopener">Report an issue &rarr;</a>
     </section>
 
+    {/* Armature first and visually banded, because it is the newest product and the one a
+        launch-week arrival is most likely here about. The band is what stops a reader
+        reading these as toolset issues. */}
+    <section class="ki-section ki-armature" aria-labelledby="ki-arm-t">
+      <div class="ki-head">
+        <h2 id="ki-arm-t" class="ki-head__label ki-head__label--ember">ARMATURE</h2>
+        <p class="ki-head__sub">The standalone app, version 2.0.0</p>
+      </div>
+      {/* "the <b>" stays on ONE line: Astro trims the whitespace before an inline tag at the
+          start of a wrapped line, which welds it into "theMaya Toolset". */}
+      <p class="ki-prose ki-armature__note">
+        Separate product, separate version line. Everything below this section is the <b>Maya Toolset</b>. Report Armature issues in the <a href="/discord/">Discord</a>.
+      </p>
+
+      {ARMATURE_ISSUES.map((it) => (
+        <div class="ki-card">
+          <h3 class="ki-card__title">{it.title}</h3>
+          <p class="ki-prose ki-prose--card">{it.detail}</p>
+        </div>
+      ))}
+    </section>
+
     <section class="ki-section" aria-labelledby="ki-open-t">
       <div class="ki-head">
-        <h2 id="ki-open-t" class="ki-head__label ki-head__label--ember">OPEN ISSUES</h2>
+        <h2 id="ki-open-t" class="ki-head__label ki-head__label--ember">MAYA TOOLSET: OPEN ISSUES</h2>
         <p class="ki-head__sub">Tracked defects, each with a workaround</p>
       </div>
 
@@ -147,7 +198,7 @@ const LIMITS = [
 
     <section class="ki-section" aria-labelledby="ki-limits-t">
       <div class="ki-head">
-        <h2 id="ki-limits-t" class="ki-head__label ki-head__label--plasma">KNOWN LIMITATIONS</h2>
+        <h2 id="ki-limits-t" class="ki-head__label ki-head__label--plasma">MAYA TOOLSET: KNOWN LIMITATIONS</h2>
         <p class="ki-head__sub">Understood edges, not defects to report</p>
       </div>
 
@@ -239,6 +290,18 @@ const LIMITS = [
   .ki-cta:hover { background: var(--plasma-dim); }
 
   .ki-section { margin: 0 0 3.5rem; }
+
+  /* The band that separates the two products. An ember rail plus a tint, so the boundary is
+     visible at a glance rather than only readable in the headings. */
+  .ki-armature {
+    border-left: 3px solid var(--ember);
+    border-radius: 0 16px 16px 0;
+    background: linear-gradient(90deg, rgba(255, 122, 61, 0.06), rgba(255, 122, 61, 0));
+    padding: 1.5rem 1.75rem 0.5rem;
+  }
+  .ki-armature__note { margin-bottom: 1.25rem; font-size: 0.9375rem; }
+  .ki-armature__note b { color: var(--bone); }
+  .ki-armature__note a { color: var(--plasma); }
   .ki-head { display: flex; align-items: baseline; gap: 1.15rem; flex-wrap: wrap; margin: 0 0 1.5rem; }
   .ki-head__label {
     font-family: var(--font-mono);

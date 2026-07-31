@@ -492,6 +492,11 @@ const STAGES = [
       <dialog class="shot-dialog picker" id="picker-dialog" aria-labelledby="picker-title">
         <div class="picker__inner">
           <p class="picker__head" id="picker-title">Download Armature {ARMATURE.version}</p>
+          {/* R19: the refund line does its job by reducing hesitation AT the checkout, so it
+              sits inside the picker, above the Commercial button, rather than only on the
+              pricing page a buyer may never revisit. On the page, never in the licence: here
+              it stays a page edit, in a contract it becomes an amendment. */}
+          <p class="picker__refund">Fourteen days, no questions. If Armature is not what you needed, email us within fourteen days of buying and we will refund you.</p>
           <ul class="picker__rows">
             {PICKER_ROWS.map((row) => (
               <li class="picker__row">
@@ -1302,6 +1307,16 @@ const STAGES = [
     color: var(--bone);
     margin-bottom: 16px;
     padding-right: 40px;
+  }
+  .picker__refund {
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--bone-dim);
   }
   .picker__rows {
     list-style: none;

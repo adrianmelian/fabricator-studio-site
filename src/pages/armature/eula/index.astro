@@ -1,25 +1,28 @@
 ---
 // The Armature EULA page: ONE EULA, TWO NAMED GRANTS (Indie / Commercial).
 //
-// SHELL ONLY until the EULA lane's final text lands (R11, due Aug 1). The text arrives from
-// that lane and is seated here as a paste; nothing on this page is drafted locally, per the
-// R10 rule that the site lane never writes licence language. The grant section skeleton below
-// mirrors the two picker rows so the paste is mechanical.
+// TEXT SEATED 2026-07-30 per R20. Source of truth is the delivered file, copied into this
+// repo unmodified at src/legal/armature-eula.md, and RENDERED rather than retyped: R20 is
+// explicit that a conversion must come from the file and that the numbered sections must not
+// be reflowed, because section 13 cross-references section 7 by clause letter.
 //
-// This page must render the final text before the armature-launch branch merges. Merging the
-// shell with placeholder copy live is a launch-gate failure.
+// To update: replace src/legal/armature-eula.md from the EULA seat's delivery. Never edit
+// the licence text in this file.
+//
+// Verified against the delivery independently: 20 numbered sections, section 7 runs a to f,
+// zero em-dashes, no draft or 0.x markers, no Early Access, no PyInstaller.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import NavBar from '../../../components/NavBar.astro';
 import Footer from '../../../components/Footer.astro';
 import '../../../styles/designed-doc.css';
+import { Content as Eula } from '../../../legal/armature-eula.md';
 
 const TITLE = 'EULA';
 const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
-// Set to the shipping date when the final text is seated.
-const UPDATED = 'PENDING-EULA-LANE';
+const UPDATED = 'Version 1.0, effective 1 August 2026';
 ---
 <BaseLayout
   title="Armature EULA | FabricatorStudio"
@@ -33,15 +36,17 @@ const UPDATED = 'PENDING-EULA-LANE';
       <h1 class="dd-title" aria-label={TITLE}>
         {titleGlyphs.map((g) => <span class={g.cls}>{g.ch}</span>)}
       </h1>
-      <p class="dd-summary">One licence, two grants. Last updated {UPDATED}.</p>
+      <p class="dd-summary">One licence, two grants. {UPDATED}.</p>
+      <p class="eu-crumb">
+        Prices are on the <a href="/licensing/">pricing page</a>, and what activation sends is in
+        the <a href="/privacy/">privacy policy</a>. Neither lives in the licence on purpose: on a
+        page they stay a page edit, in a contract they become an amendment.
+      </p>
     </header>
 
-    {/* ==== EULA LANE TEXT LANDS HERE (R11) ====
-        Structure ready for the paste: full agreement text, with the two named grants
-        (Indie, Commercial) as the load-bearing sections. Do not draft content here. */}
-    <section class="eu-body" aria-label="Agreement text">
-      <p class="eu-pending">The final agreement text is seated here at the release cut.</p>
-    </section>
+    <div class="eu-body">
+      <Eula />
+    </div>
   </article>
 
   <Footer />
@@ -49,13 +54,45 @@ const UPDATED = 'PENDING-EULA-LANE';
 
 <style>
   .eu { padding-bottom: 2rem; }
-  /* Centered header, matching licensing and privacy (Adrian, 2026-07-30). */
   .eu .dd-header { align-items: center; text-align: center; }
   .eu .dd-title { justify-content: center; }
   .eu .dd-summary { margin-inline: auto; }
-  /* Same column discipline as /privacy/: full 72rem column, centered. Without width:100% the
-     flex parent sizes this to its content, so a short placeholder floats as a narrow blob and
-     the real agreement text would set its own width per paragraph block. */
-  .eu-body { width: 100%; max-width: 72rem; margin: 2rem auto 0; }
-  .eu-pending { color: var(--bone-dim); line-height: 1.7; }
+  .eu-crumb { margin: 0 auto; max-width: 44rem; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); }
+  .eu-crumb a { color: var(--plasma); }
+
+  .eu-body {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    color: var(--bone-dim);
+  }
+
+  /* The source markdown opens with its own H1. The page already carries one in the designed
+     header, so this is hidden rather than deleted: the file is the contract of record and
+     stays byte-identical to what the EULA seat delivered. */
+  .eu-body :global(h1) { display: none; }
+
+  .eu-body :global(h3) {
+    margin: 2.25rem 0 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.125rem;
+    color: var(--bone);
+    scroll-margin-top: 5rem;
+  }
+  .eu-body :global(p) { margin: 0 0 1rem; line-height: 1.75; text-wrap: pretty; }
+  .eu-body :global(strong) { color: var(--bone); }
+  .eu-body :global(a) { color: var(--plasma); }
+  .eu-body :global(ul), .eu-body :global(ol) { margin: 0 0 1rem; padding-left: 1.5rem; line-height: 1.75; }
+  .eu-body :global(li) { margin-bottom: 0.5rem; }
+  .eu-body :global(hr) { border: 0; border-top: 1px solid var(--iron-2); margin: 2rem 0; }
+  .eu-body :global(table) { width: 100%; border-collapse: collapse; margin: 0 0 1.25rem; font-size: 0.9375rem; }
+  .eu-body :global(th), .eu-body :global(td) {
+    border: 1px solid var(--iron-2);
+    padding: 0.6rem 0.9rem;
+    text-align: left;
+    vertical-align: top;
+  }
+  .eu-body :global(th) { background: var(--iron-2); color: var(--bone); }
+  .eu-body :global(code) { font-family: var(--font-mono); color: var(--plasma); }
 </style>
