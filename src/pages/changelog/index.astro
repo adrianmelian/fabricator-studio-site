@@ -224,8 +224,13 @@ const RELEASES = [
       </h1>
       {/* Scoped to the toolset (Adrian, 2026-07-30). Armature ships its own version line
           (2.0.0) and its releases are announced in the Discord changelog channel; if they
-          ever want a page here, it is a SECOND changelog, not more rows in this one. */}
+          ever want a page here, it is a SECOND changelog, not more rows in this one.
+
+          The entries below say "Armature" because that is what shipped, including quoted
+          error strings and UI labels. Rewriting them would make the history false, so the
+          note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped in the Maya Toolset, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
+      <p class="dd-summary cl-note">Entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. It is now <a href="/docs/tools/armature/">Skeleton Building</a>, and it is not the standalone <a href="/armature/">Armature app</a>.</p>
     </header>
 
     {RELEASES.map((rel) => (
@@ -269,6 +274,12 @@ const RELEASES = [
 <style>
   /* Centered page header, matching the licensing page's .lc .dd-header rule. */
   .cl .dd-header { align-items: center; text-align: center; }
+
+  /* The naming note: quieter than the summary, since it is an aside about a rename rather
+     than part of the page's promise. */
+  .cl-note { font-size: 0.875rem; color: var(--bone-faint); }
+  .cl-note b { color: var(--bone-dim); }
+  .cl-note a { color: var(--plasma); }
 
   .cl-rel { display: grid; grid-template-columns: 16rem 1fr; gap: 3rem; align-items: start; margin: 0 0 4rem; }
 

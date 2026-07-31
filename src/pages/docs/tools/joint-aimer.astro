@@ -44,7 +44,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       <div class="ja-what">
         <div class="ja-what__copy">
           <p class="dd-prose">Joint Aimer puts a visible <b>XYZ arrow on each joint</b> so you can preview its orientation before committing. Point each aimer at the next joint, or dial in a custom twist.</p>
-          <p class="dd-prose">Then click <b class="b-plasma">Orient All Joints</b> to bake it into clean rotation. It's the tool for orienting hand-built or imported skeletons. Inside Fabricator it runs automatically when building an Animation Rig from the Armature Rig.</p>
+          <p class="dd-prose">Then click <b class="b-plasma">Orient All Joints</b> to bake it into clean rotation. It's the tool for orienting hand-built or imported skeletons. Inside Fabricator it runs automatically when building an Animation Rig from the skeleton.</p>
           <!-- Maya's viewport axis colors, quoted deliberately: this legend depicts the
                tool's own XYZ arrows, the same way a screenshot would. -->
           {/* Swatches are inline SVG imagery, not CSS accents: they QUOTE Maya's viewport
@@ -115,7 +115,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         <p class="dd-lede">From aimer to baked rotation</p>
       </div>
       <ol class="dd-steps">
-        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Aimers are <b>automatically built</b> into the Armature System, no setup needed.</p></li>
+        <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Aimers are <b>automatically built</b> into the skeleton stage, no setup needed.</p></li>
         <li class="dd-step dd-step--ember"><span class="dd-step__num">2</span><p>Set each aimer's <b class="b-ember">Aim Target</b>: World, Local, Parent, or any child joint.</p></li>
         <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>Run <b class="b-plasma">Aim Joints at Aimers</b> to aim on the fly, or just build your rig and joints aim at the aimers automatically.</p></li>
         <li class="dd-step dd-step--plasma"><span class="dd-step__num">4</span><p>Click <b>Orient All Joints</b> to bake into clean, engine-ready rotations.</p></li>

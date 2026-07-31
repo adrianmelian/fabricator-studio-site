@@ -21,13 +21,17 @@ const SUMMARY =
 
 // The outlined tri-color treatment cycles bone / plasma / ember per glyph (the brand
 // signature). Rendered from data so the heading stays one string in the markup.
-const TITLE = 'ARMATURE RIG';
+// Renamed from ARMATURE RIG (Adrian, 2026-07-30). "Armature" now names the standalone app,
+// and one word cannot mean a free Maya stage and a $149 product on the same site. The URL is
+// deliberately unchanged: the slug tracks the source markdown in the Maya repo, which the
+// docs sync owns, and inbound links already point here.
+const TITLE = 'SKELETON BUILDING';
 const TRI = ['t-bone', 't-plasma', 't-ember'];
 // The cycle counts letters only, continuing across word gaps (Claude Design's treatment).
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 ---
-<DocsLayout title="Armature | FabricatorStudio Docs" description={SUMMARY}>
+<DocsLayout title="Skeleton Building | FabricatorStudio Docs" description={SUMMARY}>
   <article class="dd">
     <a class="dd-breadcrumb" href="/docs/">Docs</a>
 
@@ -39,6 +43,9 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         )}
       </h1>
       <p class="dd-summary">{SUMMARY}</p>
+      {/* The Maya UI still labels this stage Armature, so a user reading here and looking at
+          their toolbar is never lost. It also states plainly that this is not the app. */}
+      <p class="dd-summary dd-summary--note">Labelled <b>Armature</b> in the Fabricator UI. It is a stage of the Maya rigging system, not the standalone <a href="/armature/">Armature app</a>.</p>
     </header>
 
     <!-- No standalone Armature upload exists; the Fabricator Quick Start covers the
@@ -47,14 +54,14 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       video={tutorialByName('Fabricator')}
       compact
       title="Fabricator: The Animation Rig Authoring Framework"
-      sub="Covers the armature workflow: joints, posing, and Build Rig."
+      sub="Covers the skeleton workflow: joints, posing, and Build Rig."
     />
 
     <!-- WHAT: author -> build -> built, as a flow -->
     <section class="dd-panel" aria-labelledby="dd-what">
       <div class="dd-panel__head">
         <h2 id="dd-what" class="dd-label dd-label--plasma">WHAT</h2>
-        <p class="dd-lede">Every rig starts in the Armature</p>
+        <p class="dd-lede">Every rig starts with the skeleton</p>
       </div>
       <div class="dd-flow">
         <div class="dd-flow__step">
@@ -171,6 +178,17 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 <style>
   /* Page-specific: the WHAT flow (author -> build -> built) and the build diagram.
      Everything else comes from src/styles/designed-doc.css. */
+
+  /* The in-UI-label note. Quieter than the summary above it and set on the ember label rail,
+     because it is an aside about naming, not part of the tool's description. */
+  .dd-summary--note {
+    font-size: 0.875rem;
+    color: var(--bone-faint);
+    border-left: 2px solid var(--ember-dim);
+    padding-left: 0.75rem;
+  }
+  .dd-summary--note b { color: var(--bone-dim); }
+  .dd-summary--note a { color: var(--plasma); }
   .dd-flow { display: grid; grid-template-columns: 1fr 2.25rem 1fr 2.25rem 1fr; align-items: start; }
   .dd-flow__step { display: flex; flex-direction: column; gap: 0.6rem; min-width: 0; }
   .dd-flow__arrow { align-self: center; text-align: center; color: var(--plasma); font-size: 1.5rem; font-weight: 800; padding-bottom: 3.5rem; }

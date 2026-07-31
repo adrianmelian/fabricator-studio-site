@@ -107,7 +107,12 @@ export const DOCS_NAV: DocNavGroup[] = [
 // via the naming relay.
 export const DOC_NAV_LABELS: Record<string, string> = {
   'tools/project-setup': 'Mindmeld: Project Setup',
-  'tools/armature': 'Armature: Skeleton Building',
+  // "Armature" as a Maya-side tool name is retired from public copy (Adrian, 2026-07-30):
+  // it now names the standalone app, and one word cannot mean a free Maya stage and a $149
+  // product on the same site. This IS a Fabricator stage, so it takes the same Fabricator
+  // prefix as its sibling below rather than needing an invented name. The Maya UI still
+  // says Armature; the docs page notes that so a user is never lost between the two.
+  'tools/armature': 'Fabricator: Skeleton Building',
   'tools/fabricator': 'Fabricator: Rig Building',
   'tools/autoskin': 'AutoSkin: AI Skinning',
   'tools/ctrl-editor': 'Ctrl Editor: Curve Utilities',
