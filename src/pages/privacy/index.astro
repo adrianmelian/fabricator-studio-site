@@ -141,9 +141,10 @@ const RIGHTS = [
         FabricatorStudio LLC, 13481 Pecos St., Westminster, CO 80234, United States. We make Maya
         pipeline tools and the Armature application, and we publish this site.
       </p>
+      {/* "email" and the link stay on ONE line: Astro trims the whitespace before an inline
+          tag at the start of a wrapped line, which welded these into "emailadrian@...". */}
       <p class="pv-p">
-        If you want to reach us about anything on this page, email
-        <a href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>.
+        If you want to reach us about anything on this page, email <a href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>.
       </p>
     </section>
 
@@ -344,19 +345,38 @@ const RIGHTS = [
 <style>
   .pv { padding-bottom: 2rem; }
 
+  /* Centered header, matching the licensing page's treatment (Adrian, 2026-07-30: the doc
+     pages read as one family only if their headers agree). Body copy stays left-set. */
+  .pv .dd-header { align-items: center; text-align: center; }
+  .pv .dd-title { justify-content: center; }
+  .pv .dd-summary { margin-inline: auto; }
+
+  /* Sections carry an explicit side margin of auto, not 0. base.css centers every <section>
+     with `margin: 0 auto`, and this page used to override it to 0, which left the whole
+     policy flush against the viewport edge while /licensing/, /store/ and /services/ sat
+     centered. `width: 100%` keeps every section on the SAME 72rem column: inside the .dd
+     flex parent, auto side margins alone would size each one to its own content and give the
+     page a ragged left edge. */
+  .pv-short,
+  .pv-section {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+  }
+
   .pv-short {
     border-left: 2px solid var(--plasma);
     background: var(--iron);
     border-radius: 0 14px 14px 0;
     padding: 1.5rem 1.75rem;
-    margin: 2.5rem 0 3rem;
+    margin-block: 2.5rem 3rem;
   }
   .pv-short__title { font-size: 1.125rem; margin: 0 0 0.75rem; color: var(--bone); }
   .pv-short p { margin: 0 0 0.75rem; color: var(--bone-dim); line-height: 1.7; }
   .pv-short p:last-child { margin-bottom: 0; }
   .pv-short__punch { color: var(--bone) !important; }
 
-  .pv-section { margin: 0 0 2.75rem; }
+  .pv-section { margin-block: 0 2.75rem; }
   .pv-section--last { margin-bottom: 1rem; }
 
   .pv-p { color: var(--bone-dim); line-height: 1.7; margin: 0 0 1rem; }

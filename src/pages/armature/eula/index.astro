@@ -49,6 +49,13 @@ const UPDATED = 'PENDING-EULA-LANE';
 
 <style>
   .eu { padding-bottom: 2rem; }
-  .eu-body { margin-top: 2rem; }
+  /* Centered header, matching licensing and privacy (Adrian, 2026-07-30). */
+  .eu .dd-header { align-items: center; text-align: center; }
+  .eu .dd-title { justify-content: center; }
+  .eu .dd-summary { margin-inline: auto; }
+  /* Same column discipline as /privacy/: full 72rem column, centered. Without width:100% the
+     flex parent sizes this to its content, so a short placeholder floats as a narrow blob and
+     the real agreement text would set its own width per paragraph block. */
+  .eu-body { width: 100%; max-width: 72rem; margin: 2rem auto 0; }
   .eu-pending { color: var(--bone-dim); line-height: 1.7; }
 </style>
