@@ -19,7 +19,18 @@ export interface Tutorial {
   tone?: 'plasma' | 'ember';
 }
 
-const yt = (id: string) => ({ href: `https://www.youtube.com/watch?v=${id}`, thumb: `https://i.ytimg.com/vi/${id}/hqdefault.jpg` });
+// THUMBNAILS ARE SELF-HOSTED, and that is a privacy requirement rather than a performance
+// preference (Adrian, 2026-07-30). These used to point at i.ytimg.com, which sent every
+// visitor's IP and user agent to Google on page render, across /tutorials/ and ten docs
+// pages, with no click involved. That made the privacy policy's YouTube row ("Nothing at
+// all unless you start a video") untrue on the live site.
+//
+// The video players elsewhere are already click-to-load facades, so self-hosting these
+// closes the last path by which a reader reaches Google without asking to.
+//
+// To add a video: download https://i.ytimg.com/vi/<id>/hqdefault.jpg into
+// public/tutorial-thumbs/<id>.jpg and add the entry below. Never reference ytimg directly.
+const yt = (id: string) => ({ href: `https://www.youtube.com/watch?v=${id}`, thumb: `/tutorial-thumbs/${id}.jpg` });
 
 export const TUTORIALS: Tutorial[] = [
   { title: 'Getting Started: Installing FabricatorStudio and Setting Up Your First Project', name: 'Getting Started', sub: 'Install and Set Up Your First Project', tag: 'INSTALL', tone: 'ember', ...yt('-QEcq9ycJ0U') },

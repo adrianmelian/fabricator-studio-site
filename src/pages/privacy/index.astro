@@ -21,6 +21,17 @@
 //                   Both are FACADES: no request reaches Google until a visitor presses play,
 //                   so a reader who never starts a video is never exposed to it. Listed anyway,
 //                   because the table describes what CAN happen, not what usually does.
+//
+// THE FACADE CLAIM IS NOW ACTUALLY TRUE (fixed 2026-07-30). It was not: tutorials.ts built
+// its thumbnails from i.ytimg.com, so /tutorials/ and ten docs pages sent every visitor's IP
+// and user agent to Google on render, with no click involved, while this page said "nothing
+// at all unless you start a video". Thumbnails are now self-hosted from public/tutorial-thumbs/.
+// Verified with a CDP network audit over all eight affected pages, scrolled to the bottom to
+// trigger lazy loads: zero requests to any Google host.
+//
+// If you ever add a remote image, script, or embed, re-run that audit before touching this
+// page's wording. A privacy policy that overstates what it protects is worse than one that
+// admits the exposure.
 // If you add ANY third-party script, form endpoint, or payment route, add it to the table
 // below in the same commit. A privacy policy that omits a live processor is worse than none,
 // because it is a written statement that is false.
@@ -89,7 +100,7 @@ const PROCESSORS = [
   { name: 'Resend', does: 'Emails your sign-in links and licence keys', gets: 'Your email address' },
   { name: 'Web3Forms', does: 'Delivers contact form messages to us', gets: 'Your name, email, and message' },
   { name: 'GoatCounter', does: 'Counts page visits', gets: 'Page and browser information, no personal data' },
-  { name: 'YouTube (Google)', does: 'Plays our videos, only if you press play', gets: 'Nothing at all unless you start a video. If you do, YouTube receives your IP address and device information and may set cookies' },
+  { name: 'YouTube (Google)', does: 'Plays our videos, only if you press play', gets: 'Nothing at all unless you start a video or follow a link to YouTube. If you do, YouTube receives your IP address and device information and may set cookies' },
   { name: 'GitHub Pages', does: 'Hosts this website', gets: 'Standard server logs' },
   { name: 'Cloudflare', does: 'Domain routing, file downloads, and our licence service', gets: 'Standard server logs, and the activation data described above' },
 ];
