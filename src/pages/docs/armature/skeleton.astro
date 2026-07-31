@@ -1,0 +1,81 @@
+---
+// Armature docs: the Skeleton station.
+// COPY SOURCE: MrMiata workspace/2026-07-22_authoring-platform/DOCS-SITE-ARMATURE.md.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import ArmatureDocHeader from '../../../components/ArmatureDocHeader.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import '../../../styles/armature-docs.css';
+import stageSkeleton from '../../../assets/armature/stage-skeleton.png';
+
+const PLACEMENT = [
+  ['The manipulator', 'is position and rotation in a single control. Moving a joint re-aims its parent automatically, the same way a rigger would keep chains pointed at their children. Rotation sets the joint’s own frame when you need to override.'],
+  ['C extrudes.', 'Hold C and drag a joint to pull a new child out of it. Hold C on a manipulator axis arrow and the new joint rides that axis only.'],
+  ['V snaps to the mesh.', 'Hold V while dragging and the joint glues to the nearest vertex. When template guide dots are showing, they win over vertices.'],
+  ['X snaps to other joints.', 'Hold X while dragging on one axis and the joint lines up with whichever joint you point at, on that axis only.'],
+  ['Shift moves a joint alone,', 'leaving its children where they are.'],
+  ['Scale that never scales.', 'The R tool spreads a joint’s children apart or draws them together instead of stretching bones. Scaling to zero flattens a chain dead straight, and it is sticky, so a chain you straightened stays straightened.'],
+];
+
+const HELPERS = [
+  ['Generate Joints', 'proposes a full skeleton for your mesh (part of AutoSkin), shown as ghost dots you snap onto or dismiss. Guides are suggestions, never controls.'],
+  ['Centerline guides', 'trace the character’s own center through heads, tails and limbs, following the mesh’s thickness. Tap dots to place joints along them.'],
+  ['Symmetry', 'is always on duty: joints get side names automatically as they cross the center line, and a side chip in the channel box shows each joint’s side and lets you pin it (left, center, right) when the automatic answer is not what you meant.'],
+  ['Range-of-motion exercises', 'exist for every chain, so you can verify a spine or tail bends the way you expect before you ever skin it.'],
+];
+---
+<DocsLayout
+  section="armature"
+  title="Skeleton | Armature Docs"
+  description="The Armature Skeleton station: templates, modules, and the purpose-built tools for placing joints with symmetry, snapping and range-of-motion checks."
+>
+  <article class="dd am">
+    <a class="dd-breadcrumb" href="/docs/armature/">Armature docs</a>
+
+    <ArmatureDocHeader
+      eyebrow="ARMATURE &middot; STATION 2"
+      title="SKELETON"
+      summary="Templates place a starting skeleton, modules attach where you drop them, and every placement tool is one keystroke deep."
+    />
+
+    <section class="am-section">
+      <div class="am-split">
+        <figure class="am-shot">
+          <Image src={stageSkeleton} alt="The Skeleton station in Armature, with a joint chain placed through a samurai character and the module library open" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
+        </figure>
+        <div>
+          <h2 class="dd-label">TEMPLATES AND MODULES</h2>
+          <p class="am-p">
+            The template library and module library live on the left. Templates place a whole
+            starting skeleton scaled to your character's bounding box. Modules attach to whatever
+            joint you drop them on, and attachment is symmetry-aware: drop an arm on the left
+            clavicle and both arms arrive, each parented to its own side.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="am-section">
+      <h2 class="dd-label">PLACEMENT TOOLS</h2>
+      <ul class="am-list">
+        {PLACEMENT.map(([k, v]) => <li><b>{k}</b> {v}</li>)}
+      </ul>
+    </section>
+
+    <section class="am-section">
+      <h2 class="dd-label">PLACEMENT HELPERS</h2>
+      <ul class="am-list">
+        {HELPERS.map(([k, v]) => <li><b>{k}</b> {v}</li>)}
+      </ul>
+      <p class="am-p">
+        Undo covers everything, including selection changes, so you can always step back to
+        exactly where you were looking.
+      </p>
+    </section>
+
+    <nav class="am-pager" aria-label="Section">
+      <a href="/docs/armature/fitting-room/">&larr; Fitting Room</a>
+      <a href="/docs/armature/skinning/">Skinning &rarr;</a>
+    </nav>
+  </article>
+</DocsLayout>

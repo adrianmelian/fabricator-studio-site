@@ -1,0 +1,91 @@
+---
+// Armature docs: the Skin station, plus AutoSkin.
+// COPY SOURCE: MrMiata workspace/2026-07-22_authoring-platform/DOCS-SITE-ARMATURE.md.
+// AutoSkin's numbers are from the shipping code: a ~9 GB one-time component, NVIDIA GPU
+// with 6 GB+ VRAM (8 GB recommended). Do not re-round them.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import ArmatureDocHeader from '../../../components/ArmatureDocHeader.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import '../../../styles/armature-docs.css';
+import stageSkin from '../../../assets/armature/stage-skin.png';
+
+const PASSES = [
+  ['Create new pass', 'adds a fresh version alongside the others. Nothing is overwritten.'],
+  ['Overwrite current', 're-solves into the active pass and keeps its name. One undo brings the old weights back.'],
+  ['Compare', 'shows two passes side by side on the same exercise, so "which skin is better" is something you see, not something you remember.'],
+];
+
+const REFINE = [
+  ['Painting', 'with Add and Replace that mean what they say: the influence you paint reaches exactly the value you asked for, locked influences never move, and the remainder is taken proportionally from unlocked ones.'],
+  ['Flood', 'applies the same operation to a whole selection. Grow and shrink the selection ring by ring with Shift + > and Shift + <.'],
+  ['Hammer and Chisel', 'smooths weights toward the selection average, with falloff profiles for soft domes and hard peaks.'],
+  ['The wiggle', 'lets you grab any joint in the Skin station and pose it to see deformation at a spot the exercises do not cover. Scrub the timeline and it snaps back. Your animation preview is never contaminated by a test pose, and undo pops the test pose first.'],
+];
+---
+<DocsLayout
+  section="armature"
+  title="Skinning | Armature Docs"
+  description="Skinning in Armature: AutoSkin generates weights on your own GPU, every result is a versioned pass, and painting, flooding and smoothing refine whichever pass is active."
+>
+  <article class="dd am">
+    <a class="dd-breadcrumb" href="/docs/armature/">Armature docs</a>
+
+    <ArmatureDocHeader
+      eyebrow="ARMATURE &middot; STATION 3"
+      title="SKINNING"
+      summary="Generate weights on your own GPU, keep every result as a version you can compare, and refine whichever pass is active."
+    />
+
+    <section class="am-section">
+      <div class="am-split">
+        <figure class="am-shot">
+          <Image src={stageSkin} alt="The Skin station in Armature, showing generated weights on a samurai character with the influence list and weight brush" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
+        </figure>
+        <div>
+          <h2 class="dd-label">THE PASS LIBRARY</h2>
+          <p class="am-p">
+            Generate Skin computes weights with <b>AutoSkin</b>, a local AI engine that runs on
+            your own GPU. Results land in the pass library:
+          </p>
+          <ul class="am-list">
+            {PASSES.map(([k, v]) => <li><b>{k}</b> {v}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="am-section">
+      <h2 class="dd-label">REFINEMENT TOOLS</h2>
+      <p class="am-p">These work on whichever pass is active.</p>
+      <ul class="am-list">
+        {REFINE.map(([k, v]) => <li><b>{k}</b> {v}</li>)}
+      </ul>
+      <p class="am-p">
+        The loop is the moat: move joints, re-skin, compare, keep. Because passes are versioned,
+        fixing a joint placement never costs you a skin you liked.
+      </p>
+    </section>
+
+    <section class="am-section" id="autoskin">
+      <h2 class="dd-label">AUTOSKIN: THE AI ENGINE, ON YOUR MACHINE</h2>
+      <p class="am-p">
+        AutoSkin generates skin weights and can propose full skeletons. It runs entirely on your
+        own GPU. Nothing about your characters is uploaded anywhere.
+      </p>
+      <p class="am-p">
+        It is a <b>one-time optional download</b> of roughly 9 GB (the inference engine and its
+        model weights), offered on first launch and always available later under Generate Skin.
+        Armature installs it, proves it end to end with a real test rig, and turns the feature on.
+        The download resumes where it left off if interrupted, and everything else in Armature
+        works without it.
+      </p>
+      <p class="am-note">Requirements: an NVIDIA GPU with at least 6 GB of VRAM (8 GB recommended).</p>
+    </section>
+
+    <nav class="am-pager" aria-label="Section">
+      <a href="/docs/armature/skeleton/">&larr; Skeleton</a>
+      <a href="/docs/armature/export/">Export &rarr;</a>
+    </nav>
+  </article>
+</DocsLayout>

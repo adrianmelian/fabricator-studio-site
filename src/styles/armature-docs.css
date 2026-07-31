@@ -1,0 +1,101 @@
+/* src/styles/armature-docs.css
+   Shared furniture for the five Armature docs pages, so the section is one visual thing and
+   a spacing change happens once. Layered on designed-doc.css, which each page also imports;
+   everything here is am-namespaced. */
+
+.am-crumb { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
+.am-crumb a { color: var(--plasma); }
+
+.am-thesis {
+  border-left: 2px solid var(--plasma);
+  background: var(--iron);
+  border-radius: 0 14px 14px 0;
+  padding: 1.5rem 1.75rem;
+}
+.am-thesis p { margin: 0; color: var(--bone-dim); line-height: 1.7; text-wrap: pretty; }
+.am-thesis b { color: var(--bone); }
+
+.am-section { scroll-margin-top: 5rem; }
+.am-p { margin: 0 0 1rem; color: var(--bone-dim); line-height: 1.7; text-wrap: pretty; }
+.am-p a { color: var(--plasma); }
+.am-p b { color: var(--bone); }
+.am-sub {
+  margin: 1.25rem 0 0.5rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  font-size: 0.8125rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ember);
+}
+.am-note { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--bone-faint); line-height: 1.6; }
+.am-note a { color: var(--plasma); }
+
+.am-steps, .am-list { color: var(--bone-dim); line-height: 1.7; padding-left: 1.25rem; margin: 0 0 1rem; }
+.am-steps li, .am-list li { margin-bottom: 0.6rem; }
+.am-steps b, .am-list b { color: var(--bone); }
+
+/* The walkthrough cards stack: VideoFeature is a full-width panel, so three of them need
+   breathing room rather than a grid. */
+.am-vids { display: flex; flex-direction: column; gap: 1.25rem; }
+
+/* Station cards on the landing page. */
+.am-cards { display: grid; gap: 0.875rem; }
+@media (min-width: 760px) { .am-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.am-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  padding: 1.25rem 1.5rem;
+  border-radius: 14px;
+  border: 1px solid var(--iron-2);
+  background: linear-gradient(90deg, var(--iron), var(--carbon));
+  text-decoration: none;
+  transition: border-color var(--t-base) var(--ease-out);
+}
+.am-card:hover { border-color: var(--plasma); }
+.am-card__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
+.am-card__line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+.am-card__cta { margin-top: 0.35rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; color: var(--plasma); }
+
+/* Station pages: a shot beside its copy, stacking on a phone. */
+.am-split { display: grid; gap: 1.5rem; align-items: start; }
+@media (min-width: 900px) { .am-split { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.am-shot {
+  margin: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--iron-2);
+  background: var(--iron);
+  box-shadow: var(--shadow-md);
+}
+.am-shot img { display: block; width: 100%; height: auto; }
+
+.am-table { border: 1px solid var(--iron-2); border-radius: 14px; overflow: hidden; margin: 0 0 0.5rem; }
+.am-table__head, .am-table__row {
+  display: grid;
+  grid-template-columns: 14rem 1fr;
+  gap: 1rem;
+  padding: 0.75rem 1.25rem;
+  align-items: start;
+}
+.am-table__head {
+  background: var(--iron-2);
+  color: var(--bone);
+  font-size: 0.8125rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.am-table__row { border-top: 1px solid var(--iron-2); color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; }
+.am-table__k { color: var(--bone); }
+.am-table__k code { font-family: var(--font-mono); color: var(--plasma); }
+
+/* Previous / next, so the five pages read as a path rather than a pile. */
+.am-pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-top: 1.5rem; border-top: 1px solid var(--iron-2); }
+.am-pager a { font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--plasma); text-decoration: none; }
+.am-pager a:hover { color: var(--plasma-dim); }
+
+@media (max-width: 40rem) {
+  .am-table__head { display: none; }
+  .am-table__row { grid-template-columns: 1fr; gap: 0.25rem; padding: 1rem 1.25rem; }
+}

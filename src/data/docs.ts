@@ -98,6 +98,33 @@ export const DOCS_NAV: DocNavGroup[] = [
   },
 ];
 
+// The Armature docs nav (2026-07-30). Plain hrefs, not collection ids: these pages are
+// hand-built .astro, not synced markdown, so DocsSidebar renders them without a
+// getCollection lookup. Order is the order of the work.
+export interface ArmatureNavItem { href: string; label: string }
+export interface ArmatureNavGroup { label: string; items: ArmatureNavItem[] }
+
+export const ARMATURE_NAV: ArmatureNavGroup[] = [
+  {
+    label: 'Armature',
+    items: [
+      { href: '/docs/armature/', label: 'Getting Started' },
+      { href: '/docs/armature/fitting-room/', label: 'Fitting Room' },
+      { href: '/docs/armature/skeleton/', label: 'Skeleton' },
+      { href: '/docs/armature/skinning/', label: 'Skinning' },
+      { href: '/docs/armature/export/', label: 'Export' },
+    ],
+  },
+  {
+    label: 'More',
+    items: [
+      { href: '/armature/', label: 'Product page' },
+      { href: '/armature/eula/', label: 'EULA' },
+      { href: '/docs/maya/', label: 'Maya Toolset docs' },
+    ],
+  },
+];
+
 // Site-side display-name overrides for the sidebar (public naming, ahead of the KS source
 // doc titles). Keyed by collection id. These renames also need to land in the source docs
 // via the naming relay; until then the doc page still titles itself with the source name.

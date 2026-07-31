@@ -46,10 +46,24 @@ export const TUTORIALS: Tutorial[] = [
   { title: 'Turn AI Generated Characters Into Game Ready Assets in Minutes', name: 'AI to Game Ready', sub: 'A Full Character, Modelled to In-Engine', tag: 'WORKFLOW', tone: 'ember', ...yt('pJ9abNyp-30') },
 ];
 
+// The Armature walkthroughs (2026-07-30). SEPARATE from TUTORIALS because that list is the
+// Maya toolset's, and /tutorials/ renders it whole: folding these in would put Armature
+// videos on the toolset's tutorials page without anyone deciding to.
+//
+// Thumbnails are Adrian's own end cards, not YouTube's auto-generated frames, downscaled
+// from 2560 to 1280 and encoded as JPEG (the 2560 PNG masters were ~3.5 MB each, which is
+// 200x the weight of the cards they sit beside). Masters live outside the repo at
+// D:/Videos/FabricatorStudio/Armature/<character>/.
+export const ARMATURE_TUTORIALS: Tutorial[] = [
+  { title: 'Rigging a Humanoid in Armature', name: 'Rig a human', sub: 'A full character, fit to export', tag: 'HUMANOID', tone: 'plasma', ...yt('phgnUE3SgFU') },
+  { title: 'Rigging a Non-Humanoid in Armature', name: 'Rig a non-human', sub: 'Module by module, with no template', tag: 'NON-HUMANOID', tone: 'ember', ...yt('xRXiZybznL4') },
+  { title: 'Rigging a Quadruped in Armature', name: 'Rig a quadruped', sub: 'Hind legs, tail, and four feet on the floor', tag: 'QUADRUPED', tone: 'plasma', ...yt('iVrfARhg37w') },
+];
+
 // Lookup for docs-page watch cards (VideoFeature). Throws at build time on a bad
-// name, so a renamed tutorial can't silently drop a card.
+// name, so a renamed tutorial can't silently drop a card. Searches both lists.
 export function tutorialByName(name: string): Tutorial {
-  const t = TUTORIALS.find((x) => x.name === name);
+  const t = [...TUTORIALS, ...ARMATURE_TUTORIALS].find((x) => x.name === name);
   if (!t) throw new Error(`No tutorial named "${name}"`);
   return t;
 }

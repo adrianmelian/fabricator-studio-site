@@ -3,6 +3,12 @@
 // Dispatch of record: MrMiata workspace/2026-07-30_armature-launch-dispatch/RELAY-R10-site.md;
 // picker copy: COPY-LAUNCH.md §2, shipped verbatim per the no-paraphrase rule.
 
+// USD import is CONDITIONAL on the dress rehearsal proving it against the built artifact
+// (R15 item 4 / R18 item 2). The docs quick start and the Formats table both read this one
+// flag, so the page is never wrong either way. Set true only after a .usd mesh is proven to
+// open in the SHIPPING build.
+export const USD_IMPORT = false;
+
 // The STABLE update-feed base (R10-ack item 1). electron-updater fetches
 // `${UPDATE_BASE}latest.yml` unauthenticated; the directory never changes across releases.
 // The Armature lane seats this same string in the app's publish config before t01.

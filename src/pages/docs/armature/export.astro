@@ -1,0 +1,89 @@
+---
+// Armature docs: the Export station, plus the formats table.
+// COPY SOURCE: MrMiata workspace/2026-07-22_authoring-platform/DOCS-SITE-ARMATURE.md.
+//
+// The USD IMPORT rows read the shared USD_IMPORT flag, which stays false until a .usd mesh
+// is proven to open in the SHIPPING build at the dress rehearsal (R15 item 4 / R18 item 2).
+// Flipping that one flag updates this table and the quick start together.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import ArmatureDocHeader from '../../../components/ArmatureDocHeader.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import '../../../styles/armature-docs.css';
+import { USD_IMPORT } from '../../../data/armature';
+import stageExport from '../../../assets/armature/stage-export.png';
+
+const FORMATS = [
+  ['Load', USD_IMPORT ? 'OBJ, FBX, GLB, glTF, USD (mesh only)' : 'OBJ, FBX, GLB, glTF'],
+  ['Export', 'USD (usdc or usda) with skeleton, weights, textures and embedded rig blueprint'],
+  ['Project', '.armature project files, with recents and thumbnails on the welcome screen'],
+];
+---
+<DocsLayout
+  section="armature"
+  title="Export | Armature Docs"
+  description="Exporting from Armature: one USD carrying mesh, skeleton, weights and textures, with the rig blueprint travelling inside the file."
+>
+  <article class="dd am">
+    <a class="dd-breadcrumb" href="/docs/armature/">Armature docs</a>
+
+    <ArmatureDocHeader
+      eyebrow="ARMATURE &middot; STATION 4"
+      title="EXPORT"
+      summary="The character stands in a portrait room with the working furniture gone. Pick a format, name the rig, and write one file."
+    />
+
+    <section class="am-section">
+      <div class="am-split">
+        <figure class="am-shot">
+          <Image src={stageExport} alt="The Export panel in Armature, writing a single USD file for a samurai character" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
+        </figure>
+        <div>
+          <h2 class="dd-label">WHAT COMES OUT</h2>
+          <p class="am-p">
+            Pick a format, name the rig, choose joint-name side tokens for your pipeline, and
+            export:
+          </p>
+          <ul class="am-list">
+            <li><b>USD</b> (binary or ASCII) carrying the mesh, skeleton, skin weights and textures, with the textures folder written beside the file so relative paths hold.</li>
+            <li><b>The rig blueprint travels inside the USD</b>, so a character can be pulled back into Armature and its skeleton understood later.</li>
+            <li>Verified in practice: exports stand up correctly in Unreal Engine and in Maya, joint orientations included.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="am-section" id="formats">
+      <h2 class="dd-label">FORMATS</h2>
+      <div class="am-table" role="table" aria-label="Supported formats">
+        <div class="am-table__head" role="row">
+          <span role="columnheader">Direction</span>
+          <span role="columnheader">Formats</span>
+        </div>
+        {FORMATS.map(([k, v]) => (
+          <div class="am-table__row" role="row">
+            <span class="am-table__k" role="cell">{k}</span>
+            <span role="cell">{v}</span>
+          </div>
+        ))}
+      </div>
+      <p class="am-note">
+        FBX and OBJ convert on arrival with automatic unit handling.{USD_IMPORT ? ' USD import reads the mesh; skeletons inside USD files are not imported.' : ''}
+      </p>
+    </section>
+
+    <section class="am-section">
+      <h2 class="dd-label">SIGNING IN</h2>
+      <p class="am-p">
+        Armature asks for a sign-in the first time you export. Rigging, skinning and testing
+        never require an account. See <a href="/docs/armature/#accounts">accounts and seats</a>
+        for how that works, and what it sends.
+      </p>
+    </section>
+
+    <nav class="am-pager" aria-label="Section">
+      <a href="/docs/armature/skinning/">&larr; Skinning</a>
+      <a href="/docs/armature/">Getting Started &rarr;</a>
+    </nav>
+  </article>
+</DocsLayout>

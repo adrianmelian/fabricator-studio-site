@@ -1,6 +1,13 @@
 ---
+// Two sections share this component so the two products' docs cannot drift apart visually:
+// one stylesheet, one filter behaviour, one active-state rule. `section` picks the tree.
+// The Maya tree is driven by the synced content collection; the Armature tree is plain
+// hrefs, because those pages are hand-built rather than synced markdown.
 import { getCollection } from 'astro:content';
-import { DOCS_NAV, DOC_NAV_LABELS } from '../data/docs';
+import { DOCS_NAV, DOC_NAV_LABELS, ARMATURE_NAV } from '../data/docs';
+
+interface Props { section?: 'maya' | 'armature' }
+const { section = 'maya' } = Astro.props;
 
 const all = await getCollection('docs');
 const byId = new Map(all.map((d) => [d.id, d]));
@@ -8,13 +15,30 @@ const current = Astro.url.pathname.replace(/\/+$/, '');
 const href = (id: string) => `/docs/${id}/`;
 const title = (id: string) => DOC_NAV_LABELS[id] ?? byId.get(id)?.data.title ?? id;
 const isActive = (id: string) => current === `/docs/${id}`;
+const isActiveHref = (h: string) => current === h.replace(/\/+$/, '');
 ---
 <aside class="docs-nav" aria-label="Documentation">
   <div class="docs-nav__search">
     <input id="docs-filter" type="search" placeholder="Search docs" autocomplete="off" spellcheck="false" aria-label="Filter docs" />
   </div>
   <nav class="docs-nav__tree" id="docs-tree">
-    {DOCS_NAV.map((group) => (
+    {section === 'armature' && ARMATURE_NAV.map((group) => (
+      <details class="docs-nav__group" open>
+        <summary class="docs-nav__grouplabel">{group.label.toUpperCase()}</summary>
+        <ul class="docs-nav__list">
+          {group.items.map((item) => (
+            <li class="docs-nav__item">
+              <a
+                class={`docs-nav__link${isActiveHref(item.href) ? ' is-active' : ''}`}
+                href={item.href}
+                aria-current={isActiveHref(item.href) ? 'page' : undefined}
+              >{item.label}</a>
+            </li>
+          ))}
+        </ul>
+      </details>
+    ))}
+    {section === 'maya' && DOCS_NAV.map((group) => (
       <details class="docs-nav__group" open>
         <summary class="docs-nav__grouplabel">{group.label.toUpperCase()}</summary>
         <ul class="docs-nav__list">

@@ -1,77 +1,32 @@
 ---
-// Armature documentation (new 2026-07-30, for the 2026-08-03 launch).
+// Armature docs: Getting Started (the section landing).
 //
-// COPY SOURCE, verbatim where it is prose: MrMiata
-// workspace/2026-07-22_authoring-platform/DOCS-SITE-ARMATURE.md, written by the Armature
-// lane FROM THE SHIPPING CODE. Its numbers are load-bearing and must not be re-rounded:
-// two devices per seat, 30-day offline grace, AutoSkin is a ~9 GB one-time component
-// needing an NVIDIA GPU with 6 GB+ VRAM (8 GB recommended). Edit that file first.
+// COPY SOURCE: MrMiata workspace/2026-07-22_authoring-platform/DOCS-SITE-ARMATURE.md,
+// written by the Armature lane FROM THE SHIPPING CODE. Load-bearing numbers carried exactly
+// and never re-rounded: two devices per seat, 30-day offline grace, AutoSkin is a ~9 GB
+// one-time component needing an NVIDIA GPU with 6 GB+ VRAM (8 GB recommended).
 //
 // The grace-window number is allowed HERE and not in the privacy policy: EULA 6.4 says
-// "reasonable periods" on purpose, so the figure lives where changing it costs nothing
-// (docs, Discord) rather than where it would have to agree with a contract. See R16.
+// "reasonable periods" on purpose, so the figure lives where changing it costs nothing.
+// See R16.
 //
-// USD IMPORT IS CONDITIONAL. The "USD (mesh only)" row and the Load line are true only if
-// import proves out against the built artifact at the dress rehearsal (R15 item 4 / R18
-// item 2). If it fails, set USD_IMPORT to false below: the Load line and the Formats row
-// both read off it, so one flag keeps the page honest.
-//
-// One page on purpose for launch: the whole thing is a read-through, and a reader on day
-// one wants ctrl-F over a nav tree they have never seen. The headings are the natural
-// seams if this is split later.
-//
-// Deliberately NOT DocsLayout: that shell hardcodes the MAYA toolset sidebar.
-import BaseLayout from '../../../layouts/BaseLayout.astro';
-import NavBar from '../../../components/NavBar.astro';
-import Footer from '../../../components/Footer.astro';
-import { Image } from 'astro:assets';
+// USD IMPORT IS CONDITIONAL on the rehearsal proving import against the built artifact
+// (R15 item 4 / R18 item 2). One flag, src/data/armature.ts USD_IMPORT, drives the quick
+// start line here and the Formats table on the Export page.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import ArmatureDocHeader from '../../../components/ArmatureDocHeader.astro';
+import VideoFeature from '../../../components/VideoFeature.astro';
 import '../../../styles/designed-doc.css';
-import { ARMATURE } from '../../../data/armature';
-// The channel URL comes from links.ts, which carries the lowercase form. Spelling the handle
-// as "Fabricator.Studio" fails brand gate G9 (the mid-word dot is never the company name),
-// and YouTube handles are case-insensitive, so the lowercase constant is both correct and
-// the single source.
-import { LINKS } from '../../../data/links';
-import stageLoad from '../../../assets/armature/stage-load.png';
-import stageFit from '../../../assets/armature/stage-fit.png';
-import stageSkeleton from '../../../assets/armature/stage-skeleton.png';
-import stageSkin from '../../../assets/armature/stage-skin.png';
-import stageExport from '../../../assets/armature/stage-export.png';
-
-// Set true only after a .usd mesh is proven to open in the SHIPPING build.
-const USD_IMPORT = false;
+import '../../../styles/armature-docs.css';
+import { ARMATURE, USD_IMPORT } from '../../../data/armature';
+import { ARMATURE_TUTORIALS } from '../../../data/tutorials';
 
 const LOAD_FORMATS = USD_IMPORT
   ? 'OBJ, FBX, GLB, glTF and USD (mesh only)'
   : 'OBJ, FBX, GLB and glTF';
 
-// Adrian's three walkthroughs on youtube.com/@Fabricator.Studio. Paste each id (the part
-// after watch?v=) to turn a card into a link. Empty renders the card without a link rather
-// than a dead one, and no request reaches Google either way: these are text cards, not
-// embeds and not remote thumbnails.
-const WALKTHROUGHS = [
-  {
-    key: 'human',
-    id: '',
-    title: 'Rig a human',
-    line: 'Start here. The biped template does most of the placement work, so this video is really about the rhythm of the tool: fit, drop, adjust, skin, test, export. Everything in the other two videos builds on this loop.',
-  },
-  {
-    key: 'squid',
-    id: '',
-    title: 'Rig a non-human',
-    line: 'No template fits a squid, and that is the point. This build works module by module: chains for tentacles, a pivot where nothing standard belongs, and range-of-motion exercises that prove every link bends. Watch this one to learn what the tools do when the character has no rulebook.',
-  },
-  {
-    key: 'quadruped',
-    id: '',
-    title: 'Rig a quadruped',
-    line: 'The quadruped template plus the hind-leg module handle the anatomy that trips up humanoid-first tools: real hind knees, a tail that curls, ears, and four feet on the floor. This video also shows side assignment doing its quiet work as joints cross the center line.',
-  },
-];
-
 const QUICK_START = [
-  '<b>Drop your mesh</b> onto the welcome screen. ' + LOAD_FORMATS + ' load directly.',
+  `<b>Drop your mesh</b> onto the welcome screen. ${LOAD_FORMATS} load directly.`,
   '<b>Fit it.</b> One press of Auto fit centers the character and scales it to a 180 cm reference. Nudge height, depth and facing on the same bar. Scale is baked into the geometry at export, so the size you set is the size that lands in engine.',
   '<b>Drop a template.</b> Biped or Quadruped from the library, or build from modules (arms, legs, hind legs, spine, neck, hands, single pivots).',
   '<b>Place joints.</b> Drag them into your character. Symmetry is automatic: the left arm you place is the right arm you get. Hold V to snap to the mesh, X to line up with other joints, C to extrude new children.',
@@ -99,44 +54,38 @@ const HOTKEYS = [
   ['Ctrl + = / - / 0', 'Interface zoom in / out / reset'],
 ];
 
-const CONTENTS = [
-  ['#quick-start', 'Quick start'],
-  ['#walkthroughs', 'The three walkthroughs'],
-  ['#stations', 'The stations'],
-  ['#autoskin', 'AutoSkin'],
-  ['#formats', 'Formats'],
-  ['#hotkeys', 'Hotkeys'],
-  ['#accounts', 'Accounts and seats'],
-  ['#help', 'Getting help'],
+const STATIONS = [
+  { href: '/docs/armature/fitting-room/', name: 'Fitting Room', line: 'Load a mesh and set its size, position and facing.' },
+  { href: '/docs/armature/skeleton/', name: 'Skeleton', line: 'Templates, modules, and the joint placement tools.' },
+  { href: '/docs/armature/skinning/', name: 'Skinning', line: 'AutoSkin, the versioned pass library, painting and smoothing.' },
+  { href: '/docs/armature/export/', name: 'Export', line: 'USD out, and what travels inside the file.' },
 ];
 
-const TITLE = 'ARMATURE';
-const TRI = ['t-bone', 't-plasma', 't-ember'];
-let li = 0;
-const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+// The walkthroughs, ordered easiest first. The copy beside each carries what the footage
+// cannot (when to use which workflow), so it deliberately does not re-describe the video.
+const WALKTHROUGH_COPY: Record<string, string> = {
+  'Rig a human':
+    'Start here. The biped template does most of the placement work, so this video is really about the rhythm of the tool: fit, drop, adjust, skin, test, export. Everything in the other two videos builds on this loop.',
+  'Rig a non-human':
+    'No template fits a squid, and that is the point. This build works module by module: chains for tentacles, a pivot where nothing standard belongs, and range-of-motion exercises that prove every link bends. Watch this one to learn what the tools do when the character has no rulebook.',
+  'Rig a quadruped':
+    'The quadruped template plus the hind-leg module handle the anatomy that trips up humanoid-first tools: real hind knees, a tail that curls, ears, and four feet on the floor. This video also shows side assignment doing its quiet work as joints cross the center line.',
+};
 ---
-<BaseLayout
+<DocsLayout
+  section="armature"
   title="Armature Docs | FabricatorStudio"
   description="Armature documentation: load a mesh, fit it, place joints, generate skin weights, and export a USD that stands up in Unreal and Maya."
 >
-  <NavBar />
-
   <article class="dd am">
-    <header class="dd-header">
-      <div class="dd-eyebrow">ARMATURE &middot; DOCUMENTATION</div>
-      <h1 class="dd-title" aria-label={TITLE}>
-        {titleGlyphs.map((g) => <span class={g.cls}>{g.ch}</span>)}
-      </h1>
-      <p class="dd-summary">
-        Armature takes a character mesh in and hands a rigged, skinned, engine-ready character
-        back. Load a model, place joints with purpose-built tools, generate and refine skin
-        weights, and export a USD that stands up correctly in Unreal and Maya.
-      </p>
-      <p class="am-crumb"><a href="/docs/">All docs</a> &middot; <a href="/armature/">Product page</a> &middot; version {ARMATURE.version}</p>
-    </header>
+    <ArmatureDocHeader
+      title="GETTING STARTED"
+      summary="Armature takes a character mesh in and hands a rigged, skinned, engine-ready character back. Load a model, place joints with purpose-built tools, generate and refine skin weights, and export a USD that stands up correctly in Unreal and Maya."
+    />
+    <p class="am-crumb"><a href="/armature/">Product page</a> &middot; version {ARMATURE.version}</p>
 
-    {/* The idea the whole tool hangs on. It earns the top slot because every station below
-        is an instance of it. */}
+    {/* The idea the whole tool hangs on. It earns the top slot because every station is an
+        instance of it. */}
     <section class="am-thesis" aria-label="The safe, versioned loop">
       <p>
         One idea runs through the whole tool: <b>the safe, versioned loop.</b> Move joints,
@@ -147,194 +96,41 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       </p>
     </section>
 
-    <nav class="am-toc" aria-label="Contents">
-      {CONTENTS.map(([href, label]) => <a href={href}>{label}</a>)}
-    </nav>
-
-    <section class="am-section" id="quick-start" aria-labelledby="qs-t">
+    <section class="am-section" aria-labelledby="qs-t">
       <h2 id="qs-t" class="dd-label">QUICK START</h2>
       <ol class="am-steps">
         {QUICK_START.map((s) => <li set:html={s} />)}
       </ol>
     </section>
 
-    <section class="am-section" id="walkthroughs" aria-labelledby="wt-t">
+    <section class="am-section" aria-labelledby="wt-t">
       <h2 id="wt-t" class="dd-label">THE THREE WALKTHROUGHS</h2>
       <p class="am-p">
         The fastest way to learn Armature is to watch a character go through it end to end.
         Three full builds, three different kinds of character.
       </p>
       <div class="am-vids">
-        {WALKTHROUGHS.map((w) => (
-          <div class="am-vid">
-            <h3 class="am-vid__title">{w.title}</h3>
-            <p class="am-vid__line">{w.line}</p>
-            {w.id ? (
-              <a class="am-vid__cta" href={`https://www.youtube.com/watch?v=${w.id}`} target="_blank" rel="noopener">Watch on YouTube &rarr;</a>
-            ) : (
-              <a class="am-vid__cta" href={LINKS.tutorialsChannel} target="_blank" rel="noopener">On the channel &rarr;</a>
-            )}
-          </div>
+        {ARMATURE_TUTORIALS.map((v) => (
+          <VideoFeature video={v} eyebrow="WALKTHROUGH" title={v.name} sub={WALKTHROUGH_COPY[v.name ?? '']} />
         ))}
       </div>
     </section>
 
-    <section class="am-section" id="stations" aria-labelledby="st-t">
+    <section class="am-section" aria-labelledby="st-t">
       <h2 id="st-t" class="dd-label">THE STATIONS</h2>
       <p class="am-p">
         Armature is laid out as stations along the top of the window. Work flows left to
         right, and you can step back at any time without losing anything.
       </p>
-
-      <div class="am-station">
-        <h3 class="am-station__head">Load: the fitting room</h3>
-        <figure class="am-shot">
-          <Image src={stageLoad} alt="The Armature start screen, with recent characters and a drop target for a character mesh" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
-        </figure>
-        <div class="am-station__copy">
-          <p class="am-p">
-            The viewport is the room. Drop or open a mesh and you get its facts (triangles,
-            vertices, bounding box), a Replace mesh button that swaps geometry while keeping
-            your work, and the fitting bar:
-          </p>
-          <ul class="am-list">
-            <li><b>Auto fit</b>: centers the belly line and scales the character to the 180 cm reference in one press. One undo reverses the whole fit.</li>
-            <li><b>Height and depth</b>: sliders for hands, scrubbable number fields for exact values.</li>
-            <li><b>Center and Ground</b>: the belly-line slice lands on the center line, feet land exactly on the floor.</li>
-            <li><b>Facing</b>: quarter turns. Unreal characters face +X; land there and the export stands correctly.</li>
-          </ul>
-          <p class="am-p">
-            Files with different units are handled on arrival: an FBX authored in centimeters
-            converts automatically instead of arriving one hundred times too large.
-          </p>
-        </div>
-        <figure class="am-shot am-shot--wide">
-          <Image src={stageFit} alt="The Fitting Room in Armature, sizing a samurai character against a height reference" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
-        </figure>
+      <div class="am-cards">
+        {STATIONS.map((s) => (
+          <a class="am-card" href={s.href}>
+            <p class="am-card__name">{s.name}</p>
+            <p class="am-card__line">{s.line}</p>
+            <span class="am-card__cta">Read &rarr;</span>
+          </a>
+        ))}
       </div>
-
-      <div class="am-station">
-        <h3 class="am-station__head">Skeleton: joints with purpose-built tools</h3>
-        <figure class="am-shot">
-          <Image src={stageSkeleton} alt="The Skeleton station in Armature, with a joint chain placed through a samurai character and the module library open" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
-        </figure>
-        <div class="am-station__copy">
-          <p class="am-p">
-            The template library and module library live on the left. Templates place a whole
-            starting skeleton scaled to your character's bounding box. Modules attach to
-            whatever joint you drop them on, and attachment is symmetry-aware: drop an arm on
-            the left clavicle and both arms arrive, each parented to its own side.
-          </p>
-          <p class="am-sub">Placement tools, all one keystroke deep</p>
-          <ul class="am-list">
-            <li><b>The manipulator</b> is position and rotation in a single control. Moving a joint re-aims its parent automatically, the same way a rigger would keep chains pointed at their children. Rotation sets the joint's own frame when you need to override.</li>
-            <li><b>C extrudes.</b> Hold C and drag a joint to pull a new child out of it. Hold C on a manipulator axis arrow and the new joint rides that axis only.</li>
-            <li><b>V snaps to the mesh.</b> Hold V while dragging and the joint glues to the nearest vertex. When template guide dots are showing, they win over vertices.</li>
-            <li><b>X snaps to other joints.</b> Hold X while dragging on one axis and the joint lines up with whichever joint you point at, on that axis only.</li>
-            <li><b>Shift moves a joint alone</b>, leaving its children where they are.</li>
-            <li><b>Scale that never scales.</b> The R tool spreads a joint's children apart or draws them together instead of stretching bones. Scaling to zero flattens a chain dead straight, and it is sticky, so a chain you straightened stays straightened.</li>
-          </ul>
-          <p class="am-sub">Placement helpers</p>
-          <ul class="am-list">
-            <li><b>Generate Joints</b> proposes a full skeleton for your mesh (part of AutoSkin), shown as ghost dots you snap onto or dismiss. Guides are suggestions, never controls.</li>
-            <li><b>Centerline guides</b> trace the character's own center through heads, tails and limbs, following the mesh's thickness. Tap dots to place joints along them.</li>
-            <li><b>Symmetry</b> is always on duty: joints get side names automatically as they cross the center line, and a side chip in the channel box shows each joint's side and lets you pin it (left, center, right) when the automatic answer is not what you meant.</li>
-            <li><b>Range-of-motion exercises</b> exist for every chain, so you can verify a spine or tail bends the way you expect before you ever skin it.</li>
-          </ul>
-          <p class="am-p">
-            Undo covers everything, including selection changes, so you can always step back to
-            exactly where you were looking.
-          </p>
-        </div>
-      </div>
-
-      <div class="am-station">
-        <h3 class="am-station__head">Skin: the versioned loop</h3>
-        <figure class="am-shot">
-          <Image src={stageSkin} alt="The Skin station in Armature, showing generated weights on a samurai character with the influence list and weight brush" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
-        </figure>
-        <div class="am-station__copy">
-          <p class="am-p">
-            Generate Skin computes weights with <b>AutoSkin</b>, a local AI engine that runs on
-            your own GPU. Results land in the pass library:
-          </p>
-          <ul class="am-list">
-            <li><b>Create new pass</b> adds a fresh version alongside the others. Nothing is overwritten.</li>
-            <li><b>Overwrite current</b> re-solves into the active pass and keeps its name. One undo brings the old weights back.</li>
-            <li><b>Compare</b> shows two passes side by side on the same exercise, so "which skin is better" is something you see, not something you remember.</li>
-          </ul>
-          <p class="am-sub">Refinement tools, on whichever pass is active</p>
-          <ul class="am-list">
-            <li><b>Painting</b> with Add and Replace that mean what they say: the influence you paint reaches exactly the value you asked for, locked influences never move, and the remainder is taken proportionally from unlocked ones.</li>
-            <li><b>Flood</b> applies the same operation to a whole selection. Grow and shrink the selection ring by ring with Shift + &gt; and Shift + &lt;.</li>
-            <li><b>Hammer and Chisel</b> smooths weights toward the selection average, with falloff profiles for soft domes and hard peaks.</li>
-            <li><b>The wiggle</b>: grab any joint in the Skin station and pose it to see deformation at a spot the exercises do not cover. Scrub the timeline and it snaps back. Your animation preview is never contaminated by a test pose, and undo pops the test pose first.</li>
-          </ul>
-          <p class="am-p">
-            The loop is the moat: move joints, re-skin, compare, keep. Because passes are
-            versioned, fixing a joint placement never costs you a skin you liked.
-          </p>
-        </div>
-      </div>
-
-      <div class="am-station">
-        <h3 class="am-station__head">Export: the beauty room</h3>
-        <figure class="am-shot">
-          <Image src={stageExport} alt="The Export panel in Armature, writing a single USD file for a samurai character" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
-        </figure>
-        <div class="am-station__copy">
-          <p class="am-p">
-            The character stands in a portrait room with the working furniture gone. Pick a
-            format, name the rig, choose joint-name side tokens for your pipeline, and export:
-          </p>
-          <ul class="am-list">
-            <li><b>USD</b> (binary or ASCII) carrying the mesh, skeleton, skin weights and textures, with the textures folder written beside the file so relative paths hold.</li>
-            <li><b>The rig blueprint travels inside the USD</b>, so a character can be pulled back into Armature and its skeleton understood later.</li>
-            <li>Verified in practice: exports stand up correctly in Unreal Engine and in Maya, joint orientations included.</li>
-          </ul>
-        </div>
-      </div>
-    </section>
-
-    <section class="am-section" id="autoskin" aria-labelledby="as-t">
-      <h2 id="as-t" class="dd-label">AUTOSKIN: THE AI ENGINE, ON YOUR MACHINE</h2>
-      <p class="am-p">
-        AutoSkin generates skin weights and can propose full skeletons. It runs entirely on
-        your own GPU. Nothing about your characters is uploaded anywhere.
-      </p>
-      <p class="am-p">
-        It is a <b>one-time optional download</b> of roughly 9 GB (the inference engine and its
-        model weights), offered on first launch and always available later under Generate Skin.
-        Armature installs it, proves it end to end with a real test rig, and turns the feature
-        on. The download resumes where it left off if interrupted, and everything else in
-        Armature works without it.
-      </p>
-      <p class="am-note">Requirements: an NVIDIA GPU with at least 6 GB of VRAM (8 GB recommended).</p>
-    </section>
-
-    <section class="am-section" id="formats" aria-labelledby="fm-t">
-      <h2 id="fm-t" class="dd-label">FORMATS</h2>
-      <div class="am-table" role="table" aria-label="Supported formats">
-        <div class="am-table__head" role="row">
-          <span role="columnheader">Direction</span>
-          <span role="columnheader">Formats</span>
-        </div>
-        <div class="am-table__row" role="row">
-          <span class="am-table__k" role="cell">Load</span>
-          <span role="cell">{USD_IMPORT ? 'OBJ, FBX, GLB, glTF, USD (mesh only)' : 'OBJ, FBX, GLB, glTF'}</span>
-        </div>
-        <div class="am-table__row" role="row">
-          <span class="am-table__k" role="cell">Export</span>
-          <span role="cell">USD (usdc or usda) with skeleton, weights, textures and embedded rig blueprint</span>
-        </div>
-        <div class="am-table__row" role="row">
-          <span class="am-table__k" role="cell">Project</span>
-          <span role="cell">.armature project files, with recents and thumbnails on the welcome screen</span>
-        </div>
-      </div>
-      <p class="am-note">
-        FBX and OBJ convert on arrival with automatic unit handling.{USD_IMPORT ? ' USD import reads the mesh; skeletons inside USD files are not imported.' : ''}
-      </p>
     </section>
 
     <section class="am-section" id="hotkeys" aria-labelledby="hk-t">
@@ -364,8 +160,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       </ul>
       <p class="am-p">
         For license terms, see the <a href="/armature/eula/">EULA</a>. For what activation sends
-        (and does not send), see the <a href="/privacy/">privacy policy</a>. For prices, the
-        <a href="/licensing/">pricing page</a>.
+        (and does not send), see the <a href="/privacy/">privacy policy</a>. For prices, the <a href="/licensing/">pricing page</a>.
       </p>
     </section>
 
@@ -377,134 +172,9 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         you will usually watch the fix ship the same week.
       </p>
       <p class="am-p">
-        Bringing an existing rig or a custom skeleton format into Armature?
-        <a href="mailto:adrian@fabricator.studio?subject=Armature%3A%20existing%20rig">Talk to us</a>.
+        Bringing an existing rig or a custom skeleton format into Armature? <a href="mailto:adrian@fabricator.studio?subject=Armature%3A%20existing%20rig">Talk to us</a>.
       </p>
     </section>
   </article>
+</DocsLayout>
 
-  <Footer />
-</BaseLayout>
-
-<style>
-  .am { padding-bottom: 2rem; }
-  .am .dd-header { align-items: center; text-align: center; }
-  .am .dd-title { justify-content: center; }
-  .am .dd-summary { margin-inline: auto; }
-  .am-crumb { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
-  .am-crumb a { color: var(--plasma); }
-
-  .am-thesis {
-    border-left: 2px solid var(--plasma);
-    background: var(--iron);
-    border-radius: 0 14px 14px 0;
-    padding: 1.5rem 1.75rem;
-    max-width: 72rem;
-    width: 100%;
-    margin-inline: auto;
-  }
-  .am-thesis p { margin: 0; color: var(--bone-dim); line-height: 1.7; text-wrap: pretty; }
-  .am-thesis b { color: var(--bone); }
-
-  .am-toc {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-    max-width: 72rem;
-    width: 100%;
-    margin-inline: auto;
-  }
-  .am-toc a {
-    padding: 0.5rem 0.9rem;
-    border-radius: 9px;
-    border: 1px solid var(--iron-3);
-    background: var(--iron);
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    color: var(--bone-dim);
-    text-decoration: none;
-  }
-  .am-toc a:hover { border-color: var(--plasma); color: var(--plasma); }
-
-  .am-section { width: 100%; max-width: 72rem; margin-inline: auto; scroll-margin-top: 5rem; }
-  .am-p { margin: 0 0 1rem; color: var(--bone-dim); line-height: 1.7; text-wrap: pretty; }
-  .am-p a { color: var(--plasma); }
-  .am-p b { color: var(--bone); }
-  .am-sub {
-    margin: 1.25rem 0 0.5rem;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.8125rem;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    color: var(--ember);
-  }
-  .am-note { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--bone-faint); line-height: 1.6; }
-
-  .am-steps, .am-list { color: var(--bone-dim); line-height: 1.7; padding-left: 1.25rem; margin: 0 0 1rem; }
-  .am-steps li, .am-list li { margin-bottom: 0.6rem; }
-  .am-steps :global(b), .am-list b { color: var(--bone); }
-
-  .am-vids { display: grid; gap: 1rem; }
-  @media (min-width: 900px) { .am-vids { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
-  .am-vid {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-    padding: 1.25rem 1.5rem;
-    border-radius: 14px;
-    border: 1px solid var(--iron-2);
-    background: linear-gradient(180deg, var(--iron), var(--carbon));
-  }
-  .am-vid__title { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
-  .am-vid__line { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
-  .am-vid__cta { margin-top: auto; padding-top: 0.5rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; color: var(--plasma); text-decoration: none; }
-  .am-vid__cta:hover { color: var(--plasma-dim); }
-
-  .am-station { margin-top: 2rem; display: grid; gap: 1.25rem; }
-  @media (min-width: 900px) {
-    .am-station { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: start; }
-    .am-station__head { grid-column: 1 / -1; }
-    .am-shot--wide { grid-column: 1 / -1; max-width: 46%; }
-  }
-  .am-station__head {
-    margin: 0;
-    font-family: var(--font-mono);
-    font-weight: 800;
-    font-size: 1.25rem;
-    color: var(--bone);
-  }
-  .am-shot {
-    margin: 0;
-    border-radius: 14px;
-    overflow: hidden;
-    border: 1px solid var(--iron-2);
-    background: var(--iron);
-    box-shadow: var(--shadow-md);
-  }
-  .am-shot :global(img) { display: block; width: 100%; height: auto; }
-
-  .am-table { border: 1px solid var(--iron-2); border-radius: 14px; overflow: hidden; margin: 0 0 0.5rem; }
-  .am-table__head, .am-table__row {
-    display: grid;
-    grid-template-columns: 14rem 1fr;
-    gap: 1rem;
-    padding: 0.75rem 1.25rem;
-    align-items: start;
-  }
-  .am-table__head {
-    background: var(--iron-2);
-    color: var(--bone);
-    font-size: 0.8125rem;
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-  }
-  .am-table__row { border-top: 1px solid var(--iron-2); color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; }
-  .am-table__k { color: var(--bone); }
-  .am-table__k code { font-family: var(--font-mono); color: var(--plasma); }
-
-  @media (max-width: 40rem) {
-    .am-table__head { display: none; }
-    .am-table__row { grid-template-columns: 1fr; gap: 0.25rem; padding: 1rem 1.25rem; }
-  }
-</style>

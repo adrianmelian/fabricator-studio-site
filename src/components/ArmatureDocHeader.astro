@@ -1,0 +1,20 @@
+---
+// Shared header for the five Armature docs pages, so the section reads as one thing and a
+// title change happens in one place. Mirrors the Maya tool pages' header shape: eyebrow,
+// outlined tri-color title, summary.
+interface Props { eyebrow?: string; title: string; summary: string }
+const { eyebrow = 'ARMATURE · DOCUMENTATION', title, summary } = Astro.props;
+
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = title.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<header class="dd-header">
+  <div class="dd-eyebrow">{eyebrow}</div>
+  <h1 class="dd-title" aria-label={title}>
+    {titleGlyphs.map((g) =>
+      g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+    )}
+  </h1>
+  <p class="dd-summary">{summary}</p>
+</header>

@@ -1,0 +1,77 @@
+---
+// Armature docs: the Fitting Room (the Load station).
+// COPY SOURCE: MrMiata workspace/2026-07-22_authoring-platform/DOCS-SITE-ARMATURE.md.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import ArmatureDocHeader from '../../../components/ArmatureDocHeader.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import '../../../styles/armature-docs.css';
+import { USD_IMPORT } from '../../../data/armature';
+import stageLoad from '../../../assets/armature/stage-load.png';
+import stageFit from '../../../assets/armature/stage-fit.png';
+
+const LOAD_FORMATS = USD_IMPORT
+  ? 'OBJ, FBX, GLB, glTF and USD (mesh only)'
+  : 'OBJ, FBX, GLB and glTF';
+---
+<DocsLayout
+  section="armature"
+  title="Fitting Room | Armature Docs"
+  description="The Armature Fitting Room: load a mesh, then set its scale, position and facing so symmetry and placement behave."
+>
+  <article class="dd am">
+    <a class="dd-breadcrumb" href="/docs/armature/">Armature docs</a>
+
+    <ArmatureDocHeader
+      eyebrow="ARMATURE &middot; STATION 1"
+      title="FITTING ROOM"
+      summary="The viewport is the room. Drop a mesh in, then set its size, position and facing so everything downstream behaves."
+    />
+
+    <section class="am-section">
+      <div class="am-split">
+        <figure class="am-shot">
+          <Image src={stageLoad} alt="The Armature start screen, with recent characters and a drop target for a character mesh" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
+        </figure>
+        <div>
+          <h2 class="dd-label">LOADING A MESH</h2>
+          <p class="am-p">
+            Drop or open a mesh and you get its facts (triangles, vertices, bounding box), and a
+            <b>Replace mesh</b> button that swaps geometry while keeping your work. {LOAD_FORMATS} load
+            directly.
+          </p>
+          <p class="am-p">
+            Files with different units are handled on arrival: an FBX authored in centimeters
+            converts automatically instead of arriving one hundred times too large.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="am-section">
+      <div class="am-split">
+        <div>
+          <h2 class="dd-label">THE FITTING BAR</h2>
+          <ul class="am-list">
+            <li><b>Auto fit</b>: centers the belly line and scales the character to the 180 cm reference in one press. One undo reverses the whole fit.</li>
+            <li><b>Height and depth</b>: sliders for hands, scrubbable number fields for exact values.</li>
+            <li><b>Center and Ground</b>: the belly-line slice lands on the center line, feet land exactly on the floor.</li>
+            <li><b>Facing</b>: quarter turns. Unreal characters face +X; land there and the export stands correctly.</li>
+          </ul>
+          <p class="am-note">
+            Scale is baked into the geometry at export, so the size you set here is the size that
+            lands in engine.
+          </p>
+        </div>
+        <figure class="am-shot">
+          <Image src={stageFit} alt="The Fitting Room in Armature, sizing a samurai character against a height reference" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
+        </figure>
+      </div>
+    </section>
+
+    <nav class="am-pager" aria-label="Section">
+      <a href="/docs/armature/">&larr; Getting Started</a>
+      <a href="/docs/armature/skeleton/">Skeleton &rarr;</a>
+    </nav>
+  </article>
+</DocsLayout>

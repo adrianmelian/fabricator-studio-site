@@ -3,15 +3,17 @@ import BaseLayout from './BaseLayout.astro';
 import NavBar from '../components/NavBar.astro';
 import Footer from '../components/Footer.astro';
 import DocsSidebar from '../components/DocsSidebar.astro';
-interface Props { title: string; description: string }
-const { title, description } = Astro.props;
+// `section` picks which docs tree the sidebar renders. Defaults to the Maya toolset, so
+// every page that already uses this layout keeps its nav without being touched.
+interface Props { title: string; description: string; section?: 'maya' | 'armature' }
+const { title, description, section = 'maya' } = Astro.props;
 ---
 <BaseLayout title={title} description={description}>
   <NavBar />
   <div class="docs-shell">
     <button class="docs-shell__toggle" id="docs-sidebar-toggle" aria-expanded="false" aria-controls="docs-sidebar">Menu</button>
     <div class="docs-shell__sidebar" id="docs-sidebar">
-      <DocsSidebar />
+      <DocsSidebar section={section} />
     </div>
     <main class="docs-shell__main">
       <slot />
