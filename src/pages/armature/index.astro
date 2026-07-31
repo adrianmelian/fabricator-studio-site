@@ -358,9 +358,12 @@ const STAGES = [
               ></video>
               {/* Always visible, not hover-revealed: a hover-to-play clip that gives no hint
                   it can play reads as a still. Same bottom-right magma badge as the
-                  walkthrough cards above, so "this moves" looks the same everywhere here. */}
+                  walkthrough cards above, so "this moves" looks the same everywhere here.
+
+                  The PROOF tag was removed 2026-07-30 (Adrian): the clip has both logos and
+                  both rigs in frame, so a label sitting on top of it was spending attention
+                  on something the picture already says. */}
               <span class="status__play" aria-hidden="true">&#9654;</span>
-              <figcaption class="slot__tag">PROOF</figcaption>
             </figure>
           </div>
         </div>
