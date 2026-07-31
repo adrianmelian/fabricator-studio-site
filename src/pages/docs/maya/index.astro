@@ -1,0 +1,278 @@
+---
+// MOVED 2026-07-30 from /docs/ to /docs/maya/ (Adrian): /docs/ is now a two-product chooser,
+// because the toolset is no longer the only thing documented on this site. Nothing 404s:
+// /docs/ still resolves, and every /docs/tools/* and /docs/components/* URL is untouched.
+//
+// Docs landing: the Getting Started narrative (docs-thread relay R3 + Adrian x Claude
+// Design visual pass, 2026-07-17). Copy is VERBATIM from
+// MrMiata workspace/2026-07-17_component-docs/docs-landing-copy.md - em-dash-free by
+// requirement; the design drop's copy drift (reintroduced em-dashes, "That's") was NOT
+// adopted, per the R3 no-re-wording rule. Visuals follow the drop: fS monogram eyebrow,
+// accent-stroked ghost numbers, link chips, flanked footer.
+import DocsLayout from '../../../layouts/DocsLayout.astro';
+import { Image } from 'astro:assets';
+import '../../../styles/designed-doc.css';
+import VideoFeature from '../../../components/VideoFeature.astro';
+import { tutorialByName } from '../../../data/tutorials';
+import fsMonogram from '../../../assets/docs/fs-monogram.png';
+import reggiePortrait from '../../../assets/docs/reggie-portrait.png';
+
+const STEPS = [
+  {
+    n: 1,
+    tone: 'plasma',
+    heading: 'Set up your project',
+    para: 'Every project starts with a project setup file. Use <b class="gs-b-plasma">Mindmeld</b> to set yours up: define your naming conventions and folder structure once, and the toolset gives you automatic pathing and a faster pipeline from then on. The way a professional studio works.',
+    link: '/docs/tools/project-setup/',
+    linkLabel: 'Mindmeld docs',
+  },
+  {
+    n: 2,
+    tone: 'plasma',
+    heading: 'Build your skeleton',
+    para: 'Every rig starts with a skeleton. <b class="gs-b-plasma">Skeleton building</b> gets yours up fast: auto-orienting joints, mirroring, and symmetry mean you place the joints and it takes care of the rest.',
+    link: '/docs/tools/armature/',
+    linkLabel: 'Skeleton Building docs',
+  },
+  {
+    n: 3,
+    tone: 'ember',
+    heading: 'Build your rig',
+    para: 'Rigging used to take ages. With <b class="gs-b-ember">Fabricator</b> it takes minutes. Build modularly from components, limbs, and templates, like stacking blocks, and you get a rig animators actually want to use. Every component was built by an animator and is used in production every day.',
+    link: '/docs/tools/fabricator/',
+    linkLabel: 'Fabricator docs',
+  },
+  {
+    n: 4,
+    tone: 'plasma',
+    heading: 'Skin it',
+    para: 'Skinning used to take days. With <b class="gs-b-plasma">AutoSkin</b> it takes minutes. It uses a modern autoregressive AI model to skin your mesh onto your skeleton, running locally on your own machine. No token cost, completely free, straight out of Maya.',
+    link: '/docs/tools/autoskin/',
+    linkLabel: 'AutoSkin docs',
+  },
+  {
+    n: 5,
+    tone: 'ember',
+    heading: 'Take it to engine',
+    para: 'Getting your assets and animations into engine comes down to a button or two with the <b class="gs-b-ember">Rig &amp; Anim Exporter</b>. Model, skeleton, and animation, out of Maya and into your engine.',
+    link: '/docs/tools/exporter/',
+    linkLabel: 'Exporter docs',
+  },
+];
+
+const TITLE = 'GETTING STARTED';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+---
+<DocsLayout
+  title="Docs | FabricatorStudio"
+  description="Getting started with the FabricatorStudio Maya Toolset: from an empty project to an in-engine asset in five steps."
+>
+  <article class="dd gs">
+    <header class="dd-header">
+      <div class="gs-eyebrow-row">
+        <Image class="gs-monogram" src={fsMonogram} alt="" aria-hidden="true" densities={[1, 2]} />
+        <div class="dd-eyebrow">FABRICATORSTUDIO &middot; DOCS</div>
+      </div>
+      <h1 class="dd-title gs-title" aria-label="Getting Started with the FabricatorStudio Maya Toolset">
+        {titleGlyphs.map((g) =>
+          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
+        )}
+      </h1>
+      <p class="gs-subtitle">with the FabricatorStudio Maya Toolset</p>
+      <p class="dd-summary gs-intro">Build a game character the way a professional studio does, from an empty project to an in-engine asset, without a pipeline team behind you. <b>Five steps</b>, each with its own tool and its own docs.</p>
+      <p class="gs-crumb"><a href="/docs/">All docs</a> &middot; looking for the standalone app? <a href="/docs/armature/">Armature docs</a>.</p>
+    </header>
+
+    <!-- WATCH FIRST (2026-07-21): the install-and-first-project video, ahead of the five
+         written steps, because it IS step zero. -->
+    <VideoFeature
+      video={tutorialByName('Getting Started')}
+      eyebrow="WATCH FIRST"
+      title="Install it and set up your first project"
+      sub="Four minutes, start to finish: drag the installer into Maya, get the toolbar, and set up a project you can actually build in."
+    />
+
+    <!-- MEET REGGIE (Adrian's 2026-07-18 amendment to the Getting Started drop) -->
+    <aside class="gs-reggie" aria-labelledby="gs-reggie-t">
+      <Image class="gs-reggie__portrait" src={reggiePortrait} alt="Reggie, the AI Technical Artist" densities={[1, 2]} />
+      <div class="gs-reggie__copy">
+        <div class="gs-reggie__eyebrow">MEET REGGIE &middot; YOUR AI TA</div>
+        <h2 id="gs-reggie-t" class="gs-reggie__title">Stuck? Just ask Reggie.</h2>
+        <p class="gs-reggie__line">You can always ask the AI Technical Artist, <b>Reggie</b>, for help. He'll get you set up and going with the FabricatorStudio tools, directly in a chat window inside Maya.</p>
+      </div>
+      <a class="gs-reggie__cta" href="/docs/tools/your-ai-ta/">Reggie docs &rarr;</a>
+    </aside>
+
+    <ol class="gs-steps">
+      {STEPS.map((s) => (
+        <li class={`gs-step gs-step--${s.tone}`}>
+          <span class={`gs-step__num gs-step__num--${s.tone}`} aria-hidden="true">{s.n}</span>
+          <div class="gs-step__body">
+            <h2 class="gs-step__heading"><span class="gs-step__sr">{s.n}. </span>{s.heading}</h2>
+            <p class="gs-step__para" set:html={s.para} />
+          </div>
+          <a class={`gs-step__chip gs-step__chip--${s.tone}`} href={s.link}>{s.linkLabel} &rarr;</a>
+        </li>
+      ))}
+    </ol>
+
+    <div class="gs-outro">
+      <span class="gs-outro__bar" aria-hidden="true"></span>
+      <p>That is the whole path. Jump into any step above, or browse the full toolset by category in the sidebar.</p>
+      <span class="gs-outro__bar" aria-hidden="true"></span>
+    </div>
+
+    <!-- Project status: the two pages a stuck reader needs, surfaced where they get stuck. -->
+    <aside class="gs-status" aria-labelledby="gs-status-t">
+      <h2 id="gs-status-t" class="gs-status__label">PROJECT STATUS</h2>
+      <p class="gs-status__para">Hit something that looks wrong? Check the known issues first, it may already have a workaround. The changelog is every release and what changed in it.</p>
+      <div class="gs-status__links">
+        <a class="gs-step__chip gs-step__chip--ember" href="/known-issues/">Known issues &rarr;</a>
+        <a class="gs-step__chip gs-step__chip--plasma" href="/changelog/">Changelog &rarr;</a>
+      </div>
+    </aside>
+  </article>
+</DocsLayout>
+
+<style>
+  /* The Getting Started narrative, in the design drop's visual language. Shared
+     furniture: designed-doc.css. */
+  .gs-eyebrow-row { display: flex; align-items: center; gap: 0.9rem; }
+  .gs-monogram { height: 2.5rem; width: auto; }
+  .gs-title { white-space: normal; }
+  .gs-subtitle {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-weight: 500;
+    font-size: clamp(1rem, 2.2vw, 1.25rem);
+    letter-spacing: 0.08em;
+    color: var(--bone-dim);
+  }
+  .gs-intro { max-width: 52rem; }
+  .gs-intro b { color: var(--bone); }
+  .gs-crumb { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
+  .gs-crumb a { color: var(--plasma); }
+
+  /* MEET REGGIE panel (2026-07-18 amendment): ember card with a plasma tint sweeping in
+     from the right; the portrait asset carries its own ember ring. */
+  .gs-reggie {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 2rem;
+    align-items: center;
+    background: linear-gradient(120deg, rgba(124, 255, 178, 0) 45%, rgba(124, 255, 178, 0.08)), var(--iron);
+    border: 1px solid rgba(255, 122, 61, 0.35);
+    border-radius: 22px;
+    padding: 2rem 2.25rem;
+    box-shadow: var(--shadow-lg), 0 0 44px -24px rgba(255, 122, 61, 0.35);
+  }
+  .gs-reggie__portrait { width: 8.25rem; height: auto; filter: drop-shadow(0 12px 24px rgba(11, 14, 16, 0.6)); }
+  .gs-reggie__copy { display: flex; flex-direction: column; gap: 0.6rem; }
+  .gs-reggie__eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--ember); }
+  .gs-reggie__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem; color: var(--bone); }
+  .gs-reggie__line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .gs-reggie__line b { color: var(--ember); }
+  .gs-reggie__cta {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.9rem 1.5rem;
+    border-radius: 11px;
+    background: var(--ember);
+    color: #1A0A02;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1rem;
+    text-decoration: none;
+    white-space: nowrap;
+    box-shadow: 0 0 30px -12px rgba(255, 122, 61, 0.7);
+  }
+  .gs-reggie__cta:hover { background: var(--ember-dim); }
+
+  .gs-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 1rem; }
+  .gs-step {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1fr) auto;
+    gap: 1.5rem;
+    align-items: center;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border-radius: 16px;
+    padding: 1.625rem 1.75rem;
+    box-shadow: var(--shadow-md);
+  }
+  .gs-step--plasma { border: 1px solid rgba(124, 255, 178, 0.14); }
+  .gs-step--ember { border: 1px solid rgba(255, 122, 61, 0.16); }
+  /* The ghost number: iron-2 fill with the accent stroke, per the drop (its off-palette
+     dark fills snapped to the token). */
+  .gs-step__num {
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 3.5rem;
+    line-height: 1;
+    color: var(--iron-2);
+    text-align: center;
+  }
+  .gs-step__num--plasma { -webkit-text-stroke: 2px rgba(124, 255, 178, 0.4); }
+  .gs-step__num--ember { -webkit-text-stroke: 2px rgba(255, 122, 61, 0.45); }
+  .gs-step__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .gs-step__body { display: flex; flex-direction: column; gap: 0.5rem; min-width: 0; }
+  .gs-step__heading { margin: 0; position: relative; font-family: var(--font-mono); font-weight: 800; font-size: 1.375rem; color: var(--bone); }
+  .gs-step__para { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+  .gs-step__para :global(b) { color: var(--bone); }
+  .gs-step__para :global(.gs-b-plasma) { color: var(--plasma); }
+  .gs-step__para :global(.gs-b-ember) { color: var(--ember); }
+  .gs-step__chip {
+    justify-self: end;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    border-radius: 10px;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .gs-step__chip--plasma { background: rgba(124, 255, 178, 0.1); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .gs-step__chip--plasma:hover { background: var(--plasma); color: #06120B; }
+  .gs-step__chip--ember { background: rgba(255, 122, 61, 0.1); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+  .gs-step__chip--ember:hover { background: var(--ember); color: #1A0A02; }
+
+  .gs-outro { display: flex; align-items: center; justify-content: center; gap: 1rem; padding-top: 0.25rem; }
+  .gs-outro__bar { flex: none; width: 3rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
+  .gs-outro p { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-align: center; text-wrap: pretty; }
+
+  .gs-status { margin-top: 3rem; padding-top: 2rem; border-top: 1px solid var(--iron-2); text-align: center; }
+  .gs-status__label {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    color: var(--bone-faint);
+    margin: 0 0 0.75rem;
+  }
+  .gs-status__para {
+    margin: 0 auto 1.25rem;
+    max-width: 42rem;
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .gs-status__links { display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap; }
+
+  @media (max-width: 820px) {
+    .gs-step { grid-template-columns: 3rem minmax(0, 1fr); }
+    .gs-step__chip { grid-column: 2; justify-self: start; }
+    .gs-outro__bar { display: none; }
+    .gs-reggie { grid-template-columns: 1fr; justify-items: start; gap: 1.25rem; }
+    .gs-reggie__portrait { width: 6.5rem; }
+    .gs-reggie__cta { justify-self: start; }
+  }
+</style>
