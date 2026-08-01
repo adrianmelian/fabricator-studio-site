@@ -126,97 +126,75 @@ const STAGES = [
     </div>
 
     <main id="main">
-      {/* 1. HERO */}
-      <header class="section hero" data-spine-section>
-        <div class="wrap hero__inner">
-          <div class="hero__lead">
-            <Image
-              class="hero__wordmark reveal r1"
-              src={wordmark}
-              alt="Armature"
-              widths={[360, 720]}
-              sizes="(min-width: 720px) 300px, 230px"
-              loading="eager"
-            />
+      {/* 1. HERO — full-bleed product art with the page furniture arranged on its flanks
+             (Adrian, 2026-08-01). The ART carries the wordmark, the headline and "You drive."
+             already, so the DOM no longer repeats them: the visible wordmark and kicker are
+             gone and the h1 is screen-reader only, which keeps the page's one real heading for
+             search and assistive tech without printing it twice.
 
-            <p class="hero__kicker reveal r2">ARMATURE, by <b>FabricatorStudio</b></p>
+             Everything is positioned against the artwork's own composition: dark gradient down
+             the left flank for the copy, the squid on the right for the video, the baked
+             centre text with the buttons beneath it. */}
+      <header class="section hero hero--art" data-spine-section>
+        <Image
+          class="hero__art"
+          src={heroProduct}
+          alt="Armature: a samurai, a dog and a squid, all rigged in the app"
+          widths={[1280, 1920, 2560]}
+          sizes="100vw"
+          loading="eager"
+        />
+        {/* Legibility, not decoration: the art is bright in the middle and the copy sits over
+            its flanks, so each side gets a carbon gradient to guarantee contrast at any crop. */}
+        <div class="hero__scrim" aria-hidden="true"></div>
 
-            {/* The headline and the paragraph under it are ONE sentence, split across two type
-                sizes. No full stop on the h1, and the paragraph opens lowercase on purpose.
-                Keep them visually adjacent or the device stops reading as a sentence. */}
-            {/* The "+" carries the whole positioning: it is the only place the Artist-and-AI
-                union appears above the fold, so it gets the accent. Decorative accent colour in
-                display type is sanctioned (the wordmark itself alternates bone, plasma and ember
-                across letters); this is not plasma being spent as an action. */}
-            <h1 class="hero__title reveal r3">Artist<span class="hero__plus">+</span>AI Rigging</h1>
+        <div class="hero__stage">
+          <h1 class="sr-only">Artist+AI Rigging</h1>
 
-            {/* The split-sentence device is RETIRED here (2026-08-01): the h1 used to be the
-                first half of one sentence that the paragraph finished, which a lockup headline
-                cannot do. The old sentence is not lost, it survives whole in the second
-                paragraph below.
+          <p class="hero__pill">
+            <span class="pill"><span class="pill__dot"></span>Out now &middot; {ARMATURE.version}</span>
+          </p>
 
-                Craft rules this copy was written against, so nobody "improves" it back:
-                - "Most AI tooling is built to do it for you." was CUT by Adrian 2026-08-01. It
-                  was the first half of a contrast, so what remains is a direct claim. Do not
-                  reintroduce a contrast here in any form, and especially not as "it's not X,
-                  it's Y", which is banned outright.
-                - REPLACED WHOLESALE by Adrian 2026-08-01 with the two-audience line. The
-                  driver-frame copy ("You drive", "built to be driven") is gone from this page,
-                  so the metaphor no longer belongs to the hero and nothing on the page should
-                  reintroduce it.
-                - Cut again to the bare pair 2026-08-01. The h1's "+" is now the ONLY place the
-                  union appears above the fold, so the rule that AI never stands unqualified
-                  rests entirely on that headline. If the h1 ever loses the "+", this line has
-                  to grow back.
-                - The driver frame belongs to THIS block only. Do not echo "wheel", "driver" or
-                  "passenger" elsewhere on the page. */}
-            <div class="hero__copy reveal r4">
-              <p>
-                <b>Speed for the Devs. Depth for the Artists.</b>
-              </p>
-              <p>
-                High end character rigging has always lived inside expensive applications.
-                Armature is for the indie dev who cannot justify one, and the veteran rigger who
-                wants to move faster.
-              </p>
-            </div>
-
-            <p class="hero__status reveal r5">
-              {/* "Early Access" is retired from public surfaces (Adrian, 2026-07-30). */}
-              <span class="pill"><span class="pill__dot"></span>Out now &middot; {ARMATURE.version}</span>
+          <div class="hero__flank hero__flank--left reveal r3">
+            <p class="hero__lede"><b>Speed for the Devs. Depth for the Artists.</b></p>
+            <p class="hero__sub">
+              High end character rigging has always lived inside expensive applications.
+              Armature is for the indie dev who cannot justify one, and the veteran rigger who
+              wants to move faster.
             </p>
+          </div>
 
-            <div class="getblock reveal r6">
-              {/* Two doors, deliberately unequal. Download is the plasma action; the docs are a
-                  quiet outline so they never compete with it (colour law: plasma = go). The
-                  docs link matters here because a visitor who is not ready to install still has
-                  somewhere to go, and the alternative is that they leave. */}
-              <div class="getblock__actions">
-                <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
-                  Download for Windows
-                </button>
-                <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-hero">
-                  Read the docs
-                </a>
-              </div>
-              <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
+          {/* Over the squid, per Adrian. The silent vertical teaser returns here: the product
+              in motion is what a still cannot do, and this is the shape that cut was made in.
+              Clicking it opens the full trailer, same as before. */}
+          <div class="hero__flank hero__flank--right reveal r5">
+            <figure class="hero__reel">
+              <video
+                id="teaser-loop"
+                src="/armature/teaser.mp4"
+                poster="/armature/teaser-poster.jpg"
+                muted
+                loop
+                playsinline
+                autoplay
+                preload="metadata"
+                aria-hidden="true"></video>
+              <button class="shot-open shot-open--overlay" type="button" data-teaser-open aria-label="Watch the Armature trailer">
+                <span class="shot-open__badge shot-open__badge--play" aria-hidden="true">&#9654;</span>
+              </button>
+            </figure>
+          </div>
 
-              {/* R25: what a user can execute TODAY, next to the download rather than buried in
-                  a proof panel. This is the whole free path stated once, and it is a bigger
-                  claim than the app alone: mesh to animatable Maya rig with nothing to buy. */}
-              {MAYA_CONTROL_RIG ? (
-                <p class="getblock__today">
-                  Armature exports one USD carrying the mesh, skeleton, weights and control rig
-                  build data. In Maya, the free <a href="/tools/">Fabricator toolset</a> reads it
-                  and builds the control rig for you. Free the whole way.
-                </p>
-              ) : (
-                <p class="getblock__today">
-                  Armature exports one USD carrying the mesh, skeleton, weights and textures. It
-                  imports into Unreal and Maya.
-                </p>
-              )}
-
+          <div class="hero__actions reveal r6">
+            <div class="getblock__actions">
+              <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+                Download for Windows
+              </button>
+              <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-hero">
+                Read the docs
+              </a>
+            </div>
+            <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
               {/* The dialog needs script to open; without it the same rows render as links. */}
               <noscript>
                 <ul class="picker__rows picker__rows--inline">
@@ -237,6 +215,30 @@ const STAGES = [
                   ))}
                 </ul>
               </noscript>
+
+          </div>
+        </div>
+      </header>
+
+      {/* The two cards, under the art rather than inside it: both are read-me-carefully blocks
+          and neither survives being laid over a picture. */}
+      <section class="section hero__cards" aria-label="Before you download">
+        <div class="wrap hero__cards-grid">
+              {/* R25: what a user can execute TODAY, next to the download rather than buried in
+                  a proof panel. This is the whole free path stated once, and it is a bigger
+                  claim than the app alone: mesh to animatable Maya rig with nothing to buy. */}
+              {MAYA_CONTROL_RIG ? (
+                <p class="getblock__today">
+                  Armature exports one USD carrying the mesh, skeleton, weights and control rig
+                  build data. In Maya, the free <a href="/tools/">Fabricator toolset</a> reads it
+                  and builds the control rig for you. Free the whole way.
+                </p>
+              ) : (
+                <p class="getblock__today">
+                  Armature exports one USD carrying the mesh, skeleton, weights and textures. It
+                  imports into Unreal and Maya.
+                </p>
+              )}
 
               {/* The SmartScreen pre-empt (COPY-LAUNCH.md §1, verbatim). Beside the download,
                   above the fold, BEFORE the click: the warning is what a first-time visitor
@@ -264,34 +266,8 @@ const STAGES = [
                   <p class="smartscreen__hash">SHA-256: <code>published at release</code></p>
                 )}
               </aside>
-            </div>
-          </div>
-
-          {/* The inline loop is silent because every browser requires that of an autoplay video.
-              The overlay button opens the same cut full size WITH sound. The button sits OVER
-              the video rather than wrapping it, so no interactive element is nested in another. */}
-          {/* The product shot replaces the vertical teaser loop (Adrian, 2026-08-01). It stays
-              CLICKABLE to the trailer: the file is a thumbnail, being clicked is its job, and
-              the trailer is the best thing in the package. 16:9 now, matching the trailer it
-              opens, where the old slot was 9:16 around a vertical cut.
-
-              Also cheaper: an autoplaying video in the hero cost every visitor the download
-              before they had read a line. This is one image, and nothing reaches YouTube until
-              the click. */}
-          <figure class="slot hero__media reveal r7">
-            <button class="shot-open" type="button" data-teaser-open aria-label="Watch the Armature trailer">
-              <Image
-                src={heroProduct}
-                alt="Armature: a rigged character with its joint chain and control shapes visible in the app"
-                widths={[640, 1280, 2048]}
-                sizes="(min-width: 1150px) 46vw, 92vw"
-                loading="eager"
-              />
-              <span class="shot-open__badge shot-open__badge--play" aria-hidden="true">▶</span>
-            </button>
-          </figure>
         </div>
-      </header>
+      </section>
 
       {/* 2. THE WORKFLOW */}
       <section class="section workflow" data-spine-section aria-labelledby="workflow-title">
@@ -1226,6 +1202,98 @@ const STAGES = [
 
   /* ---------- hero ---------- */
 
+  /* Full-bleed art stage. The art is the hero; everything else is arranged on its flanks. */
+  /* MOBILE FIRST, and deliberately NOT the overlay. At 390px a full-bleed cover crop shows a
+     narrow slice of the art, which cuts the baked-in "Artist+AI Rigging" and "You drive." in
+     half and puts body copy over the samurai's armour. So the phone gets the art whole, at its
+     real 16:9, with the content stacked beneath it on carbon. The overlay switches on at 720px,
+     where there is room for flanks. */
+  .hero--art {
+    position: relative;
+    padding: 0;
+    display: block;
+    border-bottom: 1px solid var(--iron-2);
+  }
+  .hero__art {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    object-position: center;
+  }
+  /* Contrast insurance on both flanks, plus a floor so the buttons never sit on bright art. */
+  .hero__scrim {
+    display: none;
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(11, 14, 16, 0.82) 0%, rgba(11, 14, 16, 0.45) 22%, rgba(11, 14, 16, 0) 42%),
+      linear-gradient(0deg, rgba(11, 14, 16, 0.8) 0%, rgba(11, 14, 16, 0) 30%);
+  }
+  .hero__stage {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    max-width: 1600px;
+    margin: 0 auto;
+    padding: 22px var(--gutter) 30px var(--rail);
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+  /* On a phone the reel sits inline under the copy at a sane size, not over the art. */
+  .hero__flank--right { justify-self: start; }
+  .hero__pill { justify-self: start; }
+
+  .hero__lede {
+    font-size: clamp(17px, 4.6vw, 22px);
+    line-height: 1.35;
+    color: var(--bone);
+    text-wrap: balance;
+  }
+  .hero__sub {
+    margin-top: 10px;
+    font-size: 14.5px;
+    line-height: 1.55;
+    color: var(--bone-dim);
+    max-width: 38ch;
+    text-wrap: pretty;
+  }
+
+  /* The vertical cut, in the shape it was made in. */
+  .hero__reel {
+    position: relative;
+    width: min(100%, 190px);
+    aspect-ratio: 9 / 16;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--iron-3);
+    box-shadow: var(--shadow-lg);
+  }
+  .hero__reel video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero__actions { display: grid; gap: 0; }
+
+  /* The two read-me blocks live BELOW the art: neither survives being laid over a picture. */
+  .hero__cards {
+    padding-top: 30px;
+    padding-bottom: 8px;
+  }
+  .hero__cards-grid {
+    display: grid;
+    gap: 16px;
+    align-items: start;
+  }
+  .hero__cards-grid .getblock__today { margin-top: 0; }
+  .hero__cards-grid .smartscreen { margin-top: 0; }
+
   .hero {
     padding-top: 26px;
     padding-bottom: 64px;
@@ -2075,9 +2143,38 @@ const STAGES = [
       margin-left: -7px;
     }
 
-    .hero {
-      padding-top: 60px;
-      padding-bottom: 110px;
+    .hero--art {
+      display: grid;
+      min-height: min(88vh, 780px);
+      overflow: hidden;
+    }
+    .hero__art {
+      position: absolute;
+      inset: 0;
+      height: 100%;
+      aspect-ratio: auto;
+    }
+    .hero__scrim { display: block; }
+    /* Left copy, centre buttons under the art's own "You drive.", right reel over the squid. */
+    .hero__stage {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1fr);
+      grid-template-areas:
+        "pill    pill    pill"
+        "left    .       right"
+        "left    actions right";
+      align-content: end;
+      gap: 20px 26px;
+      padding-bottom: 40px;
+    }
+    .hero__pill { grid-area: pill; justify-self: end; }
+    .hero__flank--left { grid-area: left; align-self: center; }
+    .hero__flank--right { grid-area: right; justify-self: end; align-self: center; }
+    .hero__actions { grid-area: actions; justify-self: center; text-align: center; }
+    .hero__actions .getblock__actions { justify-content: center; }
+    .hero__reel { width: min(100%, 220px); }
+    .hero__cards-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+      gap: 20px;
     }
     .hero__wordmark {
       width: 300px;
