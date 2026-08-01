@@ -26,7 +26,7 @@ const REFINE = [
 <DocsLayout
   section="armature"
   title="Skinning | Armature Docs"
-  description="Skinning in Armature: AutoSkin generates weights on your own GPU, every result is a versioned pass, and painting, flooding and smoothing refine whichever pass is active."
+  description="Skinning in Armature: Geodesic Voxel solves on any machine, SkinTokens runs the AI weights on your GPU, and every result is a versioned pass you can compare and refine."
 >
   <article class="dd am">
     <a class="dd-breadcrumb" href="/docs/armature/">Armature docs</a>
@@ -34,7 +34,7 @@ const REFINE = [
     <ArmatureDocHeader
       eyebrow="ARMATURE &middot; STATION 3"
       title="SKINNING"
-      summary="Generate weights on your own GPU, keep every result as a version you can compare, and refine whichever pass is active."
+      summary="Two local engines generate your weights, every result is a version you can keep and compare, and painting and smoothing refine whichever pass is active."
     />
 
     <section class="am-section">
@@ -43,11 +43,13 @@ const REFINE = [
           <Image src={stageSkin} alt="The Skin station in Armature, showing generated weights on a samurai character with the influence list and weight brush" widths={[720, 1440]} sizes="(min-width: 900px) 44vw, 92vw" />
         </figure>
         <div>
-          <h2 class="dd-label">THE PASS LIBRARY</h2>
-          <p class="am-p">
-            Generate Skin computes weights with <b>AutoSkin</b>, a local AI engine that runs on
-            your own GPU. Results land in the pass library:
-          </p>
+          <h2 class="dd-label">TWO ENGINES, ONE MENU</h2>
+          <p class="am-p">Generate Skin offers two engines, both local:</p>
+          <ul class="am-list">
+            <li><b>Geodesic Voxel</b> solves in seconds on any machine. Distances travel through the character's body instead of straight lines, so fingers resting near a leg never steal leg weights, and rigid parts (armor plates, props) bind hard to their bone. Deterministic: the same character always gets the same weights. It is a working starting point on any hardware, not a rival to the AI tier.</li>
+            <li><b>SkinTokens</b> is the AI engine, running on your own GPU, and the best weights Armature can produce.</li>
+          </ul>
+          <p class="am-p">Results from either land in the pass library:</p>
           <ul class="am-list">
             {PASSES.map(([k, v]) => <li><b>{k}</b> {v}</li>)}
           </ul>
@@ -81,6 +83,11 @@ const REFINE = [
         works without it.
       </p>
       <p class="am-note">Requirements: an NVIDIA GPU with at least 6 GB of VRAM (8 GB recommended).</p>
+      <p class="am-p">
+        Not taking the download, or no NVIDIA GPU? <b>Geodesic Voxel ships built in</b>, so every
+        machine can skin from the first minute, and the AI tier is one download away whenever you
+        want it.
+      </p>
     </section>
 
     <nav class="am-pager" aria-label="Section">

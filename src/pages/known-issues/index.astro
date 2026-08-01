@@ -58,9 +58,13 @@ const ARMATURE_ISSUES = [
       'Windows SmartScreen will warn you. Click More info, then Run anyway. The SHA-256 is published beside the download if you want to verify the file. An EV certificate is on the way.',
   },
   {
-    title: 'AutoSkin is a separate download',
+    // Rewritten 2026-08-01: Geodesic Voxel shipped in the launch build (A152), so the old row
+    // ("the skinning model is not bundled") now reads as though the app cannot skin without a
+    // 9 GB download. It can. The download buys quality, it does not unlock the feature, and
+    // stating it the old way invents a blocker that no longer exists.
+    title: 'The AI skinning engine is a separate download',
     detail:
-      'The skinning model is not bundled with the installer. Armature fetches it from the model’s own publisher the first time you use it, so the app stays small and the weights come from the people who trained them.',
+      'Armature skins out of the box with Geodesic Voxel, which needs no download and no particular GPU. SkinTokens, the AI engine, is a one-time optional download fetched from the model’s own publisher the first time you use it, so the app stays small and the weights come from the people who trained them. It needs an NVIDIA GPU with 6 GB or more of VRAM.',
   },
   {
     title: 'Activation is online only right now',

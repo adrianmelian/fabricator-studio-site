@@ -35,9 +35,17 @@ export const ARMATURE = {
   installer: UPDATE_BASE + INSTALLER_NAME,
   sha256File: UPDATE_BASE + INSTALLER_NAME + '.sha256',
 
-  // Pasted at the Aug 2 cut from the .sha256 file `npm run dist` emits beside the installer.
+  // The 09:24 2026-08-01 build, the launch candidate. NOT pasted from a relay: computed here
+  // from the bytes of C:/ArmatureBuild/Armature-2.0.0-Setup.exe, and cross-checked against the
+  // .sha256 sidecar, latest.yml's sha512, and the file size. All four agree.
+  //
+  // Two earlier hashes are DEAD and must never appear anywhere: the Jul 31 22:00 build, and
+  // 2584f5f6ebdda1813c99a9d25b387c5ddbf85952a7171efba98fd994522e8d64 (Jul 31 22:47), which a
+  // QA relay reported as verified before the re-cut superseded it. Its size (136945366) does
+  // not match the shipping file (136948131), which is how the mismatch was caught.
+  //
   // Empty renders a "published at release" placeholder instead of a wrong hash.
-  sha256: '',
+  sha256: '59a189c780a7d3b07a44b7ae960a901bdd01e0e01e23dd6b2c1213ea1fed595d',
 
   // The LIVE Stripe payment link (R22, seated 2026-07-31). NEVER a test-mode URL: this value
   // is the only place the Commercial picker reads, so a wrong value here ships everywhere.
