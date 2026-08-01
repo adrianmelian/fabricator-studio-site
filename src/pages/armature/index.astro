@@ -31,6 +31,7 @@ import stageSkeleton from '../../assets/armature/stage-skeleton.png';
 import stageSkin from '../../assets/armature/stage-skin.png';
 import stageExport from '../../assets/armature/stage-export.png';
 import portrait from '../../assets/about/adrian.png';
+import heroProduct from '../../assets/armature/hero-product.png';
 
 // LAUNCH BLOCK (2026-08-03, R10). The early-access MailerLite signup is retired: the product
 // is out, so both signup instruments became download instruments. The launch config (update
@@ -265,18 +266,23 @@ const STAGES = [
           {/* The inline loop is silent because every browser requires that of an autoplay video.
               The overlay button opens the same cut full size WITH sound. The button sits OVER
               the video rather than wrapping it, so no interactive element is nested in another. */}
+          {/* The product shot replaces the vertical teaser loop (Adrian, 2026-08-01). It stays
+              CLICKABLE to the trailer: the file is a thumbnail, being clicked is its job, and
+              the trailer is the best thing in the package. 16:9 now, matching the trailer it
+              opens, where the old slot was 9:16 around a vertical cut.
+
+              Also cheaper: an autoplaying video in the hero cost every visitor the download
+              before they had read a line. This is one image, and nothing reaches YouTube until
+              the click. */}
           <figure class="slot hero__media reveal r7">
-            <video
-              id="teaser-loop"
-              src="/armature/teaser.mp4"
-              poster="/armature/teaser-poster.jpg"
-              muted
-              loop
-              playsinline
-              autoplay
-              preload="metadata"
-              aria-hidden="true"></video>
-            <button class="shot-open shot-open--overlay" type="button" data-teaser-open aria-label="Watch the Armature trailer">
+            <button class="shot-open" type="button" data-teaser-open aria-label="Watch the Armature trailer">
+              <Image
+                src={heroProduct}
+                alt="Armature: a rigged character with its joint chain and control shapes visible in the app"
+                widths={[640, 1280, 2048]}
+                sizes="(min-width: 1150px) 46vw, 92vw"
+                loading="eager"
+              />
               <span class="shot-open__badge shot-open__badge--play" aria-hidden="true">▶</span>
             </button>
           </figure>
@@ -1525,8 +1531,8 @@ const STAGES = [
      into a wide frame reads as a mistake. */
   .hero__media {
     margin-top: 26px;
-    aspect-ratio: 9 / 16;
-    width: min(100%, 300px);
+    aspect-ratio: 16 / 9;
+    width: 100%;
   }
 
   /* ---------- workflow ---------- */
@@ -2080,7 +2086,7 @@ const STAGES = [
     }
     .hero__media {
       margin-top: 34px;
-      width: min(100%, 330px);
+      width: 100%;
     }
 
     .btn {
@@ -2204,9 +2210,11 @@ const STAGES = [
     .hero__copy p {
       font-size: 19px;
     }
+    /* Was capped at 360px around a 9:16 video. A 16:9 shot needs the whole column, or it
+       renders postage-stamp sized beside display type. */
     .hero__media {
       margin-top: 0;
-      width: min(100%, 360px);
+      width: 100%;
       justify-self: end;
     }
   }
