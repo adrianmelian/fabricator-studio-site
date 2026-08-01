@@ -144,7 +144,11 @@ const STAGES = [
             {/* The headline and the paragraph under it are ONE sentence, split across two type
                 sizes. No full stop on the h1, and the paragraph opens lowercase on purpose.
                 Keep them visually adjacent or the device stops reading as a sentence. */}
-            <h1 class="hero__title reveal r3">Artist+AI Rigging</h1>
+            {/* The "+" carries the whole positioning: it is the only place the Artist-and-AI
+                union appears above the fold, so it gets the accent. Decorative accent colour in
+                display type is sanctioned (the wordmark itself alternates bone, plasma and ember
+                across letters); this is not plasma being spent as an action. */}
+            <h1 class="hero__title reveal r3">Artist<span class="hero__plus">+</span>AI Rigging</h1>
 
             {/* The split-sentence device is RETIRED here (2026-08-01): the h1 used to be the
                 first half of one sentence that the paragraph finished, which a lockup headline
@@ -1257,6 +1261,10 @@ const STAGES = [
     /* Was tight because the paragraph used to finish this sentence. The headline is now a
        standalone lockup, so it gets ordinary heading separation. */
     margin-bottom: 18px;
+  }
+
+  .hero__plus {
+    color: var(--plasma);
   }
 
   .hero__copy {
