@@ -172,7 +172,7 @@ const STAGES = [
               ) : (
                 <p class="getblock__today">
                   Armature exports one USD carrying the mesh, skeleton, weights and textures. It
-                  imports into Unreal and Maya with joint orientations intact.
+                  imports into Unreal and Maya.
                 </p>
               )}
 
@@ -350,9 +350,11 @@ const STAGES = [
                     the clip, downloads, and cannot reproduce the second half concludes they
                     were sold something, which is the most expensive first impression there is.
                     The USD claim is unchanged because it is true for both engines. */}
+                {/* Ends a line earlier (Adrian's rule, 2026-07-31). It used to end "with joint
+                    orientations intact", which a rigger already assumes must be true, so
+                    stating it invites "why are you telling me, does it usually not?" */}
                 <p class="panel__text">
-                  The exported USD imports into both Unreal and Maya with joint orientations
-                  intact.
+                  The exported USD imports into both Unreal and Maya.
                 </p>
                 {MAYA_CONTROL_RIG ? (
                   <p class="panel__text">

@@ -47,7 +47,9 @@ const FORMATS = [
           <ul class="am-list">
             <li><b>USD</b> (binary or ASCII) carrying the mesh, skeleton, skin weights and textures, with the textures folder written beside the file so relative paths hold.</li>
             <li><b>The rig blueprint travels inside the USD</b>, so a character can be pulled back into Armature and its skeleton understood later.</li>
-            <li>Verified in practice: exports stand up correctly in Unreal Engine and in Maya, joint orientations included.</li>
+            {/* Ends a line earlier (Adrian's rule, 2026-07-31): the old tail was "joint
+                orientations included", which a rigger assumes anyway. */}
+            <li>Verified in practice: exports stand up correctly in Unreal Engine and in Maya.</li>
           </ul>
         </div>
       </div>
