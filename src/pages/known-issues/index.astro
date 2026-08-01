@@ -130,21 +130,24 @@ const LIMITS = [
 ---
 <BaseLayout
   title="Known issues | FabricatorStudio"
-  description="Every bug we know about in the FabricatorStudio Maya Toolset v1, with a workaround for each, and an honest account of what has and has not been tested."
+  description="Every bug we know about in Armature and the FabricatorStudio Maya Toolset, with an honest account of what has and has not been tested."
 >
   <NavBar />
 
   <article class="dd ki">
     <header class="dd-header">
-      <div class="dd-eyebrow">MAYA TOOLSET &middot; KNOWN ISSUES</div>
+      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; KNOWN ISSUES</div>
       <h1 class="dd-title" aria-label={TITLE}>
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}
       </h1>
-      {/* Scoped to the toolset (Adrian, 2026-07-30): Armature is a separate product with its
-          own version line and its own known-issues list in the Discord. */}
-      <p class="dd-summary">Everything we know is wrong with the Maya Toolset v1, and what to do about it in the meantime.</p>
+      {/* SUPERSEDED 2026-08-01 (R21, then R27). This page covers BOTH products. Armature's
+          known-issues list lives here, not in the Discord: two lists that can disagree is the
+          failure processes/bug-tracking.md warns about, and the Discord announcement links
+          here. Discord is the intake door for reports; this page is the record. Armature keeps
+          its own banded section because the two products have separate version lines. */}
+      <p class="dd-summary">Everything we know is wrong, in Armature and in the Maya Toolset, and what to do about it in the meantime.</p>
     </header>
 
     <section class="ki-honest" aria-labelledby="ki-honest-t">

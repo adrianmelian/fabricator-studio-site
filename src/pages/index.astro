@@ -36,6 +36,8 @@ import FabricatorHero from '../components/FabricatorHero.astro';
 
 import trailerPoster from '../assets/armature/trailer-poster.jpg';
 import heroWordmark from '../assets/hero/wordmark-banner.png';
+// One flag governs every control-rig claim on the site (R25, R27). See src/data/armature.ts.
+import { MAYA_CONTROL_RIG } from '../data/armature';
 
 // BUILT WITH IT. Three entries, not four: Archangel is held back until Adrian clears the
 // game's art direction for public view, and a filler fourth would weaken the three that
@@ -83,8 +85,15 @@ const PROOF = [
     name: 'The Fabricator control rig',
     pill: 'MAYA + UNREAL',
     claim: 'Built procedurally in both, from one export.',
+    // R27 item 3: this card had the same shipped-versus-demonstrated gap /armature's VERIFIED
+    // panel got corrected for under R25. Reading the SAME flag rather than hardcoding a
+    // sentence means the homepage and /armature cannot describe the toolset differently, which
+    // is the actual risk when one claim lives in two places.
     detail:
-      'The USD export carries control rig build data alongside the mesh, skeleton and weights. Both rigs are generated from it, so the controls, their shapes and their hierarchy match without anyone rebuilding them on the far side.',
+      'The USD export carries control rig build data alongside the mesh, skeleton and weights. Both rigs are generated from it, so the controls, their shapes and their hierarchy match without anyone rebuilding them on the far side. ' +
+      (MAYA_CONTROL_RIG
+        ? 'The Maya builder ships free in the toolset today; the Unreal builder is what we are working on next.'
+        : 'Both builders are what we are working on next.'),
     video: '/proof/proof-controlrig.mp4',
     poster: '/proof/proof-controlrig.jpg',
     // Poster is the crossfade frame at t=3.5, where both logos and both rigs are on screen at
