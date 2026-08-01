@@ -182,9 +182,18 @@ const STAGES = [
             </p>
 
             <div class="getblock reveal r6">
-              <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
-                Download for Windows
-              </button>
+              {/* Two doors, deliberately unequal. Download is the plasma action; the docs are a
+                  quiet outline so they never compete with it (colour law: plasma = go). The
+                  docs link matters here because a visitor who is not ready to install still has
+                  somewhere to go, and the alternative is that they leave. */}
+              <div class="getblock__actions">
+                <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+                  Download for Windows
+                </button>
+                <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-hero">
+                  Read the docs
+                </a>
+              </div>
               <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
 
               {/* R25: what a user can execute TODAY, next to the download rather than buried in
@@ -525,9 +534,17 @@ const STAGES = [
           <h2 class="close__title reveal" id="close-title">Armature is out.</h2>
 
           <div class="getblock reveal">
-            <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
-              Download for Windows
-            </button>
+            {/* Same pair as the hero. A reader who got this far without downloading is exactly
+                the one who wants to read first, so the second door belongs here most of all.
+                Its own event name, so the two positions stay measurable apart. */}
+            <div class="getblock__actions">
+              <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+                Download for Windows
+              </button>
+              <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-close">
+                Read the docs
+              </a>
+            </div>
             <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
           </div>
         </div>
@@ -1259,6 +1276,16 @@ const STAGES = [
     max-width: 560px;
   }
 
+  /* Wraps rather than squeezing: on a narrow phone the docs button drops to its own line at
+     full readable size instead of both shrinking below a comfortable tap target. */
+  .getblock__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+
+
   .btn {
     min-height: 48px;
     padding: 12px 26px;
@@ -1287,6 +1314,30 @@ const STAGES = [
   .btn:active {
     transform: translateY(1px) scale(0.985);
     background: var(--plasma-dim);
+    box-shadow: none;
+  }
+
+  /* The secondary door. Iron and bone, NEVER plasma: plasma means go, and there is already a
+     go on this row. Must be declared AFTER .btn, not before: same specificity means source
+     order decides, and sitting above .btn is how this shipped as a second green button. */
+  .btn--quiet {
+    background: var(--iron);
+    color: var(--bone);
+    border: 1px solid var(--iron-3);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+  .btn--quiet:hover {
+    background: var(--iron-2);
+    border-color: var(--bone-faint);
+    color: var(--bone);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn--quiet:active {
+    transform: translateY(1px) scale(0.985);
+    background: var(--iron-2);
     box-shadow: none;
   }
 
