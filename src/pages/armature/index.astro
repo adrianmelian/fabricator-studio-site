@@ -43,8 +43,9 @@ import { ARMATURE_TUTORIALS as WALKTHROUGHS } from '../../data/tutorials';
 
 const TITLE = 'Armature, by FabricatorStudio';
 // Tracks the hero sentence. The old description quoted copy that is no longer on the page.
+// Tracks the hero, so it moves whenever the hero copy does.
 const DESCRIPTION =
-  'High end character rigging has always lived inside expensive applications. Armature is for the indie dev who cannot justify one, and the veteran rigger who wants to move faster.';
+  'Most AI tooling is built to do it for you. Armature is built to be driven. Standalone character rigging and skinning, free for indies.';
 
 // EIGHT sections since the walkthroughs landed (2026-07-30), so nine joints (one per
 // boundary, plus the closing one) and eight bones. These counts are not decorative: the
@@ -142,12 +143,30 @@ const STAGES = [
             {/* The headline and the paragraph under it are ONE sentence, split across two type
                 sizes. No full stop on the h1, and the paragraph opens lowercase on purpose.
                 Keep them visually adjacent or the device stops reading as a sentence. */}
-            <h1 class="hero__title reveal r3">High End Character Rigging</h1>
+            <h1 class="hero__title reveal r3">Artist+AI Rigging</h1>
 
+            {/* The split-sentence device is RETIRED here (2026-08-01): the h1 used to be the
+                first half of one sentence that the paragraph finished, which a lockup headline
+                cannot do. The old sentence is not lost, it survives whole in the second
+                paragraph below.
+
+                Craft rules this copy was written against, so nobody "improves" it back:
+                - The contrast is different-subject ("most AI tooling" vs "Armature"), which is
+                  the sanctioned form. Do NOT rewrite it into "it's not X, it's Y".
+                - AI never appears unqualified: the union lives in the "+", and the paragraph
+                  gives the machine its seat and the reader the wheel. Keep them adjacent.
+                - The driver frame belongs to THIS block only. Do not echo "wheel", "driver" or
+                  "passenger" elsewhere on the page. */}
             <div class="hero__copy reveal r4">
               <p>
-                has always lived inside expensive applications. Armature is for the indie dev who
-                cannot justify one, and the veteran rigger who wants to move faster.
+                <b>You drive.</b> Most AI tooling is built to do it for you. Armature is built to
+                be driven. Press one button and the result is good enough for a hobbyist. Keep
+                going and there is enough depth to take it as far as a professional needs.
+              </p>
+              <p>
+                High end character rigging has always lived inside expensive applications.
+                Armature is for the indie dev who cannot justify one, and the veteran rigger who
+                wants to move faster.
               </p>
             </div>
 
@@ -1206,8 +1225,9 @@ const STAGES = [
     letter-spacing: -0.035em;
     max-width: 15ch;
     text-wrap: balance;
-    /* Tight, because the paragraph below finishes this sentence. */
-    margin-bottom: 12px;
+    /* Was tight because the paragraph used to finish this sentence. The headline is now a
+       standalone lockup, so it gets ordinary heading separation. */
+    margin-bottom: 18px;
   }
 
   .hero__copy {
