@@ -135,7 +135,7 @@ const STAGES = [
              Everything is positioned against the artwork's own composition: dark gradient down
              the left flank for the copy, the squid on the right for the video, the baked
              centre text with the buttons beneath it. */}
-      <header class="section hero hero--art" data-spine-section>
+      <header class="section hero hero--art">
         <Image
           class="hero__art"
           src={heroProduct}
@@ -222,7 +222,7 @@ const STAGES = [
 
       {/* The two cards, under the art rather than inside it: both are read-me-carefully blocks
           and neither survives being laid over a picture. */}
-      <section class="section hero__cards" aria-label="Before you download">
+      <section class="section hero__cards" data-spine-section aria-label="Before you download">
         <div class="wrap hero__cards-grid">
               {/* R25: what a user can execute TODAY, next to the download rather than buried in
                   a proof panel. This is the whole free path stated once, and it is a bigger
@@ -618,21 +618,31 @@ const STAGES = [
     var shell = document.querySelector('.shell');
     var sections = Array.prototype.slice.call(document.querySelectorAll('[data-spine-section]'));
     var joints = Array.prototype.slice.call(spine.querySelectorAll('.joint'));
+    // The spine begins BELOW the hero (Adrian, 2026-08-01): the art is its own full-bleed
+    // world and a skeleton rail running over it read as page chrome laid on a picture.
+    var heroEl = document.querySelector('.hero--art');
+    var spineOffset = 0;
     var bones = Array.prototype.slice.call(spine.querySelectorAll('.bone'));
 
     // A joint sits at every section boundary; a bone spans the gap between two joints.
     function placeSpine() {
       var shellTop = shell.getBoundingClientRect().top + window.scrollY;
+      spineOffset = heroEl
+        ? heroEl.getBoundingClientRect().bottom + window.scrollY - shellTop
+        : 0;
+      spine.style.top = spineOffset + 'px';
+      spine.style.height = Math.max(0, shell.offsetHeight - spineOffset) + 'px';
+
+      // Every point below is measured from the SPINE's own origin, not the shell's, or the
+      // joints land one hero-height too low.
       var points = sections.map(function (s) {
-        return s.getBoundingClientRect().top + window.scrollY - shellTop;
+        return s.getBoundingClientRect().top + window.scrollY - shellTop - spineOffset;
       });
       var last = sections[sections.length - 1];
-      points.push(last.getBoundingClientRect().bottom + window.scrollY - shellTop);
+      points.push(last.getBoundingClientRect().bottom + window.scrollY - shellTop - spineOffset);
 
       points.forEach(function (y, i) {
-        // The first boundary is the top of the document, where a centred joint would be cut in
-        // half by the viewport edge. Nudge only that one down.
-        var top = i === 0 ? Math.max(y, 22) : y;
+        var top = y;
         if (joints[i]) joints[i].style.top = top + 'px';
         if (bones[i] && points[i + 1] != null) {
           bones[i].style.top = top + 14 + 'px';
@@ -643,9 +653,9 @@ const STAGES = [
 
     function updateDraw() {
       if (reduced.matches) return;
-      var top = shell.getBoundingClientRect().top + window.scrollY;
+      var top = shell.getBoundingClientRect().top + window.scrollY + spineOffset;
       var progress = window.scrollY + window.innerHeight * 0.62 - top;
-      draw.style.height = Math.max(0, Math.min(progress, shell.offsetHeight)) + 'px';
+      draw.style.height = Math.max(0, Math.min(progress, spine.offsetHeight)) + 'px';
     }
 
     placeSpine();
