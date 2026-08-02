@@ -37,7 +37,7 @@ import FabricatorHero from '../components/FabricatorHero.astro';
 import trailerPoster from '../assets/armature/trailer-poster.jpg';
 import heroWordmark from '../assets/hero/wordmark-banner.png';
 // One flag governs every control-rig claim on the site (R25, R27). See src/data/armature.ts.
-import { MAYA_CONTROL_RIG } from '../data/armature';
+import { ARMATURE, MAYA_CONTROL_RIG } from '../data/armature';
 
 // BUILT WITH IT. Three entries, not four: Archangel is held back until Adrian clears the
 // game's art direction for public view, and a filler fourth would weaken the three that
@@ -71,7 +71,7 @@ const PROOF = [
     pill: 'IN UNREAL',
     claim: 'Rigged, skinned, and animating in engine, all through the same route.',
     detail:
-      'Joints placed by hand, skin weights solved on the machine, and one USD file carrying the mesh, skeleton, orientations and weights into Unreal, where the Fabricator control rig is built procedurally from that same export data.',
+      'Joints placed by hand, skin weights solved on the machine, and one USD file carrying the mesh, skeleton, orientations and weights into Unreal, where the Fabricator Control Rig is built procedurally from that same export data.',
     video: '/proof/proof-unreal-montage.mp4',
     poster: '/proof/proof-unreal-montage.jpg',
     alt: 'A samurai, a ninja and a lumberjack character animating in the Unreal viewport.',
@@ -82,7 +82,7 @@ const PROOF = [
     //
     // The clip shows Maya and Unreal, and it says so itself with both logos in frame. What it
     // cannot show is that neither rig was authored: both are generated from the same export.
-    name: 'The Fabricator control rig',
+    name: 'The Fabricator Control Rig',
     pill: 'MAYA + UNREAL',
     claim: 'Built procedurally in both, from one export.',
     // R27 item 3: this card had the same shipped-versus-demonstrated gap /armature's VERIFIED
@@ -126,14 +126,14 @@ const PROOF = [
         <span class="hero-divider__gem"></span>
         <span class="hero-divider__bar"></span>
       </div>
-      {/* The studio line LEADS now. This is the whole posture fix in one sentence swap: the
-          page declares what it is in the first six seconds, instead of a visitor having to
-          find the Services tab to learn a person is behind it. */}
-      <p class="hero-sub hero-sub--studio"><b>FabricatorStudio is a one-person technical art studio.</b> The pipeline is <b class="hero-sub__hl">free</b>. The technical artist who built it is <b class="hero-sub__ember">available for hire</b>.</p>
-      {/* Names the PRODUCT, not the studio (Adrian, 2026-07-30): the studio line directly
-          above already says what FabricatorStudio is, so reusing the company name here as the
-          subject of a product claim blurred the two. */}
-      <p class="hero-sub"><b>Next-gen Maya Studio Pipeline.</b> The Maya Toolset allows you to focus on <b class="hero-sub__hl">what matters most</b>, and <b class="hero-sub__ember">automates the rest</b>. Automated <b class="hero-sub__hl">high-end, animator-friendly rigs</b>, <b class="hero-sub__ember">autoskinning</b>, and <b class="hero-sub__hl">direct to engine delivery</b>.</p>
+      {/* Adrian's own rewrite, 2026-08-01 evening, shipped as written. The philosophy leads
+          now: Artist Driven AI tools, the dev-to-artist floor-and-ceiling, and the refinement
+          contrast. He knowingly kept the "These are not AI tools" shape against the anti-slop
+          Tier A rule; owner's override, recorded here so nobody "fixes" it back. The
+          available-for-hire line moved out of the hero on the same pass; hiring converts in
+          the closing band, after the proof. */}
+      <p class="hero-sub hero-sub--studio"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="hero-sub__hl">Free for small studios.</b> These are not AI tools, they are <b class="hero-sub__ember">Artist tools with AI assistance</b>.</p>
+      <p class="hero-sub">A dev generates a <b class="hero-sub__hl">working rig in minutes</b>; a character artist pushes it to <b class="hero-sub__ember">production level</b>. Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can drive your asset to production level standards.</b></p>
       {/* Two doors, unequal on purpose. Most arrivals today come for the toolset, so the free
           download keeps the visual weight it has always had and the paid door sits beside it
           rather than competing with it. Hiring is NOT in the hero: it is a different audience
@@ -167,10 +167,12 @@ const PROOF = [
         sizes="(min-width: 900px) 56vw, 92vw"
       />
       <div class="arm-body">
-        <Pill text="Coming soon" tone="plasma" />
+        <Pill text={`Out now · ${ARMATURE.version}`} tone="plasma" />
         <h3 class="arm-head">High End Character Rigging</h3>
         <p class="arm-lead">has always lived inside expensive applications. Armature is for the indie dev who cannot justify one, and the veteran rigger who wants to move faster.</p>
-        <p class="arm-note">Armature is a new standalone application.</p>
+        {/* The clarifying line for toolset owners carries the thesis (SPEC-SITE-LAUNCH item 1),
+            worded for a reader who already knows the Maya toolset. */}
+        <p class="arm-note">Armature is a new standalone application, no Maya seat needed: its AI half gets a character rigged in minutes, and its hand tools refine the result to production level.</p>
         <div class="arm-ctas">
           <BracketButton kind="hard" href="/armature/" label="See Armature" event="home-armature" />
         </div>
