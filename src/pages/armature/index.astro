@@ -32,6 +32,8 @@ import stageSkin from '../../assets/armature/stage-skin.png';
 import stageExport from '../../assets/armature/stage-export.png';
 import portrait from '../../assets/about/adrian.png';
 import heroProduct from '../../assets/armature/hero-product.png';
+import fsMark from '../../assets/armature/fs-mark.png';
+import armWordmark from '../../assets/armature/armature-wordmark.png';
 
 // LAUNCH BLOCK (2026-08-03, R10). The early-access MailerLite signup is retired: the product
 // is out, so both signup instruments became download instruments. The launch config (update
@@ -48,12 +50,12 @@ const TITLE = 'Armature, by FabricatorStudio';
 const DESCRIPTION =
   'Speed for the Devs. Depth for the Artists. AI rigging and skinning with tools to make production-ready rigs. Free for indies.';
 
-// EIGHT sections since the walkthroughs landed (2026-07-30), so nine joints (one per
-// boundary, plus the closing one) and eight bones. These counts are not decorative: the
+// SEVEN sections since the cards band was cut (2026-08-01 evening), so eight joints (one
+// per boundary, plus the closing one) and seven bones. These counts are not decorative: the
 // script places joints from real [data-spine-section] offsets, so an added section with a
-// stale count silently loses its joint and its bone.
-const SPINE_JOINTS = 9;
-const SPINE_BONES = 8;
+// stale count silently loses its joint and its bone, and a removed one leaves stray markers.
+const SPINE_JOINTS = 8;
+const SPINE_BONES = 7;
 
 const STAGES = [
   {
@@ -127,10 +129,11 @@ const STAGES = [
 
     <main id="main">
       {/* 1. HERO — full-bleed product art with the page furniture arranged on its flanks
-             (Adrian, 2026-08-01). The ART carries the wordmark, the headline and "You drive."
-             already, so the DOM no longer repeats them: the visible wordmark and kicker are
-             gone and the h1 is screen-reader only, which keeps the page's one real heading for
-             search and assistive tech without printing it twice.
+             (Adrian, 2026-08-01). The ART carries the headline and "You drive." baked at its
+             centre; the FS mark and the Armature wordmark are layered LIVE above them (Adrian's
+             call, evening pass: the new art ships without logos so the marks stay crisp and
+             swappable). The h1 stays screen-reader only, which keeps the page's one real
+             heading for search and assistive tech without printing the headline twice.
 
              Everything is positioned against the artwork's own composition: dark gradient down
              the left flank for the copy, the squid on the right for the video, the baked
@@ -148,12 +151,49 @@ const STAGES = [
             its flanks, so each side gets a carbon gradient to guarantee contrast at any crop. */}
         <div class="hero__scrim" aria-hidden="true"></div>
 
+        {/* The live lockup: FS mark over the Armature wordmark, anchored to the art's top
+            left (Adrian, 2026-08-01 evening: centred it obscured the baked headline). The
+            wrapper mirrors the art box (16:9 in flow on phones, full-bleed cover on desktop)
+            so the corner seat scales with the art. Decorative: the h1 and the nav already
+            carry the name for assistive tech. */}
+        <div class="hero__lockup" aria-hidden="true">
+          <div class="hero__lockup-stack">
+            <Image class="hero__lockup-mark" src={fsMark} alt="" widths={[120, 240, 338]} sizes="(min-width: 720px) 6vw, 10vw" />
+            <Image class="hero__lockup-word" src={armWordmark} alt="" widths={[300, 600, 1066]} sizes="(min-width: 720px) 16vw, 26vw" />
+          </div>
+        </div>
+
+        {/* Pinned to the art's top right corner, mirroring the lockup's seat on the left
+            (Adrian, 2026-08-01 evening). Lives outside the stage grid so it stays put while
+            the stage packs its content to the fold. */}
+        <p class="hero__pill">
+          <span class="pill"><span class="pill__dot"></span>Out now &middot; {ARMATURE.version}</span>
+        </p>
+
+        {/* The silent vertical teaser, pinned to the right edge under the pill (Adrian,
+            2026-08-01 evening; it lived mid-flank over the squid before). The product in
+            motion is what a still cannot do. Clicking it opens the full trailer. On phones
+            it flows in the column under the art instead of floating over it. */}
+        <div class="hero__flank hero__flank--right reveal r5">
+          <figure class="hero__reel">
+            <video
+              id="teaser-loop"
+              src="/armature/teaser.mp4"
+              poster="/armature/teaser-poster.jpg"
+              muted
+              loop
+              playsinline
+              autoplay
+              preload="metadata"
+              aria-hidden="true"></video>
+            <button class="shot-open shot-open--overlay" type="button" data-teaser-open aria-label="Watch the Armature trailer">
+              <span class="shot-open__badge shot-open__badge--play" aria-hidden="true">&#9654;</span>
+            </button>
+          </figure>
+        </div>
+
         <div class="hero__stage">
           <h1 class="sr-only">Artist+AI Rigging</h1>
-
-          <p class="hero__pill">
-            <span class="pill"><span class="pill__dot"></span>Out now &middot; {ARMATURE.version}</span>
-          </p>
 
           <div class="hero__flank hero__flank--left reveal r3">
             <p class="hero__lede"><b>Speed for the Devs. Depth for the Artists.</b></p>
@@ -162,27 +202,6 @@ const STAGES = [
               Armature is for the indie dev who cannot justify one, and the veteran rigger who
               wants to move faster.
             </p>
-          </div>
-
-          {/* Over the squid, per Adrian. The silent vertical teaser returns here: the product
-              in motion is what a still cannot do, and this is the shape that cut was made in.
-              Clicking it opens the full trailer, same as before. */}
-          <div class="hero__flank hero__flank--right reveal r5">
-            <figure class="hero__reel">
-              <video
-                id="teaser-loop"
-                src="/armature/teaser.mp4"
-                poster="/armature/teaser-poster.jpg"
-                muted
-                loop
-                playsinline
-                autoplay
-                preload="metadata"
-                aria-hidden="true"></video>
-              <button class="shot-open shot-open--overlay" type="button" data-teaser-open aria-label="Watch the Armature trailer">
-                <span class="shot-open__badge shot-open__badge--play" aria-hidden="true">&#9654;</span>
-              </button>
-            </figure>
           </div>
 
           <div class="hero__actions reveal r6">
@@ -220,54 +239,9 @@ const STAGES = [
         </div>
       </header>
 
-      {/* The two cards, under the art rather than inside it: both are read-me-carefully blocks
-          and neither survives being laid over a picture. */}
-      <section class="section hero__cards" data-spine-section aria-label="Before you download">
-        <div class="wrap hero__cards-grid">
-              {/* R25: what a user can execute TODAY, next to the download rather than buried in
-                  a proof panel. This is the whole free path stated once, and it is a bigger
-                  claim than the app alone: mesh to animatable Maya rig with nothing to buy. */}
-              {MAYA_CONTROL_RIG ? (
-                <p class="getblock__today">
-                  Armature exports one USD carrying the mesh, skeleton, weights and control rig
-                  build data. In Maya, the free <a href="/tools/">Fabricator toolset</a> reads it
-                  and builds the control rig for you. Free the whole way.
-                </p>
-              ) : (
-                <p class="getblock__today">
-                  Armature exports one USD carrying the mesh, skeleton, weights and textures. It
-                  imports into Unreal and Maya.
-                </p>
-              )}
-
-              {/* The SmartScreen pre-empt (COPY-LAUNCH.md §1, verbatim). Beside the download,
-                  above the fold, BEFORE the click: the warning is what a first-time visitor
-                  sees, and an unexplained one reads as malware. More load-bearing than the
-                  certificate itself. */}
-              <aside class="smartscreen" aria-labelledby="smartscreen-title">
-                <h3 class="smartscreen__title" id="smartscreen-title">Windows will warn you the first time you run this</h3>
-                {/* "Click <b>" stays on ONE line: Astro trims the whitespace before an inline
-                    tag at the start of a wrapped line and welds the word to the tag. */}
-                <p>
-                  Armature is a new installer from a new publisher, so Windows SmartScreen shows a
-                  blue "Windows protected your PC" screen the first time you open it. Click <b>More info</b>, then <b>Run anyway</b>.
-                </p>
-                <p>
-                  SmartScreen is rating the installer's reputation. It trusts files that have been
-                  downloaded many times, or signed with a certificate that has already built up
-                  history. This one is new on both counts. An EV code signing certificate is on the
-                  way. Until it lands, this is what a brand new installer looks like on Windows.
-                </p>
-                <p>To check the file yourself, compare it against the SHA-256 published beside the download:</p>
-                <pre class="smartscreen__code"><code>Get-FileHash .\{INSTALLER_NAME} -Algorithm SHA256</code></pre>
-                {ARMATURE.sha256 ? (
-                  <p class="smartscreen__hash">SHA-256: <code>{ARMATURE.sha256}</code></p>
-                ) : (
-                  <p class="smartscreen__hash">SHA-256: <code>published at release</code></p>
-                )}
-              </aside>
-        </div>
-      </section>
+      {/* The cards band is gone (Adrian, 2026-08-01 evening): the SmartScreen pre-empt lives
+          in the download picker now, and the USD/control-rig card was cut — the VERIFIED
+          panel and the docs already carry that claim, both still wired to MAYA_CONTROL_RIG. */}
 
       {/* 2. THE WORKFLOW */}
       <section class="section workflow" data-spine-section aria-labelledby="workflow-title">
@@ -275,6 +249,13 @@ const STAGES = [
           <div class="workflow__head reveal">
             <p class="eyebrow">The workflow</p>
             <h2 class="section-title" id="workflow-title">Five stages, one app.</h2>
+            {/* The thesis, worded for this surface (SPEC-SITE-LAUNCH item 1): the AI half and
+                the human half, stated where the stages are about to demonstrate both. */}
+            <p class="workflow__thesis">
+              The AI half takes a mesh to a working rig in minutes. The human half is a full
+              set of professional tools for pushing that rig to production level. Every stage
+              below carries both.
+            </p>
           </div>
 
           <ol class="stages">
@@ -585,6 +566,25 @@ const STAGES = [
               </li>
             ))}
           </ul>
+          {/* The SmartScreen pre-empt, at the point of download (Adrian, 2026-08-01 evening;
+              it was a page card before, with two explanation paragraphs he cut). The person
+              reading this just pressed Download, so it carries only the two things they need:
+              the click path past the warning, and the hash to verify against. */}
+          <aside class="smartscreen smartscreen--picker" aria-labelledby="smartscreen-title">
+            <h3 class="smartscreen__title" id="smartscreen-title">Windows will warn you the first time you run this</h3>
+            {/* "Click <b>" stays on ONE line: Astro trims the whitespace before an inline
+                tag at the start of a wrapped line and welds the word to the tag. */}
+            <p>
+              Armature is a new installer from a new publisher, so Windows SmartScreen shows a
+              blue "Windows protected your PC" screen the first time you open it. Click <b>More info</b>, then <b>Run anyway</b>.
+            </p>
+            <pre class="smartscreen__code"><code>Get-FileHash .\{INSTALLER_NAME} -Algorithm SHA256</code></pre>
+            {ARMATURE.sha256 ? (
+              <p class="smartscreen__hash">SHA-256: <code>{ARMATURE.sha256}</code></p>
+            ) : (
+              <p class="smartscreen__hash">SHA-256: <code>published at release</code></p>
+            )}
+          </aside>
           <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
             <span aria-hidden="true">✕</span>
           </button>
@@ -640,6 +640,12 @@ const STAGES = [
       });
       var last = sections[sections.length - 1];
       points.push(last.getBoundingClientRect().bottom + window.scrollY - shellTop - spineOffset);
+
+      // The first boundary sits exactly on the hero's bottom edge, and the hero's opaque art
+      // paints over the spine's overhang, which cut the first joint circle in half (Adrian,
+      // 2026-08-01). Seat it clear below the line, tuned by eye at 32; its bone shortens by
+      // the same amount.
+      points[0] += 32;
 
       points.forEach(function (y, i) {
         var top = y;
@@ -1242,6 +1248,41 @@ const STAGES = [
       linear-gradient(90deg, rgba(11, 14, 16, 0.82) 0%, rgba(11, 14, 16, 0.45) 22%, rgba(11, 14, 16, 0) 42%),
       linear-gradient(0deg, rgba(11, 14, 16, 0.8) 0%, rgba(11, 14, 16, 0) 30%);
   }
+  /* The live lockup box, anchored top left so the art's baked centre text stays clear.
+     On mobile it mirrors the in-flow 16:9 art exactly. Sizes are fractions of the box
+     width so the marks keep scale with the art, with px floors so a phone still gets a
+     readable wordmark; the corner seat is percentage padding so it scales the same way. */
+  .hero__lockup {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding: 2.5% 0 0 2.75%;
+    pointer-events: none;
+    z-index: 2;
+  }
+  /* The stack shrink-wraps in the corner, so the marks size in vw rather than %: a
+     percentage would resolve against this content-sized column, and the art box spans
+     the full viewport width in both hero modes anyway. */
+  .hero__lockup-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(6px, 1vw, 16px);
+  }
+  .hero__lockup-mark {
+    width: clamp(34px, 5.2vw, 148px);
+    height: auto;
+  }
+  .hero__lockup-word {
+    width: clamp(104px, 15vw, 400px);
+    height: auto;
+  }
+
   .hero__stage {
     position: relative;
     z-index: 2;
@@ -1253,9 +1294,19 @@ const STAGES = [
     grid-template-columns: 1fr;
     gap: 18px;
   }
-  /* On a phone the reel sits inline under the copy at a sane size, not over the art. */
-  .hero__flank--right { justify-self: start; }
-  .hero__pill { justify-self: start; }
+  /* On a phone the reel flows in the column under the art at a sane size, not over it.
+     It lives outside the stage now, so it carries its own gutter. */
+  .hero__flank--right { padding: 16px var(--gutter) 0 var(--rail); }
+  /* Top right corner of the art box, the mirror of the lockup's top-left seat: same
+     percentage padding, so the two hold the same height off the corner at every width. */
+  .hero__pill {
+    position: absolute;
+    top: 0;
+    right: 0;
+    margin: 0;
+    padding: 2.5% 2.75% 0 0;
+    z-index: 2;
+  }
 
   .hero__lede {
     font-size: clamp(17px, 4.6vw, 22px);
@@ -1290,19 +1341,6 @@ const STAGES = [
   }
 
   .hero__actions { display: grid; gap: 0; }
-
-  /* The two read-me blocks live BELOW the art: neither survives being laid over a picture. */
-  .hero__cards {
-    padding-top: 30px;
-    padding-bottom: 8px;
-  }
-  .hero__cards-grid {
-    display: grid;
-    gap: 16px;
-    align-items: start;
-  }
-  .hero__cards-grid .getblock__today { margin-top: 0; }
-  .hero__cards-grid .smartscreen { margin-top: 0; }
 
   .hero {
     padding-top: 26px;
@@ -1441,22 +1479,6 @@ const STAGES = [
   .reassure a { color: var(--bone); border-bottom: 1px solid var(--iron-3); }
   .reassure a:hover { color: var(--plasma); border-color: var(--plasma); }
 
-  .getblock__today {
-    margin-top: 14px;
-    padding: 12px 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--iron-2);
-    border-left: 3px solid var(--plasma);
-    background-color: var(--iron);
-    background-image: var(--shine);
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--bone-dim);
-    text-wrap: pretty;
-  }
-  .getblock__today a { color: var(--plasma); }
-  .getblock__today a:hover { color: var(--bone); }
-
   /* ---------- SmartScreen pre-empt ---------- */
 
   /* Ember is label / attention doing its sanctioned job: this panel is a heads-up, not an
@@ -1509,6 +1531,12 @@ const STAGES = [
   .smartscreen__hash code {
     color: var(--bone);
     word-break: break-all;
+  }
+  /* Inside the picker: separated from the licence rows, and flatter than the page card so
+     the rows stay the loudest thing in the dialog. */
+  .smartscreen--picker {
+    margin-top: 18px;
+    box-shadow: none;
   }
 
   /* ---------- the licence picker ---------- */
@@ -1629,6 +1657,14 @@ const STAGES = [
   }
   .workflow__head {
     margin-bottom: 34px;
+  }
+  .workflow__thesis {
+    margin-top: 12px;
+    font-size: 15px;
+    line-height: 1.55;
+    color: var(--bone-dim);
+    max-width: 62ch;
+    text-wrap: pretty;
   }
 
   .stages {
@@ -2165,27 +2201,38 @@ const STAGES = [
       aspect-ratio: auto;
     }
     .hero__scrim { display: block; }
+    /* The lockup box follows the art to full bleed: the cover crop is centre-anchored, so
+       the baked text's horizontal centre holds and its top edge only drifts between ~44%
+       and ~46% of the container across aspect ratios. The 43% floor stays above it. */
+    .hero__lockup {
+      inset: 0;
+      width: auto;
+      aspect-ratio: auto;
+    }
     /* Left copy, centre buttons under the art's own "You drive.", right reel over the squid. */
     .hero__stage {
       grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1fr);
       grid-template-areas:
-        "pill    pill    pill"
         "left    .       right"
         "left    actions right";
       align-content: end;
       gap: 20px 26px;
       padding-bottom: 40px;
     }
-    .hero__pill { grid-area: pill; justify-self: end; }
     .hero__flank--left { grid-area: left; align-self: center; }
-    .hero__flank--right { grid-area: right; justify-self: end; align-self: center; }
+    /* Pinned under the pill on the right edge: 2.5vw matches the pill's percentage seat
+       (the hero is full-bleed, so vw and container % agree), plus the pill's own height. */
+    .hero__flank--right {
+      position: absolute;
+      top: calc(2.5vw + 44px);
+      right: 2.75vw;
+      width: 308px; /* 220 + 40%, Adrian's call on the pinned reel */
+      padding: 0;
+      z-index: 2;
+    }
     .hero__actions { grid-area: actions; justify-self: center; text-align: center; }
     .hero__actions .getblock__actions { justify-content: center; }
-    .hero__reel { width: min(100%, 220px); }
-    .hero__cards-grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
-      gap: 20px;
-    }
+    .hero__reel { width: min(100%, 308px); }
     .hero__wordmark {
       width: 300px;
       margin-bottom: 20px;
