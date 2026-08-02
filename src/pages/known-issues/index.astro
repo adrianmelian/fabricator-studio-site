@@ -58,6 +58,14 @@ const ARMATURE_ISSUES = [
       'Windows SmartScreen will warn you. Click More info, then Run anyway. The SHA-256 is published beside the download if you want to verify the file. An EV certificate is on the way.',
   },
   {
+    // Seeded from SPEC-SITE-LAUNCH item 5 row 2 (2026-08-01). The QA pass found the app
+    // accepts a mistyped address without complaint (F1-3), so the "check the address" line
+    // is load-bearing: a typo and a spam filter look identical from the user's side.
+    title: 'The sign-in and licence-key emails can land in spam',
+    detail:
+      'The code we send at sign-in, and the licence key after a purchase, sometimes land in the spam folder or in Gmail’s Promotions tab. Check there before requesting another. If nothing arrives at all, make sure the address you typed is really yours: Armature sends to exactly what you entered.',
+  },
+  {
     // Rewritten 2026-08-01: Geodesic Voxel shipped in the launch build (A152), so the old row
     // ("the skinning model is not bundled") now reads as though the app cannot skin without a
     // 9 GB download. It can. The download buys quality, it does not unlock the feature, and

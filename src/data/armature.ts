@@ -19,6 +19,10 @@ export const USD_IMPORT = false;
 // True = the page says Maya builds your control rig for you, free.
 // False = the page keeps the honest USD claim and says nothing a user cannot execute.
 // Flip it in one place; the hero line and the VERIFIED panel both read it.
+//
+// RESOLVED 2026-08-01: toolset 1.2.0 with the Armature import is published on the stable
+// key (R26-ack; edge verified serving Fabricator_v1.2.0.zip at 17:19 local). The R27 merge
+// gate is met and true is an executable claim.
 export const MAYA_CONTROL_RIG = true;
 
 // The STABLE update-feed base (R10-ack item 1). electron-updater fetches

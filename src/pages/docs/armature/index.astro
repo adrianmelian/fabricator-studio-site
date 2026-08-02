@@ -84,15 +84,29 @@ const WALKTHROUGH_COPY: Record<string, string> = {
     />
     <p class="am-crumb"><a href="/armature/">Product page</a> &middot; version {ARMATURE.version}</p>
 
-    {/* The idea the whole tool hangs on. It earns the top slot because every station is an
-        instance of it. */}
-    <section class="am-thesis" aria-label="The safe, versioned loop">
+    {/* The thesis (DOCS-SITE-ARMATURE.md intro, Adrian's framing pass 2026-08-01), then the
+        versioned loop as the bridge between the two halves. Every station below is an
+        instance of one or the other. */}
+    <section class="am-thesis" aria-label="What Armature is">
       <p>
-        One idea runs through the whole tool: <b>the safe, versioned loop.</b> Move joints,
+        <b>Armature is a Human + AI rigging tool.</b> The AI half gets a character rigged
+        fast: drop a template, let it propose joints, generate skin weights with one press.
+        The human half is a full set of professional rigging tools: a purpose-built joint
+        manipulator, weight painting with locks and layers, range-of-motion proof, versioned
+        skin passes you compare side by side.
+      </p>
+      <p>
+        Which half you lean on is up to you. A hobbyist or a game developer can take a mesh
+        to a working, engine-ready rig in minutes and stop there, because it works. A
+        character artist can take that same rig and push it to production level, joint by
+        joint and weight by weight, with tools that respect the craft.
+      </p>
+      <p>
+        The bridge between the two halves is <b>the safe, versioned loop.</b> Move joints,
         re-generate weights, keep the version you like, and compare passes side by side.
-        Nothing you do is final until you say it is, and one undo always brings back what you
-        had. Most auto-riggers treat their first guess as the answer. Armature treats it as
-        the starting point of a conversation.
+        Nothing the AI does is final until you say it is, and one undo always brings back
+        what you had. Most auto-riggers treat their first guess as the answer. Armature
+        treats it as the starting point of a conversation between you and the machine.
       </p>
     </section>
 

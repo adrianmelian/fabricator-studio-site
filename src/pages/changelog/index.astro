@@ -38,8 +38,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 const ARMATURE_RELEASES = [
   {
     version: '2.0.0',
-    date: '2026-08-03',
-    dateLabel: '2026 · 08 · 03',
+    date: '2026-08-01',
+    dateLabel: '2026 · 08 · 01',
     tag: 'First release',
     lede: 'Armature is out. A standalone app that takes a character mesh in and hands back a rigged, skinned, engine-ready character, with no Maya licence needed. Free for personal work and for studios under $100k a year.',
     groups: [
@@ -67,6 +67,36 @@ const ARMATURE_RELEASES = [
 ];
 
 const RELEASES = [
+  // 1.2.0 copy source: MrMiata workspace/2026-07-31_fs-1.2.0-release/CHANGELOG-DRAFT.md,
+  // corrected by the Tools lane against the shipped zip (R26-ack, 2026-08-01): real publish
+  // date, and the Advanced item names ribbon spine/arms/legs only (necks build as FK today).
+  {
+    version: '1.2.0',
+    date: '2026-08-01',
+    dateLabel: '2026 · 08 · 01',
+    tag: 'Feature release',
+    lede: 'The bridge release. A character you rig in Armature now walks into Maya and comes out the other side with a working control rig.',
+    groups: [
+      {
+        label: 'ARMATURE IMPORT',
+        tone: 'plasma',
+        items: [
+          '<b>Turn an Armature export into a Fabricator rig</b>. The new Armature button on the toolbar reads the USD you exported from Armature and stands the character up in your scene. The mesh, the skeleton and the skin weights come straight from the file; nothing is rebuilt and no weights are transferred. The import writes a Fabricator blueprint from the rig Armature embedded, assigns components, applies your authored aimers, and leaves Build Rig as the next click.',
+          '<b>Simple or Advanced, one choice</b>. Simple assigns the free set: FK spine and neck, IK arms and legs. Advanced assigns the ribbon spine (headed by the pelvis) and ribbon arms and legs when the Advanced Ribbon Modules pack is installed, and tells you why when it is not.',
+          '<b>Imported rigs are checked by posing, not by looking</b>. A joint frame rolled off its bone can read perfectly at bind and still twist the moment anything rotates. After import, drivers are posed and the motion is measured, so a rolled frame or skin that stopped deforming is reported before you build on it.',
+          '<b>Refusals name their reason</b>. A USD from another tool, a scene that is not empty, an export from a newer Armature: each one stops before touching anything and says what to do instead.',
+        ],
+      },
+      {
+        label: 'POLE VECTORS',
+        tone: 'ember',
+        items: [
+          '<b>Leg pole vectors build in front of the knee now</b>. On many characters the left leg\'s PV control landed in front of the right leg and the right leg\'s in front of the left. A near-straight leg was letting millimetres of bind-pose noise pick the direction; placement now follows the knee joint\'s own forward axis, which also respects Y-forward and Z-forward joint conventions and deliberately angled creature knees. Simple IK, IK Leg, both ribbon limbs and the quad leg all share the fix.',
+          '<b>A pole vector marker in edit mode</b>. Every IK limb spawns a locator cross where its PV control will build. Leave it and placement is automatic; drag it and the control builds exactly there, including behind the knee for a digitigrade leg. The auto pole vector space and the solver follow the marker too.',
+        ],
+      },
+    ],
+  },
   {
     version: '1.1.3',
     date: '2026-07-28',
@@ -265,7 +295,7 @@ const RELEASES = [
           error strings and UI labels. Rewriting them would make the history false, so the
           note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
-      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.0.0; the Maya Toolset is at 1.1.3, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
+      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.0.0; the Maya Toolset is at 1.2.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
     </header>
 
     <div class="cl-band" aria-label="Armature releases">

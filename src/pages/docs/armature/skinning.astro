@@ -44,7 +44,12 @@ const REFINE = [
         </figure>
         <div>
           <h2 class="dd-label">TWO ENGINES, ONE MENU</h2>
-          <p class="am-p">Generate Skin offers two engines, both local:</p>
+          <p class="am-p">
+            This station is where Human + AI is most literal: the machine proposes weights,
+            you judge them in motion, and you decide what happens next. Accept, regenerate,
+            or take over by hand.
+          </p>
+          <p class="am-p">The machine's move first. Generate Skin offers two engines, both local:</p>
           <ul class="am-list">
             <li><b>Geodesic Voxel</b> solves in seconds on any machine. Distances travel through the character's body instead of straight lines, so fingers resting near a leg never steal leg weights, and rigid parts (armor plates, props) bind hard to their bone. Deterministic: the same character always gets the same weights. It is a working starting point on any hardware, not a rival to the AI tier.</li>
             <li><b>SkinTokens</b> is the AI engine, running on your own GPU, and the best weights Armature can produce.</li>
@@ -59,7 +64,10 @@ const REFINE = [
 
     <section class="am-section">
       <h2 class="dd-label">REFINEMENT TOOLS</h2>
-      <p class="am-p">These work on whichever pass is active.</p>
+      <p class="am-p">
+        Then your move. When a character deserves production-level weights, the hand tools
+        take over, on whichever pass is active.
+      </p>
       <ul class="am-list">
         {REFINE.map(([k, v]) => <li><b>{k}</b> {v}</li>)}
       </ul>
