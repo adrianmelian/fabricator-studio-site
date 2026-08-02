@@ -3,11 +3,10 @@
 // Dispatch of record: MrMiata workspace/2026-07-30_armature-launch-dispatch/RELAY-R10-site.md;
 // picker copy: COPY-LAUNCH.md §2, shipped verbatim per the no-paraphrase rule.
 
-// USD import is CONDITIONAL on the dress rehearsal proving it against the built artifact
-// (R15 item 4 / R18 item 2). The docs quick start and the Formats table both read this one
-// flag, so the page is never wrong either way. Set true only after a .usd mesh is proven to
-// open in the SHIPPING build.
-export const USD_IMPORT = false;
+// PROVEN at the dress rehearsal (R23-ack, 2026-08-02): a .usd mesh opened in the installed
+// 2.0.0 on a clean machine, tested from the public artifact. Flipped true under R29. The
+// docs quick start and the Formats table read this flag and carry the (mesh only) qualifier.
+export const USD_IMPORT = true;
 
 // The MAYA control rig builder: does a user who downloads today actually get it?
 // R25 (2026-07-31) rules that it ships with Armature and that the page may say so. This flag

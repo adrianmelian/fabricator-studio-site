@@ -61,11 +61,10 @@ const STAGES = [
   {
     key: 'load',
     label: 'LOAD',
-    // R14 version A (2026-07-30): USD import is NOT in the shipping build, and the LOAD
-    // screenshot's drop target (OBJ, FBX, GLB, glTF) is the half telling the truth. Switch to
-    // R14 version B ONLY if USD import lands by t01, confirmed at the Aug 2 dress rehearsal,
-    // never guessed forward.
-    text: 'Drop in your character. Armature reads OBJ, FBX, GLB and glTF, and everything leaves as USD.',
+    // R14 version B, unlocked by R29 (2026-08-02): USD import proven on the shipping build,
+    // on a clean machine, from the public artifact. The docs surfaces carry the (mesh only)
+    // qualifier via the USD_IMPORT flag; this line stays as R14 wrote it.
+    text: 'Drop in your character. Armature reads USD, OBJ, FBX, GLB and glTF, and everything leaves as USD.',
     img: stageLoad,
     alt: 'The Armature start screen, with recent characters and a drop target for a character mesh',
   },
