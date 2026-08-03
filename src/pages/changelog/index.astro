@@ -36,6 +36,27 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 // the Maya Toolset's version line, and dropping a "2.0.0" on top of "1.1.3" would read as the
 // toolset jumping four major versions overnight. Two products, two version lines, one page.
 const ARMATURE_RELEASES = [
+  // Copy source: the launch-week triage ledger (MrMiata workspace/2026-07-22_authoring-platform/
+  // TRIAGE.md, BUG-001 solved entry). The first founding-user reports, fixed the same day.
+  {
+    version: '2.0.1',
+    date: '2026-08-02',
+    dateLabel: '2026 · 08 · 02',
+    tag: 'Fix release',
+    lede: 'Reported by the first founding users within hours of launch, fixed and shipped the same day. If USD export told you the converter was not running, this release is for you.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>USD export no longer requires the AutoSkin download</b>. The app misread one field of the converter’s health report, so on machines without the optional AI component a healthy converter was reported as "not running" and USD export was blocked. Every machine in our loop had the component installed, which is exactly why the first fresh installs found this before we did. Tests now pin the healthy-without-AutoSkin case so it cannot come back.',
+          '<b>Cold starts tell the truth</b>. On a fresh install the converter can take a few seconds to wake. The export window now keeps checking while open, says the converter is starting instead of declaring it dead, and waits longer before giving up.',
+          '<b>Port conflicts no longer kill the converter</b>. If another app owns its port, Armature finds a free one before anything starts. Healthy machines see no change.',
+          '<b>A Restart button at the export surface</b> respawns the converter on the spot, so relaunching the whole app is never the remedy.',
+        ],
+      },
+    ],
+  },
   {
     version: '2.0.0',
     date: '2026-08-01',
@@ -295,7 +316,7 @@ const RELEASES = [
           error strings and UI labels. Rewriting them would make the history false, so the
           note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
-      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.0.0; the Maya Toolset is at 1.2.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
+      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.0.1; the Maya Toolset is at 1.2.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
     </header>
 
     <div class="cl-band" aria-label="Armature releases">

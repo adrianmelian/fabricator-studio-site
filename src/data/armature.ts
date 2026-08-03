@@ -31,24 +31,21 @@ export const UPDATE_BASE = 'https://downloads.fabricator.studio/armature/';
 
 // The installer filename is part of the release contract: latest.yml references it, the
 // .sha256 sits beside it, and the SmartScreen copy's Get-FileHash example names it.
-export const INSTALLER_NAME = 'Armature-2.0.0-Setup.exe';
+export const INSTALLER_NAME = 'Armature-2.0.1-Setup.exe';
 
 export const ARMATURE = {
-  version: '2.0.0',
+  version: '2.0.1',
   installer: UPDATE_BASE + INSTALLER_NAME,
   sha256File: UPDATE_BASE + INSTALLER_NAME + '.sha256',
 
-  // The 09:24 2026-08-01 build, the launch candidate. NOT pasted from a relay: computed here
-  // from the bytes of C:/ArmatureBuild/Armature-2.0.0-Setup.exe, and cross-checked against the
-  // .sha256 sidecar, latest.yml's sha512, and the file size. All four agree.
-  //
-  // Two earlier hashes are DEAD and must never appear anywhere: the Jul 31 22:00 build, and
-  // 2584f5f6ebdda1813c99a9d25b387c5ddbf85952a7171efba98fd994522e8d64 (Jul 31 22:47), which a
-  // QA relay reported as verified before the re-cut superseded it. Its size (136945366) does
-  // not match the shipping file (136948131), which is how the mismatch was caught.
+  // The 2026-08-02 21:45 build, Armature 2.0.1 (first public bug-fix release). Verified
+  // before publish: disk hash matches Adrian's relayed checksum, the .sha256 sidecar,
+  // latest.yml's sha512 and the size (136949275) all agree, and the publish script
+  // re-verified the served bytes. The 2.0.0 hash (59a189c7...) retires with its release;
+  // its installer stays on the feed under its versioned filename.
   //
   // Empty renders a "published at release" placeholder instead of a wrong hash.
-  sha256: '59a189c780a7d3b07a44b7ae960a901bdd01e0e01e23dd6b2c1213ea1fed595d',
+  sha256: '78456da28341d9d2533756394c46191a40de98a982a09b6535b857a8ab2b6fc4',
 
   // The LIVE Stripe payment link (R22, seated 2026-07-31). NEVER a test-mode URL: this value
   // is the only place the Commercial picker reads, so a wrong value here ships everywhere.

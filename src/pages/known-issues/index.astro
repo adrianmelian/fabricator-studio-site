@@ -75,6 +75,14 @@ const ARMATURE_ISSUES = [
       'Armature skins out of the box with Geodesic Voxel, which needs no download and no particular GPU. SkinTokens, the AI engine, is a one-time optional download fetched from the model’s own publisher the first time you use it, so the app stays small and the weights come from the people who trained them. It needs an NVIDIA GPU with 6 GB or more of VRAM.',
   },
   {
+    // BUG-003 (TRIAGE.md, 2026-08-02): an import-path limitation, not a packaging bug. The
+    // app loads FBX/OBJ from the single dropped file, so separate texture files cannot
+    // resolve, and Maya's "embed media" is handled inconsistently by the loader.
+    title: 'FBX and OBJ arrive without textures',
+    detail:
+      'FBX and OBJ load from the single file you drop, so textures referenced as separate files cannot be found, and Maya’s "embed media" option is unreliable. To see textures in the viewport, export USD from Maya with materials on, or GLB from Blender; both carry the color texture. Rigging, skinning and export are unaffected either way.',
+  },
+  {
     title: 'Activation is online only right now',
     detail:
       'Armature checks your licence with our server. If you are on an airgapped or NDA machine, mail us before you buy: offline licence files are designed and coming, and they are not being issued yet.',

@@ -44,6 +44,13 @@ const LOAD_FORMATS = USD_IMPORT
             Files with different units are handled on arrival: an FBX authored in centimeters
             converts automatically instead of arriving one hundred times too large.
           </p>
+          {/* BUG-003 disposition (TRIAGE.md, 2026-08-02): FBX/OBJ load from the single dropped
+              file, so separate texture files cannot resolve and embedded media is inconsistent. */}
+          <p class="am-p">
+            Bringing textures: USD exported from Maya with materials on, and GLB, both carry
+            their color texture into the viewport. FBX and OBJ arrive untextured for now.
+            Rigging and skinning are unaffected either way.
+          </p>
         </div>
       </div>
     </section>
