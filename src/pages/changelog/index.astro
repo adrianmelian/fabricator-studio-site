@@ -37,7 +37,25 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 // toolset jumping four major versions overnight. Two products, two version lines, one page.
 const ARMATURE_RELEASES = [
   // Copy source: the launch-week triage ledger (MrMiata workspace/2026-07-22_authoring-platform/
-  // TRIAGE.md, BUG-001 solved entry). The first founding-user reports, fixed the same day.
+  // TRIAGE.md, BUG-002). Same blind spot as BUG-001, named honestly: dev machines all carry
+  // the VC++ redistributable, a clean laptop does not.
+  {
+    version: '2.0.2',
+    date: '2026-08-02',
+    dateLabel: '2026 · 08 · 02',
+    tag: 'Fix release',
+    lede: 'The second same-day fix from founding-user machines. USD export failed on computers without Microsoft’s C++ runtime installed, which is most computers that have never had a game or a dev tool on them.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>The USD converter now ships its own Microsoft C++ runtime</b>. Our bundled Python carried one of the two runtime DLLs but relied on the machine for the other, so the converter’s USD library failed to load on any computer without the Visual C++ redistributable. Every development machine has it; a clean laptop does not. The build now bundles both DLLs and refuses to produce an installer without them, so this cannot quietly return.',
+          '<b>Confirmed working in the wild, one hour after it shipped</b>: the 2.0.1 port fallback moved the converter off a taken port on the very first user machine that needed it.',
+        ],
+      },
+    ],
+  },
   {
     version: '2.0.1',
     date: '2026-08-02',
@@ -316,7 +334,7 @@ const RELEASES = [
           error strings and UI labels. Rewriting them would make the history false, so the
           note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
-      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.0.1; the Maya Toolset is at 1.2.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
+      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.0.2; the Maya Toolset is at 1.2.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
     </header>
 
     <div class="cl-band" aria-label="Armature releases">
