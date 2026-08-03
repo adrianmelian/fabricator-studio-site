@@ -26,6 +26,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import '../../styles/designed-doc.css';
+import { ARMATURE } from '../../data/armature';
 
 const TITLE = 'KNOWN ISSUES';
 const TRI = ['t-bone', 't-plasma', 't-ember'];
@@ -180,7 +181,9 @@ const LIMITS = [
     <section class="ki-section ki-armature" aria-labelledby="ki-arm-t">
       <div class="ki-head">
         <h2 id="ki-arm-t" class="ki-head__label ki-head__label--ember">ARMATURE</h2>
-        <p class="ki-head__sub">The standalone app, version 2.0.0</p>
+        {/* Reads the config rather than hardcoding: this line said 2.0.0 through two releases
+            on launch weekend, which is exactly how a known-issues page starts lying. */}
+        <p class="ki-head__sub">The standalone app, version {ARMATURE.version}</p>
       </div>
       {/* "the <b>" stays on ONE line: Astro trims the whitespace before an inline tag at the
           start of a wrapped line, which welds it into "theMaya Toolset". */}
