@@ -34,7 +34,9 @@ import YouTubeFacade from '../components/YouTubeFacade.astro';
 import DownloadBand from '../components/DownloadBand.astro';
 import FabricatorHero from '../components/FabricatorHero.astro';
 
-import trailerPoster from '../assets/armature/trailer-poster.jpg';
+// The product card art rather than a trailer frame (Adrian, 2026-08-04): it carries the
+// lockup and the tagline baked in, so the thumbnail says what the video is before a click.
+import trailerPoster from '../assets/armature/armature-card-poster.jpg';
 import heroWordmark from '../assets/hero/wordmark-banner.png';
 // One flag governs every control-rig claim on the site (R25, R27). See src/data/armature.ts.
 import { ARMATURE, MAYA_CONTROL_RIG } from '../data/armature';
@@ -136,8 +138,8 @@ const PROOF = [
           Tier A rule; owner's override, recorded here so nobody "fixes" it back. The
           available-for-hire line moved out of the hero on the same pass; hiring converts in
           the closing band, after the proof. */}
-      <p class="hero-sub hero-sub--studio"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="hero-sub__hl">Free for small studios.</b> These are not AI tools, they are <b class="hero-sub__ember">Artist tools with AI assistance</b>.</p>
-      <p class="hero-sub">A dev generates a <b class="hero-sub__hl">working rig in minutes</b>; a character artist pushes it to <b class="hero-sub__ember">production level</b>. Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can drive your asset to production level standards.</b></p>
+      <p class="hero-sub hero-sub--studio"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="hero-sub__hl">Free for small studios.</b></p>
+      <p class="hero-sub">Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can <b class="hero-sub__ember">drive your asset to production level standards</b>.</b></p>
       {/* Two doors, unequal on purpose. Most arrivals today come for the toolset, so the free
           download keeps the visual weight it has always had and the paid door sits beside it
           rather than competing with it. Hiring is NOT in the hero: it is a different audience
@@ -166,8 +168,8 @@ const PROOF = [
         id="PhHXmcpcGKk"
         title="Armature | Standalone Rigging & Skinning App | Unreal"
         poster={trailerPoster}
-        posterAlt="A samurai character rigged in Armature, from the Armature trailer"
-        widths={[720, 1440]}
+        posterAlt="Armature product art: a samurai, a dog and a squid, with the line Artist plus AI Rigging, You drive."
+        widths={[480, 960]}
         sizes="(min-width: 900px) 56vw, 92vw"
       />
       <div class="arm-body">
