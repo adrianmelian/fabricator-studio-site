@@ -39,6 +39,11 @@ import { LINKS } from '../data/links';
       every page including Armature's EULA, where "Fabricator, by FabricatorStudio. Free
       for..." read as a claim about the page you were actually on. */}
   <p class="footer__name">The FabricatorStudio Maya Toolset. Free for solo developers, indies, and small teams.</p>
+  {/* Third-party credit, site-wide (Adrian, 2026-08-03). The footer rather than a page,
+      because the animations appear in videos across several pages and a credit nobody can
+      find is not a credit. If this list grows past two or three names it graduates to a
+      /credits/ page. */}
+  <p class="footer__credit">Animations by <a href="https://www.kubold.com" target="_blank" rel="noopener">Kubold</a>.</p>
 </footer>
 <style>
   footer { font-family: var(--font-mono); max-width: 72rem; margin: 0 auto; padding: 3rem 1.5rem 4rem; border-top: 1px solid var(--iron-2); text-align: center; }
@@ -47,4 +52,7 @@ import { LINKS } from '../data/links';
   .footer__pair-link { font-size: 0.9375rem; color: var(--bone); text-decoration: none; border-bottom: 1px solid var(--iron-3); }
   .footer__pair-link:hover { color: var(--ember); border-color: var(--ember); }
   .footer__name { margin-top: 1.25rem; color: var(--bone-faint); font-size: 0.875rem; }
+  .footer__credit { margin-top: 0.5rem; color: var(--bone-faint); font-size: 0.8125rem; }
+  .footer__credit a { color: var(--bone-faint); text-decoration: none; border-bottom: 1px solid var(--iron-3); }
+  .footer__credit a:hover { color: var(--ember); border-color: var(--ember); }
 </style>
