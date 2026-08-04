@@ -601,7 +601,10 @@ const STAGES = [
             <a href="/privacy/">Privacy</a>
             <a href="/armature/eula/">EULA</a>
           </nav>
-          <p class="footer__legal">&copy; 2026 FabricatorStudio LLC</p>
+          {/* This page has its own footer rather than the shared component, so the site-wide
+              Kubold credit does not reach it. It matters most here: the trailer and the
+              character reels on this page are where the animations actually play. */}
+          <p class="footer__legal">&copy; 2026 FabricatorStudio LLC &middot; Animations by <a href="https://www.kubold.com" target="_blank" rel="noopener">Kubold</a></p>
         </div>
       </div>
     </footer>
@@ -2102,6 +2105,15 @@ const STAGES = [
   .footer__legal {
     font-size: 12px;
     color: var(--bone-faint);
+  }
+  .footer__legal a {
+    color: var(--bone-faint);
+    text-decoration: none;
+    border-bottom: 1px solid var(--iron-3);
+  }
+  .footer__legal a:hover {
+    color: var(--ember);
+    border-color: var(--ember);
   }
 
   /* ---------- reveal ---------- */
