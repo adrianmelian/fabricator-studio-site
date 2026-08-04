@@ -358,12 +358,22 @@ const STAGES = [
                 <p class="panel__text">
                   The exported USD imports into both Unreal and Maya.
                 </p>
+                {/* The round trip, added 2026-08-04 once both halves shipped: toolset 1.3.0
+                    writes USD out of Maya, and Armature 2.1.0 opens a rigged USD with its
+                    skeleton and weights intact. Every surface until now described one
+                    direction, which undersold the pipeline by half. */}
+                <p class="panel__text">
+                  It reads one back in, too. The <a href="/tools/">Fabricator toolset</a> writes
+                  USD out of Maya, and Armature opens it with the skeleton and skin weights
+                  intact, so a character you rigged years ago can come back for new weights and
+                  go out again.
+                </p>
                 {MAYA_CONTROL_RIG ? (
                   <p class="panel__text">
-                    In Maya, the free <a href="/tools/">Fabricator toolset</a> reads that same
-                    file and builds the control rig for you. The Unreal control rig in this clip
-                    was built procedurally from the same export data, and its builder is what we
-                    are working on next.
+                    In Maya, that same free toolset reads an Armature export and builds the
+                    control rig for you. The Unreal control rig in this clip was built
+                    procedurally from the same export data, and its builder is what we are
+                    working on next.
                   </p>
                 ) : (
                   <p class="panel__text">
