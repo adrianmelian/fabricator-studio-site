@@ -109,12 +109,16 @@ const PROOF = [
   <NavBar />
 
   <section id="hero" class="hero-v2">
+    {/* New Armature cut, 2026-08-03. Dated filenames rather than overwriting: public/ assets
+        are served unhashed, so reusing the old names would leave the previous cut in browser
+        and CDN caches for days. 2560x1440 (was 2560x1080), which crops less at desktop widths
+        under object-fit: cover. */}
     <video class="hero-media" autoplay muted loop playsinline
-      poster="/demo/fs_hero_poster.jpg"
-      src="/demo/fs_hero.mp4"
+      poster="/demo/fs_hero_poster_2026-08.jpg"
+      src="/demo/fs_hero_2026-08.mp4"
       aria-hidden="true">
     </video>
-    <img class="hero-media hero-poster" src="/demo/fs_hero_poster.jpg" alt="" aria-hidden="true" />
+    <img class="hero-media hero-poster" src="/demo/fs_hero_poster_2026-08.jpg" alt="" aria-hidden="true" />
     <div class="hero-scrim" aria-hidden="true"></div>
     <div class="hero-copy">
       <h1 class="hero-wordmark">
