@@ -48,7 +48,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     <section class="dd-panel" aria-labelledby="ex-what">
       <div class="dd-panel__head">
         <h2 id="ex-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
-        <p class="dd-lede">One FBX pipeline, three outputs</p>
+        <p class="dd-lede">One pipeline, three outputs</p>
       </div>
       <div class="ex-pipe" aria-label="Static meshes, skeletal meshes, and animation clips all export through one FBX pipeline">
         <div class="ex-pipe__inputs">
@@ -67,6 +67,9 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
       <div class="ex-notes">
         <p class="ex-note ex-note--plasma">Skeletal export writes a <b class="b-plasma">rig binding</b> the animation exporter reads later, so it knows exactly which joints to bake.</p>
         <p class="ex-note">Animation clips bake in a <b>background process</b>, so it never touches your open scene.</p>
+        {/* Added with toolset 1.3.0 (2026-08-03): skeletal export gained a USD format
+            option, so this page no longer describes FBX as the only way out. */}
+        <p class="ex-note ex-note--plasma">Skeletal mesh can also export as <b class="b-plasma">USD</b>: one file carrying the mesh, skeleton, weights and materials. A Fabricator rig embeds its module layout too, so <a href="/armature/">Armature</a> opens it as named modules and Unreal imports the same file.</p>
       </div>
     </section>
 

@@ -136,6 +136,35 @@ const ARMATURE_RELEASES = [
 ];
 
 const RELEASES = [
+  // 1.3.0 copy source: the toolset repo's own CHANGELOG.md entry for v1.3.0, written at the
+  // cut. Its [Unreleased] section (toolset self-update) is deliberately NOT here: it is built
+  // and not downloadable, which is the exact shipped-versus-demonstrated line R25 was written
+  // to hold. It lands the day a release carries it.
+  {
+    version: '1.3.0',
+    date: '2026-08-03',
+    dateLabel: '2026 · 08 · 03',
+    tag: 'Feature release',
+    lede: 'The road out of Maya. The Rig Exporter can now write USD, so a rig you built in Maya opens in Armature as named modules and imports into Unreal from the same file.',
+    groups: [
+      {
+        label: 'USD EXPORT',
+        tone: 'plasma',
+        items: [
+          '<b>One file for Armature and Unreal</b>. Export Options gains a Format choice: FBX, still the default, or USD. USD writes a single delivery file per skeletal entry, carrying the mesh, the skeleton, normalized weights and materials with their textures beside the file.',
+          '<b>A Fabricator rig travels as modules, not loose joints</b>. The export embeds your module layout and blueprint, so Armature ingests the character with its arms, legs and spine named and understood. Unreal reads the same file with its own USD importer.',
+          '<b>The export checks its own output before shipping it</b>. Root frames, weights, joint names and the embedded data are read back from the written bytes; a file that does not verify is deleted and the reason named, rather than leaving a plausible-looking corpse on disk.',
+        ],
+      },
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Skeletal export is faster and no longer crashes at exit</b>. The throwaway export process stopped loading the toolbar and Qt it never needed, which takes roughly ten seconds off every export and fixes a crash that could fail an export after it had already succeeded.',
+        ],
+      },
+    ],
+  },
   // 1.2.0 copy source: MrMiata workspace/2026-07-31_fs-1.2.0-release/CHANGELOG-DRAFT.md,
   // corrected by the Tools lane against the shipped zip (R26-ack, 2026-08-01): real publish
   // date, and the Advanced item names ribbon spine/arms/legs only (necks build as FK today).
@@ -364,7 +393,7 @@ const RELEASES = [
           error strings and UI labels. Rewriting them would make the history false, so the
           note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
-      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.1.0; the Maya Toolset is at 1.2.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
+      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.1.0; the Maya Toolset is at 1.3.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
     </header>
 
     <div class="cl-band" aria-label="Armature releases">
