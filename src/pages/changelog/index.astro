@@ -36,6 +36,26 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 // the Maya Toolset's version line, and dropping a "2.0.0" on top of "1.1.3" would read as the
 // toolset jumping four major versions overnight. Two products, two version lines, one page.
 const ARMATURE_RELEASES = [
+  // Copy source: the app's own in-app changelog (app/src/changelog.ts). This one completes
+  // the round trip the site started claiming today: a Maya rig comes back as modules, not
+  // as a pile of joints wearing the right names.
+  {
+    version: '2.1.2',
+    date: '2026-08-04',
+    dateLabel: '2026 · 08 · 04',
+    tag: 'Feature release',
+    lede: 'The circle closes. A rig imported from Maya arrives as real modules, so the work you did in Armature survives the trip out and back.',
+    groups: [
+      {
+        label: 'NEW',
+        tone: 'plasma',
+        items: [
+          '<b>Imported rigs arrive as modules, not loose joints</b>. Spine, arms and legs come back as proper rows with rename, mirror, twist steppers, regions and the full range-of-motion tools, rather than as a hierarchy you have to re-teach the app about. Twists regenerate cleanly and the skinning follows them by name.',
+          '<b>Rig in Maya, skin in Armature, export</b>. Your module build survives the whole round trip.',
+        ],
+      },
+    ],
+  },
   // Copy source: the app's own in-app changelog (app/src/changelog.ts).
   {
     version: '2.1.1',
@@ -437,7 +457,7 @@ const RELEASES = [
           error strings and UI labels. Rewriting them would make the history false, so the
           note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
-      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.1.1; the Maya Toolset is at 1.4.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
+      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.1.2; the Maya Toolset is at 1.4.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
     </header>
 
     <div class="cl-band" aria-label="Armature releases">
