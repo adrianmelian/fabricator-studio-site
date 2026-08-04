@@ -14,7 +14,7 @@ import { USD_IMPORT } from '../../../data/armature';
 import stageExport from '../../../assets/armature/stage-export.png';
 
 const FORMATS = [
-  ['Load', USD_IMPORT ? 'OBJ, FBX, GLB, glTF, USD (mesh only)' : 'OBJ, FBX, GLB, glTF'],
+  ['Load', USD_IMPORT ? 'OBJ, FBX, GLB, glTF, USD (mesh, or a rigged USD with its skeleton and weights)' : 'OBJ, FBX, GLB, glTF'],
   ['Export', 'USD (usdc or usda) with skeleton, weights, textures and embedded rig blueprint'],
   ['Project', '.armature project files, with recents and thumbnails on the welcome screen'],
 ];
@@ -70,7 +70,7 @@ const FORMATS = [
         ))}
       </div>
       <p class="am-note">
-        FBX and OBJ convert on arrival with automatic unit handling.{USD_IMPORT ? ' USD import reads the mesh; skeletons inside USD files are not imported.' : ''}
+        FBX and OBJ convert on arrival with automatic unit handling.{USD_IMPORT ? ' A plain USD arrives as geometry; a rigged USD opens with its skeleton and skin weights intact, so a character can come back from Maya or from your own exports.' : ''}
       </p>
     </section>
 

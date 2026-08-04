@@ -5,7 +5,11 @@
 
 // PROVEN at the dress rehearsal (R23-ack, 2026-08-02): a .usd mesh opened in the installed
 // 2.0.0 on a clean machine, tested from the public artifact. Flipped true under R29. The
-// docs quick start and the Formats table read this flag and carry the (mesh only) qualifier.
+// docs quick start and the Formats table read this flag.
+//
+// WIDENED in 2.1.0 (2026-08-03): import is no longer mesh-only. A rigged USD now opens with
+// its skeleton and skin weights intact, so the surfaces this flag drives dropped the
+// "(mesh only)" qualifier they carried at launch.
 export const USD_IMPORT = true;
 
 // The MAYA control rig builder: does a user who downloads today actually get it?
@@ -31,22 +35,21 @@ export const UPDATE_BASE = 'https://downloads.fabricator.studio/armature/';
 
 // The installer filename is part of the release contract: latest.yml references it, the
 // .sha256 sits beside it, and the SmartScreen copy's Get-FileHash example names it.
-export const INSTALLER_NAME = 'Armature-2.0.2-Setup.exe';
+export const INSTALLER_NAME = 'Armature-2.1.0-Setup.exe';
 
 export const ARMATURE = {
-  version: '2.0.2',
+  version: '2.1.0',
   installer: UPDATE_BASE + INSTALLER_NAME,
   sha256File: UPDATE_BASE + INSTALLER_NAME + '.sha256',
 
-  // The 2026-08-02 22:11 build, Armature 2.0.2 (bundles the MSVC runtime the USD converter
-  // needs on machines without the redistributable). Verified before publish: disk hash
-  // matches Adrian's relayed checksum, the sidecar, latest.yml's sha512 and the size
-  // (137341904) all agree, and the publish script re-verified the served bytes. Prior
-  // release hashes retire with their releases; the installers stay on the feed under
-  // versioned filenames.
+  // The 2026-08-03 22:01 build, Armature 2.1.0 (user libraries, rigged-USD import, dynamic
+  // chains, exporter texture fixes). Verified before publish: the disk hash, the .sha256
+  // sidecar and latest.yml's sha512 and size (137349943) all agree, and the publish script
+  // re-verified the served bytes. Prior release hashes retire with their releases; their
+  // installers stay on the feed under versioned filenames.
   //
   // Empty renders a "published at release" placeholder instead of a wrong hash.
-  sha256: 'd76b29bdb606748b54d688ea84e5287965373e316c5e7a08beffe27a1c7679b5',
+  sha256: '7fccbf062d781cdcc18bd98868d91317f99e7f42085de67aefdb8bc29f1b6ecc',
 
   // The LIVE Stripe payment link (R22, seated 2026-07-31). NEVER a test-mode URL: this value
   // is the only place the Commercial picker reads, so a wrong value here ships everywhere.

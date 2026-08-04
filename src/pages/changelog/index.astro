@@ -36,6 +36,36 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 // the Maya Toolset's version line, and dropping a "2.0.0" on top of "1.1.3" would read as the
 // toolset jumping four major versions overnight. Two products, two version lines, one page.
 const ARMATURE_RELEASES = [
+  // Copy source: the app's OWN in-app changelog (app/src/changelog.ts), which its test suite
+  // now requires before a version can ship. Same words the What's New card shows after an
+  // update, so the page and the app cannot tell a user two different stories.
+  {
+    version: '2.1.0',
+    date: '2026-08-03',
+    dateLabel: '2026 · 08 · 03',
+    tag: 'Feature release',
+    lede: 'The first feature release since launch. Save your own modules and templates into the library, bring rigged characters back in from USD, and tag a chain as dynamic so it simulates in Unreal.',
+    groups: [
+      {
+        label: 'NEW',
+        tone: 'plasma',
+        items: [
+          '<b>Save your work into the library</b>. Right-click a joint or module for "Save as module", or save the whole character as a template. Your cards appear under "Yours" and place exactly like the built-ins.',
+          '<b>Rigged USD files open with their skeleton and skinning intact</b>, so a character can come back in from Maya or from your own exports rather than starting again.',
+          '<b>Dynamic chains</b>. Check "Dynamic" on a chain module and it simulates in Unreal at rig-build time, colliding with the body. The Cape preset ships first.',
+        ],
+      },
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Textures land correctly in Maya and Unreal</b>. Exported UVs now follow the USD convention, and materials carry the full set: color, roughness, metallic and normal.',
+          'When a USD export cannot embed its rig data, the dialog now says exactly what went wrong instead of failing vaguely.',
+          'The app version shows in the title bar, which makes bug reports easier to answer.',
+        ],
+      },
+    ],
+  },
   // Copy source: the launch-week triage ledger (MrMiata workspace/2026-07-22_authoring-platform/
   // TRIAGE.md, BUG-002). Same blind spot as BUG-001, named honestly: dev machines all carry
   // the VC++ redistributable, a clean laptop does not.
@@ -334,7 +364,7 @@ const RELEASES = [
           error strings and UI labels. Rewriting them would make the history false, so the
           note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
-      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.0.2; the Maya Toolset is at 1.2.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
+      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.1.0; the Maya Toolset is at 1.2.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
     </header>
 
     <div class="cl-band" aria-label="Armature releases">
