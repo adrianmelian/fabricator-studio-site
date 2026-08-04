@@ -73,7 +73,7 @@ const STAGES = [
     label: 'FIT',
     text: 'Orient and size the character so symmetry and placement behave.',
     img: stageFit,
-    alt: 'The Fitting Room in Armature, sizing a samurai character against a height reference',
+    alt: 'The Fitting Room in Armature, sizing an armoured knight character against a height reference',
   },
   {
     key: 'skeleton',
@@ -82,14 +82,14 @@ const STAGES = [
     // Prop, so the screenshot beside this line contradicted the word.
     text: 'Start from a biped, quadruped, or prop template, or build from nothing. Live symmetry, limb duplication, chain editing, and a finger count you state instead of the machine guessing.',
     img: stageSkeleton,
-    alt: 'The Skeleton stage in Armature, with a joint chain placed through a samurai character and the module library open',
+    alt: 'The Skeleton stage in Armature, with a joint chain placed through an armoured knight and the module library open',
   },
   {
     key: 'skin',
     label: 'SKIN',
     text: 'Two local engines: one solves on any machine in seconds, the AI one runs on your GPU for the best weights. Then a full painting suite with layers and non-destructive passes for when you want to fix them by hand.',
     img: stageSkin,
-    alt: 'The Skin stage in Armature, showing generated weights on a samurai character with the influence list and weight brush',
+    alt: 'The Skin stage in Armature, showing generated weights on an armoured knight with the influence list and weight brush',
   },
   {
     key: 'export',
@@ -98,7 +98,7 @@ const STAGES = [
     // only answered a worry the reader did not have about things arriving separately.
     text: 'One USD file carrying mesh, skeleton, orientations, and weights.',
     img: stageExport,
-    alt: 'The Export panel in Armature, writing a single USD file for a samurai character',
+    alt: 'The Export panel in Armature, with its pre-export checks passing for an armoured knight',
   },
 ];
 ---
@@ -1769,10 +1769,14 @@ const STAGES = [
   }
   /* The shot column carries its own bottom gap. Without it consecutive screenshots butt edge to
      edge and read as one broken image. */
+  /* 16/9 since the Archangel stage shots landed (2026-08-03). The frame was 16/10 to match
+     the old captures exactly; leaving it there would have had object-fit: cover crop 10% off
+     the top and bottom of every new shot, which is precisely the menu bar and the tool bar
+     they exist to show. The LOAD capture was trimmed to match. */
   .stage__shot {
     grid-column: 2;
     grid-row: 2;
-    aspect-ratio: 16 / 10;
+    aspect-ratio: 16 / 9;
     margin-bottom: 40px;
   }
   .stage:last-child .stage__shot {
