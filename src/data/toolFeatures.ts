@@ -73,9 +73,10 @@ export const toolFeatureBlocks: ToolFeatureBlock[] = [
   },
   {
     name: 'Rig & Animation Exporter',
-    blurb: 'FBX into Unreal without the folklore.',
+    blurb: 'Characters into Unreal without the folklore.',
     features: [
       'One-hotkey static and skeletal mesh export; a multi-entry export list remembered per scene.',
+      'Skeletal export writes FBX or USD. The USD carries mesh, skeleton, weights and materials in one file, embeds a Fabricator rig’s module layout, and verifies its own bytes before shipping.',
       'Batch animation export: every clip in one click, in a clean headless Maya session that cannot corrupt your working file.',
       'Bakes with references and constraints intact, strips the control rig, ships joints only.',
       'The rig tells the exporter what to ship: a per-rig binding contract records the export joints and what to strip. A missing contract blocks the export instead of shipping something wrong.',
