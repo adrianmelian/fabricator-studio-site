@@ -153,6 +153,33 @@ const ARMATURE_RELEASES = [
 ];
 
 const RELEASES = [
+  // 1.4.0 copy source: the release folder's approved draft, checked against the toolset repo's
+  // own CHANGELOG entry. The updater it announces also required a privacy-page disclosure, which
+  // ships in the same deploy: a second network call retires the "only call" sentence there.
+  {
+    version: '1.4.0',
+    date: '2026-08-04',
+    dateLabel: '2026 · 08 · 04',
+    tag: 'Feature release',
+    lede: 'The last version you download by hand. The toolset updates itself now, and a model can travel to Armature unskinned.',
+    groups: [
+      {
+        label: 'AUTO UPDATER',
+        tone: 'plasma',
+        items: [
+          '<b>The toolset updates itself</b>. Maya checks quietly at startup and shows one small note when a new version exists. One click in Settings downloads the release, verifies its published fingerprint before touching anything, backs up your current install, and updates. Your project configs and any installed pack survive untouched, a failed update restores itself, and the restart prompt is never forced.',
+          '<b>Off if you want it off</b>. Settings gains an Updates section with the startup toggle and a Check Now button. Studio machines linked to a shared or development install are detected and left alone. What the check sends, which is nothing about you, is written out on the <a href="/privacy/">privacy page</a>.',
+        ],
+      },
+      {
+        label: 'USD EXPORT',
+        tone: 'ember',
+        items: [
+          '<b>Skinning is optional</b>. A model and skeleton with no skin weights now export to USD cleanly, so you can build and joint a character in Maya and do the skinning in Armature. The FBX path still expects a bound mesh, and skinned USD exports behave exactly as before.',
+        ],
+      },
+    ],
+  },
   // 1.3.0 copy source: the toolset repo's own CHANGELOG.md entry for v1.3.0, written at the
   // cut. Its [Unreleased] section (toolset self-update) is deliberately NOT here: it is built
   // and not downloadable, which is the exact shipped-versus-demonstrated line R25 was written
@@ -410,7 +437,7 @@ const RELEASES = [
           error strings and UI labels. Rewriting them would make the history false, so the
           note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
-      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.1.1; the Maya Toolset is at 1.3.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
+      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.1.1; the Maya Toolset is at 1.4.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
     </header>
 
     <div class="cl-band" aria-label="Armature releases">

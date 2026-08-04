@@ -246,7 +246,21 @@ const RIGHTS = [
       <p class="pv-p">
         Armature does contact our licence server when you sign in or activate, and the "If you
         use Armature" section above lists exactly what that check sends. It is the only call
-        the app makes about you.
+        Armature makes about you.
+      </p>
+      {/* Added 2026-08-04 for toolset 1.4.0, which introduced an update check. The paragraph
+          above used to end "the only call the app makes about you", which read as a claim
+          about all of our software the moment a second call existed. Facts below are the
+          tools lane's, verified against the shipped updater rather than a plan. */}
+      <p class="pv-p">
+        The Maya toolset checks for updates when Maya starts, and when you press Check Now. It
+        asks our download server for a small public file listing the current version, and that
+        request carries nothing about you or your work: no machine identifier, no installed
+        version, no usage information. As with any web request the server sees an IP address
+        and a timestamp, and nothing else. The comparison happens on your machine, a download
+        happens only if you click Update, and Settings has a switch that turns the check off
+        entirely. Installations linked to a shared studio or development copy never check
+        at all.
       </p>
     </section>
 
