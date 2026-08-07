@@ -231,6 +231,25 @@ const RELEASES = [
   // 1.4.0 copy source: the release folder's approved draft, checked against the toolset repo's
   // own CHANGELOG entry. The updater it announces also required a privacy-page disclosure, which
   // ships in the same deploy: a second network call retires the "only call" sentence there.
+  // Copy source: the toolset's own CHANGELOG.md in the FabricatorStudio repo, which is the
+  // authored layer over its git history. Ported rather than reworded so the site, that file
+  // and the GitHub release all say the same thing.
+  {
+    version: '1.4.1',
+    date: '2026-08-04',
+    dateLabel: '2026 · 08 · 04',
+    tag: 'Fix release',
+    lede: 'Skeletal export works on clean installs again. Found by a user and fixed the same day.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Skeletal export works on a clean install again</b>. The export runs in a background process, and on a machine without a separately installed copy of the YAML library it could not find the toolset’s bundled one, so the export died mid-run for both USD and FBX. The process now carries its own library path.',
+        ],
+      },
+    ],
+  },
   {
     version: '1.4.0',
     date: '2026-08-04',
