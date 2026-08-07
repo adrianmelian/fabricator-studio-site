@@ -36,6 +36,44 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 // the Maya Toolset's version line, and dropping a "2.0.0" on top of "1.1.3" would read as the
 // toolset jumping four major versions overnight. Two products, two version lines, one page.
 const ARMATURE_RELEASES = [
+  // Copy source: the app's own in-app changelog (app/src/changelog.ts). Both of these came
+  // from ONE outside reporter (GitHub issues 33 and 34), which is why both credit them by
+  // name: a visible "reported by" is the cheapest thing that turns a first bug report into
+  // a second one.
+  {
+    version: '2.1.5',
+    date: '2026-08-07',
+    dateLabel: '2026 · 08 · 07',
+    tag: 'Fix release',
+    lede: 'Startup survives a graphics driver that stalls, instead of hanging on a blank window.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Startup no longer hangs when Windows forces the app onto a specific GPU.</b> If the graphics driver stalls, Armature now recovers automatically onto a working graphics path and remembers it. If it ever has to fall back to software rendering, it says so plainly and tells you how to restore full speed. Reported by <b>enqui</b>.',
+        ],
+      },
+    ],
+  },
+  // Copy source: the app's own in-app changelog (app/src/changelog.ts).
+  {
+    version: '2.1.4',
+    date: '2026-08-07',
+    dateLabel: '2026 · 08 · 07',
+    tag: 'Fix release',
+    lede: 'No dead ends: a stopped download can be resumed, and nothing sits greyed out without a way forward.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>An interrupted AutoSkin download announces itself</b> when the app starts, with a one-click Resume that picks up exactly where it stopped. No more reinstalling to recover. Reported by <b>enqui</b>.',
+          '<b>The AutoSkin installer has a permanent home</b>, under Help menu &gt; AutoSkin component. The SkinTokens options are never greyed out anymore either: if the component is missing, clicking one takes you straight to the install.',
+        ],
+      },
+    ],
+  },
   // Copy source: the app's own in-app changelog (app/src/changelog.ts).
   {
     version: '2.1.3',
