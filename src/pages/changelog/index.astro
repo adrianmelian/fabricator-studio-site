@@ -234,6 +234,26 @@ const RELEASES = [
   // Copy source: the toolset's own CHANGELOG.md in the FabricatorStudio repo, which is the
   // authored layer over its git history. Ported rather than reworded so the site, that file
   // and the GitHub release all say the same thing.
+  // Copy source: the tools lane's approved draft (workspace/2026-08-08_fs-1.4.2-release/
+  // CHANGELOG-DRAFTS-SITE.md), which matches the GitHub release note for v1.4.2. One authored
+  // source, ported, never independently reworded.
+  {
+    version: '1.4.2',
+    date: '2026-08-08',
+    dateLabel: '2026 · 08 · 08',
+    tag: 'Fix release',
+    lede: 'AutoSkin stops tripping over joints the engine declines, and errors that explain themselves.',
+    groups: [
+      {
+        label: 'AUTOSKIN',
+        tone: 'plasma',
+        items: [
+          '<b>Bind Skin survives the engine returning fewer joints than it was given</b>. On twist-heavy skeletons the engine can set some joints aside; that used to end the run with a matrix-dimension error. Now every joint keeps its coverage through the round trip, and anything the engine still declines simply receives no weights, with the affected joints named in the log. Reported by a user in the morning, fixed and shipped the same day.',
+          '<b>The skeleton-generation error explains itself</b>. Running Generate Joints on a simple prop now says plainly that skeleton generation is built for characters, instead of reading like an internal bug report.',
+        ],
+      },
+    ],
+  },
   {
     version: '1.4.1',
     date: '2026-08-04',
