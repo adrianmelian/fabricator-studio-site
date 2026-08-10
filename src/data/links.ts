@@ -6,7 +6,7 @@ export const LINKS = {
   // raw discord.gg code: the invite can be rotated or revoked, and a bare code baked into a
   // published video description cannot be edited afterwards. /discord/ is ours forever.
   // Setup record: MrMiata workspace/2026-07-29_discord-server/SETUP.md
-  discordInvite: 'https://discord.gg/PBws9ZS9',
+  discordInvite: 'https://discord.gg/Xn6grb4SFN',
   discord: '/discord/',
   // The installer zip on R2. STABLE key (v1.1.0 ruling, recorded in MrMiata
   // workspace/2026-07-20_site-launch-prep/MAILERLITE-DELIVERY.md): every release
