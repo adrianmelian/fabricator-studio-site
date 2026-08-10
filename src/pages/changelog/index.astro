@@ -36,9 +36,28 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 // the Maya Toolset's version line, and dropping a "2.0.0" on top of "1.1.3" would read as the
 // toolset jumping four major versions overnight. Two products, two version lines, one page.
 const ARMATURE_RELEASES = [
-  // Copy source: the app's own in-app changelog (app/src/changelog.ts). Both of these came
-  // from ONE outside reporter (GitHub issues 33 and 34), which is why both credit them by
-  // name: a visible "reported by" is the cheapest thing that turns a first bug report into
+  // Copy source: the app's own in-app changelog (app/src/changelog.ts).
+  {
+    version: '2.1.6',
+    date: '2026-08-08',
+    dateLabel: '2026 · 08 · 08',
+    tag: 'Fix release',
+    lede: 'AutoSkin installs where you tell it to, and says so before it starts rather than partway through.',
+    groups: [
+      {
+        label: 'AUTOSKIN',
+        tone: 'plasma',
+        items: [
+          '<b>Choose where the AutoSkin component installs</b>. The install panel now shows the location with a Change button: pick any drive, and the whole download, cache included, stays there. If you installed Armature to B because C is full, the component finally respects that.',
+          '<b>Free space is checked before the download starts</b>, and the installer tells you honestly when a drive cannot take it, rather than failing partway through.',
+          '<b>The component can move between machines</b>. After this update, a fresh install copied to the same location on another computer runs as-is, which is useful for offline workstations.',
+        ],
+      },
+    ],
+  },
+  // Copy source: the app's own in-app changelog (app/src/changelog.ts). 2.1.5 and 2.1.4 both
+  // came from ONE outside reporter (GitHub issues 33 and 34), which is why both credit them
+  // by name: a visible "reported by" is the cheapest thing that turns a first bug report into
   // a second one.
   {
     version: '2.1.5',
