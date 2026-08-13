@@ -36,6 +36,40 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 // the Maya Toolset's version line, and dropping a "2.0.0" on top of "1.1.3" would read as the
 // toolset jumping four major versions overnight. Two products, two version lines, one page.
 const ARMATURE_RELEASES = [
+  // Copy source: the app's own in-app changelog (app/src/changelog.ts). The export item is a
+  // regression 2.1.7 shipped, and it is worded as "works again" rather than as a new feature
+  // because that is what it is; a reader who hit it deserves to see it named.
+  {
+    version: '2.1.8',
+    date: '2026-08-12',
+    dateLabel: '2026 · 08 · 12',
+    tag: 'Feature release',
+    lede: 'Export is unblocked for characters with feet, single joints can carry a control, and Unreal builds stop depending on what you named things.',
+    groups: [
+      {
+        label: 'EXPORT',
+        tone: 'ember',
+        items: [
+          '<b>Exporting works again for any character with feet</b>. The pre-export sheet was failing a foot check on characters that were fitted perfectly and telling you the mesh and skeleton disagreed, which blocked the export button.',
+        ],
+      },
+      {
+        label: 'MODULES',
+        tone: 'plasma',
+        items: [
+          '<b>Single joints can carry an animatable control</b>. Drop a Pivot on a hood, the base of a tail, or anything that just turns, and it arrives in Unreal as a control you can pose. It is on by default, with a switch in Module Options for the ones you would rather leave alone.',
+        ],
+      },
+      {
+        label: 'UNREAL',
+        tone: 'ember',
+        items: [
+          '<b>Characters build correctly in the Unreal Control Rig whatever your joints are called</b>. The arm bends at the elbow rather than the shoulder, clavicles get their own controls, and fingers arrive however you have named them. Rigs brought in from Maya get the same treatment.',
+          '<b>Chains you have marked dynamic are left to the simulation</b> instead of also receiving controls that fought it.',
+        ],
+      },
+    ],
+  },
   // Copy source: the app's own in-app changelog (app/src/changelog.ts).
   {
     version: '2.1.7',
