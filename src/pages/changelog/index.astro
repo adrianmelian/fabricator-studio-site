@@ -38,6 +38,30 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
 const ARMATURE_RELEASES = [
   // Copy source: the app's own in-app changelog (app/src/changelog.ts).
   {
+    version: '2.1.7',
+    date: '2026-08-12',
+    dateLabel: '2026 · 08 · 12',
+    tag: 'Feature release',
+    lede: 'AutoSkin can be removed from inside the app, and exports arrive at the right scale in Unreal.',
+    groups: [
+      {
+        label: 'AUTOSKIN',
+        tone: 'plasma',
+        items: [
+          '<b>Remove the component from inside the app</b>. The install panel gained an Uninstall button beside the location, and it tells you exactly what goes and from where before it frees the ~9 GB. Reinstalling later downloads it again.',
+        ],
+      },
+      {
+        label: 'EXPORT',
+        tone: 'ember',
+        items: [
+          '<b>Exports carry their measurements in centimetres</b>, matching Unreal and Maya. Characters built for the Unreal Control Rig land at the right scale first try, whether the file came from Armature or from the Maya toolset.',
+        ],
+      },
+    ],
+  },
+  // Copy source: the app's own in-app changelog (app/src/changelog.ts).
+  {
     version: '2.1.6',
     date: '2026-08-08',
     dateLabel: '2026 · 08 · 08',
