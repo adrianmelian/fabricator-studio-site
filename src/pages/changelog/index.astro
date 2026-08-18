@@ -40,6 +40,29 @@ const ARMATURE_RELEASES = [
   // regression 2.1.7 shipped, and it is worded as "works again" rather than as a new feature
   // because that is what it is; a reader who hit it deserves to see it named.
   {
+    version: '2.1.9',
+    date: '2026-08-13',
+    dateLabel: '2026 · 08 · 13',
+    tag: 'Fix release',
+    lede: 'Exporting works again if you installed the AutoSkin component, and the app no longer fails to start when its viewport lighting cannot load.',
+    groups: [
+      {
+        label: 'EXPORT',
+        tone: 'ember',
+        items: [
+          '<b>Exporting works again if you have the AutoSkin component installed</b>. Installing it could leave the exporter without the piece that writes USD files, so every export failed with a missing-module message. Nothing was wrong with your character.',
+        ],
+      },
+      {
+        label: 'STABILITY',
+        tone: 'plasma',
+        items: [
+          '<b>Fixed a crash on load</b>. The viewport could take the whole window down when its lighting failed to arrive. The lighting is now built on your machine, so there is nothing left to wait for.',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.1.8',
     date: '2026-08-12',
     dateLabel: '2026 · 08 · 12',
