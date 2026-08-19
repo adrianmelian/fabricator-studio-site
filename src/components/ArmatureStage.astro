@@ -208,10 +208,11 @@ void main() {
 in vec3 aPos; in vec3 aNor; in float aPhase; in vec3 aRand; in float aYN;
 uniform mat4 uProj, uView;
 uniform float uTime, uSize, uReveal, uFade;
+uniform vec3 uOffset;
 out float vWave; out float vAlive; out float vEdge;
 void main() {
   float w = sin(uTime * 0.7 + aPhase * 2.0);
-  vec3 p = aPos + aNor * (w * 0.013);
+  vec3 p = aPos + aNor * (w * 0.013) + uOffset;
   vec4 mv = uView * vec4(p, 1.0);
   gl_Position = uProj * mv;
   gl_PointSize = max(0.0356 * uSize * (300.0 / -mv.z), 1.0);
@@ -627,6 +628,11 @@ void main() {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
 
+    // HER MARK (Adrian, 2026-08-19): in front of the man, who keeps the origin. The
+    // camera, not the world, does the tilting.
+    const HER_T = translation(-0.22, 0, 0.95);
+    for (let j = 0; j < NJ; j++) if (jParent[j] < 0) jLocal[j] = mmul(HER_T, jLocal[j]);
+
     const jIndexByName: Record<string, number> = {};
     jNames.forEach((n, i) => { jIndexByName[n] = i; });
 
@@ -792,15 +798,16 @@ void main() {
     const CARBON = hex('#0B0E10'), IRON2 = hex('#262C33'), IRON3 = hex('#353D45');
     const PLASMA = hex('#7CFFB2'), EMBER = hex('#FF7A3D'), BONE = hex('#E8E0D0');
 
-    // Pulled back and re-aimed for the fitting room (Adrian, 2026-08-19): the man stands
-    // three-quarter at stage RIGHT like the app's fit mannequin; she takes the centre.
-    // A gentle dolly-in rides the story (zero it if unwanted).
-    const CAM = { yaw: 0, pitch: -0.02, dist: 4.2, tx: 0.3, ty: 1.02, tz: 0, fov: 42 };
-    const MAN_M = (() => {
-      const a = (-38 * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a);
-      const m = new Float32Array([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 1.3, 0, -0.35, 1]);
-      return m;
-    })();
+    // THREE CAMERA MARKS (Adrian, 2026-08-19, corrected: the world never moves, the
+    // camera does -- the homepage's grammar in the opposite direction). LAND is the
+    // original centred shot of the man; FIT pulls back and orbits so he stands right of
+    // frame in three-quarter with her materialising in front; HER centres her for the
+    // skeleton onward. All three are his to dial.
+    const CAM_LAND = { yaw: 0, pitch: -0.02, dist: 3.7, tx: 0, ty: 1.02, tz: 0 };
+    const CAM_FIT = { yaw: 0.52, pitch: -0.02, dist: 4.4, tx: 0.1, ty: 1.0, tz: 0.35 };
+    const CAM_HER = { yaw: 0.24, pitch: -0.02, dist: 3.55, tx: -0.1, ty: 1.02, tz: 0.9 };
+    const CAM_FOV = 42;
+    const MAN_M = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 
     let T: any = null;
     const DPR = Math.min(devicePixelRatio || 1, 2);
@@ -924,7 +931,7 @@ void main() {
       const q = runway ? -rw.top / Math.max(1, innerHeight) : 0;
       const aland = smooth(clamp01((q - 0.15) / 0.4));
       const manOut = smooth(clamp01((q - 2.05) / 0.5));
-      const herReveal = clamp01((q - 0.7) / 1.2) * 1.08;
+      const herReveal = clamp01((q - 1.0) / 1.0) * 1.08;
       const grow = clamp01((q - 2.1) / 0.8);
       const solid = smooth(clamp01((q - 2.9) / 0.7));
       const alive = smooth(clamp01((q - 3.6) / 0.4));
@@ -934,7 +941,7 @@ void main() {
       de.setProperty('--aland', aland.toFixed(3));
       hero?.toggleAttribute('data-land-gone', aland > 0.95);
       // the copy beats, one cell each, timed to their scenes
-      de.setProperty('--ab1', (smooth(clamp01((q - 0.9) / 0.3)) * (1 - smooth(clamp01((q - 1.95) / 0.25)))).toFixed(3));
+      de.setProperty('--ab1', (smooth(clamp01((q - 1.1) / 0.3)) * (1 - smooth(clamp01((q - 1.95) / 0.25)))).toFixed(3));
       de.setProperty('--ab2', (smooth(clamp01((q - 2.2) / 0.3)) * (1 - smooth(clamp01((q - 2.75) / 0.25)))).toFixed(3));
       de.setProperty('--ab3', (smooth(clamp01((q - 3.0) / 0.3)) * (1 - smooth(clamp01((q - 3.5) / 0.25)))).toFixed(3));
       de.setProperty('--ab4', smooth(clamp01((q - 3.75) / 0.35)).toFixed(3));
@@ -952,15 +959,23 @@ void main() {
       const oy = Math.tanh(orbY / ORB_LIM_Y) * ORB_LIM_Y;
       const op = Math.tanh(orbP / ORB_LIM_P) * ORB_LIM_P;
 
-      const dolly = CAM.dist - 0.35 * smooth(clamp01((q - 1.0) / 2.6));
-      const tgt = [CAM.tx, CAM.ty, CAM.tz];
-      const yaw = CAM.yaw + oy, pitch = CAM.pitch + op;
+      // LAND -> FIT on the first scroll; FIT -> HER as the man leaves.
+      const t1 = smooth(clamp01((q - 0.55) / 0.5));
+      const t2 = smooth(clamp01((q - 2.05) / 0.65));
+      const leg = (a: number, b: number, c2: number) => lerp(lerp(a, b, t1), c2, t2);
+      const camDist = leg(CAM_LAND.dist, CAM_FIT.dist, CAM_HER.dist);
+      const tgt = [
+        leg(CAM_LAND.tx, CAM_FIT.tx, CAM_HER.tx),
+        leg(CAM_LAND.ty, CAM_FIT.ty, CAM_HER.ty),
+        leg(CAM_LAND.tz, CAM_FIT.tz, CAM_HER.tz)];
+      const yaw = leg(CAM_LAND.yaw, CAM_FIT.yaw, CAM_HER.yaw) + oy;
+      const pitch = leg(CAM_LAND.pitch, CAM_FIT.pitch, CAM_HER.pitch) + op;
       const eye = [
-        tgt[0] + dolly * Math.cos(pitch) * Math.sin(yaw),
-        tgt[1] + dolly * Math.sin(pitch),
-        tgt[2] + dolly * Math.cos(pitch) * Math.cos(yaw)];
+        tgt[0] + camDist * Math.cos(pitch) * Math.sin(yaw),
+        tgt[1] + camDist * Math.sin(pitch),
+        tgt[2] + camDist * Math.cos(pitch) * Math.cos(yaw)];
       const view = lookAt(eye, tgt, [0, 1, 0]);
-      const proj = perspective(CAM.fov, canvas.width / canvas.height, 0.01, 100);
+      const proj = perspective(CAM_FOV, canvas.width / canvas.height, 0.01, 100);
       lastView = view;
       lastEye = eye;
 
@@ -1020,6 +1035,7 @@ void main() {
         gl.uniform1f(P_PT.u.uSize, 1.0);
         gl.uniform1f(P_PT.u.uReveal, herReveal);
         gl.uniform1f(P_PT.u.uFade, ptFade);
+        gl.uniform3f(P_PT.u.uOffset, -0.22, 0, 0.95);
         gl.uniform3fv(P_PT.u.uPlasma, PLASMA);
         gl.uniform3fv(P_PT.u.uEmber, EMBER);
         gl.uniform3fv(P_PT.u.uBone, BONE);
