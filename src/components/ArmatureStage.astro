@@ -2,11 +2,13 @@
 // THE ARMATURE STORY (Adrian, 2026-08-19): the page is the product doing its job. From
 // the landing (the height man solid in the room, his ruled art piece), the scroll runs
 // the creation of a character:
-//   1. SHE MATERIALISES  -- SuperHeroin as a point cloud, floor to head, the man yielding
-//   2. THE SKELETON GROWS -- her real 87-joint rig, revealed root-outward, chain by chain
+//   1. THE FITTING ROOM  -- the man stands three-quarter at the RIGHT (the app's fit
+//                            mannequin); she materialises floor-to-head in front of him
+//   2. THE SKELETON GROWS -- the man leaves; her real 87-joint rig grows root-outward
 //   3. SHE SOLIDIFIES     -- the x-ray fresnel takes over the points, skeleton inside
-//   4. SHE IS ALIVE       -- linear-blend skinning in the shader, a procedural idle
-//                            (first-pass curves; Adrian authors the real ones)
+//   4. SHE IS ALIVE       -- skinned idle, and SIX GRAB HANDLES (wrists, feet, head,
+//                            chest): click-drag runs CCD IK on her real chains, release
+//                            springs her home (first-pass curves; Adrian authors)
 // Scroll is the only clock for the beats; the idle and the room run on time. Everything
 // is a pure function of scrollY, so scrolling up runs her un-creation in reverse.
 //
@@ -77,6 +79,32 @@
       }
     return o;
   }
+  function rotAxis(ax: number[], angle: number) {
+    const [x, y, z] = vnorm(ax);
+    const c = Math.cos(angle), s = Math.sin(angle), t = 1 - c;
+    return new Float32Array([
+      t * x * x + c, t * x * y + s * z, t * x * z - s * y, 0,
+      t * x * y - s * z, t * y * y + c, t * y * z + s * x, 0,
+      t * x * z + s * y, t * y * z - s * x, t * z * z + c, 0,
+      0, 0, 0, 1]);
+  }
+  // inverse of a rigid transform with uniform scale (every world matrix here is one)
+  function rigidInverse(m: Float32Array) {
+    const s2 = m[0] * m[0] + m[1] * m[1] + m[2] * m[2];
+    const o = new Float32Array(16);
+    for (let c = 0; c < 3; c++)
+      for (let r = 0; r < 3; r++) o[c * 4 + r] = m[r * 4 + c] / s2;
+    const tx = m[12], ty = m[13], tz = m[14];
+    o[12] = -(o[0] * tx + o[4] * ty + o[8] * tz);
+    o[13] = -(o[1] * tx + o[5] * ty + o[9] * tz);
+    o[14] = -(o[2] * tx + o[6] * ty + o[10] * tz);
+    o[15] = 1;
+    return o;
+  }
+  function translation(x: number, y: number, z: number) {
+    const o = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, x, y, z, 1]);
+    return o;
+  }
   // small-angle local rotation, XYZ order, degrees
   function rotXYZ(rx: number, ry: number, rz: number) {
     const d = Math.PI / 180;
@@ -131,12 +159,12 @@
     // ---- shaders
     const XRAY_VS = `#version 300 es
 in vec3 aPos; in vec3 aNor;
-uniform mat4 uProj, uView;
+uniform mat4 uProj, uView, uModel;
 out vec3 vN; out vec3 vV;
 void main() {
-  vec4 mv = uView * vec4(aPos, 1.0);
+  vec4 mv = uView * (uModel * vec4(aPos, 1.0));
   gl_Position = uProj * mv;
-  vN = mat3(uView) * aNor;
+  vN = mat3(uView) * (mat3(uModel) * aNor);
   vV = -mv.xyz;
 }`;
     // Her solid: the same fresnel, SKINNED. Joint matrices ride a 4 x nj float texture;
@@ -602,6 +630,42 @@ void main() {
     const jIndexByName: Record<string, number> = {};
     jNames.forEach((n, i) => { jIndexByName[n] = i; });
 
+    // THE GRAB HANDLES (Adrian, 2026-08-19): wrists, feet, head, chest. Each carries its
+    // real chain; dragging runs CCD IK on the world matrices (convention-free), release
+    // springs the target home so she settles back into the idle.
+    const EFFECTORS = [
+      { chain: ['upperarm_l', 'lowerarm_l', 'hand_l'] },
+      { chain: ['upperarm_r', 'lowerarm_r', 'hand_r'] },
+      { chain: ['thigh_l', 'calf_l', 'foot_l'] },
+      { chain: ['thigh_r', 'calf_r', 'foot_r'] },
+      { chain: ['neck_01', 'neck_02', 'head'] },
+      { chain: ['spine_01', 'spine_02', 'spine_03'] },
+    ].map((e) => e.chain.map((n) => jIndexByName[n]))
+      .filter((c) => c.every((j) => j !== undefined));
+    const effJoint = EFFECTORS.map((c) => c[c.length - 1]);
+    let ikChain = -1;             // index into EFFECTORS, -1 = none
+    let ikSettling = false;
+    const ikTarget = new Float32Array(3);
+    const effNatural = new Float32Array(effJoint.length * 3); // pre-IK effector positions
+
+    // the handle markers: a second, larger, pulsing draw of only the effector joints
+    const effPosBuf = gl.createBuffer();
+    const effVao = gl.createVertexArray()!;
+    {
+      gl.bindVertexArray(effVao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, effPosBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, effJoint.length * 12, gl.DYNAMIC_DRAW);
+      const lp = gl.getAttribLocation(P_JOINT.p, 'aPos');
+      gl.enableVertexAttribArray(lp);
+      gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
+      const db = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, db);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(effJoint.length), gl.STATIC_DRAW);
+      const ld = gl.getAttribLocation(P_JOINT.p, 'aD');
+      gl.enableVertexAttribArray(ld);
+      gl.vertexAttribPointer(ld, 1, gl.FLOAT, false, 0, 0);
+    }
+
     // THE IDLE (first-pass curves, Mr. Miata; Adrian authors the real ones -- these are
     // deliberately subtle: breath through the spine, a slow weight sway, the head looking).
     function poseRotation(name: string, t: number): Float32Array | null {
@@ -625,17 +689,19 @@ void main() {
     }
 
     const worlds: Float32Array[] = new Array(NJ);
+    const locals: Float32Array[] = new Array(NJ);
     const skinPix = new Float32Array(NJ * 16);
     const jointPts = new Float32Array(shown.length * 3);
     const bonePts = new Float32Array(boneList.length * 6);
-    function evalPose(t: number, amp: number) {
+    const effPts = new Float32Array(effJoint.length * 3);
+    function evalPose(t: number, amp: number, dt: number) {
+      // pass 1: the idle
       for (let j = 0; j < NJ; j++) {
         let L = jLocal[j];
         if (amp > 0.001) {
           const R = poseRotation(jNames[j], t);
           if (R) {
             if (amp < 0.999) {
-              // scale the offset by blending the rotation toward identity
               const Rs = rotXYZ(0, 0, 0);
               for (let k = 0; k < 16; k++) Rs[k] = lerp(Rs[k], R[k], amp);
               L = mmul(L, Rs);
@@ -644,7 +710,59 @@ void main() {
             }
           }
         }
+        locals[j] = L as Float32Array;
         worlds[j] = jParent[j] < 0 ? (L as Float32Array) : mmul(worlds[jParent[j]], L);
+      }
+      // the handles' natural (idle) positions, for grabbing and for settling home
+      effJoint.forEach((j, i) => {
+        effNatural[i * 3] = worlds[j][12]; effNatural[i * 3 + 1] = worlds[j][13]; effNatural[i * 3 + 2] = worlds[j][14];
+      });
+
+      // pass 2: CCD IK on the grabbed chain
+      if (ikChain >= 0) {
+        const chain = EFFECTORS[ikChain];
+        const eff = chain[chain.length - 1];
+        if (ikSettling) {
+          // the target walks home; when it arrives the chain lets go
+          const nat = [effNatural.slice()][0];
+          const i0 = effJoint.indexOf(eff) * 3;
+          const dx = nat[i0] - ikTarget[0], dy = nat[i0 + 1] - ikTarget[1], dz = nat[i0 + 2] - ikTarget[2];
+          const k = Math.min(1, dt * 5);
+          ikTarget[0] += dx * k; ikTarget[1] += dy * k; ikTarget[2] += dz * k;
+          if (dx * dx + dy * dy + dz * dz < 0.0004) { ikChain = -1; ikSettling = false; }
+        }
+        if (ikChain >= 0) {
+          for (let it = 0; it < 4; it++) {
+            for (let ci = chain.length - 2; ci >= 0; ci--) {
+              const j = chain[ci];
+              const px = worlds[j][12], py = worlds[j][13], pz = worlds[j][14];
+              const ex = worlds[eff][12] - px, ey = worlds[eff][13] - py, ez = worlds[eff][14] - pz;
+              const tx = ikTarget[0] - px, ty2 = ikTarget[1] - py, tz = ikTarget[2] - pz;
+              const cr = vcross([ex, ey, ez], [tx, ty2, tz]);
+              const crl = Math.hypot(cr[0], cr[1], cr[2]);
+              const el = Math.hypot(ex, ey, ez), tl = Math.hypot(tx, ty2, tz);
+              if (crl < 1e-6 || el < 1e-6 || tl < 1e-6) continue;
+              let ang = Math.acos(Math.min(1, Math.max(-1, (ex * tx + ey * ty2 + ez * tz) / (el * tl))));
+              ang = Math.min(0.35, ang * 0.85);
+              const R = mmul(mmul(translation(px, py, pz), rotAxis(cr, ang)), translation(-px, -py, -pz));
+              worlds[j] = mmul(R, worlds[j]);
+              // refresh the chain below the rotated joint
+              for (let k2 = ci + 1; k2 < chain.length; k2++)
+                worlds[chain[k2]] = mmul(worlds[chain[k2 - 1]], locals[chain[k2]]);
+            }
+          }
+          // fold the solve back into locals, then rebuild EVERY world from locals so the
+          // twists and fingers downstream of the chain follow their parents
+          for (let ci = 0; ci < chain.length; ci++) {
+            const j = chain[ci];
+            locals[j] = jParent[j] < 0 ? worlds[j] : mmul(rigidInverse(worlds[jParent[j]]), worlds[j]);
+          }
+          for (let j = 0; j < NJ; j++)
+            worlds[j] = jParent[j] < 0 ? locals[j] : mmul(worlds[jParent[j]], locals[j]);
+        }
+      }
+
+      for (let j = 0; j < NJ; j++) {
         const M = mmul(worlds[j], jIbm[j]);
         skinPix.set(M, j * 16);
       }
@@ -656,6 +774,11 @@ void main() {
         bonePts[i * 6] = worlds[p][12]; bonePts[i * 6 + 1] = worlds[p][13]; bonePts[i * 6 + 2] = worlds[p][14];
         bonePts[i * 6 + 3] = worlds[j][12]; bonePts[i * 6 + 4] = worlds[j][13]; bonePts[i * 6 + 5] = worlds[j][14];
       });
+      effJoint.forEach((j, i) => {
+        effPts[i * 3] = worlds[j][12]; effPts[i * 3 + 1] = worlds[j][13]; effPts[i * 3 + 2] = worlds[j][14];
+      });
+      gl.bindBuffer(gl.ARRAY_BUFFER, effPosBuf);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, effPts);
       gl.bindTexture(gl.TEXTURE_2D, jointTex);
       gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 4, NJ, gl.RGBA, gl.FLOAT, skinPix);
       gl.bindBuffer(gl.ARRAY_BUFFER, jointPosBuf);
@@ -669,8 +792,15 @@ void main() {
     const CARBON = hex('#0B0E10'), IRON2 = hex('#262C33'), IRON3 = hex('#353D45');
     const PLASMA = hex('#7CFFB2'), EMBER = hex('#FF7A3D'), BONE = hex('#E8E0D0');
 
-    // CAM_C from the homepage; a gentle dolly-in rides the story (zero it if unwanted).
-    const CAM = { yaw: 0, pitch: -0.02, dist: 3.7, tx: 0, ty: 1.02, tz: 0, fov: 42 };
+    // Pulled back and re-aimed for the fitting room (Adrian, 2026-08-19): the man stands
+    // three-quarter at stage RIGHT like the app's fit mannequin; she takes the centre.
+    // A gentle dolly-in rides the story (zero it if unwanted).
+    const CAM = { yaw: 0, pitch: -0.02, dist: 4.2, tx: 0.3, ty: 1.02, tz: 0, fov: 42 };
+    const MAN_M = (() => {
+      const a = (-38 * Math.PI) / 180, c = Math.cos(a), s = Math.sin(a);
+      const m = new Float32Array([c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 1.3, 0, -0.35, 1]);
+      return m;
+    })();
 
     let T: any = null;
     const DPR = Math.min(devicePixelRatio || 1, 2);
@@ -699,22 +829,83 @@ void main() {
     const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
     const hero = canvas.closest('.hero--art') as HTMLElement | null;
     const runway = document.querySelector('[data-ast-scroll]') as HTMLElement | null;
+    // last frame's camera, for picking and dragging in screen space
+    let lastView: Float32Array | null = null;
+    let lastEye: number[] = [0, 0, 0];
+    let lastAliveOn = false;
+    const TANH_FOV = Math.tan((42 * Math.PI) / 360);
+    function screenOf(p: number[]) {
+      if (!lastView) return null;
+      const v = lastView;
+      const x = v[0] * p[0] + v[4] * p[1] + v[8] * p[2] + v[12];
+      const y = v[1] * p[0] + v[5] * p[1] + v[9] * p[2] + v[13];
+      const z = v[2] * p[0] + v[6] * p[1] + v[10] * p[2] + v[14];
+      if (-z <= 1e-6) return null;
+      const aspect = canvas.width / canvas.height;
+      const sx = ((x / (-z * TANH_FOV * aspect)) * 0.5 + 0.5) * canvas.clientWidth;
+      const sy = (1 - ((y / (-z * TANH_FOV)) * 0.5 + 0.5)) * canvas.clientHeight;
+      return [sx, sy, -z];
+    }
+    function dragTarget(clientX: number, clientY: number, depth: number) {
+      // a point on the camera-facing plane at the grab's depth
+      const r = canvas.getBoundingClientRect();
+      const ndcX = ((clientX - r.left) / r.width) * 2 - 1;
+      const ndcY = 1 - ((clientY - r.top) / r.height) * 2;
+      const v = lastView!;
+      const right = [v[0], v[4], v[8]], up = [v[1], v[5], v[9]], back = [v[2], v[6], v[10]];
+      const aspect = canvas.width / canvas.height;
+      return [
+        lastEye[0] - back[0] * depth + right[0] * ndcX * depth * TANH_FOV * aspect + up[0] * ndcY * depth * TANH_FOV,
+        lastEye[1] - back[1] * depth + right[1] * ndcX * depth * TANH_FOV * aspect + up[1] * ndcY * depth * TANH_FOV,
+        lastEye[2] - back[2] * depth + right[2] * ndcX * depth * TANH_FOV * aspect + up[2] * ndcY * depth * TANH_FOV,
+      ];
+    }
+    let ikDrag = false, ikDepth = 0;
     hero?.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || e.pointerType !== 'mouse') return;
       const t = e.target as HTMLElement;
       if (t.closest('a, button, video, figure, input')) return;
+      // the handles win over the orbit, but only once she is alive
+      if (lastAliveOn && lastView) {
+        const r = canvas.getBoundingClientRect();
+        const mx = e.clientX - r.left, my = e.clientY - r.top;
+        let best = -1, bestD = 42;
+        for (let i = 0; i < effJoint.length; i++) {
+          const sp = screenOf([effPts[i * 3], effPts[i * 3 + 1], effPts[i * 3 + 2]]);
+          if (!sp) continue;
+          const d = Math.hypot(sp[0] - mx, sp[1] - my);
+          if (d < bestD) { bestD = d; best = i; }
+        }
+        if (best >= 0) {
+          ikChain = best;
+          ikSettling = false;
+          ikDrag = true;
+          const sp = screenOf([effPts[best * 3], effPts[best * 3 + 1], effPts[best * 3 + 2]])!;
+          ikDepth = sp[2];
+          ikTarget.set([effPts[best * 3], effPts[best * 3 + 1], effPts[best * 3 + 2]]);
+          e.preventDefault();
+          return;
+        }
+      }
       orbDrag = true;
       orbLast = [e.clientX, e.clientY];
       e.preventDefault();
     });
     document.addEventListener('pointermove', (e) => {
+      if (ikDrag && lastView) {
+        ikTarget.set(dragTarget(e.clientX, e.clientY, ikDepth));
+        return;
+      }
       if (!orbDrag || !orbLast) return;
       orbY -= (e.clientX - orbLast[0]) * 0.004;
       orbP += (e.clientY - orbLast[1]) * 0.003;
       orbVY = 0; orbVP = 0;
       orbLast = [e.clientX, e.clientY];
     });
-    addEventListener('pointerup', () => { orbDrag = false; });
+    addEventListener('pointerup', () => {
+      orbDrag = false;
+      if (ikDrag) { ikDrag = false; ikSettling = true; }
+    });
 
     let time = 0, prev = 0, ready = false;
     function frame(now: number) {
@@ -727,21 +918,23 @@ void main() {
       time += dt;
 
       // THE CLOCK: q = screens scrolled into the runway. Beats (all pure functions of q):
-      //   landing copy out 0.15-0.55 | man out 0.4-0.9 | her points 0.9-2.0 |
-      //   skeleton grows 2.1-2.9 | solidify 2.9-3.6 | alive from 3.6 | hold to the end
+      //   landing copy out 0.15-0.55 | THE FITTING ROOM: her points 0.7-1.9, the man
+      //   holding three-quarter at the right | the man leaves 2.05-2.55 as the skeleton
+      //   grows 2.1-2.9 | solidify 2.9-3.6 | alive (and grabbable) from 3.6 | hold
       const q = runway ? -rw.top / Math.max(1, innerHeight) : 0;
       const aland = smooth(clamp01((q - 0.15) / 0.4));
-      const manOut = smooth(clamp01((q - 0.4) / 0.5));
-      const herReveal = clamp01((q - 0.9) / 1.1) * 1.08;
+      const manOut = smooth(clamp01((q - 2.05) / 0.5));
+      const herReveal = clamp01((q - 0.7) / 1.2) * 1.08;
       const grow = clamp01((q - 2.1) / 0.8);
       const solid = smooth(clamp01((q - 2.9) / 0.7));
       const alive = smooth(clamp01((q - 3.6) / 0.4));
+      lastAliveOn = alive > 0.5;
 
       const de = document.documentElement.style;
       de.setProperty('--aland', aland.toFixed(3));
       hero?.toggleAttribute('data-land-gone', aland > 0.95);
       // the copy beats, one cell each, timed to their scenes
-      de.setProperty('--ab1', (smooth(clamp01((q - 1.15) / 0.3)) * (1 - smooth(clamp01((q - 1.95) / 0.25)))).toFixed(3));
+      de.setProperty('--ab1', (smooth(clamp01((q - 0.9) / 0.3)) * (1 - smooth(clamp01((q - 1.95) / 0.25)))).toFixed(3));
       de.setProperty('--ab2', (smooth(clamp01((q - 2.2) / 0.3)) * (1 - smooth(clamp01((q - 2.75) / 0.25)))).toFixed(3));
       de.setProperty('--ab3', (smooth(clamp01((q - 3.0) / 0.3)) * (1 - smooth(clamp01((q - 3.5) / 0.25)))).toFixed(3));
       de.setProperty('--ab4', smooth(clamp01((q - 3.75) / 0.35)).toFixed(3));
@@ -750,7 +943,7 @@ void main() {
       const ptFade = (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45);
       const skelAlpha = grow > 0 ? 0.85 : 0;
 
-      evalPose(time, alive);
+      evalPose(time, alive, dt);
 
       if (!orbDrag) {
         orbVY += (-60 * orbY - 10 * orbVY) * dt; orbY += orbVY * dt;
@@ -768,6 +961,8 @@ void main() {
         tgt[2] + dolly * Math.cos(pitch) * Math.cos(yaw)];
       const view = lookAt(eye, tgt, [0, 1, 0]);
       const proj = perspective(CAM.fov, canvas.width / canvas.height, 0.01, 100);
+      lastView = view;
+      lastEye = eye;
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, T.scene.f);
       gl.viewport(0, 0, canvas.width, canvas.height);
@@ -811,6 +1006,7 @@ void main() {
         gl.uniform3fv(P_XRAY.u.uPlasma, PLASMA);
         gl.uniform3fv(P_XRAY.u.uBone, BONE);
         gl.uniform1f(P_XRAY.u.uAlpha, 0.5 * (1 - manOut));
+        gl.uniformMatrix4fv(P_XRAY.u.uModel, false, MAN_M);
         gl.bindVertexArray(manVao);
         gl.drawElements(gl.TRIANGLES, manNi, gl.UNSIGNED_SHORT, 0);
       }
@@ -864,6 +1060,15 @@ void main() {
         gl.uniform1f(P_JOINT.u.uAlpha, skelAlpha);
         gl.bindVertexArray(jointVao);
         gl.drawArrays(gl.POINTS, 0, shown.length);
+
+        // the six handles, pulsing so the invitation reads
+        if (alive > 0.5) {
+          gl.uniform1f(P_JOINT.u.uGrow, 1.0);
+          gl.uniform1f(P_JOINT.u.uSize, 0.085 + 0.02 * Math.sin(time * 2.2));
+          gl.uniform1f(P_JOINT.u.uAlpha, skelAlpha * alive);
+          gl.bindVertexArray(effVao);
+          gl.drawArrays(gl.POINTS, 0, effJoint.length);
+        }
       }
       gl.disable(gl.BLEND);
 
@@ -910,7 +1115,7 @@ void main() {
         if (runway) runway.setAttribute('data-live', '');
       }
     }
-    evalPose(0, 0);
+    evalPose(0, 0, 0.016);
     resize();
     requestAnimationFrame(frame);
   }

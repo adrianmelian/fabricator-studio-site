@@ -95,13 +95,26 @@ const DESCRIPTION =
         </noscript>
       </div>
 
-      {/* THE STORY'S COPY BEATS -- DRAFT, Adrian's pass owed. One cell, crossfading with
-          their scenes: materialise / skeleton / skinning / alive. */}
+      {/* THE STORY'S COPY BEATS -- DRAFT except the stage names (Adrian's, 2026-08-19).
+          The app's stages, told on the left flank: Fitting Room / Skeleton / Skinning /
+          alive. One cell, crossfading with their scenes. */}
       <div class="ast-beats" aria-hidden="true">
-        <p class="ast-beat" style="opacity: var(--ab1, 0)">A new character. No rig yet.</p>
-        <p class="ast-beat" style="opacity: var(--ab2, 0)">The skeleton grows in place. Generative joint placement.</p>
-        <p class="ast-beat" style="opacity: var(--ab3, 0)">Machine-learned skinning binds the mesh.</p>
-        <p class="ast-beat" style="opacity: var(--ab4, 0)">Animation-ready. Yours to refine.</p>
+        <div class="ast-beat" style="opacity: var(--ab1, 0)">
+          <p class="ast-beat__head">Fitting Room</p>
+          <p class="ast-beat__line">Fit your character to size. Symmetry, placement, behaviors.</p>
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab2, 0)">
+          <p class="ast-beat__head">Skeleton</p>
+          <p class="ast-beat__line">Auto-fitted to your model. Every joint where it belongs.</p>
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab3, 0)">
+          <p class="ast-beat__head">Skinning</p>
+          <p class="ast-beat__line">Machine-learned skinning binds the mesh.</p>
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab4, 0)">
+          <p class="ast-beat__head">Animation-Ready</p>
+          <p class="ast-beat__line">Yours to refine. Grab a wrist, a foot, the head &mdash; she follows.</p>
+        </div>
       </div>
     </header>
     </div>
@@ -253,25 +266,34 @@ const DESCRIPTION =
   .ast-hero[data-land-gone] .ast-hero__intro,
   .ast-hero[data-land-gone] .ast-hero__actions { visibility: hidden; }
 
-  /* The copy beats: centred low, one grid cell, crossfading on their vars. */
+  /* The copy beats: the LEFT FLANK the landing stanza vacates (Adrian, 2026-08-19),
+     stage-header over line, one grid cell, crossfading on their vars. */
   .ast-beats {
     position: absolute;
-    left: 50%;
-    bottom: 9%;
-    transform: translateX(-50%);
-    width: min(46rem, 80vw);
+    left: 8vw;
+    top: 30%;
+    width: min(34rem, 36vw);
     display: none;
-    text-align: center;
     pointer-events: none;
     text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
   }
   .ast-hero[data-stage-live] .ast-beats { display: grid; }
   .ast-beat {
     grid-area: 1 / 1;
-    align-self: end;
+    align-self: start;
+  }
+  .ast-beat__head {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.2rem, 3.2vw, 3.4rem);
+    line-height: 1.05;
+    color: var(--ember);
+  }
+  .ast-beat__line {
+    margin-top: 0.8rem;
     font-weight: 300;
-    font-size: clamp(1.25rem, 2vw, 1.9rem);
-    line-height: 1.3;
+    font-size: clamp(1.15rem, 1.7vw, 1.6rem);
+    line-height: 1.35;
     color: var(--bone);
   }
 
