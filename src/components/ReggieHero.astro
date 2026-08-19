@@ -3,7 +3,7 @@
 // (inbox FSWindows/Reggie Hero Loop.html): a 3D chat panel on an 8s rotate with a
 // breathing status dot and an AI TECHNICAL ARTIST / ALWAYS ON DUTY title. Grid swapped
 // to SVG (gate G13), viewport-scale -> container-fit observer, and the two em-dashes in
-// the chat copy replaced with periods (gate G11). Uses the site's own JetBrains Mono.
+// the chat copy replaced with periods (gate G11). Monospace via the system stack.
 
 // `bare` strips the frame so only the window and its motion sit on the card's frosted plate.
 // The homepage tool cards pass it; the Learn More popover does not, where the graphic stands
@@ -200,7 +200,9 @@ const Heading = hasCopy ? 'h3' : 'h1';
 
   .reggiehero{
     --carbon:#0B0E10; --iron:#262C33; --bone:#E8E0D0; --ember:#FF7A3D; --plasma:#7CFFB2;
-    --mono:'JetBrains Mono', ui-monospace, monospace;
+    /* The chat mock reads as a terminal, so it stays monospace. System stack, not the
+       retired brand face and not a third family. */
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
     position:relative; width:100%; aspect-ratio:16/9; overflow:hidden;
     background:#1C2126; border:1px solid var(--iron-3); border-radius:var(--radius);
   }

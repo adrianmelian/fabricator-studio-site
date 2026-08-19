@@ -88,7 +88,7 @@
 }
 .am-table__row { border-top: 1px solid var(--iron-2); color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; }
 .am-table__k { color: var(--bone); }
-.am-table__k code { font-family: var(--font-mono); color: var(--plasma); }
+.am-table__k code { font-family: var(--font-code); color: var(--plasma); }
 
 /* Previous / next, so the five pages read as a path rather than a pile. */
 .am-pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-top: 1.5rem; border-top: 1px solid var(--iron-2); }

@@ -27,13 +27,18 @@
   --magma:       #FF3B3B;
   --magma-dim:   #B52A2A;
 
-  /* ===== typography (Mindmeld 2.0: ONE family, JetBrains Mono) =====
-     VT323 and Geist are RETIRED (DNA principles 3 + 4). Display is JBM Bold with the
-     outlined tri-color treatment; body is JBM regular. All three aliases resolve to the
-     same family so no call site has to change. */
-  --font-display: 'JetBrains Mono', 'Consolas', monospace;
-  --font-mono:    'JetBrains Mono', 'Consolas', monospace;
-  --font-body:    'JetBrains Mono', 'Consolas', monospace;
+  /* ===== typography (Mindmeld 2.0, revised 2026-08-18) =====
+     Two families. Display = Instrument Serif, which ships ONE weight (400) and no bold cut,
+     so bold always resolves to Archivo. Text = Archivo. VT323, Geist and JetBrains Mono are
+     all RETIRED as system faces; JBM Bold survives for the wordmark alone (see base.css).
+
+     --font-mono is a legacy alias from when the whole site was monospace. It resolves to the
+     text face now. Genuine code (shell commands, file paths) uses a system mono instead, so
+     it stays copyable and aligned without a third brand family entering the system. */
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-body:    'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-mono:    'Archivo', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-code:    ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 
   --fs-11: 0.6875rem;  /* 11px */
   --fs-12: 0.75rem;    /* 12px */

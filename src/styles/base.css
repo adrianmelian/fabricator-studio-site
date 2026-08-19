@@ -1,23 +1,83 @@
 /* base.css - fabricator.studio type system.
-   Mindmeld 2.0: ONE family, JetBrains Mono. VT323 (pixel display) and Geist (body sans) are
-   RETIRED from the system entirely (DNA principles 3 + 4); their @font-face blocks and
-   preloads are gone. Display = JBM Bold with the outlined tri-color treatment. */
+   Mindmeld 2.0 typography, revised 2026-08-18 (Adrian). JetBrains Mono is RETIRED as the
+   system face: it had become the default face of AI tooling and readers were calling it out.
+   Display = Instrument Serif (ONE weight, 400, plus Italic; never bold it, the browser will
+   fake one). Text = Archivo, variable 200-900.
+
+   THE ONE EXCEPTION IS THE WORDMARK. Unlike the banners and favicons, the tri-color signature
+   on this site is LIVE TYPE (see components/Wordmark.astro), so retiring the family would
+   silently redraw the logo. JetBrains Mono Bold is kept, loaded once, and used by .wordmark
+   and nothing else. Redrawing the mark in Instrument Serif is a separate decision Adrian has
+   not made. */
+/* latin-ext */
 @font-face {
-  font-family: 'JetBrains Mono';
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/InstrumentSerif-3.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Instrument Serif';
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+  src: url(/fonts/InstrumentSerif-4.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Instrument Serif';
   font-style: normal;
   font-weight: 400;
   font-display: swap;
-  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  src: url(/fonts/InstrumentSerif-2.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
 }
-
+/* latin */
 @font-face {
-  font-family: 'JetBrains Mono';
+  font-family: 'Instrument Serif';
   font-style: normal;
-  font-weight: 500;
+  font-weight: 400;
   font-display: swap;
-  src: url('/fonts/JetBrainsMono-Medium.woff2') format('woff2');
+  src: url(/fonts/InstrumentSerif-1.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
 }
 
+/* vietnamese */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 200 900;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(/fonts/Archivo-1.woff2) format('woff2');
+  unicode-range: U+0102-0103, U+0110-0111, U+0128-0129, U+0168-0169, U+01A0-01A1, U+01AF-01B0, U+0300-0301, U+0303-0304, U+0308-0309, U+0323, U+0329, U+1EA0-1EF9, U+20AB;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 200 900;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(/fonts/Archivo-2.woff2) format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Archivo';
+  font-style: normal;
+  font-weight: 200 900;
+  font-stretch: 100%;
+  font-display: swap;
+  src: url(/fonts/Archivo-3.woff2) format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+/* Wordmark only. Do not use this family anywhere else. */
 @font-face {
   font-family: 'JetBrains Mono';
   font-style: normal;
@@ -45,34 +105,40 @@ html {
 
 body {
   font-family: var(--font-body);
-  font-size: 16px;            /* JBM Regular body */
+  font-size: 16px;
   line-height: var(--lh-body);
   color: var(--bone);
   padding-top: var(--header-h); /* clears the fixed NavBar on every page */
   overflow-x: clip; /* see html above: `hidden` would break the scroll-driven parallax */
 }
 
-/* Display type (2.0): JetBrains Mono BOLD, set large. `.vt` is a 1.0 class name (it used to
-   be the only route to VT323); it now renders the 2.0 display face so nothing breaks
-   mid-migration, and gets renamed to .display in P1. */
+/* Display type: Instrument Serif at 400, set large. `.vt` is a 1.0 class name (it used to be
+   the only route to VT323); it renders the current display face so nothing breaks
+   mid-migration, and gets renamed to .display in P1.
+   The uppercase here is inherited from the monospace era and has NOT been revisited; the
+   portfolio site moved its headings to sentence case on 2026-08-18 and this one did not. */
 .vt,
 .display {
   font-family: var(--font-display);
-  font-weight: 700;
+  font-weight: 400;
   text-transform: uppercase;
   font-size: clamp(2.2rem, 6vw, 4rem);
   line-height: 1.05;
   letter-spacing: -0.01em;
 }
 
-/* THE SIGNATURE (DNA section 4): the outlined tri-color wordmark. JetBrains Mono Bold, a
+/* THE SIGNATURE (DNA section 4): the outlined tri-color wordmark. Still JetBrains Mono Bold, a
    thick carbon outline on every glyph, letters alternating across bone / plasma / ember.
    Rendered as LIVE TYPE rather than a PNG so it stays crisp and responsive at any size.
    `paint-order: stroke fill` puts the stroke BEHIND the fill, so a thick outline does not
    eat into the letterforms. Letter pattern is taken from Adrian's fs_fabricator_banner:
    accent, bone, accent, bone... with the accents alternating plasma and ember. */
 .wordmark {
-  font-family: var(--font-display);
+  /* Pinned, NOT var(--font-display): this is the signature and it must not follow the
+     system face. See the @font-face note at the top of this file. */
+  font-family: 'JetBrains Mono', 'Consolas', monospace;
+  /* 700 is the signature. The only face loaded for this family IS the Bold, so this must
+     not be lowered to 400 by any sweep that assumes the display serif's single weight. */
   font-weight: 700;
   line-height: 1;
   letter-spacing: 0.01em;
@@ -96,7 +162,7 @@ body {
 .wordmark i:nth-child(4n + 1) { color: var(--plasma); }
 .wordmark i:nth-child(4n + 3) { color: var(--ember); }
 
-.subhead {                     /* JBM Bold ~20-24px step */
+.subhead {                     /* ~20-24px step */
   font-family: var(--font-mono);
   font-weight: 700;
   font-size: 1.375rem;

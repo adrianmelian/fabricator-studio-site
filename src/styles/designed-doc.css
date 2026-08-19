@@ -25,7 +25,7 @@
 .dd-title {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 800;
+  font-weight: 400;
   font-size: clamp(2.1rem, 5.2vw, 3.4rem);
   line-height: 0.95;
   letter-spacing: -0.02em;
@@ -55,7 +55,7 @@
 .dd-section { display: flex; flex-direction: column; gap: 1.5rem; }
 .dd-panel__head { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; }
 .dd-panel__head--bare { padding-left: 0.25rem; }
-.dd-label { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 1.375rem; letter-spacing: 0.03em; }
+.dd-label { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.375rem; letter-spacing: 0.03em; }
 .dd-label--plasma { color: var(--plasma); }
 .dd-label--ember { color: var(--ember); }
 .dd-lede { margin: 0; font-size: 0.9375rem; color: var(--bone-dim); }

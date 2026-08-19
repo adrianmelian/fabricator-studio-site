@@ -119,15 +119,20 @@ for (const f of htmlFiles) {
   if (spaced) failures.push(`G9 spaced "${spaced[0]}" in ${f} (the company name is the compound FabricatorStudio)`);
 }
 
-// ---- principles 3 + 4: ONE family, JetBrains Mono. VT323 and Geist retired --
-const ALLOWED_FAMILY = /^(jetbrains mono|consolas|courier new|monospace|ui-monospace)$/i;
+// ---- principles 3 + 4 (revised 2026-08-18): TWO families, Instrument Serif + Archivo ----
+// JetBrains Mono is retired as a system face and survives for ONE thing: the wordmark, which
+// is live type on this site (components/Wordmark.astro) rather than an image, so dropping the
+// family would silently redraw the signature. VT323 and Geist stay retired. The generic and
+// system-mono names below are fallback stacks and code type, not brand families.
+const ALLOWED_FAMILY =
+  /^(instrument serif|archivo|jetbrains mono|georgia|times new roman|serif|system-ui|-apple-system|segoe ui|sans-serif|sfmono-regular|menlo|consolas|courier new|monospace|ui-monospace)$/i;
 for (const [css, where] of allCss) {
   if (/vt323/i.test(css)) failures.push(`G3 VT323 referenced in ${where} (retired in 2.0)`);
   for (const decl of css.matchAll(/font-family\s*:\s*([^;}]+)/gi)) {
     const bad = decl[1].split(',')
       .map((s) => s.replace(/['"]/g, '').trim())
       .filter((fam) => fam && !fam.startsWith('var(') && !ALLOWED_FAMILY.test(fam));
-    if (bad.length) failures.push(`G4 non-JetBrains-Mono family [${bad.join(', ')}] in ${where}`);
+    if (bad.length) failures.push(`G4 family outside Instrument Serif / Archivo [${bad.join(', ')}] in ${where}`);
   }
 }
 // The `vt` class was the 1.0 route to the pixel face; it must not survive the migration.
