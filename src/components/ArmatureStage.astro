@@ -724,30 +724,30 @@ void main() {
       const f = (t - a) / (b - a);
       return f > 0 && f < 1 ? Math.sin(Math.PI * f) : 0;
     };
-    const sideOf = (n: string) => (n.endsWith('_l') ? 1 : n.endsWith('_r') ? -1 : 0);
     const isFinger = (n: string) => /^(thumb|index|middle|ring|pinky)_(01|02|03)_/.test(n + '_');
-    function romRotation(name: string, tt: number): { ax: number[]; deg: number } | null {
+    function romRotation(j: number, tt: number): { ax: number[]; deg: number } | null {
       const t = tt % ROM_LEN;
-      const sd = sideOf(name);
-      // 0-3s: arms rise to the T and come back (clavicles help)
+      const name = jNames[j];
+      const side = jSide[j];
+      // 0-3s: arms rise laterally to the T and come back (clavicles help). About world Z,
+      // outward = toward the joint's own side.
       if (name.startsWith('upperarm_')) {
-        let d = 62 * hump(t, 0, 3);
-        d += 0; // elbows/fists segments keep the arms down
-        if (d) return { ax: [0, 0, 1], deg: -sd * d * (jSideX < 0 ? -1 : 1) };
+        const d = 62 * hump(t, 0, 3);
+        if (d) return { ax: [0, 0, 1], deg: d * side };
       }
       if (name.startsWith('clavicle_')) {
         const d = 12 * hump(t, 0, 3);
-        if (d) return { ax: [0, 0, 1], deg: -sd * d * (jSideX < 0 ? -1 : 1) };
+        if (d) return { ax: [0, 0, 1], deg: d * side };
       }
       // 3-5.5s: both elbows bend
       if (name.startsWith('lowerarm_') && !name.includes('twist')) {
         const d = 68 * hump(t, 3, 5.5);
         if (d) return { ax: [1, 0, 0], deg: -d };
       }
-      // 5.5-7.5s: fists
+      // 5.5-7.5s: fists -- the curl is about Z (Adrian's ruling), toward the palm
       if (isFinger(name)) {
         const d = 55 * hump(t, 5.5, 7.5);
-        if (d) return { ax: [0, 0, 1], deg: -sd * d * (jSideX < 0 ? -1 : 1) };
+        if (d) return { ax: [0, 0, 1], deg: -d * side };
       }
       // 7.5-11.5s: the head looks left, right, forward, back
       if (name === 'neck_01' || name === 'neck_02' || name === 'head') {
@@ -762,10 +762,10 @@ void main() {
         const d = 9 * (hump(t, 11.5, 13) - hump(t, 13, 14.5));
         if (d) return { ax: [0, 1, 0], deg: d };
       }
-      // 14.5-17s: legs spread and return
+      // 14.5-17s: legs spread outward and return
       if (name.startsWith('thigh_') && !name.includes('twist')) {
         const d = 24 * hump(t, 14.5, 17);
-        if (d) return { ax: [0, 0, 1], deg: sd * d * (jSideX < 0 ? -1 : 1) };
+        if (d) return { ax: [0, 0, 1], deg: d * side };
       }
       // 17-19.5s: knees bend back
       if (name.startsWith('calf_') && !name.includes('twist')) {
@@ -783,8 +783,15 @@ void main() {
       }
       return null;
     }
-    // the side test the mirror rules key on: which world side the LEFT hand landed
-    let jSideX = 1;
+    // per-joint side of the body, measured ONCE at bind and frozen (a live test flipped
+    // mid-move when the arms crossed the centre, and the reversal read as flapping)
+    const jSide = new Array(NJ).fill(1);
+    {
+      const w: Float32Array[] = new Array(NJ);
+      for (let j = 0; j < NJ; j++) w[j] = jParent[j] < 0 ? jLocal[j] : mmul(w[jParent[j]], jLocal[j]);
+      const rootX = w[jIndexByName['pelvis'] ?? 0][12];
+      for (let j = 0; j < NJ; j++) jSide[j] = w[j][12] - rootX >= 0 ? 1 : -1;
+    }
 
     const worlds: Float32Array[] = new Array(NJ);
     const locals: Float32Array[] = new Array(NJ);
@@ -800,7 +807,7 @@ void main() {
         locals[j] = L;
         let W = jParent[j] < 0 ? L : mmul(worlds[jParent[j]], L);
         if (amp > 0.001) {
-          const R = romRotation(jNames[j], t);
+          const R = romRotation(j, t);
           if (R) {
             const px = W[12], py = W[13], pz = W[14];
             const M = mmul(mmul(translation(px, py, pz), rotAxis(R.ax, (R.deg * amp * Math.PI) / 180)), translation(-px, -py, -pz));
@@ -808,10 +815,6 @@ void main() {
           }
         }
         worlds[j] = W;
-      }
-      if (jSideX === 1 || jSideX === -1) {
-        const hl = jIndexByName['hand_l'];
-        if (hl !== undefined) jSideX = worlds[hl][12] - 0.0 >= (jIndexByName['hand_r'] !== undefined ? worlds[jIndexByName['hand_r']][12] : 0) ? 1 : -1;
       }
       // the handles' natural (idle) positions, for grabbing and for settling home
       effJoint.forEach((j, i) => {
