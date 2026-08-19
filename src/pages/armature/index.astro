@@ -62,7 +62,7 @@ const DESCRIPTION =
         <div class="ast-hero__lockup" aria-hidden="true">
           <Image class="ast-hero__lockup-mark" src={fsMark} alt="" widths={[120, 240, 338]} sizes="8vw" />
         </div>
-        <h1 class="ast-hero__tagline">Armature: Rigging &amp; Skinning Re&#8209;imagined.</h1>
+        <h1 class="ast-hero__tagline"><span class="ast-ember">Armature:</span> Rigging &amp; Skinning Re&#8209;imagined.</h1>
         <p class="ast-hero__line">Generative joint placement and skin binding.</p>
         <p class="ast-hero__line"><span class="ast-hero__plus">+</span> Artist-friendly tools for production quality refinement.</p>
       </div>
@@ -104,22 +104,22 @@ const DESCRIPTION =
           alive. One cell, crossfading with their scenes. */}
       <div class="ast-beats" aria-hidden="true">
         <div class="ast-beat" style="opacity: var(--ab1, 0)">
-          <p class="ast-beat__head">Fitting Room</p>
+          <p class="ast-beat__head"><span class="ast-ember">Fitting</span> Room</p>
           <p class="ast-beat__line">Fit your character to size so symmetry and placement behave.</p>
           <Image class="ast-beat__img" src={stageFit} alt="" widths={[420, 840]} sizes="26vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab2, 0)">
-          <p class="ast-beat__head">Generative Skeleton Placement</p>
+          <p class="ast-beat__head"><span class="ast-ember">Generative</span> Skeleton Placement</p>
           <p class="ast-beat__line">Auto fit the joints to your model, automatically named and oriented correctly.</p>
           <Image class="ast-beat__img" src={stageSkeleton} alt="" widths={[420, 840]} sizes="26vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab3, 0)">
-          <p class="ast-beat__head">Generative Skin Binding</p>
+          <p class="ast-beat__head"><span class="ast-ember">Generative</span> Skin Binding</p>
           <p class="ast-beat__line">Machine learned skinning binds any type of mesh.</p>
           <Image class="ast-beat__img" src={stageSkin} alt="" widths={[420, 840]} sizes="26vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab4, 0)">
-          <p class="ast-beat__head">Animation Ready in Minutes</p>
+          <p class="ast-beat__head"><span class="ast-ember">Animation</span> Ready in Minutes</p>
           <p class="ast-beat__line">Go directly to Unreal or Maya for auto Fabricator Control Rig builds.</p>
         </div>
       </div>
@@ -140,9 +140,11 @@ const DESCRIPTION =
         </div>
       </div>
 
+      <p class="ast-reels__title" aria-hidden="true"><span class="ast-ember">Full</span> Tutorial<br />Series</p>
+
       {/* WHAT IT COSTS -- the live page's ruled pricing copy, verbatim. */}
       <div class="ast-price" data-ast-price>
-        <p class="ast-beat__head">What it costs.</p>
+        <p class="ast-beat__head"><span class="ast-ember">What</span> it costs.</p>
         <p class="ast-price__lede">
           Free for personal, learning, and portfolio work, and free for commercial work under
           $100k a year. If you qualify for Maya Indie, Armature is free. Above that it is <b>$149 per artist, once</b>, with a year of updates.
@@ -340,8 +342,28 @@ const DESCRIPTION =
     font-weight: 400;
     font-size: clamp(2.2rem, 3.2vw, 3.4rem);
     line-height: 1.05;
-    color: var(--ember);
+    color: var(--bone);
   }
+  /* Every title speaks in bone with its FIRST WORD in ember (Adrian, 2026-08-19). */
+  .ast-ember { color: var(--ember); }
+
+  /* The reels' standing title, over the passing strip. Driven by --reelt from the loop. */
+  .ast-reels__title {
+    position: absolute;
+    top: 9%;
+    right: 8vw;
+    text-align: right;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 3.6vw, 3.8rem);
+    line-height: 1.05;
+    color: var(--bone);
+    opacity: var(--reelt, 0);
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+    display: none;
+  }
+  .ast-hero[data-stage-live] .ast-reels__title { display: block; }
   .ast-beat__line {
     margin-top: 0.8rem;
     font-weight: 300;
