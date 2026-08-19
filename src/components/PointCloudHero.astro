@@ -69,9 +69,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 
 {/* The scroll the whole stage is spent on. Purely a clock: the OPENING owns the first 1.6
     screens of scroll (its beat fractions are ruled against exactly that length, so it never
-    changes when the runway grows), the TOOLSET's glass-and-carousel entry owns the next 1.2,
-    then each of the remaining five tools takes 0.4 screens as a SNAPPED STEP. From 4.8 the
-    toolset, glass and video ALL clear and the page returns to the room; from 5.2 to 6.3 the
+    changes when the runway grows); the video owns the screen to 2.0, then clears as the
+    room returns with THE PIPELINE (Adrian's sketch: chaos in, four x-ray sections, a
+    character out), which holds for hover to 4.4 and is gone by 4.8; from 5.2 to 6.3 the
     da Vinci man materialises floor-to-head with the scroll; Armature's copy rises over him
     from 6.4 and holds; from 7.1 it clears and THE SCAN runs to 8.5, the slit climbing the
     screen with the download riding it; then the CLOSE (About Me + engagements, one screen)
@@ -512,6 +512,110 @@ void main() {
   frag = vec4(c * uAlpha, 1.0);
 }`;
 
+    // THE PIPE (Adrian, 2026-08-19 second pass, from his sketch): the x-ray machine the
+    // tools story runs through. Same fresnel grammar as the man's solid, plus a per-vertex
+    // section id so the hovered quarter can light up. Placeholder geometry is procedural
+    // until Adrian's modelled pipe lands (OBJ -> FSMH).
+    const PIPE_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor; in float aSeg;
+uniform mat4 uProj, uView;
+out vec3 vN; out vec3 vV; out float vSeg;
+void main() {
+  vec4 mv = uView * vec4(aPos, 1.0);
+  gl_Position = uProj * mv;
+  vN = mat3(uView) * aNor;
+  vV = -mv.xyz;
+  vSeg = aSeg;
+}`;
+
+    const PIPE_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uBone;
+uniform float uAlpha, uHover;
+in vec3 vN; in vec3 vV; in float vSeg;
+out vec4 frag;
+void main() {
+  float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 3.0);
+  // The hovered section burns hotter; flanges carry seg -1 and never match.
+  float hot = (uHover >= 0.0 && abs(vSeg - uHover) < 0.5) ? 1.9 : 1.0;
+  vec3 c = mix(uBone * 0.03, mix(uBone, uPlasma, 0.6), rim * 0.5 * hot);
+  frag = vec4(c * uAlpha, 1.0);
+}`;
+
+    // THE FLOW: one particle system carries the whole journey. Each point's lifecycle is a
+    // pure function of time and its seeds -- chaos orbit at the intake, suction to the
+    // mouth, a churning helix down the pipe, assembly onto its target point on the man,
+    // then an arrival flash that dies into the standing shimmer. uAssembled=1 re-draws the
+    // same buffer with every point AT its target, faint: the man's persistent silhouette
+    // under the live stream.
+    const FLOW_VS = `#version 300 es
+in vec3 aTgt; in vec4 aR;
+uniform mat4 uProj, uView;
+uniform float uTime, uSpeed, uSize, uAssembled;
+out float vA; out float vMix;
+const float B_END = 0.26, S_END = 0.36, P_END = 0.74, A_END = 0.88;
+vec3 pipeAt(float s, float rr, float th0) {
+  float x = mix(-2.4, 2.0, s);
+  float th = th0 + s * 12.0;
+  float r = rr * (0.55 + 0.45 * sin(s * 17.0 + th0 * 3.0));
+  return vec3(x, 1.25 + cos(th) * r, sin(th) * r);
+}
+vec3 blobAt(float t0, float th0, float ry) {
+  float w = t0 * (0.4 + 0.7 * ry) + th0;
+  float r2 = 0.15 + 0.6 * ry;
+  return vec3(-3.2, 1.25, 0.0) + vec3(cos(w) * r2, sin(w * 1.31 + ry * 4.0) * r2 * 0.8, sin(w) * r2);
+}
+void main() {
+  float speed = uSpeed * (0.75 + 0.5 * aR.x);
+  float t = fract(aR.w + uTime * speed);
+  float rr = 0.05 + 0.2 * aR.y;
+  float th0 = aR.z * 6.2831853;
+  vec3 p;
+  float bright;
+  if (uAssembled > 0.5) {
+    p = aTgt;
+    bright = 0.3 + 0.12 * sin(uTime * 1.7 + aR.x * 6.2831853);
+  } else if (t < B_END) {
+    p = blobAt(uTime, th0, aR.y);
+    bright = 0.55;
+  } else if (t < S_END) {
+    float st = (t - B_END) / (S_END - B_END);
+    p = mix(blobAt(uTime, th0, aR.y), pipeAt(0.0, rr, th0), st * st);
+    bright = 0.7;
+  } else if (t < P_END) {
+    p = pipeAt((t - S_END) / (P_END - S_END), rr, th0);
+    bright = 1.0;
+  } else if (t < A_END) {
+    float st = (t - P_END) / (A_END - P_END);
+    st = 1.0 - (1.0 - st) * (1.0 - st);
+    p = mix(pipeAt(1.0, rr, th0), aTgt, st);
+    bright = 1.1;
+  } else {
+    p = aTgt;
+    bright = 1.3 * (1.0 - (t - A_END) / (1.0 - A_END));
+  }
+  vec4 mv = uView * vec4(p, 1.0);
+  gl_Position = uProj * mv;
+  gl_PointSize = max(uSize * (0.8 + 0.5 * aR.y) * (300.0 / -mv.z), 1.0);
+  vA = bright;
+  vMix = aR.y;
+}`;
+
+    const FLOW_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uEmber, uBone;
+uniform float uFade;
+in float vA; in float vMix;
+out vec4 frag;
+void main() {
+  vec2 d = gl_PointCoord - vec2(0.5);
+  float r = dot(d, d);
+  if (r > 0.25) discard;
+  float soft = smoothstep(0.25, 0.0, r);
+  vec3 c = vMix > 0.93 ? uEmber : mix(uBone, uPlasma, 0.35 + 0.6 * vMix);
+  frag = vec4(c * vA, soft * vA * uFade);
+}`;
+
     const GRID_VS = `#version 300 es
 in vec3 aPos; uniform mat4 uProj, uView; out float vDist;
 void main() { vec4 mv = uView * vec4(aPos, 1.0); vDist = -mv.z; gl_Position = uProj * mv; }`;
@@ -573,6 +677,8 @@ void main() {
 
     const P_POINT = prog(POINT_VS, POINT_FS);
     const P_XRAY = prog(XRAY_VS, XRAY_FS);
+    const P_PIPE = prog(PIPE_VS, PIPE_FS);
+    const P_FLOW = prog(FLOW_VS, FLOW_FS);
     const P_STAR = prog(STAR_VS, STAR_FS);
     const P_GRID = prog(GRID_VS, GRID_FS);
     const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
@@ -754,7 +860,7 @@ void main() {
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
         solid = { vao: sv, count: idx.length };
       }
-      return { vao, count, bmn, bmx, solid };
+      return { vao, count, bmn, bmx, solid, pts: aPos };
     }
 
     const logo = await makeCloud('/mesh/fs_logo.mesh', P.count, P.seed);
@@ -769,6 +875,83 @@ void main() {
       if (man || manLoading) return;
       manLoading = true;
       makeCloud('/mesh/height_man.mesh', P.count, P.seed, true).then((c) => { man = c; }).catch(() => { manLoading = false; });
+    }
+
+    // ---- the pipe scene. Shared constants: the camera leg, the hover-band projection and
+    // the flow shader's hardcoded path all speak this layout (x -2.4..2.0 at y 1.25).
+    const PIPE_X0 = -2.4, PIPE_SEGL = 1.1, PIPE_Y = 1.25, PIPE_HALFW = 3.95;
+    const pipe = (() => {
+      const RS = 40, R = 0.34, FR = 0.42, FW = 0.05;
+      const pos: number[] = [], nor: number[] = [], seg: number[] = [], idx: number[] = [];
+      const ring = (x: number, r: number, sg: number) => {
+        const base = pos.length / 3;
+        for (let i = 0; i < RS; i++) {
+          const a = (i / RS) * Math.PI * 2;
+          pos.push(x, PIPE_Y + Math.cos(a) * r, Math.sin(a) * r);
+          nor.push(0, Math.cos(a), Math.sin(a));
+          seg.push(sg);
+        }
+        return base;
+      };
+      const tube = (x0: number, x1: number, r: number, sg: number) => {
+        const a = ring(x0, r, sg), b = ring(x1, r, sg);
+        for (let i = 0; i < RS; i++) {
+          const j = (i + 1) % RS;
+          idx.push(a + i, b + i, b + j, a + i, b + j, a + j);
+        }
+      };
+      // Four section tubes inset at the joints, five flange rings covering them (the two
+      // outermost are the mouths).
+      for (let k = 0; k < 4; k++) tube(PIPE_X0 + k * PIPE_SEGL + 0.06, PIPE_X0 + (k + 1) * PIPE_SEGL - 0.06, R, k);
+      for (let f = 0; f <= 4; f++) tube(PIPE_X0 + f * PIPE_SEGL - FW, PIPE_X0 + f * PIPE_SEGL + FW, FR, -1);
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const pattr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_PIPE.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      pattr('aPos', new Float32Array(pos), 3);
+      pattr('aNor', new Float32Array(nor), 3);
+      pattr('aSeg', new Float32Array(seg), 1);
+      const ib = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+      return { vao, count: idx.length };
+    })();
+
+    // The flow buffer waits on the man's mesh: its targets are the first 3000 of his
+    // sampled points, scaled to the pipe man standing at the outflow.
+    let flow: { vao: WebGLVertexArrayObject; n: number } | null = null;
+    function buildFlow() {
+      if (flow || !man) return;
+      const n = 3000, sc = 0.857;
+      const tgt = new Float32Array(n * 3), rnd4 = new Float32Array(n * 4);
+      const r = mulberry32(P.seed ^ 0x51DEC0DE);
+      for (let i = 0; i < n; i++) {
+        tgt[i * 3] = man.pts[i * 3] * sc + 2.75;
+        tgt[i * 3 + 1] = man.pts[i * 3 + 1] * sc;
+        tgt[i * 3 + 2] = man.pts[i * 3 + 2] * sc;
+        for (let k = 0; k < 4; k++) rnd4[i * 4 + k] = r();
+      }
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const fattr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_FLOW.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      fattr('aTgt', tgt, 3);
+      fattr('aR', rnd4, 4);
+      flow = { vao, n };
     }
 
     // ---- colours, from the DNA
@@ -854,14 +1037,15 @@ void main() {
     // ruled against the un-offset camera. Mouse only; touch owns scrolling.
     let orbY = 0, orbP = 0, orbVY = 0, orbVP = 0, orbDrag = false, orbLast: number[] | null = null;
     let scanOn = false;
+    let pipeOn = false, hoverSeg = -1;
     const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
     document.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || e.pointerType !== 'mouse') return;
       const t = e.target as HTMLElement;
-      if (t.closest('a, button, nav, input, [data-tools-overlay]')) return;
+      if (t.closest('a, button, nav, input, [data-pipeline-overlay]')) return;
       // The cloud is only there to orbit while the video has not taken the screen.
       if (heroSec && parseFloat(heroSec.style.opacity || '0') > 0.5) return;
-      if (scanOn) return;
+      if (scanOn || pipeOn) return;
       orbDrag = true;
       orbLast = [e.clientX, e.clientY];
       e.preventDefault(); // stops text selection; targets that need clicks were excluded above
@@ -875,13 +1059,8 @@ void main() {
     });
     addEventListener('pointerup', () => { orbDrag = false; });
 
-    // A thumb click asks the scroll owner to travel to that tool's step; the loop then
-    // derives the selection from the new position, same as a wheel would.
-    addEventListener('fs:selectTool', (e) => {
-      const i = (e as CustomEvent).detail as number;
-      const y = i === 0 ? innerHeight * 2.3 : innerHeight * (2.5 + (i - 1) * 0.4 + 0.2);
-      scrollTo({ top: Math.round(y), behavior: 'smooth' });
-    });
+    // The overlay's bands announce the hovered pipe section; -1 clears it.
+    addEventListener('fs:pipeHover', (e) => { hoverSeg = (e as CustomEvent).detail as number; });
 
     // The hero video is promoted from an in-flow section to a fixed layer at z1, between the
     // scene (z0) and the copy (z2). It does not scroll up; it FADES IN in place over the
@@ -897,17 +1076,22 @@ void main() {
       if (resize()) relayout();
 
       // The opening's beats are ruled against 1.6 screens of scroll, HARDCODED so growing
-      // the runway for later beats can never retime what Adrian already approved. The
-      // toolset beat takes the next 1.2 screens.
+      // the runway for later beats can never retime what Adrian already approved.
       const p = clamp01(scrollY / Math.max(1, innerHeight * 1.6));
-      const pt = clamp01((scrollY - innerHeight * 1.6) / Math.max(1, innerHeight * 1.2));
-      // BACK TO THE ROOM (Adrian, 2026-08-19): past the carousel, the toolset, its glass
-      // AND the video all clear together, and the man begins. Declared up here because the
-      // video and glass lines below consume toolsOut.
-      const toolsOut = smooth(clamp01((scrollY - innerHeight * 4.8) / (innerHeight * 0.3)));
+      // THE PIPELINE BEAT (Adrian, 2026-08-19 second pass) replaced the carousel: the video
+      // clears over 2.0-2.6 and the room returns with the pipe, which holds for hover until
+      // 4.4 and is gone by 4.8, where the man's beats begin exactly as before. Declared at
+      // the top of the frame (a const consumed above its declaration kills the whole loop).
+      const videoOut = smooth(clamp01((scrollY - innerHeight * 2.0) / (innerHeight * 0.6)));
+      const pipeF = smooth(clamp01((scrollY - innerHeight * 2.2) / (innerHeight * 0.5)))
+        * (1 - smooth(clamp01((scrollY - innerHeight * 4.4) / (innerHeight * 0.4))));
+      pipeOn = pipeF > 0.2;
       // The reveal IS the scroll: feet at 5.2 screens, head at 6.3.
       const manReveal = clamp01((scrollY - innerHeight * 5.2) / (innerHeight * 1.1));
-      if (scrollY > innerHeight * 3.5) ensureMan();
+      // The man's mesh feeds BOTH his beat and the flow's targets now, so he loads on the
+      // first scroll and the flow buffer builds as soon as he lands.
+      if (scrollY > innerHeight * 0.3) ensureMan();
+      if (man && !flow && scrollY > innerHeight * 0.8) buildFlow();
       const armIn = smooth(clamp01((scrollY - innerHeight * 6.4) / (innerHeight * 0.4)));
       // Armature clears before the scan begins, and the SCAN owns the rest: the band's whole
       // travel is linear in scroll, so the visitor's hand is the scanner motor.
@@ -939,7 +1123,7 @@ void main() {
 
       // The video fades in through the explosion: it starts becoming visible as the points
       // scatter and owns the screen by the end of the runway.
-      if (heroSec) heroSec.style.opacity = (smooth(clamp01((p - 0.66) / 0.32)) * (1 - toolsOut)).toFixed(3);
+      if (heroSec) heroSec.style.opacity = (smooth(clamp01((p - 0.66) / 0.32)) * (1 - videoOut)).toFixed(3);
 
       // The philosophy is STEPPED (Adrian, 2026-08-19): the studio line arrives with the
       // camera at beat B and stands until the video begins, then hands off to the refinement
@@ -947,26 +1131,17 @@ void main() {
       const phil1 = smooth(clamp01((p - 0.30) / 0.15)) * (1 - smooth(clamp01((p - 0.64) / 0.12)));
       // ...and hands off again to the toolset beat: the refinement line clears before the
       // glass arrives, so the stage never says two things at once.
-      const phil2 = smooth(clamp01((p - 0.70) / 0.15)) * (1 - smooth(clamp01(pt / 0.2)));
+      const phil2 = smooth(clamp01((p - 0.70) / 0.15)) * (1 - smooth(clamp01((scrollY - innerHeight * 1.6) / (innerHeight * 0.24))));
       document.documentElement.style.setProperty('--phil1', phil1.toFixed(3));
       document.documentElement.style.setProperty('--phil2', phil2.toFixed(3));
 
-      // THE TOOLSET BEAT (Adrian, 2026-08-19): glass blurs over the settled video, then the
-      // four tool interfaces float in over it. The layer itself is ToolsOverlay.astro.
-      document.documentElement.style.setProperty('--glass', (smooth(clamp01((pt - 0.1) / 0.3)) * (1 - toolsOut)).toFixed(3));
-      document.documentElement.style.setProperty('--tools',
-        (smooth(clamp01((pt - 0.35) / 0.4)) * (1 - smooth(clamp01((scrollY - innerHeight * 4.8) / (innerHeight * 0.3))))).toFixed(3));
-      const tools = document.querySelector('[data-tools-overlay]') as HTMLElement | null;
-      if (tools) {
-        if (pt > 0.01) tools.setAttribute('data-active', '');
-        else tools.removeAttribute('data-active');
-        // THE CAROUSEL STEPS ON SCROLL (Adrian, 2026-08-19). Selection is a pure function
-        // of scrollY: the entry ends at 2.5 screens with tool 0 standing, then every 0.4
-        // screens of scroll snaps the next tool. Scrolling up steps back the same stairs.
-        // The All Tools tile is a link, not a step. Pure-function-of-scroll also means a
-        // reload mid-carousel lands on the right tool for free.
-        const sel = Math.max(0, Math.min(5, Math.floor((scrollY - innerHeight * 2.5) / (innerHeight * 0.4)) + 1));
-        if (tools.dataset.sel !== String(sel)) tools.dataset.sel = String(sel);
+      // THE PIPELINE OVERLAY rides --pipe. Its hover bands are placed later in the frame,
+      // once this frame's camera exists to project the pipe's bounds against.
+      document.documentElement.style.setProperty('--pipe', pipeF.toFixed(3));
+      const plEl = document.querySelector('[data-pipeline-overlay]');
+      if (plEl) {
+        if (pipeF > 0.01) plEl.setAttribute('data-active', '');
+        else plEl.removeAttribute('data-active');
       }
 
       document.documentElement.style.setProperty('--arm', arm.toFixed(3));
@@ -975,10 +1150,6 @@ void main() {
         if (arm > 0.01) armEl.setAttribute('data-active', '');
         else armEl.removeAttribute('data-active');
       }
-      // The glass RIDES the carousel's layer, so that layer stays visible through Armature;
-      // only its clicks leave. data-passive kills the pointer without killing the frost.
-      if (tools) tools.toggleAttribute('data-passive', toolsOut > 0.5);
-
       // The buttons travel to just below the lower-third line on the camera's easing --
       // one centred group with the philosophy line above them (Adrian, 2026-08-19 second
       // pass) -- and stand above the video, then FADE OUT as the toolset beat arrives
@@ -988,7 +1159,7 @@ void main() {
         const dx = (rect.left + rect.width / 2) - (ctaRest.left + ctaRest.width / 2);
         const dy = (rect.top + rect.height * 0.667 + P.ctaDropPx) - ctaRest.top;
         ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
-        const o = 1 - smooth(clamp01(pt / 0.16));
+        const o = 1 - smooth(clamp01((scrollY - innerHeight * 1.6) / (innerHeight * 0.19)));
         ctaEl.style.opacity = o.toFixed(3);
         // visibility, NOT pointer-events: the anchors inside carry their own explicit
         // pointer-events auto (the layer is click-through), and none on the parent does not
@@ -1024,17 +1195,24 @@ void main() {
       const oy = Math.tanh(orbY / ORB_LIM_Y) * ORB_LIM_Y;
       const op = Math.tanh(orbP / ORB_LIM_P) * ORB_LIM_P;
 
-      // A third camera leg carries the room-return: B holds through the video and glass,
-      // then eases to the man's centred framing as he assembles.
+      // Four camera legs: A->B on the opening, B->P as the video clears and the pipe takes
+      // the stage, P->C as the man's beat arrives. P's distance is derived from the aspect
+      // so the pipe's full run always fits the width, whatever the window (a narrow window
+      // pulls back further; the room just shows more height).
       const tMan = smooth(clamp01((scrollY - innerHeight * 4.9) / (innerHeight * 0.6)));
+      const CAM_P = {
+        yaw: 0, pitch: -0.015, fov: 42, tx: 0, ty: 1.05, tz: 0,
+        dist: PIPE_HALFW / (Math.tan((21 * Math.PI) / 180) * Math.max(0.9, canvas.width / canvas.height)),
+      };
+      const leg = (a: number, b: number, pp: number, d: number) => lerp(lerp(lerp(a, b, tCam), pp, videoOut), d, tMan);
       const c = {
-        yaw: lerp(lerp(CAM_A.yaw, CAM_B.yaw, tCam), CAM_C.yaw, tMan) + oy,
-        pitch: lerp(lerp(CAM_A.pitch, CAM_B.pitch, tCam), CAM_C.pitch, tMan) + op,
-        dist: lerp(lerp(CAM_A.dist, CAM_B.dist, tCam), CAM_C.dist, tMan),
-        fov: lerp(lerp(CAM_A.fov, CAM_B.fov, tCam), CAM_C.fov, tMan),
-        tx: lerp(lerp(CAM_A.tx, CAM_B.tx, tCam), CAM_C.tx, tMan),
-        ty: lerp(lerp(CAM_A.ty, CAM_B.ty, tCam), CAM_C.ty, tMan),
-        tz: lerp(lerp(CAM_A.tz, CAM_B.tz, tCam), CAM_C.tz, tMan),
+        yaw: leg(CAM_A.yaw, CAM_B.yaw, CAM_P.yaw, CAM_C.yaw) + oy,
+        pitch: leg(CAM_A.pitch, CAM_B.pitch, CAM_P.pitch, CAM_C.pitch) + op,
+        dist: leg(CAM_A.dist, CAM_B.dist, CAM_P.dist, CAM_C.dist),
+        fov: leg(CAM_A.fov, CAM_B.fov, CAM_P.fov, CAM_C.fov),
+        tx: leg(CAM_A.tx, CAM_B.tx, CAM_P.tx, CAM_C.tx),
+        ty: leg(CAM_A.ty, CAM_B.ty, CAM_P.ty, CAM_C.ty),
+        tz: leg(CAM_A.tz, CAM_B.tz, CAM_P.tz, CAM_C.tz),
       };
       const tgt = [c.tx, c.ty, c.tz];
       const eye = [
@@ -1044,6 +1222,19 @@ void main() {
       const view = lookAt(eye, tgt, [0, 1, 0]);
       const proj = perspective(c.fov, canvas.width / canvas.height, 0.01, 100);
       const camDir = new Float32Array(norm(sub(tgt, eye)));
+
+      // The hover bands wear the pipe's projected bounds; written only while the beat is on
+      // stage. Fractions of the canvas, so DPR never enters into it.
+      if (pipeF > 0.001) {
+        for (let i = 0; i <= 4; i++) {
+          const sp = project([PIPE_X0 + i * PIPE_SEGL, PIPE_Y, 0], view, proj, canvas.width, canvas.height);
+          if (sp) document.documentElement.style.setProperty('--pipe-x' + i, (sp[0] / canvas.width).toFixed(4));
+        }
+        const yt = project([0, PIPE_Y + 0.55, 0], view, proj, canvas.width, canvas.height);
+        const yb = project([0, PIPE_Y - 0.55, 0], view, proj, canvas.width, canvas.height);
+        if (yt) document.documentElement.style.setProperty('--pipe-yt', (yt[1] / canvas.height).toFixed(4));
+        if (yb) document.documentElement.style.setProperty('--pipe-yb', (yb[1] / canvas.height).toFixed(4));
+      }
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, T.scene.f);
       gl.viewport(0, 0, canvas.width, canvas.height);
@@ -1096,14 +1287,46 @@ void main() {
       gl.uniform1f(U.uExDist, P.exDist); gl.uniform1f(U.uExCurl, P.exCurl); gl.uniform1f(U.uExCam, P.exCam);
       gl.uniform3fv(U.uCamDir, camDir);
       gl.uniform3fv(U.uPlasma, PLASMA); gl.uniform3fv(U.uEmber, EMBER); gl.uniform3fv(U.uBone, BONE);
-      // The logo: no reveal gate (2.0 means every point passes), and it dies away entirely
-      // once the room comes back, so the explosion's scattered points cannot haunt the
-      // man's beat as background noise.
+      // The logo: no reveal gate (2.0 means every point passes), and it dies away with the
+      // video, so the explosion's scattered points cannot haunt the pipe's stage.
       gl.uniform1f(U.uReveal, 2.0);
       gl.uniform1f(U.uSplitY, -1);
-      gl.uniform1f(U.uFade, 1 - smooth(clamp01((scrollY - innerHeight * 4.6) / (innerHeight * 0.4))));
+      gl.uniform1f(U.uFade, 1 - videoOut);
       gl.bindVertexArray(cloudVao);
       gl.drawArrays(gl.POINTS, 0, N);
+
+      // THE PIPE AND ITS FLOW. Fresnel shell first; then the man's faint standing
+      // silhouette (the same flow buffer with every point at its target), then the live
+      // stream over it. Additive throughout, like every glowing thing in the room.
+      if (pipeF > 0.003) {
+        gl.useProgram(P_PIPE.p);
+        gl.uniformMatrix4fv(P_PIPE.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_PIPE.u.uView, false, view);
+        gl.uniform3fv(P_PIPE.u.uPlasma, PLASMA);
+        gl.uniform3fv(P_PIPE.u.uBone, BONE);
+        gl.uniform1f(P_PIPE.u.uAlpha, 0.5 * pipeF);
+        gl.uniform1f(P_PIPE.u.uHover, hoverSeg);
+        gl.bindVertexArray(pipe.vao);
+        gl.drawElements(gl.TRIANGLES, pipe.count, gl.UNSIGNED_SHORT, 0);
+        if (flow) {
+          gl.useProgram(P_FLOW.p);
+          const F = P_FLOW.u;
+          gl.uniformMatrix4fv(F.uProj, false, proj);
+          gl.uniformMatrix4fv(F.uView, false, view);
+          gl.uniform1f(F.uTime, time);
+          gl.uniform1f(F.uSpeed, 0.11);
+          gl.uniform1f(F.uSize, 0.032);
+          gl.uniform1f(F.uFade, pipeF);
+          gl.uniform3fv(F.uPlasma, PLASMA);
+          gl.uniform3fv(F.uEmber, EMBER);
+          gl.uniform3fv(F.uBone, BONE);
+          gl.bindVertexArray(flow.vao);
+          gl.uniform1f(F.uAssembled, 1);
+          gl.drawArrays(gl.POINTS, 0, flow.n);
+          gl.uniform1f(F.uAssembled, 0);
+          gl.drawArrays(gl.POINTS, 0, flow.n);
+        }
+      }
 
       // THE MAN, materialising floor-to-head on the scroll. Same preset, same shader; his
       // wave sits at a calm fixed amplitude (he is being MADE, not performing) and he never

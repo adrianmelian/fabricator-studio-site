@@ -33,7 +33,7 @@ import YouTubeFacade from '../components/YouTubeFacade.astro';
 import DownloadBand from '../components/DownloadBand.astro';
 import ToolsSection from '../components/ToolsSection.astro';
 import PointCloudHero from '../components/PointCloudHero.astro';
-import ToolsOverlay from '../components/ToolsOverlay.astro';
+import PipelineOverlay from '../components/PipelineOverlay.astro';
 import ArmatureOverlay from '../components/ArmatureOverlay.astro';
 import WallOverlay from '../components/WallOverlay.astro';
 import CloseOverlay from '../components/CloseOverlay.astro';
@@ -139,10 +139,11 @@ const PROOF = [
         nobody is reading. */}
   </section>
 
-  {/* THE TOOLSET BEAT (Adrian, 2026-08-19): glass blurs over the video and the four
-      flagship tool interfaces float in over it; hover focuses one and pops its info. The
-      choreography lives in PointCloudHero's loop; the layer lives in ToolsOverlay. */}
-  <ToolsOverlay />
+  {/* THE PIPELINE BEAT (Adrian, 2026-08-19 second pass): the x-ray pipe in the room --
+      chaos drawn in at the left, four hoverable sections, a character condensing out at the
+      right. Replaced the tool carousel. Choreography and the 3D scene live in
+      PointCloudHero; this layer is the title, the labels and the hover cards. */}
+  <PipelineOverlay />
 
   {/* THE ARMATURE BEAT (Adrian, 2026-08-19): after the carousel's last step the toolset
       clears and Armature rises on the same glass. Choreography in PointCloudHero's loop. */}
