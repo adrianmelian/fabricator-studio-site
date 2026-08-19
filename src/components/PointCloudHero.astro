@@ -551,7 +551,7 @@ void main() {
     const FLOW_VS = `#version 300 es
 in vec3 aTgt; in vec4 aR;
 uniform mat4 uProj, uView;
-uniform float uTime, uSpeed, uSize, uAssembled;
+uniform float uTime, uSpeed, uSize, uAssembled, uJourney;
 out float vA; out float vMix;
 const float B_END = 0.26, S_END = 0.36, P_END = 0.74, A_END = 0.88;
 vec3 pipeAt(float s, float rr, float th0) {
@@ -566,15 +566,20 @@ vec3 blobAt(float t0, float th0, float ry) {
   return vec3(-3.2, 1.25, 0.0) + vec3(cos(w) * r2, sin(w * 1.31 + ry * 4.0) * r2 * 0.8, sin(w) * r2);
 }
 void main() {
+  // THE PACKET (Adrian, 2026-08-19): most of the flow rides the SCROLL down the pipe as
+  // one group; the rest keeps the ambient time loop so the machine never reads dead.
+  // The packet's clamp parks it landed on the man, still lit: he builds up as it arrives.
   float speed = uSpeed * (0.75 + 0.5 * aR.x);
-  float t = fract(aR.w + uTime * speed);
+  float t = aR.x < 0.7
+    ? clamp(0.16 + uJourney * 0.8 + (aR.w - 0.5) * 0.07, 0.0, 0.96)
+    : fract(aR.w + uTime * speed);
   float rr = 0.05 + 0.2 * aR.y;
   float th0 = aR.z * 6.2831853;
   vec3 p;
   float bright;
   if (uAssembled > 0.5) {
     p = aTgt;
-    bright = 0.3 + 0.12 * sin(uTime * 1.7 + aR.x * 6.2831853);
+    bright = 0.2 + 0.08 * sin(uTime * 1.7 + aR.x * 6.2831853);
   } else if (t < B_END) {
     p = blobAt(uTime, th0, aR.y);
     bright = 0.55;
@@ -594,6 +599,7 @@ void main() {
     p = aTgt;
     bright = 1.3 * (1.0 - (t - A_END) / (1.0 - A_END));
   }
+  if (aR.x < 0.7 && uAssembled < 0.5) bright *= 0.6;
   vec4 mv = uView * vec4(p, 1.0);
   gl_Position = uProj * mv;
   gl_PointSize = max(uSize * (0.55 + 0.9 * aR.y) * (300.0 / -mv.z), 1.0);
@@ -1135,6 +1141,17 @@ void main() {
       document.documentElement.style.setProperty('--phil1', phil1.toFixed(3));
       document.documentElement.style.setProperty('--phil2', phil2.toFixed(3));
 
+      // THE JOURNEY (Adrian, 2026-08-19): the packet's trip down the pipe IS the scroll
+      // across the beat's hold. The section under the packet's head lights up and raises
+      // its card; a mouse hover overrides while it lasts.
+      const journey = clamp01((scrollY - innerHeight * 2.8) / (innerHeight * 1.55));
+      const tPack = 0.16 + journey * 0.8;
+      let journeySeg = -1;
+      if (tPack > 0.3 && tPack < 0.36) journeySeg = 0;
+      else if (tPack >= 0.36 && tPack < 0.74)
+        journeySeg = Math.max(0, Math.min(3, Math.floor(((tPack - 0.36) / 0.38) * 4)));
+      const litSeg = hoverSeg >= 0 ? hoverSeg : journeySeg;
+
       // THE PIPELINE OVERLAY rides --pipe. Its hover bands are placed later in the frame,
       // once this frame's camera exists to project the pipe's bounds against.
       document.documentElement.style.setProperty('--pipe', pipeF.toFixed(3));
@@ -1142,6 +1159,9 @@ void main() {
       if (plEl) {
         if (pipeF > 0.01) plEl.setAttribute('data-active', '');
         else plEl.removeAttribute('data-active');
+        // ONE owner for the card state: the loop writes it, the overlay only reports.
+        if (litSeg >= 0) { if (plEl.getAttribute('data-hover') !== String(litSeg)) plEl.setAttribute('data-hover', String(litSeg)); }
+        else plEl.removeAttribute('data-hover');
       }
 
       document.documentElement.style.setProperty('--arm', arm.toFixed(3));
@@ -1200,9 +1220,18 @@ void main() {
       // so the pipe's full run always fits the width, whatever the window (a narrow window
       // pulls back further; the room just shows more height).
       const tMan = smooth(clamp01((scrollY - innerHeight * 4.9) / (innerHeight * 0.6)));
+      // THE TRAVELLING SHOT (Adrian, 2026-08-19): opens swung LEFT over the intake, the
+      // yaw sweeps through centre as the target tracks the packet down the pipe -- an
+      // orbit, not a pan -- and lands in front of the man at the outflow.
+      const jm = smooth(journey);
       const CAM_P = {
-        yaw: 0, pitch: -0.015, fov: 42, tx: 0, ty: 1.05, tz: 0,
-        dist: PIPE_HALFW / (Math.tan((21 * Math.PI) / 180) * Math.max(0.9, canvas.width / canvas.height)),
+        yaw: lerp(0.38, -0.38, jm),
+        pitch: -0.03,
+        fov: 42,
+        tx: lerp(-2.2, 2.6, jm),
+        ty: lerp(1.2, 0.98, jm),
+        tz: 0,
+        dist: 3.5,
       };
       const leg = (a: number, b: number, pp: number, d: number) => lerp(lerp(lerp(a, b, tCam), pp, videoOut), d, tMan);
       const c = {
@@ -1305,7 +1334,7 @@ void main() {
         gl.uniform3fv(P_PIPE.u.uPlasma, PLASMA);
         gl.uniform3fv(P_PIPE.u.uBone, BONE);
         gl.uniform1f(P_PIPE.u.uAlpha, 0.5 * pipeF);
-        gl.uniform1f(P_PIPE.u.uHover, hoverSeg);
+        gl.uniform1f(P_PIPE.u.uHover, litSeg);
         gl.bindVertexArray(pipe.vao);
         gl.drawElements(gl.TRIANGLES, pipe.count, gl.UNSIGNED_SHORT, 0);
         if (flow) {
@@ -1317,6 +1346,7 @@ void main() {
           gl.uniform1f(F.uSpeed, 0.11);
           gl.uniform1f(F.uSize, 0.08);
           gl.uniform1f(F.uFade, pipeF);
+          gl.uniform1f(F.uJourney, journey);
           gl.uniform3fv(F.uPlasma, PLASMA);
           gl.uniform3fv(F.uEmber, EMBER);
           gl.uniform3fv(F.uBone, BONE);

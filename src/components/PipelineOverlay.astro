@@ -67,11 +67,8 @@ const bandStyle = (i: number) =>
   // (which lights the 3D segment). -1 clears both.
   const host = document.querySelector('[data-pipeline-overlay]') as HTMLElement | null;
   if (host) {
-    const set = (i: number) => {
-      if (i >= 0) host.setAttribute('data-hover', String(i));
-      else host.removeAttribute('data-hover');
-      dispatchEvent(new CustomEvent('fs:pipeHover', { detail: i }));
-    };
+    // Report only: the loop owns data-hover (the journey drives it when no mouse does).
+    const set = (i: number) => dispatchEvent(new CustomEvent('fs:pipeHover', { detail: i }));
     host.querySelectorAll<HTMLElement>('[data-band]').forEach((b) => {
       b.addEventListener('pointerenter', () => set(Number(b.dataset.band)));
       b.addEventListener('pointerleave', () => set(-1));
