@@ -1,9 +1,8 @@
 ---
-// LINKS is back (2026-07-23): the email gate is retired and Download is a direct link to
-// the stable installer key on R2 (see links.ts). DownloadGate is gone with it.
-// NewsletterPop rides here for the same reason DownloadGate did: the nav is on every page,
-// so the post-download ask exists wherever an installer link does.
-import { LINKS } from '../data/links';
+// Download opens /store/, the hub for everything the studio ships (Adrian, 2026-08-19:
+// one download page). NewsletterPop still rides here because the nav is on every page, so
+// the post-download ask exists wherever installer links do (the store's own download
+// buttons carry data-installer).
 import NewsletterPop from './NewsletterPop.astro';
 ---
 <nav class="navbar">
@@ -35,7 +34,7 @@ import NewsletterPop from './NewsletterPop.astro';
       <a class="navbar__tab" href="/tutorials/">Tutorials</a>
     </div>
     <a class="nav-services" href="/services/" data-goatcounter-click="nav-services">Services</a>
-    <a class="nav-download" href={LINKS.installer} data-installer data-goatcounter-click="nav-download">Download</a>
+    <a class="nav-download" href="/store/" data-goatcounter-click="nav-download">Download</a>
   </div>
 </nav>
 <NewsletterPop />
