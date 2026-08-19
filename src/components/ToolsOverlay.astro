@@ -1,0 +1,141 @@
+---
+// THE TOOLSET BEAT (Adrian, 2026-08-19). After the video has owned the screen, glass blurs
+// over it and the four flagship tool interfaces fade in, floating over the glass. Hovering
+// one enlarges it, shrinks the others, and pops that tool's information in the same spot
+// the philosophy copy occupied, so text always lives in one place on the stage.
+//
+// These are the SAME animated components /tools/ renders (bare: just the graphic, no
+// in-graphic copy), not screenshots and not forks. The scroll choreography (--glass,
+// --tools) is driven by PointCloudHero's loop; this component only owns its own hover.
+import FabricatorHero from './FabricatorHero.astro';
+import AnimStudioHero from './AnimStudioHero.astro';
+import BridgeHero from './BridgeHero.astro';
+import ReggieHero from './ReggieHero.astro';
+import { flagshipTools } from '../data/tools';
+
+const UI: Record<string, any> = {
+  'pop-fabricator': FabricatorHero,
+  'pop-studio': AnimStudioHero,
+  'pop-bridge': BridgeHero,
+  'pop-reggie': ReggieHero,
+};
+---
+
+<div class="tf" data-tools-overlay>
+  <div class="tf__grid">
+    {flagshipTools.map((t, i) => {
+      const Ui = t.dialogId ? UI[t.dialogId] : undefined;
+      return (
+        <a class="tf__item" href={t.href} data-tf-item data-idx={i} aria-label={t.name}>
+          {Ui && <Ui bare />}
+        </a>
+      );
+    })}
+  </div>
+
+  {/* One cell, four lines: the hovered tool's info crossfades in place, where the
+      philosophy stood. At rest, a quiet hint. */}
+  <div class="tf__info">
+    <p class="tf__hint">Four tools, one pipeline. Hover one.</p>
+    {flagshipTools.map((t, i) => (
+      <p class="tf__line" data-idx={i}><b>{t.name}.</b> {t.paras[1] ?? t.paras[0]}</p>
+    ))}
+  </div>
+</div>
+
+<style>
+  /* Fixed layer between the video (z1) and the copy/buttons (z3). The glass is this layer's
+     own backdrop-filter, so it blurs the live video underneath, not a still of it. The blur
+     radius rides --glass directly: opacity on a backdrop-filtered element does not fade the
+     filter, so the variable drives the radius and the tint together. */
+  .tf {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    visibility: hidden;
+    background: rgba(11, 14, 16, calc(var(--glass, 0) * 0.45));
+    /* Unprefixed ONLY: hand-writing the -webkit- twin makes lightningcss drop the standard
+       property and Firefox loses the blur silently. */
+    backdrop-filter: blur(calc(var(--glass, 0) * 16px)) saturate(calc(1 + var(--glass, 0) * 0.25));
+  }
+  .tf[data-active] { visibility: visible; }
+
+  .tf__grid {
+    position: absolute;
+    left: 50%;
+    top: 7.5%;
+    transform: translate(-50%, calc((1 - var(--tools, 0)) * 28px));
+    width: min(80vw, 1560px);
+    height: 64%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 3.5vh 2.2vw;
+    opacity: var(--tools, 0);
+  }
+
+  .tf__item {
+    display: block;
+    min-width: 0;
+    min-height: 0;
+    overflow: hidden;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    transition: transform var(--t-base) var(--ease-spring), opacity var(--t-fast) var(--ease-out);
+    will-change: transform;
+  }
+  .tf[data-active] .tf__item { pointer-events: auto; }
+
+  /* The hover trade: the focused one grows, the rest step back. */
+  .tf__grid:hover .tf__item { transform: scale(0.94); opacity: 0.55; }
+  .tf__grid .tf__item:hover { transform: scale(1.05); opacity: 1; }
+
+  /* The info sits exactly where the philosophy copy stood, same register, one grid cell. */
+  .tf__info {
+    position: absolute;
+    left: 50%;
+    bottom: calc(8% + 6.5rem);
+    transform: translateX(-50%);
+    width: min(56rem, 88vw);
+    text-align: center;
+    display: grid;
+    opacity: var(--tools, 0);
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+  }
+  .tf__info > p {
+    grid-area: 1 / 1;
+    align-self: end;
+    margin: 0;
+    font-weight: 300;
+    line-height: 1.4;
+    font-size: clamp(1.1rem, 1.7vw, 1.5rem);
+    color: var(--bone);
+    opacity: 0;
+    transition: opacity var(--t-fast) var(--ease-out);
+  }
+  .tf__info b { font-weight: 700; color: var(--plasma); }
+  .tf__hint { color: var(--bone-dim); }
+  .tf:not([data-focus]) .tf__hint { opacity: 1; }
+  .tf[data-focus='0'] .tf__line[data-idx='0'] { opacity: 1; }
+  .tf[data-focus='1'] .tf__line[data-idx='1'] { opacity: 1; }
+  .tf[data-focus='2'] .tf__line[data-idx='2'] { opacity: 1; }
+  .tf[data-focus='3'] .tf__line[data-idx='3'] { opacity: 1; }
+
+  /* The cinematic never runs under 900px or in the static fallback, so this layer must
+     never exist there: without the loop its variables stay 0 and it would just be an
+     invisible fixed sheet, but display none costs nothing and cannot leak. */
+  @media (max-width: 900px) {
+    .tf { display: none; }
+  }
+</style>
+
+<script>
+  // Hover owns one attribute; everything visual is CSS reacting to it.
+  const tf = document.querySelector('[data-tools-overlay]') as HTMLElement | null;
+  if (tf) {
+    for (const item of tf.querySelectorAll('[data-tf-item]')) {
+      item.addEventListener('mouseenter', () => { tf.dataset.focus = (item as HTMLElement).dataset.idx!; });
+    }
+    tf.querySelector('.tf__grid')?.addEventListener('mouseleave', () => { delete tf.dataset.focus; });
+  }
+</script>

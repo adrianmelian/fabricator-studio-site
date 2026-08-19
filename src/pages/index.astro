@@ -33,6 +33,7 @@ import YouTubeFacade from '../components/YouTubeFacade.astro';
 import DownloadBand from '../components/DownloadBand.astro';
 import ToolsSection from '../components/ToolsSection.astro';
 import PointCloudHero from '../components/PointCloudHero.astro';
+import ToolsOverlay from '../components/ToolsOverlay.astro';
 
 // The product card art rather than a trailer frame (Adrian, 2026-08-04): it carries the
 // lockup and the tagline baked in, so the thumbnail says what the video is before a click.
@@ -135,10 +136,14 @@ const PROOF = [
         nobody is reading. */}
   </section>
 
-  {/* STRIPPED TO THE FIRST TRANSITION (Adrian, 2026-08-19): the title landing and the hero
-      video arrival are being built one at a time, and stacking every panel at once made the
-      first two impossible to judge. The toolset, Armature, proof, DownloadBand, hire and
-      about sections return from git (this branch, commit d9e73c5) as each transition lands. */}
+  {/* THE TOOLSET BEAT (Adrian, 2026-08-19): glass blurs over the video and the four
+      flagship tool interfaces float in over it; hover focuses one and pops its info. The
+      choreography lives in PointCloudHero's loop; the layer lives in ToolsOverlay. */}
+  <ToolsOverlay />
+
+  {/* STILL STRIPPED (Adrian, 2026-08-19): one transition at a time. Armature, proof,
+      DownloadBand, hire and about return from git (this branch, commit d9e73c5) as each
+      transition lands. */}
 
   {/* Raised above the fixed video layer (z1), or scrolling past the runway would slide the
       footer invisibly underneath it. */}

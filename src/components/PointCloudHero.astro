@@ -67,10 +67,10 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   </div>
 </div>
 
-{/* The scroll the opening is spent on, and nothing else. Nothing scrolls in from below any
-    more, so this is purely the clock: progress = scrollY / (runway - viewport), and every
-    beat (camera, text, explosion, video fade) is a fraction of it. 260svh gives the whole
-    opening 1.6 screens of scroll. */}
+{/* The scroll the whole stage is spent on. Purely a clock: the OPENING owns the first 1.6
+    screens of scroll (its beat fractions are ruled against exactly that length, so it never
+    changes when the runway grows), the TOOLSET beat owns the next 1.2, and the last 0.2 is a
+    hold. 100svh viewport + 3.0 scroll screens = 400svh. */}
 <div class="pc-runway" data-pc-runway></div>
 
 <style>
@@ -85,14 +85,16 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc__stage { position: absolute; inset: 0; overflow: hidden; }
   /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
      in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
-  .pc-runway { height: 260svh; }
+  .pc-runway { height: 400svh; }
 
   /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
      clickable and visible after the video has faded in underneath them. */
   .pc__copylayer {
     position: fixed;
     inset: 0;
-    z-index: 2;
+    /* 3, not 2: the toolset glass lives at 2 and the buttons must stand ON it, sharp,
+       never blurred under it. */
+    z-index: 3;
     pointer-events: none;
   }
 
@@ -744,6 +746,33 @@ void main() {
     const runwayEl = document.querySelector('[data-pc-runway]') as HTMLElement | null;
     let time = 0, oscPhase = 0, prev = 0, ready = false, wakeBlend = 0;
 
+    // ---- ELASTIC ORBIT (Adrian, 2026-08-19). Click-drag peeks around the mark. The offset
+    // feeds through tanh, so the bound is not a wall: displacement costs more the further
+    // out it goes and the limit is only ever approached. Release springs back to the
+    // composed framing, slightly underdamped so the return has the elasticity he asked
+    // for. It must return to zero: the crossbar alignment and the whole composition are
+    // ruled against the un-offset camera. Mouse only; touch owns scrolling.
+    let orbY = 0, orbP = 0, orbVY = 0, orbVP = 0, orbDrag = false, orbLast: number[] | null = null;
+    const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
+    document.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || e.pointerType !== 'mouse') return;
+      const t = e.target as HTMLElement;
+      if (t.closest('a, button, nav, input, [data-tools-overlay]')) return;
+      // The cloud is only there to orbit while the video has not taken the screen.
+      if (heroSec && parseFloat(heroSec.style.opacity || '0') > 0.5) return;
+      orbDrag = true;
+      orbLast = [e.clientX, e.clientY];
+      e.preventDefault(); // stops text selection; targets that need clicks were excluded above
+    });
+    document.addEventListener('pointermove', (e) => {
+      if (!orbDrag || !orbLast) return;
+      orbY -= (e.clientX - orbLast[0]) * 0.004;
+      orbP += (e.clientY - orbLast[1]) * 0.003;
+      orbVY = 0; orbVP = 0;
+      orbLast = [e.clientX, e.clientY];
+    });
+    addEventListener('pointerup', () => { orbDrag = false; });
+
     // The hero video is promoted from an in-flow section to a fixed layer at z1, between the
     // scene (z0) and the copy (z2). It does not scroll up; it FADES IN in place over the
     // scene as the cloud explodes (Adrian, 2026-08-19). [data-cine] carries the promotion so
@@ -757,11 +786,11 @@ void main() {
       prev = now;
       if (resize()) relayout();
 
-      // Denominator is runway MINUS viewport: with the video out of the flow, the document
-      // ends at the runway's foot, so the runway's last screenful can never be scrolled past
-      // and progress mapped over the full runway would top out around 0.75.
-      const H = runwayEl ? runwayEl.offsetHeight : innerHeight * 2.6;
-      const p = clamp01(scrollY / Math.max(1, H - innerHeight));
+      // The opening's beats are ruled against 1.6 screens of scroll, HARDCODED so growing
+      // the runway for later beats can never retime what Adrian already approved. The
+      // toolset beat takes the next 1.2 screens.
+      const p = clamp01(scrollY / Math.max(1, innerHeight * 1.6));
+      const pt = clamp01((scrollY - innerHeight * 1.6) / Math.max(1, innerHeight * 1.2));
 
       const tCam = smooth(clamp01(p / 0.45));
       const explode = clamp01((p - 0.62) / 0.38);
@@ -777,9 +806,21 @@ void main() {
       // camera at beat B and stands until the video begins, then hands off to the refinement
       // line, which fades in with the footage and stays.
       const phil1 = smooth(clamp01((p - 0.30) / 0.15)) * (1 - smooth(clamp01((p - 0.64) / 0.12)));
-      const phil2 = smooth(clamp01((p - 0.70) / 0.15));
+      // ...and hands off again to the toolset beat: the refinement line clears before the
+      // glass arrives, so the stage never says two things at once.
+      const phil2 = smooth(clamp01((p - 0.70) / 0.15)) * (1 - smooth(clamp01(pt / 0.2)));
       document.documentElement.style.setProperty('--phil1', phil1.toFixed(3));
       document.documentElement.style.setProperty('--phil2', phil2.toFixed(3));
+
+      // THE TOOLSET BEAT (Adrian, 2026-08-19): glass blurs over the settled video, then the
+      // four tool interfaces float in over it. The layer itself is ToolsOverlay.astro.
+      document.documentElement.style.setProperty('--glass', smooth(clamp01((pt - 0.1) / 0.3)).toFixed(3));
+      document.documentElement.style.setProperty('--tools', smooth(clamp01((pt - 0.35) / 0.4)).toFixed(3));
+      const tools = document.querySelector('[data-tools-overlay]');
+      if (tools) {
+        if (pt > 0.01) tools.setAttribute('data-active', '');
+        else tools.removeAttribute('data-active');
+      }
 
       // The buttons travel to centre-bottom on the camera's easing, then STAY, above the
       // video, for as long as the stage is on screen. They never fade (Adrian, 2026-08-19).
@@ -808,8 +849,18 @@ void main() {
         : Math.pow(1 - (u - P.oscAttack) / (1 - P.oscAttack), P.oscShape);
       const amp = lerp(P.restAmp, P.oscLow + (P.oscHigh - P.oscLow) * tAmp, wakeBlend) * lerp(1, 1.45, clamp01(p / 0.45));
 
+      // Elastic orbit: spring the raw offset home when released (underdamped on purpose,
+      // the slight overshoot is the elasticity), then apply it through tanh so the limit
+      // resists harder the further out the drag goes.
+      if (!orbDrag) {
+        orbVY += (-60 * orbY - 10 * orbVY) * dt; orbY += orbVY * dt;
+        orbVP += (-60 * orbP - 10 * orbVP) * dt; orbP += orbVP * dt;
+      }
+      const oy = Math.tanh(orbY / ORB_LIM_Y) * ORB_LIM_Y;
+      const op = Math.tanh(orbP / ORB_LIM_P) * ORB_LIM_P;
+
       const c = {
-        yaw: lerp(CAM_A.yaw, CAM_B.yaw, tCam), pitch: lerp(CAM_A.pitch, CAM_B.pitch, tCam),
+        yaw: lerp(CAM_A.yaw, CAM_B.yaw, tCam) + oy, pitch: lerp(CAM_A.pitch, CAM_B.pitch, tCam) + op,
         dist: lerp(CAM_A.dist, CAM_B.dist, tCam), fov: lerp(CAM_A.fov, CAM_B.fov, tCam),
         tx: lerp(CAM_A.tx, CAM_B.tx, tCam), ty: lerp(CAM_A.ty, CAM_B.ty, tCam), tz: lerp(CAM_A.tz, CAM_B.tz, tCam),
       };
