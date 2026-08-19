@@ -1119,7 +1119,7 @@ void main() {
       // THE TAIL: the three walkthrough reels ride up past the right side, pricing fades
       // in where they passed, then the closing doors. She stays screen left, still alive.
       const reel = clamp01((q - 4.6) / 1.9);
-      const price = smooth(clamp01((q - 6.55) / 0.45));
+      const price = smooth(clamp01((q - 6.0) / 0.45));
       const endd = smooth(clamp01((q - 7.15) / 0.4));
       de.setProperty('--reel', reel.toFixed(4));
       de.setProperty('--reelt', (smooth(clamp01(reel * 6)) * (1 - smooth(clamp01((reel - 0.34) / 0.12)))).toFixed(3));

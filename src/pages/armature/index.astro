@@ -129,21 +129,6 @@ const DESCRIPTION =
           side. Thumbnails are self-hosted stills and each card is click-to-YouTube: the
           privacy ruling (nothing reaches Google without a click) forbids autoplaying
           embeds, and no local files of these videos exist. */}
-      {/* The strip's standing title, BEHIND the cards: the first video wipes it as it
-          passes, and the fade below matches that moment. */}
-      <p class="ast-reels__title" aria-hidden="true"><span class="ast-ember">Tutorial</span> Video<br />Series</p>
-
-      <div class="ast-reels" data-ast-reels>
-        <div class="ast-reels__strip">
-          {WALKTHROUGHS.map((w) => (
-            <a class="ast-reel" href={w.href} target="_blank" rel="noopener" aria-label={w.title}>
-              <img src={w.thumb} alt="" loading="lazy" />
-              <span class="ast-reel__play" aria-hidden="true">&#9654;</span>
-            </a>
-          ))}
-        </div>
-      </div>
-
       {/* WHAT IT COSTS -- the live page's ruled pricing copy, verbatim. */}
       <div class="ast-price" data-ast-price>
         <p class="ast-beat__head"><span class="ast-ember">What</span> it costs.</p>
@@ -158,6 +143,21 @@ const DESCRIPTION =
         <p class="ast-price__contact">
           Bringing an existing rig into Armature? <a href="mailto:adrian@fabricator.studio?subject=Armature%3A%20existing%20rig">Talk to us</a>.
         </p>
+      </div>
+
+      {/* The strip's standing title, BEHIND the cards: the first video wipes it as it
+          passes, and the fade below matches that moment. */}
+      <p class="ast-reels__title" aria-hidden="true"><span class="ast-ember">Tutorial</span> Video<br />Series</p>
+
+      <div class="ast-reels" data-ast-reels>
+        <div class="ast-reels__strip">
+          {WALKTHROUGHS.map((w) => (
+            <a class="ast-reel" href={w.href} target="_blank" rel="noopener" aria-label={w.title}>
+              <img src={w.thumb} alt="" loading="lazy" />
+              <span class="ast-reel__play" aria-hidden="true">&#9654;</span>
+            </a>
+          ))}
+        </div>
       </div>
 
       {/* THE CLOSE: the same doors as the landing. A reader who got this far without
