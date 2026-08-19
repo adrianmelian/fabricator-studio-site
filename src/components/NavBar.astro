@@ -13,13 +13,9 @@ import NewsletterPop from './NewsletterPop.astro';
   <button class="navbar__burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
     <span></span><span></span><span></span>
   </button>
-  {/* Two doors at the top of every page, one per direction, which is the two-layer system
-      expressed in navigation instead of prose. Services is the hire door and carries the
-      outlined weight; Download is the toolset door and stays the loudest thing up here,
-      because most arrivals today are coming for the toolset.
-
-      Community moved to the footer in the same pass: it was a dropdown holding two social
-      links, and the nav needed the slot for Toolset and Store. Swap, not addition. */}
+  {/* One row of tabs, no side doors (Adrian, 2026-08-19): the Download and Services
+      buttons retired -- Downloads (the /store/ hub) and Services are tabs like everything
+      else, and the page's own beats carry the loud doors now. */}
   <div class="navbar__menu" id="nav-menu">
     {/* Centred as a group on the bar (Adrian, 2026-08-19): the five tabs hold the middle,
         the two doors hold the right. On narrower desktops the group falls back into the
@@ -29,12 +25,11 @@ import NewsletterPop from './NewsletterPop.astro';
       {/* Sits next to Toolset because they are the two products, and after it because the
           free Maya suite is still what most arrivals come for. */}
       <a class="navbar__tab" href="/armature/">Armature</a>
-      <a class="navbar__tab" href="/store/">Store</a>
+      <a class="navbar__tab" href="/store/">Downloads</a>
       <a class="navbar__tab" href="/docs/">Docs</a>
       <a class="navbar__tab" href="/tutorials/">Tutorials</a>
+      <a class="navbar__tab" href="/services/">Services</a>
     </div>
-    <a class="nav-services" href="/services/" data-goatcounter-click="nav-services">Services</a>
-    <a class="nav-download" href="/store/" data-goatcounter-click="nav-download">Download</a>
   </div>
 </nav>
 <NewsletterPop />
@@ -126,28 +121,6 @@ import NewsletterPop from './NewsletterPop.astro';
   }
   .navbar__tab:hover { color: var(--bone); }
 
-  /* The two doors, weighted the same way the hero weights them: the toolset door is filled,
-     the hire door is outlined. Same shape so they read as a pair, different weight so they
-     do not compete. */
-  .nav-services,
-  .nav-download {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: var(--radius-pill);
-    padding: 0.45rem 1.05rem;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
-  }
-  .nav-services { color: var(--bone); background: none; border: 1px solid rgba(232, 224, 208, 0.3); }
-  .nav-services:hover { color: var(--bone); border-color: var(--bone); }
-  .nav-download { color: var(--carbon); background: var(--plasma); border: 1px solid var(--plasma); }
-  .nav-download:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); color: var(--carbon); }
-
   /* Hamburger: hidden on desktop, shown on narrow screens. */
   .navbar__burger { display: none; }
 
@@ -192,7 +165,5 @@ import NewsletterPop from './NewsletterPop.astro';
     .navbar__menu.is-open { display: flex; }
     .navbar__tabs { display: contents; }
     .navbar__menu .navbar__tab { padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
-    .nav-services,
-    .nav-download { align-self: flex-start; margin-top: 1rem; }
   }
 </style>

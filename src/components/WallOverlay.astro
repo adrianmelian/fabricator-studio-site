@@ -17,7 +17,8 @@ import wall from '../assets/wall/FS_Tool_Wall.png';
 
   {/* The scanner: an opaque band that climbs with the scroll, the download riding it. */}
   <div class="wl__band">
-    <BracketButton kind="hard" href="/store/" label="Download" event="scan-download" />
+    <BracketButton kind="hard" href="/store/" label="Downloads" event="scan-download" />
+    <BracketButton kind="plasma-outline" href="/services/" label="Services" event="scan-services" />
   </div>
 </div>
 
@@ -61,6 +62,7 @@ import wall from '../assets/wall/FS_Tool_Wall.png';
     display: flex;
     align-items: center;
     justify-content: center;
+    gap: 1rem;
     /* No fill: the wall IS the band's interior. The edges are the aperture. */
     background: none;
     border-top: 1.5px solid var(--plasma);
