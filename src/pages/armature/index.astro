@@ -247,12 +247,14 @@ const DESCRIPTION =
     color: var(--bone);
   }
   .ast-hero__line {
-    margin-top: 1rem;
+    margin-top: 0.4rem;
     font-weight: 300;
     font-size: clamp(1.15rem, 1.7vw, 1.6rem);
     line-height: 1.3;
     color: var(--bone);
   }
+  /* The first line clears the title a touch more than the lines clear each other. */
+  .ast-hero__tagline + .ast-hero__line { margin-top: 0.9rem; }
   .ast-hero__plus { color: var(--plasma); font-weight: 700; }
 
   .ast-hero__actions {
