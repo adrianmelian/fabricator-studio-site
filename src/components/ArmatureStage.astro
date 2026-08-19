@@ -6,9 +6,13 @@
 //                            mannequin); she materialises floor-to-head in front of him
 //   2. THE SKELETON GROWS -- the man leaves; her real 87-joint rig grows root-outward
 //   3. SHE SOLIDIFIES     -- the x-ray fresnel takes over the points, skeleton inside
-//   4. SHE IS ALIVE       -- skinned idle, and SIX GRAB HANDLES (wrists, feet, head,
-//                            chest): click-drag runs CCD IK on her real chains, release
-//                            springs her home (first-pass curves; Adrian authors)
+//   3b. RANGE OF MOTION   -- at the skinning beat she runs her calisthenics on a loop
+//                            (Adrian's routine, 2026-08-19: T-pose, elbows, fists, head,
+//                            spine twists, legs, knees, ankles, toes), built from
+//                            world-axis rotations so joint conventions cannot break it
+//   4. ANIMATION READY    -- rig-coloured control rings (blue left / yellow centre /
+//                            red right); click-drag runs CCD IK through the elbows and
+//                            knees, release springs her home
 // Scroll is the only clock for the beats; the idle and the room run on time. Everything
 // is a pure function of scrollY, so scrolling up runs her un-creation in reverse.
 //
@@ -282,6 +286,23 @@ void main() {
   if (vA < 0.003) discard;
   frag = vec4(uPlasma * 0.9, vA * uAlpha);
 }`;
+    // The control rings: camera-billboarded circles in the rig's colours, drawn as
+    // LINE_LOOPs at each effector. Simplified controller-rig grammar.
+    const CTRL_VS = `#version 300 es
+in vec2 aPos;
+uniform mat4 uProj, uView;
+uniform vec3 uCenter, uRight, uUp;
+uniform float uRadius;
+void main() {
+  vec3 p = uCenter + (uRight * aPos.x + uUp * aPos.y) * uRadius;
+  gl_Position = uProj * (uView * vec4(p, 1.0));
+}`;
+    const CTRL_FS = `#version 300 es
+precision highp float;
+uniform vec3 uColor; uniform float uAlpha;
+out vec4 frag;
+void main() { frag = vec4(uColor * 1.15, uAlpha); }`;
+
     const STAR_VS = `#version 300 es
 in vec3 aPos; in vec3 aSeed;
 uniform mat4 uProj, uView; uniform float uTime, uSpeed;
@@ -361,11 +382,29 @@ void main() {
     const P_PT = prog(PT_VS, PT_FS);
     const P_JOINT = prog(JOINT_VS, JOINT_FS);
     const P_BONE = prog(BONE_VS, BONE_FS);
+    const P_CTRL = prog(CTRL_VS, CTRL_FS);
     const P_STAR = prog(STAR_VS, STAR_FS);
     const P_GRID = prog(GRID_VS, GRID_FS);
     const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
     const P_BLUR = prog(QUAD_VS, BLUR_FS);
     const P_COMP = prog(QUAD_VS, COMP_FS);
+
+    const circleVao = gl.createVertexArray()!;
+    const CIRCLE_N = 48;
+    {
+      gl.bindVertexArray(circleVao);
+      const cb = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, cb);
+      const v = new Float32Array(CIRCLE_N * 2);
+      for (let i = 0; i < CIRCLE_N; i++) {
+        v[i * 2] = Math.cos((i / CIRCLE_N) * Math.PI * 2);
+        v[i * 2 + 1] = Math.sin((i / CIRCLE_N) * Math.PI * 2);
+      }
+      gl.bufferData(gl.ARRAY_BUFFER, v, gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(P_CTRL.p, 'aPos');
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    }
 
     const quadVao = gl.createVertexArray()!;
     gl.bindVertexArray(quadVao);
@@ -672,27 +711,78 @@ void main() {
       gl.vertexAttribPointer(ld, 1, gl.FLOAT, false, 0, 0);
     }
 
-    // THE IDLE (first-pass curves, Mr. Miata; Adrian authors the real ones -- these are
-    // deliberately subtle: breath through the spine, a slow weight sway, the head looking).
-    function poseRotation(name: string, t: number): Float32Array | null {
-      const b = Math.sin(t * 1.5);            // breath
-      const s = Math.sin(t * 0.45);           // sway
-      const l1 = Math.sin(t * 0.23 + 1.7);    // look, two incommensurate sines
-      const l2 = Math.sin(t * 0.31 + 0.4);
-      switch (name) {
-        case 'pelvis': return rotXYZ(0, s * 1.2, s * 0.8);
-        case 'spine_01': return rotXYZ(b * 1.6, 0, -s * 0.5);
-        case 'spine_02': return rotXYZ(b * 1.2, 0, -s * 0.4);
-        case 'spine_03': return rotXYZ(b * 0.8, s * 0.5, 0);
-        case 'neck_01': return rotXYZ(-b * 0.6, l1 * 2.0, 0);
-        case 'head': return rotXYZ(-b * 0.4, l1 * 3.0 + l2 * 1.5, 0);
-        case 'clavicle_l': return rotXYZ(0, 0, b * 0.8);
-        case 'clavicle_r': return rotXYZ(0, 0, -b * 0.8);
-        case 'upperarm_l': return rotXYZ(b * 0.7, 0, s * 0.6);
-        case 'upperarm_r': return rotXYZ(b * 0.7, 0, -s * 0.6);
-        default: return null;
+    // THE RANGE OF MOTION (Adrian's routine, 2026-08-19; replaced the floaty idle): a
+    // looped calisthenics pass at the skinning beat. Every move is a WORLD-AXIS rotation
+    // applied at the joint's pivot inside the FK pass, so it propagates to children and
+    // no per-joint axis convention can break it. The loop:
+    //   arms to T and back / elbows / fists / head L-R-fwd-back / spine twist L-R /
+    //   legs spread / knees / ankle+toe wiggle -> repeat.
+    const ROM_LEN = 22;
+    const hump = (t: number, a: number, b: number) => {
+      const f = (t - a) / (b - a);
+      return f > 0 && f < 1 ? Math.sin(Math.PI * f) : 0;
+    };
+    const sideOf = (n: string) => (n.endsWith('_l') ? 1 : n.endsWith('_r') ? -1 : 0);
+    const isFinger = (n: string) => /^(thumb|index|middle|ring|pinky)_(01|02|03)_/.test(n + '_');
+    function romRotation(name: string, tt: number): { ax: number[]; deg: number } | null {
+      const t = tt % ROM_LEN;
+      const sd = sideOf(name);
+      // 0-3s: arms rise to the T and come back (clavicles help)
+      if (name.startsWith('upperarm_')) {
+        let d = 62 * hump(t, 0, 3);
+        d += 0; // elbows/fists segments keep the arms down
+        if (d) return { ax: [0, 0, 1], deg: -sd * d * (jSideX < 0 ? -1 : 1) };
       }
+      if (name.startsWith('clavicle_')) {
+        const d = 12 * hump(t, 0, 3);
+        if (d) return { ax: [0, 0, 1], deg: -sd * d * (jSideX < 0 ? -1 : 1) };
+      }
+      // 3-5.5s: both elbows bend
+      if (name.startsWith('lowerarm_') && !name.includes('twist')) {
+        const d = 68 * hump(t, 3, 5.5);
+        if (d) return { ax: [1, 0, 0], deg: -d };
+      }
+      // 5.5-7.5s: fists
+      if (isFinger(name)) {
+        const d = 55 * hump(t, 5.5, 7.5);
+        if (d) return { ax: [0, 0, 1], deg: -sd * d * (jSideX < 0 ? -1 : 1) };
+      }
+      // 7.5-11.5s: the head looks left, right, forward, back
+      if (name === 'neck_01' || name === 'neck_02' || name === 'head') {
+        const w = name === 'head' ? 14 : 8;
+        const yl = w * hump(t, 7.5, 8.5), yr = -w * hump(t, 8.5, 9.5);
+        const pf = w * hump(t, 9.5, 10.5), pb = -w * hump(t, 10.5, 11.5);
+        if (yl || yr) return { ax: [0, 1, 0], deg: yl + yr };
+        if (pf || pb) return { ax: [1, 0, 0], deg: pf + pb };
+      }
+      // 11.5-14.5s: spine twist, left then right
+      if (name === 'spine_01' || name === 'spine_02' || name === 'spine_03') {
+        const d = 9 * (hump(t, 11.5, 13) - hump(t, 13, 14.5));
+        if (d) return { ax: [0, 1, 0], deg: d };
+      }
+      // 14.5-17s: legs spread and return
+      if (name.startsWith('thigh_') && !name.includes('twist')) {
+        const d = 24 * hump(t, 14.5, 17);
+        if (d) return { ax: [0, 0, 1], deg: sd * d * (jSideX < 0 ? -1 : 1) };
+      }
+      // 17-19.5s: knees bend back
+      if (name.startsWith('calf_') && !name.includes('twist')) {
+        const d = 55 * hump(t, 17, 19.5);
+        if (d) return { ax: [1, 0, 0], deg: d };
+      }
+      // 19.5-21.5s: ankles and toes wiggle
+      if (name.startsWith('foot_')) {
+        const f = (t - 19.5) / 2;
+        if (f > 0 && f < 1) return { ax: [1, 0, 0], deg: 11 * Math.sin(f * Math.PI * 4) * Math.sin(Math.PI * f) };
+      }
+      if (name.startsWith('ball_')) {
+        const f = (t - 19.5) / 2;
+        if (f > 0 && f < 1) return { ax: [1, 0, 0], deg: 13 * Math.sin(f * Math.PI * 4 + 1.2) * Math.sin(Math.PI * f) };
+      }
+      return null;
     }
+    // the side test the mirror rules key on: which world side the LEFT hand landed
+    let jSideX = 1;
 
     const worlds: Float32Array[] = new Array(NJ);
     const locals: Float32Array[] = new Array(NJ);
@@ -701,23 +791,25 @@ void main() {
     const bonePts = new Float32Array(boneList.length * 6);
     const effPts = new Float32Array(effJoint.length * 3);
     function evalPose(t: number, amp: number, dt: number) {
-      // pass 1: the idle
+      // pass 1: FK from the bind locals, with the ROM's world-axis rotations applied at
+      // each joint's pivot INSIDE the pass so they carry to the children.
       for (let j = 0; j < NJ; j++) {
-        let L = jLocal[j];
+        const L = jLocal[j];
+        locals[j] = L;
+        let W = jParent[j] < 0 ? L : mmul(worlds[jParent[j]], L);
         if (amp > 0.001) {
-          const R = poseRotation(jNames[j], t);
+          const R = romRotation(jNames[j], t);
           if (R) {
-            if (amp < 0.999) {
-              const Rs = rotXYZ(0, 0, 0);
-              for (let k = 0; k < 16; k++) Rs[k] = lerp(Rs[k], R[k], amp);
-              L = mmul(L, Rs);
-            } else {
-              L = mmul(L, R);
-            }
+            const px = W[12], py = W[13], pz = W[14];
+            const M = mmul(mmul(translation(px, py, pz), rotAxis(R.ax, (R.deg * amp * Math.PI) / 180)), translation(-px, -py, -pz));
+            W = mmul(M, W);
           }
         }
-        locals[j] = L as Float32Array;
-        worlds[j] = jParent[j] < 0 ? (L as Float32Array) : mmul(worlds[jParent[j]], L);
+        worlds[j] = W;
+      }
+      if (jSideX === 1 || jSideX === -1) {
+        const hl = jIndexByName['hand_l'];
+        if (hl !== undefined) jSideX = worlds[hl][12] - 0.0 >= (jIndexByName['hand_r'] !== undefined ? worlds[jIndexByName['hand_r']][12] : 0) ? 1 : -1;
       }
       // the handles' natural (idle) positions, for grabbing and for settling home
       effJoint.forEach((j, i) => {
@@ -935,6 +1027,9 @@ void main() {
       const grow = clamp01((q - 2.1) / 0.8);
       const solid = smooth(clamp01((q - 2.9) / 0.7));
       const alive = smooth(clamp01((q - 3.6) / 0.4));
+      // the calisthenics run while the skinning beat holds the stage, then hand off to
+      // the stillness the controls pose against
+      const romAmp = solid * (1 - alive);
       lastAliveOn = alive > 0.5;
 
       const de = document.documentElement.style;
@@ -950,7 +1045,7 @@ void main() {
       const ptFade = (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45);
       const skelAlpha = grow > 0 ? 0.85 : 0;
 
-      evalPose(time, alive, dt);
+      evalPose(time, romAmp, dt);
 
       if (!orbDrag) {
         orbVY += (-60 * orbY - 10 * orbVY) * dt; orbY += orbVY * dt;
@@ -1077,13 +1172,34 @@ void main() {
         gl.bindVertexArray(jointVao);
         gl.drawArrays(gl.POINTS, 0, shown.length);
 
-        // the six handles, pulsing so the invitation reads
+        // THE CONTROLS (Adrian, 2026-08-19): simplified controller-rig rings at the six
+        // handles, in the rig's colours -- blue on screen left, yellow centre, red right,
+        // resolved by each control's actual side of the body.
         if (alive > 0.5) {
-          gl.uniform1f(P_JOINT.u.uGrow, 1.0);
-          gl.uniform1f(P_JOINT.u.uSize, 0.085 + 0.02 * Math.sin(time * 2.2));
-          gl.uniform1f(P_JOINT.u.uAlpha, skelAlpha * alive);
-          gl.bindVertexArray(effVao);
-          gl.drawArrays(gl.POINTS, 0, effJoint.length);
+          gl.useProgram(P_CTRL.p);
+          gl.uniformMatrix4fv(P_CTRL.u.uProj, false, proj);
+          gl.uniformMatrix4fv(P_CTRL.u.uView, false, view);
+          gl.uniform3f(P_CTRL.u.uRight, view[0], view[4], view[8]);
+          gl.uniform3f(P_CTRL.u.uUp, view[1], view[5], view[9]);
+          gl.uniform1f(P_CTRL.u.uAlpha, 0.9 * alive);
+          gl.bindVertexArray(circleVao);
+          const pulse = 1 + 0.06 * Math.sin(time * 2.2);
+          for (let i = 0; i < effJoint.length; i++) {
+            const wx = effPts[i * 3];
+            const nm = jNames[effJoint[i]];
+            const centre = nm === 'head' || nm === 'spine_03';
+            const sxp = screenOf([effPts[i * 3], effPts[i * 3 + 1], effPts[i * 3 + 2]]);
+            const left = sxp ? sxp[0] < canvas.clientWidth / 2 : wx < 0;
+            if (centre) gl.uniform3f(P_CTRL.u.uColor, 1.0, 0.84, 0.25);
+            else if (left) gl.uniform3f(P_CTRL.u.uColor, 0.32, 0.55, 1.0);
+            else gl.uniform3f(P_CTRL.u.uColor, 1.0, 0.3, 0.28);
+            gl.uniform3f(P_CTRL.u.uCenter, effPts[i * 3], effPts[i * 3 + 1], effPts[i * 3 + 2]);
+            const rad = (nm === 'head' ? 0.17 : nm === 'spine_03' ? 0.2 : 0.12) * pulse;
+            gl.uniform1f(P_CTRL.u.uRadius, rad);
+            gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
+            gl.uniform1f(P_CTRL.u.uRadius, rad * 0.9);
+            gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
+          }
         }
       }
       gl.disable(gl.BLEND);

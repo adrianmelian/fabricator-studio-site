@@ -16,6 +16,9 @@ import Wordmark from '../../components/Wordmark.astro';
 import { Image } from 'astro:assets';
 
 import fsMark from '../../assets/armature/fs-mark.png';
+import stageFit from '../../assets/armature/stage-fit.png';
+import stageSkeleton from '../../assets/armature/stage-skeleton.png';
+import stageSkin from '../../assets/armature/stage-skin.png';
 import heroProduct from '../../assets/armature/hero-product.png';
 
 import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../../data/armature';
@@ -101,18 +104,21 @@ const DESCRIPTION =
       <div class="ast-beats" aria-hidden="true">
         <div class="ast-beat" style="opacity: var(--ab1, 0)">
           <p class="ast-beat__head">Fitting Room</p>
-          <p class="ast-beat__line">Fit your character to size. Symmetry, placement, behaviors.</p>
+          <p class="ast-beat__line">Fit your character to size so symmetry and placement behave.</p>
+          <Image class="ast-beat__img" src={stageFit} alt="" widths={[420, 840]} sizes="26vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab2, 0)">
-          <p class="ast-beat__head">Skeleton</p>
-          <p class="ast-beat__line">Auto-fitted to your model. Every joint where it belongs.</p>
+          <p class="ast-beat__head">Generative Skeleton Placement</p>
+          <p class="ast-beat__line">Auto fit the joints to your model, automatically named and oriented correctly.</p>
+          <Image class="ast-beat__img" src={stageSkeleton} alt="" widths={[420, 840]} sizes="26vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab3, 0)">
-          <p class="ast-beat__head">Skinning</p>
-          <p class="ast-beat__line">Machine-learned skinning binds the mesh.</p>
+          <p class="ast-beat__head">Generative Skin Binding</p>
+          <p class="ast-beat__line">Machine learned skinning binds any type of mesh.</p>
+          <Image class="ast-beat__img" src={stageSkin} alt="" widths={[420, 840]} sizes="26vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab4, 0)">
-          <p class="ast-beat__head">Animation-Ready</p>
+          <p class="ast-beat__head">Animation Ready</p>
           <p class="ast-beat__line">Yours to refine. Grab a wrist, a foot, the head &mdash; she follows.</p>
         </div>
       </div>
@@ -295,6 +301,14 @@ const DESCRIPTION =
     font-size: clamp(1.15rem, 1.7vw, 1.6rem);
     line-height: 1.35;
     color: var(--bone);
+  }
+  .ast-beats :global(.ast-beat__img) {
+    margin-top: 1.4rem;
+    width: min(24rem, 26vw);
+    height: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--iron-2);
   }
 
   /* The left column: lockup, then the three ruled lines. It rides the left flank the old
