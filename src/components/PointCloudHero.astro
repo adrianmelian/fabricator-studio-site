@@ -70,9 +70,10 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 {/* The scroll the whole stage is spent on. Purely a clock: the OPENING owns the first 1.6
     screens of scroll (its beat fractions are ruled against exactly that length, so it never
     changes when the runway grows), the TOOLSET's glass-and-carousel entry owns the next 1.2,
-    then each of the remaining five tools takes 0.4 screens as a SNAPPED STEP, the ARMATURE
-    beat takes over from 4.8 screens (carousel out, Armature in by 5.4), and the last 0.4 is
-    its hold. 100svh viewport + 5.8 scroll screens = 680svh. */}
+    then each of the remaining five tools takes 0.4 screens as a SNAPPED STEP. From 4.8 the
+    toolset, glass and video ALL clear and the page returns to the room; from 5.2 to 6.3 the
+    da Vinci man materialises floor-to-head with the scroll; Armature's copy rises over him
+    from 6.4; the last 0.4 is its hold. 100svh viewport + 7.0 scroll screens = 800svh. */}
 <div class="pc-runway" data-pc-runway></div>
 
 <style>
@@ -87,7 +88,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc__stage { position: absolute; inset: 0; overflow: hidden; }
   /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
      in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
-  .pc-runway { height: 680svh; }
+  .pc-runway { height: 800svh; }
 
   /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
      clickable and visible after the video has faded in underneath them. */
@@ -286,6 +287,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   };
   const CAM_A = { yaw: -0.0200, pitch: -0.0240, dist: 4.36448, tx: -0.62800, ty: 0.89876, tz: -0.83070, fov: 42 };
   const CAM_B = { yaw: -0.0320, pitch: -0.1160, dist: 3.14928, tx: 0.08734, ty: 0.79470, tz: 0.00000, fov: 42 };
+  // The man's framing: centred, pulled back enough that his full 2.1 units stand in frame.
+  // A first-pass guess, NOT dialled by Adrian yet -- his eye owns these numbers.
+  const CAM_C = { yaw: 0.0, pitch: -0.02, dist: 3.7, tx: 0.0, ty: 1.02, tz: 0.0, fov: 42 };
 
   const root = document.querySelector('[data-pc]') as HTMLElement | null;
   if (root) start(root);
@@ -385,13 +389,14 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 
     // ---- shaders. The prototype's, unchanged in behaviour.
     const POINT_VS = `#version 300 es
-in vec3 aPos; in vec3 aNor; in float aPhase; in float aPhase2; in vec3 aRand;
+in vec3 aPos; in vec3 aNor; in float aPhase; in float aPhase2; in vec3 aRand; in float aYN;
 uniform mat4 uProj, uView;
 uniform float uTime, uAmp, uFreq, uRip, uFreq2, uRip2, uMix2, uSize;
 uniform float uCFreq, uCSpread, uFadeDepth;
 uniform float uExplode, uExDist, uExCurl, uExCam;
+uniform float uReveal, uFade;
 uniform vec3 uCamDir;
-out float vFade; out float vWave; out float vAlive;
+out float vFade; out float vWave; out float vAlive; out float vEdge;
 void main() {
   // Two crossing waves MIXED rather than summed, so the blend changes the character of the
   // motion without changing how far the points travel.
@@ -413,21 +418,29 @@ void main() {
   gl_PointSize = uSize * (300.0 / -mv.z);
   vFade = 1.0 - uFadeDepth * 0.9 * (0.5 - 0.5 * w);
   vWave = sin(uTime * uCFreq + aPhase * uRip * uCSpread);
-  vAlive = 1.0 - uExplode * 0.65;
+  // THE REVEAL (Adrian, 2026-08-19): points materialise floor-to-head as uReveal climbs.
+  // aYN is the point's normalised height; a soft band at the frontier and a brightness
+  // spike just under it read as the materialisation front rather than a hard wipe.
+  float vis = 1.0 - smoothstep(uReveal, uReveal + 0.045, aYN);
+  vEdge = (uReveal < 1.05 ? 1.0 : 0.0) * max(0.0, 1.0 - abs(aYN - uReveal) / 0.05);
+  vAlive = (1.0 - uExplode * 0.65) * vis * uFade;
 }`;
 
     const POINT_FS = `#version 300 es
 precision highp float;
 uniform vec3 uPlasma, uEmber, uBone;
-in float vFade; in float vWave; in float vAlive;
+in float vFade; in float vWave; in float vAlive; in float vEdge;
 out vec4 frag;
 void main() {
+  if (vAlive < 0.003) discard;
   vec2 d = gl_PointCoord - vec2(0.5);
   float r = dot(d, d);
   if (r > 0.25) discard;
   float soft = smoothstep(0.25, 0.0, r);
-  // Bone at the wave's midpoint, Plasma at one crest and Ember at the other.
+  // Bone at the wave's midpoint, Plasma at one crest and Ember at the other. The reveal
+  // frontier burns brighter, which is what makes the wipe read as materialisation.
   vec3 c = vWave > 0.0 ? mix(uBone, uPlasma, vWave) : mix(uBone, uEmber, -vWave);
+  c *= 1.0 + vEdge * 1.6;
   frag = vec4(c * vFade, soft * vAlive);
 }`;
 
@@ -588,90 +601,111 @@ void main() {
       sattr('aSeed', ss, 3);
     }
 
-    // ---- mesh, baked at build time so no GLB container is parsed in the browser
-    const buf = await (await fetch('/mesh/fs_logo.mesh')).arrayBuffer();
-    const dv = new DataView(buf);
-    if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== 'FSMH')
-      throw new Error('bad mesh');
-    const nv = dv.getUint32(4, true), ni = dv.getUint32(8, true);
-    let off = 12;
-    const rawPos = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
-    const rawNor = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
-    const idx = new Uint16Array(buf.slice(off, off + ni * 2));
+    // ---- clouds. Meshes are baked at build time (no GLB container parsed in the browser);
+    // makeCloud() normalises, samples the surface area-weighted from a fixed seed, and adds
+    // aYN, the point's normalised height, which is what the floor-to-head reveal gates on.
+    async function makeCloud(url: string, count: number, seed: number) {
+      const buf = await (await fetch(url)).arrayBuffer();
+      const dv = new DataView(buf);
+      if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== 'FSMH')
+        throw new Error('bad mesh: ' + url);
+      const nv = dv.getUint32(4, true), ni = dv.getUint32(8, true);
+      let off = 12;
+      const rawPos = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
+      const rawNor = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
+      const idx = new Uint16Array(buf.slice(off, off + ni * 2));
 
-    // Normalise: largest dimension to 2.1, then STAND IT ON the grid rather than centring the
-    // box, which would bury half the mark under y=0. A rigid shift moves every phase by one
-    // constant, so the wave pattern is identical and the ruled preset reads as saved.
-    const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
-    for (let i = 0; i < rawPos.length; i += 3)
-      for (let k = 0; k < 3; k++) {
-        if (rawPos[i + k] < mn[k]) mn[k] = rawPos[i + k];
-        if (rawPos[i + k] > mx[k]) mx[k] = rawPos[i + k];
+      // Normalise: largest dimension to 2.1, then STAND IT ON the grid rather than centring
+      // the box, which would bury half the model under y=0.
+      const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+      for (let i = 0; i < rawPos.length; i += 3)
+        for (let k = 0; k < 3; k++) {
+          if (rawPos[i + k] < mn[k]) mn[k] = rawPos[i + k];
+          if (rawPos[i + k] > mx[k]) mx[k] = rawPos[i + k];
+        }
+      const size = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
+      const sc = 2.1 / Math.max(size[0], size[1], size[2], 1e-6);
+      const ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+      const pos = new Float32Array(rawPos.length);
+      for (let i = 0; i < pos.length; i += 3) {
+        pos[i] = (rawPos[i] - ctr[0]) * sc;
+        pos[i + 1] = (rawPos[i + 1] - ctr[1]) * sc + (size[1] * sc) / 2;
+        pos[i + 2] = (rawPos[i + 2] - ctr[2]) * sc;
       }
-    const size = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
-    const sc = 2.1 / Math.max(size[0], size[1], size[2], 1e-6);
-    const ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
-    const pos = new Float32Array(rawPos.length);
-    for (let i = 0; i < pos.length; i += 3) {
-      pos[i] = (rawPos[i] - ctr[0]) * sc;
-      pos[i + 1] = (rawPos[i + 1] - ctr[1]) * sc + (size[1] * sc) / 2;
-      pos[i + 2] = (rawPos[i + 2] - ctr[2]) * sc;
-    }
 
-    // ---- even surface sampling, area-weighted: density ignores tessellation
-    const tri = idx.length / 3;
-    const cum = new Float32Array(tri);
-    let totalArea = 0;
-    for (let t = 0; t < tri; t++) {
-      const a = idx[t * 3] * 3, b = idx[t * 3 + 1] * 3, c = idx[t * 3 + 2] * 3;
-      const ux = pos[b] - pos[a], uy = pos[b + 1] - pos[a + 1], uz = pos[b + 2] - pos[a + 2];
-      const vx = pos[c] - pos[a], vy = pos[c + 1] - pos[a + 1], vz = pos[c + 2] - pos[a + 2];
-      totalArea += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
-      cum[t] = totalArea;
-    }
-    const rnd = mulberry32(P.seed);
-    const N = P.count;
-    const aPos = new Float32Array(N * 3), aNor = new Float32Array(N * 3);
-    const aPhase = new Float32Array(N), aPhase2 = new Float32Array(N), aRand = new Float32Array(N * 3);
-    const bmn = [Infinity, Infinity, Infinity], bmx = [-Infinity, -Infinity, -Infinity];
-    for (let i = 0; i < N; i++) {
-      const r = rnd() * totalArea;
-      let lo = 0, hi = tri - 1;
-      while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < r) lo = m + 1; else hi = m; }
-      const a = idx[lo * 3] * 3, b = idx[lo * 3 + 1] * 3, c = idx[lo * 3 + 2] * 3;
-      let u = rnd(), v = rnd();
-      if (u + v > 1) { u = 1 - u; v = 1 - v; }
-      const w = 1 - u - v;
-      for (let k = 0; k < 3; k++) {
-        const pv = pos[a + k] * w + pos[b + k] * u + pos[c + k] * v;
-        aPos[i * 3 + k] = pv;
-        aNor[i * 3 + k] = rawNor[a + k] * w + rawNor[b + k] * u + rawNor[c + k] * v;
-        if (pv < bmn[k]) bmn[k] = pv;
-        if (pv > bmx[k]) bmx[k] = pv;
+      // even surface sampling, area-weighted: density ignores tessellation
+      const tri = idx.length / 3;
+      const cum = new Float32Array(tri);
+      let totalArea = 0;
+      for (let t = 0; t < tri; t++) {
+        const a = idx[t * 3] * 3, b = idx[t * 3 + 1] * 3, c = idx[t * 3 + 2] * 3;
+        const ux = pos[b] - pos[a], uy = pos[b + 1] - pos[a + 1], uz = pos[b + 2] - pos[a + 2];
+        const vx = pos[c] - pos[a], vy = pos[c + 1] - pos[a + 1], vz = pos[c + 2] - pos[a + 2];
+        totalArea += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+        cum[t] = totalArea;
       }
-      const l = Math.hypot(aNor[i * 3], aNor[i * 3 + 1], aNor[i * 3 + 2]) || 1;
-      aNor[i * 3] /= l; aNor[i * 3 + 1] /= l; aNor[i * 3 + 2] /= l;
-      // Phase seeded from position so the sheet RIPPLES across the surface instead of pulsing
-      // as one body. Axis 2 is perpendicular to axis 1 in xy, so it crosses it.
-      aPhase[i] = aPos[i * 3] * 1.7 + aPos[i * 3 + 1] * 2.3 + aPos[i * 3 + 2] * 1.1;
-      aPhase2[i] = aPos[i * 3] * 2.3 + aPos[i * 3 + 1] * -1.7 + aPos[i * 3 + 2] * 0.9;
-    }
-    const r2 = mulberry32(P.seed ^ 0x9E3779B9);
-    for (let i = 0; i < N * 3; i++) aRand[i] = r2();
+      const rnd = mulberry32(seed);
+      const aPos = new Float32Array(count * 3), aNor = new Float32Array(count * 3);
+      const aPhase = new Float32Array(count), aPhase2 = new Float32Array(count);
+      const aRand = new Float32Array(count * 3), aYN = new Float32Array(count);
+      const bmn = [Infinity, Infinity, Infinity], bmx = [-Infinity, -Infinity, -Infinity];
+      for (let i = 0; i < count; i++) {
+        const r = rnd() * totalArea;
+        let lo = 0, hi = tri - 1;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < r) lo = m + 1; else hi = m; }
+        const a = idx[lo * 3] * 3, b = idx[lo * 3 + 1] * 3, c = idx[lo * 3 + 2] * 3;
+        let u = rnd(), v = rnd();
+        if (u + v > 1) { u = 1 - u; v = 1 - v; }
+        const w = 1 - u - v;
+        for (let k = 0; k < 3; k++) {
+          const pv = pos[a + k] * w + pos[b + k] * u + pos[c + k] * v;
+          aPos[i * 3 + k] = pv;
+          aNor[i * 3 + k] = rawNor[a + k] * w + rawNor[b + k] * u + rawNor[c + k] * v;
+          if (pv < bmn[k]) bmn[k] = pv;
+          if (pv > bmx[k]) bmx[k] = pv;
+        }
+        const l = Math.hypot(aNor[i * 3], aNor[i * 3 + 1], aNor[i * 3 + 2]) || 1;
+        aNor[i * 3] /= l; aNor[i * 3 + 1] /= l; aNor[i * 3 + 2] /= l;
+        // Phase seeded from position so the sheet RIPPLES across the surface instead of
+        // pulsing as one body. Axis 2 is perpendicular to axis 1 in xy, so it crosses it.
+        aPhase[i] = aPos[i * 3] * 1.7 + aPos[i * 3 + 1] * 2.3 + aPos[i * 3 + 2] * 1.1;
+        aPhase2[i] = aPos[i * 3] * 2.3 + aPos[i * 3 + 1] * -1.7 + aPos[i * 3 + 2] * 0.9;
+      }
+      const r2 = mulberry32(seed ^ 0x9E3779B9);
+      for (let i = 0; i < count * 3; i++) aRand[i] = r2();
+      const ySpan = (bmx[1] - bmn[1]) || 1;
+      for (let i = 0; i < count; i++) aYN[i] = (aPos[i * 3 + 1] - bmn[1]) / ySpan;
 
-    const cloudVao = gl.createVertexArray()!;
-    gl.bindVertexArray(cloudVao);
-    const attr = (name: string, data: Float32Array, sz: number) => {
-      const loc = gl.getAttribLocation(P_POINT.p, name);
-      if (loc < 0) return;
-      const b = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, b);
-      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
-    };
-    attr('aPos', aPos, 3); attr('aNor', aNor, 3);
-    attr('aPhase', aPhase, 1); attr('aPhase2', aPhase2, 1); attr('aRand', aRand, 3);
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const attr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_POINT.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      attr('aPos', aPos, 3); attr('aNor', aNor, 3);
+      attr('aPhase', aPhase, 1); attr('aPhase2', aPhase2, 1);
+      attr('aRand', aRand, 3); attr('aYN', aYN, 1);
+      return { vao, count, bmn, bmx };
+    }
+
+    const logo = await makeCloud('/mesh/fs_logo.mesh', P.count, P.seed);
+    const cloudVao = logo.vao, bmn = logo.bmn, bmx = logo.bmx, N = logo.count;
+
+    // THE MAN (Adrian, 2026-08-19): height_man, centred in the room after the toolset, his
+    // points materialising floor-to-head as the visitor scrolls. Fetched lazily once the
+    // carousel is near, so his 170 KB mesh costs the first paint nothing.
+    let man: Awaited<ReturnType<typeof makeCloud>> | null = null;
+    let manLoading = false;
+    function ensureMan() {
+      if (man || manLoading) return;
+      manLoading = true;
+      makeCloud('/mesh/height_man.mesh', P.count, P.seed).then((c) => { man = c; }).catch(() => { manLoading = false; });
+    }
 
     // ---- colours, from the DNA
     const hex = (h: string) => new Float32Array([
@@ -801,6 +835,14 @@ void main() {
       // toolset beat takes the next 1.2 screens.
       const p = clamp01(scrollY / Math.max(1, innerHeight * 1.6));
       const pt = clamp01((scrollY - innerHeight * 1.6) / Math.max(1, innerHeight * 1.2));
+      // BACK TO THE ROOM (Adrian, 2026-08-19): past the carousel, the toolset, its glass
+      // AND the video all clear together, and the man begins. Declared up here because the
+      // video and glass lines below consume toolsOut.
+      const toolsOut = smooth(clamp01((scrollY - innerHeight * 4.8) / (innerHeight * 0.3)));
+      // The reveal IS the scroll: feet at 5.2 screens, head at 6.3.
+      const manReveal = clamp01((scrollY - innerHeight * 5.2) / (innerHeight * 1.1));
+      if (scrollY > innerHeight * 3.5) ensureMan();
+      const arm = smooth(clamp01((scrollY - innerHeight * 6.4) / (innerHeight * 0.4)));
 
       const tCam = smooth(clamp01(p / 0.45));
       const explode = clamp01((p - 0.62) / 0.38);
@@ -810,7 +852,7 @@ void main() {
 
       // The video fades in through the explosion: it starts becoming visible as the points
       // scatter and owns the screen by the end of the runway.
-      if (heroSec) heroSec.style.opacity = smooth(clamp01((p - 0.66) / 0.32)).toFixed(3);
+      if (heroSec) heroSec.style.opacity = (smooth(clamp01((p - 0.66) / 0.32)) * (1 - toolsOut)).toFixed(3);
 
       // The philosophy is STEPPED (Adrian, 2026-08-19): the studio line arrives with the
       // camera at beat B and stands until the video begins, then hands off to the refinement
@@ -824,7 +866,7 @@ void main() {
 
       // THE TOOLSET BEAT (Adrian, 2026-08-19): glass blurs over the settled video, then the
       // four tool interfaces float in over it. The layer itself is ToolsOverlay.astro.
-      document.documentElement.style.setProperty('--glass', smooth(clamp01((pt - 0.1) / 0.3)).toFixed(3));
+      document.documentElement.style.setProperty('--glass', (smooth(clamp01((pt - 0.1) / 0.3)) * (1 - toolsOut)).toFixed(3));
       document.documentElement.style.setProperty('--tools',
         (smooth(clamp01((pt - 0.35) / 0.4)) * (1 - smooth(clamp01((scrollY - innerHeight * 4.8) / (innerHeight * 0.3))))).toFixed(3));
       const tools = document.querySelector('[data-tools-overlay]') as HTMLElement | null;
@@ -840,11 +882,6 @@ void main() {
         if (tools.dataset.sel !== String(sel)) tools.dataset.sel = String(sel);
       }
 
-      // THE ARMATURE BEAT (Adrian, 2026-08-19): the carousel clears and Armature rises on
-      // the same glass. toolsOut multiplies the carousel's entry var, so its exit needs no
-      // second opacity channel, and the carousel loses its clicks as soon as it starts to go.
-      const toolsOut = smooth(clamp01((scrollY - innerHeight * 4.8) / (innerHeight * 0.3)));
-      const arm = smooth(clamp01((scrollY - innerHeight * 5.0) / (innerHeight * 0.4)));
       document.documentElement.style.setProperty('--arm', arm.toFixed(3));
       const armEl = document.querySelector('[data-armature-overlay]');
       if (armEl) {
@@ -899,10 +936,17 @@ void main() {
       const oy = Math.tanh(orbY / ORB_LIM_Y) * ORB_LIM_Y;
       const op = Math.tanh(orbP / ORB_LIM_P) * ORB_LIM_P;
 
+      // A third camera leg carries the room-return: B holds through the video and glass,
+      // then eases to the man's centred framing as he assembles.
+      const tMan = smooth(clamp01((scrollY - innerHeight * 4.9) / (innerHeight * 0.6)));
       const c = {
-        yaw: lerp(CAM_A.yaw, CAM_B.yaw, tCam) + oy, pitch: lerp(CAM_A.pitch, CAM_B.pitch, tCam) + op,
-        dist: lerp(CAM_A.dist, CAM_B.dist, tCam), fov: lerp(CAM_A.fov, CAM_B.fov, tCam),
-        tx: lerp(CAM_A.tx, CAM_B.tx, tCam), ty: lerp(CAM_A.ty, CAM_B.ty, tCam), tz: lerp(CAM_A.tz, CAM_B.tz, tCam),
+        yaw: lerp(lerp(CAM_A.yaw, CAM_B.yaw, tCam), CAM_C.yaw, tMan) + oy,
+        pitch: lerp(lerp(CAM_A.pitch, CAM_B.pitch, tCam), CAM_C.pitch, tMan) + op,
+        dist: lerp(lerp(CAM_A.dist, CAM_B.dist, tCam), CAM_C.dist, tMan),
+        fov: lerp(lerp(CAM_A.fov, CAM_B.fov, tCam), CAM_C.fov, tMan),
+        tx: lerp(lerp(CAM_A.tx, CAM_B.tx, tCam), CAM_C.tx, tMan),
+        ty: lerp(lerp(CAM_A.ty, CAM_B.ty, tCam), CAM_C.ty, tMan),
+        tz: lerp(lerp(CAM_A.tz, CAM_B.tz, tCam), CAM_C.tz, tMan),
       };
       const tgt = [c.tx, c.ty, c.tz];
       const eye = [
@@ -964,8 +1008,25 @@ void main() {
       gl.uniform1f(U.uExDist, P.exDist); gl.uniform1f(U.uExCurl, P.exCurl); gl.uniform1f(U.uExCam, P.exCam);
       gl.uniform3fv(U.uCamDir, camDir);
       gl.uniform3fv(U.uPlasma, PLASMA); gl.uniform3fv(U.uEmber, EMBER); gl.uniform3fv(U.uBone, BONE);
+      // The logo: no reveal gate (2.0 means every point passes), and it dies away entirely
+      // once the room comes back, so the explosion's scattered points cannot haunt the
+      // man's beat as background noise.
+      gl.uniform1f(U.uReveal, 2.0);
+      gl.uniform1f(U.uFade, 1 - smooth(clamp01((scrollY - innerHeight * 4.6) / (innerHeight * 0.4))));
       gl.bindVertexArray(cloudVao);
       gl.drawArrays(gl.POINTS, 0, N);
+
+      // THE MAN, materialising floor-to-head on the scroll. Same preset, same shader; his
+      // wave sits at a calm fixed amplitude (he is being MADE, not performing) and he never
+      // explodes. Draws only in his beat window and only once his mesh has arrived.
+      if (man && manReveal > 0) {
+        gl.uniform1f(U.uAmp, 0.02);
+        gl.uniform1f(U.uExplode, 0);
+        gl.uniform1f(U.uReveal, manReveal * 1.08);
+        gl.uniform1f(U.uFade, 1);
+        gl.bindVertexArray(man.vao);
+        gl.drawArrays(gl.POINTS, 0, man.count);
+      }
       gl.disable(gl.BLEND);
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, T.bright.f);
