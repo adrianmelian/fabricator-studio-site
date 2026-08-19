@@ -16,7 +16,6 @@ import Wordmark from '../../components/Wordmark.astro';
 import { Image } from 'astro:assets';
 
 import fsMark from '../../assets/armature/fs-mark.png';
-import armWordmark from '../../assets/armature/armature-wordmark.png';
 import heroProduct from '../../assets/armature/hero-product.png';
 
 import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../../data/armature';
@@ -50,16 +49,16 @@ const DESCRIPTION =
           ruled lines under it. The man holds the centre. A fourth line is HELD pending his
           call on its register. */}
       <div class="ast-hero__intro">
+        {/* The colourful Armature wordmark is retired (Adrian, 2026-08-19: phasing it
+            out); the mark stays and the title carries the name in type. The title is the
+            page's real h1 now that it is visible. */}
         <div class="ast-hero__lockup" aria-hidden="true">
           <Image class="ast-hero__lockup-mark" src={fsMark} alt="" widths={[120, 240, 338]} sizes="8vw" />
-          <Image class="ast-hero__lockup-word" src={armWordmark} alt="" widths={[300, 600, 1066]} sizes="24vw" />
         </div>
-        <p class="ast-hero__tagline">Rigging &amp; Skinning Re&#8209;imagined.</p>
+        <h1 class="ast-hero__tagline">Armature: Rigging &amp; Skinning Re&#8209;imagined.</h1>
         <p class="ast-hero__line">Generative joint placement and skin binding.</p>
         <p class="ast-hero__line"><span class="ast-hero__plus">+</span> Artist-friendly tools for production quality refinement.</p>
       </div>
-
-      <h1 class="sr-only">Artist+AI Rigging</h1>
 
       <div class="ast-hero__actions">
         <div class="getblock__actions">
@@ -239,12 +238,8 @@ const DESCRIPTION =
     width: clamp(48px, 4vw, 72px);
     height: auto;
   }
-  .ast-hero__lockup :global(.ast-hero__lockup-word) {
-    width: clamp(210px, 19vw, 320px);
-    height: auto;
-  }
   .ast-hero__tagline {
-    margin-top: 2.2rem;
+    margin-top: 1.6rem;
     font-family: var(--font-display);
     font-weight: 400;
     font-size: clamp(2.2rem, 3.4vw, 3.6rem);
