@@ -59,8 +59,11 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
       2026-08-01, moved from the old video-hero copy block; the emphasis markup is carried
       over verbatim, owner's override on the "These are not AI tools" shape included. */}
   <div class="pc__philosophy">
-    <p class="pc__phil-lead"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="pc__phil-hl">Free for small studios.</b></p>
-    <p class="pc__phil-line">Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can <b class="pc__phil-ember">drive your asset to production level standards</b>.</b></p>
+    {/* Stepped, not simultaneous (Adrian, 2026-08-19): the studio line stands with the mark
+        at beat B, then hands off to the refinement line as the video fades in. They occupy
+        the same grid cell so the swap happens in place rather than reflowing. */}
+    <p class="pc__phil-lead" style="opacity: var(--phil1, 0)"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="pc__phil-hl">Free for small studios.</b></p>
+    <p class="pc__phil-line" style="opacity: var(--phil2, 0)">Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can <b class="pc__phil-ember">drive your asset to production level standards</b>.</b></p>
   </div>
 </div>
 
@@ -128,10 +131,12 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     transform: translateX(-50%);
     width: min(52rem, 86vw);
     text-align: center;
-    opacity: var(--phil-in, 0);
     pointer-events: none;
     text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+    /* Both paragraphs share one cell: the handoff is a crossfade in place, never a reflow. */
+    display: grid;
   }
+  .pc__philosophy > p { grid-area: 1 / 1; align-self: end; }
   /* Same register as the opening's "Game Development Re-imagined." line (Adrian,
      2026-08-19): the two beats speak at one size. */
   .pc__phil-lead,
@@ -141,7 +146,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     color: var(--bone);
     font-size: clamp(1.3rem, 2.3vw, 2.05rem);
   }
-  .pc__phil-line { margin-top: 0.9rem; }
+
   .pc__philosophy b { color: var(--bone); font-weight: 700; }
   .pc__philosophy .pc__phil-hl { color: var(--plasma); }
   .pc__philosophy .pc__phil-ember { color: var(--ember); }
@@ -220,9 +225,11 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     max-width: min(44rem, 82vw);
     margin: 1.5rem 0 0 9vw;
     text-align: left;
-    opacity: 1;
     text-shadow: none;
+    display: block;
   }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__philosophy > p { opacity: 1 !important; }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__phil-line { margin-top: 0.9rem; }
   .pc[data-pc-static] ~ .pc__copylayer .pc__copy {
     position: relative;
     top: auto;
@@ -243,7 +250,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
        exists this width takes the static fallback rather than an undialled cinematic. */
     .pc { display: none; }
     .pc__copylayer { position: relative; inset: auto; pointer-events: auto; min-height: calc(100svh - var(--header-h)); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
-    .pc__philosophy { position: relative; left: 0; bottom: auto; transform: none; width: auto; margin: 1.25rem 0 0 0; padding: 0 var(--container-px, 20px); text-align: left; opacity: 1; text-shadow: none; }
+    .pc__philosophy { position: relative; left: 0; bottom: auto; transform: none; width: auto; margin: 1.25rem 0 0 0; padding: 0 var(--container-px, 20px); text-align: left; text-shadow: none; display: block; }
+    .pc__philosophy > p { opacity: 1 !important; }
+    .pc__phil-line { margin-top: 0.9rem; }
     .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); pointer-events: auto; }
     .pc__text { opacity: 1; transform: none; }
     .pc__wordmark { top: 0; }
@@ -764,9 +773,13 @@ void main() {
       // scatter and owns the screen by the end of the runway.
       if (heroSec) heroSec.style.opacity = smooth(clamp01((p - 0.66) / 0.32)).toFixed(3);
 
-      // The philosophy arrives as the camera lands at beat B and never leaves: it stands
-      // through the explosion and the video (Adrian, 2026-08-19).
-      document.documentElement.style.setProperty('--phil-in', smooth(clamp01((p - 0.30) / 0.15)).toFixed(3));
+      // The philosophy is STEPPED (Adrian, 2026-08-19): the studio line arrives with the
+      // camera at beat B and stands until the video begins, then hands off to the refinement
+      // line, which fades in with the footage and stays.
+      const phil1 = smooth(clamp01((p - 0.30) / 0.15)) * (1 - smooth(clamp01((p - 0.64) / 0.12)));
+      const phil2 = smooth(clamp01((p - 0.70) / 0.15));
+      document.documentElement.style.setProperty('--phil1', phil1.toFixed(3));
+      document.documentElement.style.setProperty('--phil2', phil2.toFixed(3));
 
       // The buttons travel to centre-bottom on the camera's easing, then STAY, above the
       // video, for as long as the stage is on screen. They never fade (Adrian, 2026-08-19).
