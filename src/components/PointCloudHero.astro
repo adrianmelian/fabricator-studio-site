@@ -73,9 +73,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     then each of the remaining five tools takes 0.4 screens as a SNAPPED STEP. From 4.8 the
     toolset, glass and video ALL clear and the page returns to the room; from 5.2 to 6.3 the
     da Vinci man materialises floor-to-head with the scroll; Armature's copy rises over him
-    from 6.4 and holds; from 7.1 it clears and THE SCAN runs to 8.5, the band climbing the
-    screen with the download riding it while the tool wall stands revealed beneath; the last
-    0.3 is the wall's hold. 100svh viewport + 8.8 scroll screens = 980svh. */}
+    from 6.4 and holds; from 7.1 it clears and THE SCAN runs to 8.5, the slit climbing the
+    screen with the download riding it; then the CLOSE (About Me + engagements, one screen)
+    rises from 8.6 and holds to the end. 100svh viewport + 9.6 scroll screens = 1060svh. */}
 <div class="pc-runway" data-pc-runway></div>
 
 <style>
@@ -90,7 +90,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc__stage { position: absolute; inset: 0; overflow: hidden; }
   /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
      in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
-  .pc-runway { height: 980svh; }
+  .pc-runway { height: 1060svh; }
 
   /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
      clickable and visible after the video has faded in underneath them. */
@@ -855,8 +855,18 @@ void main() {
       document.documentElement.style.setProperty('--scan', scan.toFixed(4));
       const wallEl = document.querySelector('[data-wall-overlay]');
       if (wallEl) {
-        if (scan > 0.001) wallEl.setAttribute('data-active', '');
+        if (scan > 0.001 && scan < 0.999) wallEl.setAttribute('data-active', '');
         else wallEl.removeAttribute('data-active');
+      }
+
+      // THE CLOSE (Adrian, 2026-08-19): About Me and the engagements ask, one screen,
+      // rising over the room once the scan has left.
+      const close = smooth(clamp01((scrollY - innerHeight * 8.6) / (innerHeight * 0.4)));
+      document.documentElement.style.setProperty('--close', close.toFixed(3));
+      const closeEl = document.querySelector('[data-close-overlay]');
+      if (closeEl) {
+        if (close > 0.01) closeEl.setAttribute('data-active', '');
+        else closeEl.removeAttribute('data-active');
       }
 
       const tCam = smooth(clamp01(p / 0.45));

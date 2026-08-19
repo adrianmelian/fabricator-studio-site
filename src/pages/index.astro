@@ -36,6 +36,7 @@ import PointCloudHero from '../components/PointCloudHero.astro';
 import ToolsOverlay from '../components/ToolsOverlay.astro';
 import ArmatureOverlay from '../components/ArmatureOverlay.astro';
 import WallOverlay from '../components/WallOverlay.astro';
+import CloseOverlay from '../components/CloseOverlay.astro';
 
 // The product card art rather than a trailer frame (Adrian, 2026-08-04): it carries the
 // lockup and the tagline baked in, so the thumbnail says what the video is before a click.
@@ -150,6 +151,10 @@ const PROOF = [
   {/* THE DOWNLOAD BEAT (Adrian, 2026-08-19): the tool wall scanned into view by a climbing
       band with the download riding it. Choreography in PointCloudHero's loop. */}
   <WallOverlay />
+
+  {/* THE CLOSING BEAT (Adrian, 2026-08-19): About Me and the engagements ask, one
+      fullscreen layout over the room, after the scan has passed. */}
+  <CloseOverlay />
 
   {/* STILL STRIPPED (Adrian, 2026-08-19): one transition at a time. Armature, proof,
       DownloadBand, hire and about return from git (this branch, commit d9e73c5) as each
