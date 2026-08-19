@@ -1,5 +1,7 @@
 ---
-// /store/ — the Advanced Ribbon Modules.
+// /store/ — the studio's download hub (Adrian, 2026-08-19: every download door on the
+// site now leads HERE), with the Advanced Ribbon Modules' full pitch below as the paid
+// product's detail. DRAFT COPY on the hub cards, awaiting Adrian's pass.
 //
 // New 2026-07-22 (website overhaul). Structure follows the frozen store spec verbatim
 // (MrMiata: workspace/2026-07-22_website-posture-pass/STORE-PAGE.md, nine blocks): show the
@@ -20,6 +22,7 @@ import Footer from '../../components/Footer.astro';
 import SectionHead from '../../components/SectionHead.astro';
 import BracketButton from '../../components/BracketButton.astro';
 import ribbonHero from '../../assets/store/ribbonpack-hero.jpg';
+import { ARMATURE } from '../../data/armature';
 
 const PRICE = '$199';
 
@@ -71,9 +74,55 @@ const FAQ = [
 ---
 <BaseLayout
   title="Store | FabricatorStudio"
-  description="The Advanced Ribbon Modules: ribbon-tech spine, arm, and leg for the FabricatorStudio Maya Toolset. One payment, perpetual, and ribbon rigs animate for everyone."
+  description="Every FabricatorStudio download in one place: the free Maya Toolset, the Armature app, and the Advanced Ribbon Modules. Most of it is free."
 >
   <NavBar />
+
+  {/* THE HUB (Adrian, 2026-08-19): one place for every download. The site's Download
+      doors all lead here. Only links that exist ship (the honesty rule): Unreal tools
+      carry no door until there is one. */}
+  <section id="store-hub">
+    <SectionHead
+      eyebrow="STORE"
+      title="DOWNLOADS"
+      sub="Everything the studio ships, in one place. Most of it is free."
+    />
+    <div class="hub">
+      <div class="hub__card">
+        <p class="hub__badge hub__badge--free">Free</p>
+        <p class="hub__name">Maya Toolset</p>
+        <p class="hub__line">The free Maya suite: modular rigging, control shapes, skinning and export, in one installer.</p>
+        <div class="hub__cta">
+          <BracketButton kind="hard" installer label="Download" event="store-toolset" />
+          <a class="hub__more" href="/tools/">About the toolset</a>
+        </div>
+      </div>
+      <div class="hub__card">
+        <p class="hub__badge hub__badge--free">Free</p>
+        <p class="hub__name">Armature</p>
+        <p class="hub__line">The standalone rigging app: generative skeleton and skinning, with artist-friendly tools for refinement.</p>
+        <div class="hub__cta">
+          <BracketButton kind="hard" href={ARMATURE.installer} label="Download" event="store-armature" />
+          <a class="hub__more" href="/armature/">About Armature</a>
+        </div>
+        <p class="hub__meta">v{ARMATURE.version} · Windows</p>
+      </div>
+      <div class="hub__card">
+        <p class="hub__badge">{PRICE}</p>
+        <p class="hub__name">Advanced Ribbon Modules</p>
+        <p class="hub__line">Ribbon-tech spine, arm and leg on top of the free limbs: the deformation layer for close-up work.</p>
+        <div class="hub__cta">
+          <BracketButton kind="plasma-outline" href="#store-head" label="See the modules" event="store-ribbon" />
+        </div>
+        <p class="hub__meta">one payment, perpetual</p>
+      </div>
+      <div class="hub__card hub__card--soon">
+        <p class="hub__badge">Coming soon</p>
+        <p class="hub__name">Unreal Tools</p>
+        <p class="hub__line">Rig in Maya, land in Unreal: the engine-side half of the pipeline, in development at the studio now.</p>
+      </div>
+    </div>
+  </section>
 
   <section id="store-head">
     <SectionHead
@@ -179,6 +228,72 @@ const FAQ = [
 
   <Footer />
 </BaseLayout>
+
+<style>
+  #store-hub .hub {
+    max-width: 1080px;
+    margin: 2.5rem auto 4.5rem;
+    padding: 0 1.5rem;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+  @media (max-width: 760px) {
+    #store-hub .hub { grid-template-columns: 1fr; }
+  }
+  .hub__card {
+    position: relative;
+    background: var(--iron);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-md);
+    padding: 1.6rem 1.75rem 1.5rem;
+  }
+  .hub__card--soon { opacity: 0.62; }
+  .hub__badge {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .hub__badge--free { color: var(--plasma); }
+  .hub__name {
+    margin-top: 0.5rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: 1.9rem;
+    color: var(--bone);
+  }
+  .hub__line {
+    margin-top: 0.6rem;
+    font-weight: 300;
+    font-size: 1.02rem;
+    line-height: 1.5;
+    color: var(--bone-dim);
+    max-width: 46ch;
+  }
+  .hub__cta {
+    margin-top: 1.3rem;
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+    font-size: 0.9rem;
+  }
+  .hub__more {
+    font-weight: 300;
+    color: var(--plasma);
+    text-decoration: none;
+  }
+  .hub__more:hover { color: var(--plasma-dim); }
+  .hub__meta {
+    margin-top: 0.9rem;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    color: var(--bone-faint, var(--bone-dim));
+  }
+</style>
 
 <style>
   .st-price { display: flex; align-items: baseline; gap: 1rem; flex-wrap: wrap; margin-top: 1.5rem; }

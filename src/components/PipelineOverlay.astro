@@ -1,0 +1,169 @@
+---
+// THE PIPELINE BEAT (Adrian, 2026-08-19 second pass, from his sketch): this REPLACES the
+// tool carousel as the whole tools story. In the room, an x-ray pipe with four flanged
+// sections carries a particle stream across the screen -- raw scatter drawn in at the left,
+// a production-ready character condensing out at the right. The pipe and stream live in
+// PointCloudHero's canvas; THIS layer is the words: the title, the four section labels
+// under the pipe, and one info card at the bottom for whichever section the cursor is on.
+//
+// The bands are DOM anchors, not 3D picking: the loop projects the pipe's section bounds
+// to screen fractions every frame (--pipe-x0..x4, --pipe-yt, --pipe-yb) and the bands wear
+// them, so the labels stay glued to the pipe at any aspect. The JOURNEY drives everything:
+// the loop writes data-hover with the section under the packet (mouse hover was retired,
+// Adrian 2026-08-19 -- the scroll owns the ride), which lights that label and its card.
+//
+// DRAFT COPY: the four bodies below are placeholders for Adrian's pass; the four section
+// titles are his ruled names.
+const SECTIONS = [
+  {
+    label: 'Workflow Automation',
+    body: 'The chores leave the pipeline: batch exports, naming, scene hygiene and publish steps run themselves, so artists never babysit a process.',
+  },
+  {
+    label: 'Project Integration',
+    body: 'The tools bend to your project, not the other way around: naming conventions, folder structure and engine targets are read and respected.',
+  },
+  {
+    label: 'Rigging & Animation',
+    body: 'Fabricator and Armature carry a model from mesh to animation-ready: generative skeletons, machine-learned skinning, artist-grade controls.',
+  },
+  {
+    label: 'Unhindered Iteration',
+    body: 'Change the design at any point and rebuild in minutes. Nothing is locked and nothing is precious: iteration is the whole point.',
+  },
+];
+const bandStyle = (i: number) =>
+  `left: calc(var(--pipe-x${i}, ${0.16 + i * 0.16}) * 100%);` +
+  `width: calc((var(--pipe-x${i + 1}, ${0.32 + i * 0.16}) - var(--pipe-x${i}, ${0.16 + i * 0.16})) * 100%);`;
+---
+
+<div class="pl" data-pipeline-overlay>
+  <div class="pl__head">
+    <p class="pl__title">Studio Pipeline Tools</p>
+    <p class="pl__sub">For Artists, By Artists</p>
+  </div>
+
+  {/* The four bands, riding the projected pipe. Labels sit under their sections like the
+      sketch's brackets; the packet's position picks the lit one. */}
+  {SECTIONS.map((s, i) => (
+    <div class="pl__band" data-band={i} style={bandStyle(i)}>
+      <p class="pl__label">{s.label}</p>
+    </div>
+  ))}
+
+  {/* One card at the bottom for the section the packet is passing through. */}
+  <div class="pl__cards">
+    {SECTIONS.map((s, i) => (
+      <div class="pl__card" data-card={i}>
+        <p class="pl__card-title">{s.label}</p>
+        <p class="pl__card-body">{s.body}</p>
+      </div>
+    ))}
+  </div>
+</div>
+
+<style>
+  /* Fixed layer over the room, same grammar as the other beats; everything fades on
+     --pipe from the loop. */
+  .pl {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    visibility: hidden;
+    opacity: var(--pipe, 0);
+  }
+  .pl[data-active] { visibility: visible; }
+
+  .pl__head {
+    position: absolute;
+    left: 50%;
+    top: 7%;
+    transform: translateX(-50%);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .pl__title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3rem, 5.6vw, 5.4rem);
+    line-height: 1;
+    color: var(--ember);
+  }
+  .pl__sub {
+    margin-top: 0.6rem;
+    font-family: var(--font-mono);
+    font-size: clamp(0.85rem, 1.1vw, 1.05rem);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+
+  /* The bands: invisible strips glued to the projected pipe; their labels are the visible
+     part, hanging under each section. */
+  .pl__band {
+    position: absolute;
+    top: calc(var(--pipe-yt, 0.26) * 100%);
+    height: calc((var(--pipe-yb, 0.52) - var(--pipe-yt, 0.26)) * 100%);
+  }
+  .pl__label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 0.9rem;
+    font-family: var(--font-mono);
+    font-size: clamp(0.7rem, 0.85vw, 0.85rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    color: var(--bone-dim);
+    transition: color var(--t-fast) var(--ease-out);
+  }
+  /* The packet's section carries its label lit, in step with the hot pipe segment. */
+  .pl[data-hover='0'] [data-band='0'] .pl__label,
+  .pl[data-hover='1'] [data-band='1'] .pl__label,
+  .pl[data-hover='2'] [data-band='2'] .pl__label,
+  .pl[data-hover='3'] [data-band='3'] .pl__label { color: var(--plasma); }
+
+  /* One cell, crossfading cards; the hint holds the cell while nothing is hovered. */
+  .pl__cards {
+    position: absolute;
+    left: 50%;
+    bottom: 6%;
+    transform: translateX(-50%);
+    width: min(46rem, 80vw);
+    display: grid;
+    text-align: center;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+  }
+  .pl__cards > * {
+    grid-area: 1 / 1;
+    align-self: end;
+    opacity: 0;
+    transition: opacity 0.25s var(--ease-out);
+  }
+  .pl[data-hover='0'] [data-card='0'],
+  .pl[data-hover='1'] [data-card='1'],
+  .pl[data-hover='2'] [data-card='2'],
+  .pl[data-hover='3'] [data-card='3'] { opacity: 1; }
+
+  .pl__card-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.6rem, 2.4vw, 2.3rem);
+    color: var(--bone);
+  }
+  .pl__card-body {
+    margin-top: 0.7rem;
+    font-weight: 300;
+    font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+    line-height: 1.45;
+    color: var(--bone);
+  }
+
+  /* The cinematic never runs under 900px or in the static fallback. */
+  @media (max-width: 900px) {
+    .pl { display: none; }
+  }
+</style>

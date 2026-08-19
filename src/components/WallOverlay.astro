@@ -1,0 +1,78 @@
+---
+// THE DOWNLOAD BEAT: the scan (Adrian, 2026-08-19, corrected same day). The tool wall --
+// every FS window receding to the horizon -- stands fullscreen BEHIND the room, hidden. The
+// climbing band is a SLIT: only through it do you see the wall, the room carrying on above
+// and below, and since the wall never moves the slit reads as an x-ray aperture scanning
+// the scene. The download button rides the slit's middle, sitting on the wall it shows.
+import { Image } from 'astro:assets';
+import BracketButton from './BracketButton.astro';
+import wall from '../assets/wall/FS_Tool_Wall.png';
+---
+
+<div class="wl" data-wall-overlay>
+  {/* The wall: static, fullscreen, clipped to below the band's trailing edge. */}
+  <div class="wl__wall">
+    <Image src={wall} alt="" widths={[1600, 2560, 3162]} sizes="100vw" loading="lazy" />
+  </div>
+
+  {/* The scanner: an opaque band that climbs with the scroll, the download riding it. */}
+  <div class="wl__band">
+    <BracketButton kind="hard" href="/store/" label="Downloads" event="scan-download" />
+    <BracketButton kind="plasma-outline" href="/services/" label="Services" event="scan-services" />
+  </div>
+</div>
+
+<style>
+  /* Fixed layer over the room (canvas z0) and the dead video (z1); under the copy layer
+     (z3) and nav. Driven entirely by --scan (0..1) from the loop. */
+  .wl {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    visibility: hidden;
+    /* The band spans 16svh; its top runs from just past the bottom of the screen (108%)
+       to fully above the top (-18%). One variable places everything. */
+    --band-h: 16svh;
+    --band-top: calc((1.08 - 1.26 * var(--scan, 0)) * 100%);
+  }
+  .wl[data-active] { visibility: visible; }
+  .wl[data-active] :is(a, button) { pointer-events: auto; }
+
+  .wl__wall {
+    position: absolute;
+    inset: 0;
+    /* Visible ONLY through the slit: clipped above the band's top edge and below its
+       bottom edge. The image never moves; the aperture does. */
+    clip-path: inset(var(--band-top) 0 calc(100% - var(--band-top) - var(--band-h)) 0);
+  }
+  .wl__wall :global(img) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .wl__band {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: var(--band-top);
+    height: var(--band-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    /* No fill: the wall IS the band's interior. The edges are the aperture. */
+    background: none;
+    border-top: 1.5px solid var(--plasma);
+    border-bottom: 1.5px solid var(--plasma);
+    box-shadow: 0 -5px 20px rgba(124, 255, 178, 0.18), 0 5px 20px rgba(124, 255, 178, 0.18);
+    font-size: 1rem;
+  }
+
+  /* The cinematic never runs under 900px or in the static fallback. */
+  @media (max-width: 900px) {
+    .wl { display: none; }
+  }
+</style>

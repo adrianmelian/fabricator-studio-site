@@ -247,3 +247,45 @@ dialog.product-pop { box-shadow: var(--shadow-lg); }
     }
   }
 }
+
+/* ===== PANELS OVER THE 3D BACKDROP (Adrian, 2026-08-19) =====
+   The page is not content scrolling past a hero. The point-cloud scene is a FIXED backdrop
+   that never scrolls away, and every section after it rises over that scene, fades in, and
+   settles. The room stays; the panels arrive in it.
+
+   `--enter` runs 0 to 1 and is written per frame by the backdrop's own rAF loop, which is
+   already running: one loop owns where the page is, so there is no observer keeping a second
+   opinion. Default 1, so a panel is fully visible if the script never runs at all. */
+[data-panel] {
+  position: relative;
+  z-index: 1;
+  opacity: var(--enter, 1);
+  transform: translateY(calc((1 - var(--enter, 1)) * 44px)) scale(calc(0.985 + var(--enter, 1) * 0.015));
+  /* The plate is what makes a panel read as taking over the screen rather than floating on
+     it. Between panels the gap lets the grid show through, which is the whole point. */
+  background: rgba(11, 14, 16, 0.88);
+  backdrop-filter: blur(8px) saturate(115%);
+  border-top: 1px solid rgba(232, 224, 208, 0.07);
+  border-bottom: 1px solid rgba(232, 224, 208, 0.07);
+  will-change: opacity, transform;
+}
+
+/* Tests the STANDARD property only: ORing in the -webkit- alias would read true on an older
+   Safari that supports the alias while the build emits no alias, leaving it see-through. */
+@supports not (backdrop-filter: blur(1px)) {
+  [data-panel] { background: rgba(11, 14, 16, 0.96); }
+}
+
+/* The gap between panels IS the backdrop. Without it the plates butt together and the scene
+   behind them is never seen again after the opening. */
+[data-panel] + [data-panel],
+[data-panel] + section,
+section + [data-panel] { margin-top: var(--sp-8); }
+
+/* The hero video panel is the first arrival and it is full-bleed, so it carries no plate of
+   its own: the footage is the panel. */
+#hero[data-panel] { background: none; backdrop-filter: none; border: 0; }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-panel] { opacity: 1; transform: none; transition: none; }
+}

@@ -1,566 +1,89 @@
 ---
-// The Armature product landing page (2026-07-28). Lives at /armature, which is the URL the
-// vertical teaser ends on.
+// The Armature page, STRIPPED for the story-pass rebuild (Adrian, 2026-08-19): like the
+// homepage's first pass, beats return one at a time from here. What survives the strip is
+// his list -- the x-ray man landing shot, the FS+Armature lockup (centred now), the
+// Download for Windows / Read the docs doors, and the reassure line -- plus the licence
+// picker dialog those doors need (copy verbatim per COPY-LAUNCH.md, ruling 2026-07-28b)
+// and the page's own footer (it carries the Kubold credit).
 //
-// SOURCE OF TRUTH for every copy block: MrMiata workspace/2026-07-28_armature-landing/
-// PROMPT-CLAUDE-DESIGN.md. That file carries Adrian's approved wording and the copy law that
-// goes with it: the layout bends around the copy, never the other way. Edit there first.
-//
-// THE NAVBAR IS ON THIS PAGE (Adrian, 2026-07-28), reversing the chromeless build. The
-// argument for leaving it off was that a visitor arriving cold from a 15 second video gets
-// eight ways to leave before learning what the product is. The argument that won: someone who
-// lands here from a video and DOES want the rest of the studio should not have to guess, and
-// this page is now linked from the homepage, so it is part of the site rather than a detached
-// landing page.
-//
-// THE EMAIL FORM IS NOT LIVE UNTIL ML_ACTION BELOW IS FILLED IN. See the note on it.
-//
-// COPY REVISIONS since the design prompt are listed in that task folder's PORT.md. The prompt
-// is the original brief; PORT.md is what actually shipped.
+// EVERYTHING REMOVED IS IN GIT (this branch, commit 1320656 and earlier): the workflow
+// stages, walkthroughs, verified panel, spine rail, reveals, teaser reel and its dialog.
+// Copy law unchanged: wording comes from the depot task folders, layout bends around it.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArmatureStage from '../../components/ArmatureStage.astro';
 import NavBar from '../../components/NavBar.astro';
 import Wordmark from '../../components/Wordmark.astro';
 import { Image } from 'astro:assets';
 
-// The [FS monogram] + [ToolName] lockup (DNA principle 7), source Icons/fs_armature.png in
-// the FabricatorStudio repo. Supersedes the bare Armature wordmark used earlier.
-import wordmark from '../../assets/armature/armature-lockup.png';
-import stageLoad from '../../assets/armature/stage-load.png';
+import fsMark from '../../assets/armature/fs-mark.png';
 import stageFit from '../../assets/armature/stage-fit.png';
 import stageSkeleton from '../../assets/armature/stage-skeleton.png';
 import stageSkin from '../../assets/armature/stage-skin.png';
-import stageExport from '../../assets/armature/stage-export.png';
-import portrait from '../../assets/about/adrian.png';
 import heroProduct from '../../assets/armature/hero-product.png';
-import fsMark from '../../assets/armature/fs-mark.png';
-import armWordmark from '../../assets/armature/armature-wordmark.png';
 
-// LAUNCH BLOCK (2026-08-03, R10). The early-access MailerLite signup is retired: the product
-// is out, so both signup instruments became download instruments. The launch config (update
-// feed, installer URL, SHA-256, the LIVE Stripe link) lives in src/data/armature.ts; the
-// picker rows are data-driven there so the education grant lands as a third row without a
-// page rewrite. Picker and SmartScreen copy: MrMiata
-// workspace/2026-07-30_armature-launch-dispatch/COPY-LAUNCH.md, shipped verbatim.
-import { ARMATURE, PICKER_ROWS, INSTALLER_NAME, MAYA_CONTROL_RIG } from '../../data/armature';
+import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../../data/armature';
 import { ARMATURE_TUTORIALS as WALKTHROUGHS } from '../../data/tutorials';
 
 const TITLE = 'Armature, by FabricatorStudio';
-// Tracks the hero sentence. The old description quoted copy that is no longer on the page.
-// Tracks the hero, so it moves whenever the hero copy does.
 const DESCRIPTION =
   'Speed for the Devs. Depth for the Artists. AI rigging and skinning with tools to make production-ready rigs. Free for indies.';
-
-// SEVEN sections since the cards band was cut (2026-08-01 evening), so eight joints (one
-// per boundary, plus the closing one) and seven bones. These counts are not decorative: the
-// script places joints from real [data-spine-section] offsets, so an added section with a
-// stale count silently loses its joint and its bone, and a removed one leaves stray markers.
-const SPINE_JOINTS = 8;
-const SPINE_BONES = 7;
-
-const STAGES = [
-  {
-    key: 'load',
-    label: 'LOAD',
-    // R14 version B, unlocked by R29 (2026-08-02): USD import proven on the shipping build,
-    // on a clean machine, from the public artifact. The docs surfaces carry the (mesh only)
-    // qualifier via the USD_IMPORT flag; this line stays as R14 wrote it.
-    text: 'Drop in your character. Armature reads USD, OBJ, FBX, GLB and glTF, and everything leaves as USD.',
-    img: stageLoad,
-    alt: 'The Armature start screen, with recent characters and a drop target for a character mesh',
-  },
-  {
-    key: 'fit',
-    label: 'FIT',
-    text: 'Orient and size the character so symmetry and placement behave.',
-    img: stageFit,
-    alt: 'The Fitting Room in Armature, sizing an armoured knight character against a height reference',
-  },
-  {
-    key: 'skeleton',
-    label: 'SKELETON',
-    // "creature" cut 2026-07-28 (Adrian): the module library ships Biped, Quadruped, Root and
-    // Prop, so the screenshot beside this line contradicted the word.
-    text: 'Start from a biped, quadruped, or prop template, or build from nothing. Live symmetry, limb duplication, chain editing, and a finger count you state instead of the machine guessing.',
-    img: stageSkeleton,
-    alt: 'The Skeleton stage in Armature, with a joint chain placed through an armoured knight and the module library open',
-  },
-  {
-    key: 'skin',
-    label: 'SKIN',
-    text: 'Two local engines: one solves on any machine in seconds, the AI one runs on your GPU for the best weights. Then a full painting suite with layers and non-destructive passes for when you want to fix them by hand.',
-    img: stageSkin,
-    alt: 'The Skin stage in Armature, showing generated weights on an armoured knight with the influence list and weight brush',
-  },
-  {
-    key: 'export',
-    label: 'EXPORT',
-    // "together" cut 2026-07-31 (end a line earlier): "one file" already says it, so the word
-    // only answered a worry the reader did not have about things arriving separately.
-    text: 'One USD file carrying mesh, skeleton, weights, and Control Rig build data.',
-    img: stageExport,
-    alt: 'The Export panel in Armature, with its pre-export checks passing for an armoured knight',
-  },
-];
 ---
-
-<BaseLayout title={TITLE} description={DESCRIPTION} ogImage="og-armature-2026-08.jpg">
-  <a class="skip-link" href="#main">Skip to content</a>
-
+<BaseLayout title={TITLE} description={DESCRIPTION}>
   <NavBar />
 
-  {/* Marks the document as scripted BEFORE first paint. Every scroll reveal starts at
-      opacity 0 and is switched on by IntersectionObserver, so without this flag a reader with
-      JS disabled gets a hero and six blank screens. Gated in CSS on html.js. */}
-  <script is:inline>
-    document.documentElement.classList.add('js');
-  </script>
+  <main>
+    {/* THE RUNWAY (Adrian, 2026-08-19): the creation story's scroll. It only grows to
+        cinematic length when the stage goes live; the fallback keeps a one-screen page. */}
+    <div class="ast-scroll" data-ast-scroll>
+    <header class="ast-hero hero--art">
+      {/* The static art is the FALLBACK: under 900px, reduced motion, or no WebGL2 the
+          stage never goes live and this stays the backdrop. */}
+      <Image
+        class="hero__art"
+        src={heroProduct}
+        alt="Armature: a samurai, a dog and a squid, all rigged in the app"
+        widths={[1280, 1920, 2560]}
+        sizes="100vw"
+        loading="eager"
+      />
+      <div class="hero__scrim" aria-hidden="true"></div>
 
-  <div class="shell">
-    {/* The page skeleton: one continuous cobalt line, a joint at every section boundary. It is
-        drawn in markup rather than built by script so it still renders with JS disabled, and so
-        Astro's scoped styles reach it. */}
-    <div class="spine" id="spine" aria-hidden="true">
-      <div class="spine__track"></div>
-      <div class="spine__draw" id="spine-draw"></div>
-      {Array.from({ length: SPINE_BONES }).map(() => <span class="bone"></span>)}
-      {Array.from({ length: SPINE_JOINTS }).map(() => <span class="joint"></span>)}
-    </div>
+      {/* THE LANDING SHOT: the homepage's post-scan frame, the height man solid in the
+          x-ray fresnel, standing in the starred room. Elastic orbit on drag. */}
+      <ArmatureStage />
 
-    <main id="main">
-      {/* 1. HERO — full-bleed product art with the page furniture arranged on its flanks
-             (Adrian, 2026-08-01). The ART carries the headline and "You drive." baked at its
-             centre; the FS mark and the Armature wordmark are layered LIVE above them (Adrian's
-             call, evening pass: the new art ships without logos so the marks stay crisp and
-             swappable). The h1 stays screen-reader only, which keeps the page's one real
-             heading for search and assistive tech without printing the headline twice.
-
-             Everything is positioned against the artwork's own composition: dark gradient down
-             the left flank for the copy, the squid on the right for the video, the baked
-             centre text with the buttons beneath it. */}
-      <header class="section hero hero--art">
-        <Image
-          class="hero__art"
-          src={heroProduct}
-          alt="Armature: a samurai, a dog and a squid, all rigged in the app"
-          widths={[1280, 1920, 2560]}
-          sizes="100vw"
-          loading="eager"
-        />
-        {/* Legibility, not decoration: the art is bright in the middle and the copy sits over
-            its flanks, so each side gets a carbon gradient to guarantee contrast at any crop. */}
-        <div class="hero__scrim" aria-hidden="true"></div>
-
-        {/* The live lockup: FS mark over the Armature wordmark, anchored to the art's top
-            left (Adrian, 2026-08-01 evening: centred it obscured the baked headline). The
-            wrapper mirrors the art box (16:9 in flow on phones, full-bleed cover on desktop)
-            so the corner seat scales with the art. Decorative: the h1 and the nav already
-            carry the name for assistive tech. */}
-        <div class="hero__lockup" aria-hidden="true">
-          <div class="hero__lockup-stack">
-            <Image class="hero__lockup-mark" src={fsMark} alt="" widths={[120, 240, 338]} sizes="(min-width: 720px) 6vw, 10vw" />
-            <Image class="hero__lockup-word" src={armWordmark} alt="" widths={[300, 600, 1066]} sizes="(min-width: 720px) 16vw, 26vw" />
-          </div>
+      {/* The left column (Adrian, 2026-08-19): the lockup off to the left with his three
+          ruled lines under it. The man holds the centre. A fourth line is HELD pending his
+          call on its register. */}
+      <div class="ast-hero__intro">
+        {/* The colourful Armature wordmark is retired (Adrian, 2026-08-19: phasing it
+            out); the mark stays and the title carries the name in type. The title is the
+            page's real h1 now that it is visible. */}
+        <div class="ast-hero__lockup" aria-hidden="true">
+          <Image class="ast-hero__lockup-mark" src={fsMark} alt="" widths={[120, 240, 338]} sizes="8vw" />
         </div>
+        <h1 class="ast-hero__tagline"><span class="ast-ember">Armature:</span> Rigging &amp; Skinning Re&#8209;imagined.</h1>
+        <p class="ast-hero__line">Generative joint placement and skin binding.</p>
+        <p class="ast-hero__line"><span class="ast-hero__plus">+</span> Artist-friendly tools for production quality refinement.</p>
+      </div>
 
-        {/* Pinned to the art's top right corner, mirroring the lockup's seat on the left
-            (Adrian, 2026-08-01 evening). Lives outside the stage grid so it stays put while
-            the stage packs its content to the fold. */}
-        <p class="hero__pill">
-          <span class="pill"><span class="pill__dot"></span>Out now &middot; {ARMATURE.version}</span>
-        </p>
-
-        {/* The silent vertical teaser, pinned to the right edge under the pill (Adrian,
-            2026-08-01 evening; it lived mid-flank over the squid before). The product in
-            motion is what a still cannot do. Clicking it opens the full trailer. On phones
-            it flows in the column under the art instead of floating over it. */}
-        <div class="hero__flank hero__flank--right reveal r5">
-          <figure class="hero__reel">
-            <video
-              id="teaser-loop"
-              src="/armature/teaser.mp4"
-              poster="/armature/teaser-poster.jpg"
-              muted
-              loop
-              playsinline
-              autoplay
-              preload="metadata"
-              aria-hidden="true"></video>
-            <button class="shot-open shot-open--overlay" type="button" data-teaser-open aria-label="Watch the Armature trailer">
-              <span class="shot-open__badge shot-open__badge--play" aria-hidden="true">&#9654;</span>
-            </button>
-          </figure>
-        </div>
-
-        <div class="hero__stage">
-          <h1 class="sr-only">Artist+AI Rigging</h1>
-
-          <div class="hero__flank hero__flank--left reveal r3">
-            <p class="hero__lede"><b>Speed for the Devs. Depth for the Artists.</b></p>
-            <p class="hero__sub">
-              High end character rigging has always lived inside expensive applications.
-              Armature is for the indie dev who cannot justify one, and the veteran rigger who
-              wants to move faster.
-            </p>
-          </div>
-
-          <div class="hero__actions reveal r6">
-            <div class="getblock__actions">
-              <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
-                Download for Windows
-              </button>
-              <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-hero">
-                Read the docs
-              </a>
-            </div>
-            <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
-              {/* The dialog needs script to open; without it the same rows render as links. */}
-              <noscript>
-                <ul class="picker__rows picker__rows--inline">
-                  {PICKER_ROWS.map((row) => (
-                    <li class="picker__row">
-                      <div class="picker__copy">
-                        <p class="picker__name"><b>{row.name}.</b> <span class="picker__price">{row.price}.</span></p>
-                        <p class="picker__line">{row.line}</p>
-                      </div>
-                      {row.cta === 'download' ? (
-                        <a class="btn picker__cta" href={ARMATURE.installer} data-goatcounter-click={row.event}>Download</a>
-                      ) : ARMATURE.stripeCommercial ? (
-                        <a class="btn picker__cta" href={ARMATURE.stripeCommercial} data-goatcounter-click={row.event}>Continue to checkout</a>
-                      ) : (
-                        <button class="btn picker__cta" type="button" disabled>Continue to checkout</button>
-                      )}
-                    </li>
-                  ))}
-                </ul>
-              </noscript>
-
-          </div>
-        </div>
-      </header>
-
-      {/* The cards band is gone (Adrian, 2026-08-01 evening): the SmartScreen pre-empt lives
-          in the download picker now, and the USD/control-rig card was cut — the VERIFIED
-          panel and the docs already carry that claim, both still wired to MAYA_CONTROL_RIG. */}
-
-      {/* 2. THE WORKFLOW */}
-      <section class="section workflow" data-spine-section aria-labelledby="workflow-title">
-        <div class="wrap">
-          <div class="workflow__head reveal">
-            <p class="eyebrow">The workflow</p>
-            <h2 class="section-title" id="workflow-title">Five stages, one app.</h2>
-            {/* The thesis, worded for this surface (SPEC-SITE-LAUNCH item 1): the AI half and
-                the artist half, stated where the stages are about to demonstrate both. */}
-            <p class="workflow__thesis">
-              The AI half takes a mesh to a working rig in minutes. The artist half is a full
-              set of professional tools for pushing that rig to production level. Every stage
-              below carries both.
-            </p>
-          </div>
-
-          <ol class="stages">
-            {
-              STAGES.map((stage, i) => (
-                <li class="stage" data-stage>
-                  <div class="stage__rail" aria-hidden="true">
-                    <span class="stage__joint"></span>
-                    <span class="stage__bone"></span>
-                  </div>
-                  <div class="stage__body">
-                    <p class="stage__index">{String(i + 1).padStart(2, '0')}</p>
-                    <p class="stage__text">
-                      <b>{stage.label}:</b> {stage.text}
-                    </p>
-                  </div>
-                  <figure class="slot stage__shot">
-                    <button
-                      class="shot-open"
-                      type="button"
-                      data-shot={stage.key}
-                      aria-label={`Enlarge the ${stage.label} screenshot`}
-                    >
-                      <Image src={stage.img} alt={stage.alt} widths={[640, 1280]} sizes="(min-width: 1100px) 40vw, 92vw" />
-                      <span class="shot-open__badge" aria-hidden="true">+</span>
-                    </button>
-                    <figcaption class="slot__tag">{stage.label}</figcaption>
-                  </figure>
-                </li>
-              ))
-            }
-          </ol>
-
-          {/* At the size these sit on the page the panels are texture, not reading material, so
-              each one opens full size. Native <dialog>: Escape, focus trapping and focus return
-              are the platform's job rather than hand-rolled JS. The full-size Image is lazy and
-              lives inside a CLOSED dialog, so nothing downloads until a reader opens one. */}
-          {
-            STAGES.map((stage) => (
-              <dialog class="shot-dialog" id={`shot-${stage.key}`} aria-label={`${stage.label} stage, full size`}>
-                <div class="shot-dialog__inner">
-                  <Image src={stage.img} alt={stage.alt} widths={[1920]} sizes="94vw" loading="lazy" />
-                  <p class="slot__tag shot-dialog__tag">{stage.label}</p>
-                  <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
-                    <span aria-hidden="true">✕</span>
-                  </button>
-                </div>
-              </dialog>
-            ))
-          }
-        </div>
-      </section>
-
-      {/* 2b. THE WALKTHROUGHS (2026-07-30). Three full builds, placed after the workflow so a
-          reader has the vocabulary for what they are watching, and before the proof panel so
-          the evidence section still lands last. Cards are click-to-YouTube with self-hosted
-          thumbnails: nothing reaches Google until a visitor asks. */}
-      <section class="section walkthroughs" data-spine-section aria-labelledby="walk-title">
-        <div class="wrap">
-          <div class="reveal">
-            <p class="eyebrow">Walkthroughs</p>
-            <h2 class="section-title" id="walk-title">Three characters, start to finish.</h2>
-          </div>
-          <div class="walk-grid">
-            {WALKTHROUGHS.map((w) => (
-              <a class="walk reveal" href={w.href} target="_blank" rel="noopener">
-                <figure class="walk__shot">
-                  <img src={w.thumb} alt="" loading="lazy" />
-                  <span class="walk__play" aria-hidden="true">&#9654;</span>
-                </figure>
-                <p class="walk__name">{w.name}</p>
-                <p class="walk__sub">{w.sub}</p>
-              </a>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* 3. BUILT FOR PRODUCTION */}
-      <section class="section status" data-spine-section aria-labelledby="status-title">
-        <div class="wrap">
-          <div class="reveal">
-            <p class="eyebrow">Status</p>
-            <h2 class="section-title" id="status-title">Built for Production</h2>
-          </div>
-
-          <div class="status__grid">
-            <div class="status__panels">
-              <div class="panel reveal">
-                <p class="panel__head"><span class="pill"><span class="pill__dot"></span>Verified</span></p>
-                {/* SHIPPED vs DEMONSTRATED, separated 2026-07-31 per R25. This panel used to
-                    read "The Fabricator Maya and Unreal Control Rigs are built procedurally",
-                    which is true of the footage and false as an instruction: the Maya builder
-                    ships with the toolset, the Unreal one does not yet. A reader who watches
-                    the clip, downloads, and cannot reproduce the second half concludes they
-                    were sold something, which is the most expensive first impression there is.
-                    The USD claim is unchanged because it is true for both engines. */}
-                {/* Ends a line earlier (Adrian's rule, 2026-07-31). It used to end "with joint
-                    orientations intact", which a rigger already assumes must be true, so
-                    stating it invites "why are you telling me, does it usually not?" */}
-                <p class="panel__text">
-                  The exported USD imports into both Unreal and Maya.
-                </p>
-                {/* The round trip, added 2026-08-04 once both halves shipped: toolset 1.3.0
-                    writes USD out of Maya, and Armature 2.1.0 opens a rigged USD with its
-                    skeleton and weights intact. Every surface until now described one
-                    direction, which undersold the pipeline by half. */}
-                <p class="panel__text">
-                  It reads one back in, too. The <a href="/tools/">Fabricator toolset</a> writes
-                  USD out of Maya, and Armature opens it with the skeleton and skin weights
-                  intact, so a character you rigged years ago can come back for new weights and
-                  go out again.
-                </p>
-                {MAYA_CONTROL_RIG ? (
-                  <p class="panel__text">
-                    In Maya, that same free toolset reads an Armature export and builds the
-                    control rig for you. The Unreal control rig in this clip was built
-                    procedurally from the same export data, and its builder is what we are
-                    working on next.
-                  </p>
-                ) : (
-                  <p class="panel__text">
-                    Both control rigs in this clip were built procedurally from that same export
-                    data. The builders that do it are what we are working on next.
-                  </p>
-                )}
-              </div>
-            </div>
-
-            {/* The control-rig clip, shared with the homepage proof card (Adrian, 2026-07-30),
-                replacing the static Unreal still. It shows the same character and rig in Maya
-                and then in Unreal, which is the claim this panel makes, and a still could only
-                ever show one of the two.
-
-                Poster by default, loop on hover or keyboard focus, NOT autoplay: the hero on
-                this page already autoplays the teaser, and preload="none" means a reader who
-                never hovers pays nothing. Same convention as the homepage cards, including
-                bailing entirely on touch and under reduced motion, where the poster is the
-                whole experience. */}
-            <figure class="slot status__proof reveal" id="proof-clip">
-              <video
-                class="status__vid"
-                src="/proof/proof-controlrig.mp4"
-                poster="/proof/proof-controlrig.jpg"
-                muted
-                loop
-                playsinline
-                preload="none"
-                aria-label="The same character and control rig shown in Maya and then in Unreal, both generated from one Armature export."
-              ></video>
-              {/* Always visible, not hover-revealed: a hover-to-play clip that gives no hint
-                  it can play reads as a still. Same bottom-right magma badge as the
-                  walkthrough cards above, so "this moves" looks the same everywhere here.
-
-                  The PROOF tag was removed 2026-07-30 (Adrian): the clip has both logos and
-                  both rigs in frame, so a label sitting on top of it was spending attention
-                  on something the picture already says. */}
-              <span class="status__play" aria-hidden="true">&#9654;</span>
-            </figure>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. THE PILLAR */}
-      <section class="section pillar" data-spine-section aria-labelledby="pillar-title">
-        <div class="wrap">
-          <h2 class="mantra" id="pillar-title">
-            <span>Design the look.</span>
-            <span>Design the motion.</span>
-            <span>The pipeline does the rest.</span>
-          </h2>
-
-          <div class="pillar__copy reveal">
-            <p>
-              A character pipeline holds two acts of authorship. The look, which is concept. The
-              motion, which is where the joints go. Everything after that is execution: weights,
-              rig assembly, export, engine ingest.
-            </p>
-            <p>
-              Where a joint sits decides how a character bends, where it creases, and what
-              silhouettes it can reach. The industry files that under technical setup, which is why
-              it is the step that gets rushed. Armature automates everything around it so you
-              focus on the part that matters.
-            </p>
-          </div>
-
-          <p class="pillar__note reveal">A skeleton is the blueprint of motion.</p>
-        </div>
-      </section>
-
-      {/* 5. WHO BUILT IT */}
-      <section class="section studio" data-spine-section aria-labelledby="studio-title">
-        <div class="wrap">
-          <div class="reveal">
-            <p class="eyebrow">FabricatorStudio</p>
-            <h2 class="section-title" id="studio-title">Who built it.</h2>
-          </div>
-
-          <div class="studio__grid">
-            <figure class="slot studio__portrait reveal">
-              <Image
-                src={portrait}
-                alt="Adrian Melian, the technical artist behind FabricatorStudio"
-                widths={[400, 800]}
-                sizes="(min-width: 720px) 34vw, 280px"
-              />
-            </figure>
-
-            <div class="studio__copy reveal">
-              <p>
-                FabricatorStudio is a one-person technical art studio. I am a technical artist with
-                fourteen years in the game industry. I joined Sledgehammer Games as a Senior
-                Technical Artist on Call of Duty: Vanguard and was promoted to Lead for Modern
-                Warfare III, where I led the Character Tech Art team and the Weapons Tech Art team.
-                Before and after that, Camouflaj, Double Fine, Ubisoft, and NCSoft.
-              </p>
-              {/* Keep "at" and the link on ONE line. Astro trims the whitespace at the start of
-                  a wrapped line, so a newline before an inline tag welds it to the word above. */}
-              <p>
-                The Maya pipeline I built is already free and public at <a href="https://fabricator.studio">fabricator.studio</a>. Armature is the same
-                work, done again for people who do not have Maya.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 6. WHAT IT COSTS */}
-      <section class="section pricing" data-spine-section aria-labelledby="pricing-title">
-        <div class="wrap">
-          <div class="reveal">
-            <p class="eyebrow">Pricing</p>
-            <h2 class="section-title" id="pricing-title">What it costs.</h2>
-          </div>
-          <p class="pricing__lede reveal">
-            Free for personal, learning, and portfolio work, and free for commercial work under
-            $100k a year. If you qualify for Maya Indie, Armature is free. Above that it is <b>$149 per artist, once</b>, with a year of updates.
-          </p>
-          <p class="pricing__note reveal">
-            Armature is a new standalone application. It is not the Armature step inside the Maya
-            toolset, and it is not part of that free download.
-          </p>
-          {/* A132. */}
-          <p class="pricing__contact reveal">
-            Bringing an existing rig into Armature? <a href="mailto:adrian@fabricator.studio?subject=Armature%3A%20existing%20rig">Talk to us</a>.
-          </p>
-        </div>
-      </section>
-
-      {/* 7. CLOSE */}
-      <section class="section close" data-spine-section aria-labelledby="close-title">
-        <div class="wrap">
-          <h2 class="close__title reveal" id="close-title">Armature is out.</h2>
-
-          <div class="getblock reveal">
-            {/* Same pair as the hero. A reader who got this far without downloading is exactly
-                the one who wants to read first, so the second door belongs here most of all.
-                Its own event name, so the two positions stay measurable apart. */}
-            <div class="getblock__actions">
-              <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
-                Download for Windows
-              </button>
-              <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-close">
-                Read the docs
-              </a>
-            </div>
-            <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
-          </div>
-        </div>
-      </section>
-      {/* The silent inline loop is the 24-second teaser, which is what it was built for. The
-          click opens the 86-second VOICEOVER trailer, which is a watch asset, not a loop, and
-          lives on YouTube so the channel gets the view.
-
-          Nothing reaches Google until this dialog opens, because the iframe is created then and
-          not before. That is also why Google sits in the /privacy processor table: once a
-          visitor can open this, they can be tracked by it. */}
-      <dialog class="shot-dialog shot-dialog--video" id="teaser-dialog" aria-label="Armature trailer">
-        <div class="shot-dialog__inner shot-dialog__inner--video" id="trailer-mount">
-          <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
-            <span aria-hidden="true">✕</span>
+      <div class="ast-hero__actions">
+        <div class="getblock__actions">
+          <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+            Download for Windows
           </button>
+          <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-hero">
+            Read the docs
+          </a>
         </div>
-      </dialog>
-
-      {/* The licence picker (COPY-LAUNCH.md §2, verbatim; ruling 2026-07-28b). Download opens
-          this rather than downloading. Eligibility leads, price follows: a user reading these
-          cannot pick wrongly by accident. Rows are data-driven from src/data/armature.ts so
-          the education grant lands as a third row without touching this markup. The selection
-          here is a default; the installer's click-through selection is the operative one
-          (EULA §3.4). */}
-      <dialog class="shot-dialog picker" id="picker-dialog" aria-labelledby="picker-title">
-        <div class="picker__inner">
-          <p class="picker__head" id="picker-title">Download Armature {ARMATURE.version}</p>
-          {/* R19: the refund line does its job by reducing hesitation AT the checkout, so it
-              sits inside the picker, above the Commercial button, rather than only on the
-              pricing page a buyer may never revisit. On the page, never in the licence: here
-              it stays a page edit, in a contract it becomes an amendment. */}
-          <p class="picker__refund">Fourteen days, no questions. If Armature is not what you needed, email us within fourteen days of buying and we will refund you.</p>
-          <ul class="picker__rows">
+        <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
+        {/* The dialog needs script to open; without it the same rows render as links. */}
+        <noscript>
+          <ul class="picker__rows picker__rows--inline">
             {PICKER_ROWS.map((row) => (
               <li class="picker__row">
                 <div class="picker__copy">
-                  <p class="picker__name">
-                    <b>{row.name}.</b> <span class="picker__price">{row.price}.</span>
-                  </p>
+                  <p class="picker__name"><b>{row.name}.</b> <span class="picker__price">{row.price}.</span></p>
                   <p class="picker__line">{row.line}</p>
                 </div>
                 {row.cta === 'download' ? (
@@ -568,235 +91,171 @@ const STAGES = [
                 ) : ARMATURE.stripeCommercial ? (
                   <a class="btn picker__cta" href={ARMATURE.stripeCommercial} data-goatcounter-click={row.event}>Continue to checkout</a>
                 ) : (
-                  // The live payment link is seated at the cut (Aug 1). An empty config value
-                  // degrades to a visibly disabled control, never a dead href.
                   <button class="btn picker__cta" type="button" disabled>Continue to checkout</button>
                 )}
               </li>
             ))}
           </ul>
-          {/* The SmartScreen pre-empt, at the point of download (Adrian, 2026-08-01 evening;
-              it was a page card before, with two explanation paragraphs he cut). The person
-              reading this just pressed Download, so it carries only the two things they need:
-              the click path past the warning, and the hash to verify against. */}
-          <aside class="smartscreen smartscreen--picker" aria-labelledby="smartscreen-title">
-            <h3 class="smartscreen__title" id="smartscreen-title">Windows will warn you the first time you run this</h3>
-            {/* "Click <b>" stays on ONE line: Astro trims the whitespace before an inline
-                tag at the start of a wrapped line and welds the word to the tag. */}
-            <p>
-              Armature is a new installer from a new publisher, so Windows SmartScreen shows a
-              blue "Windows protected your PC" screen the first time you open it. Click <b>More info</b>, then <b>Run anyway</b>.
-            </p>
-            <pre class="smartscreen__code"><code>Get-FileHash .\{INSTALLER_NAME} -Algorithm SHA256</code></pre>
-            {ARMATURE.sha256 ? (
-              <p class="smartscreen__hash">SHA-256: <code>{ARMATURE.sha256}</code></p>
-            ) : (
-              <p class="smartscreen__hash">SHA-256: <code>published at release</code></p>
-            )}
-          </aside>
-          <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
-            <span aria-hidden="true">✕</span>
-          </button>
-        </div>
-      </dialog>
-    </main>
+        </noscript>
+      </div>
 
-    <footer class="footer">
-      <div class="footer__inner">
-        {/* The signature treatment, not plain bold type (brand DNA section 4). */}
-        <p class="footer__wordmark"><Wordmark /></p>
-        <div class="footer__meta">
-          <nav class="footer__links" aria-label="Footer">
-            <a href="https://fabricator.studio">fabricator.studio</a>
-            <a href="/privacy/">Privacy</a>
-            <a href="/armature/eula/">EULA</a>
-          </nav>
-          {/* This page has its own footer rather than the shared component, so the site-wide
-              Kubold credit does not reach it. It matters most here: the trailer and the
-              character reels on this page are where the animations actually play. */}
-          <p class="footer__legal">&copy; 2026 FabricatorStudio LLC &middot; Animations by <a href="https://www.kubold.com" target="_blank" rel="noopener">Kubold</a></p>
+      {/* THE STORY'S COPY BEATS -- DRAFT except the stage names (Adrian's, 2026-08-19).
+          The app's stages, told on the left flank: Fitting Room / Skeleton / Skinning /
+          alive. One cell, crossfading with their scenes. */}
+      <div class="ast-beats" aria-hidden="true">
+        <div class="ast-beat" style="opacity: var(--ab1, 0)">
+          <p class="ast-beat__head"><span class="ast-ember">Fitting</span> Room</p>
+          <p class="ast-beat__line">Fit your character to size so symmetry and placement behave.</p>
+          <Image class="ast-beat__img" src={stageFit} alt="" widths={[420, 840]} sizes="26vw" />
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab2, 0)">
+          <p class="ast-beat__head"><span class="ast-ember">Generative</span> Skeleton Placement</p>
+          <p class="ast-beat__line">Auto fit the joints to your model, automatically named and oriented correctly.</p>
+          <Image class="ast-beat__img" src={stageSkeleton} alt="" widths={[420, 840]} sizes="26vw" />
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab3, 0)">
+          <p class="ast-beat__head"><span class="ast-ember">Generative</span> Skin Binding</p>
+          <p class="ast-beat__line">Machine learned skinning binds any type of mesh.</p>
+          <Image class="ast-beat__img" src={stageSkin} alt="" widths={[420, 840]} sizes="26vw" />
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab4, 0)">
+          <p class="ast-beat__head"><span class="ast-ember">Animation</span> Ready in Minutes</p>
+          <p class="ast-beat__line">Go directly to Unreal or Maya for auto Fabricator Control Rig builds.</p>
         </div>
       </div>
-    </footer>
-  </div>
+
+      {/* THE REELS (Adrian, 2026-08-19): the live page's three walkthroughs -- three
+          characters, start to finish -- as a textless strip riding up past the right
+          side. Thumbnails are self-hosted stills and each card is click-to-YouTube: the
+          privacy ruling (nothing reaches Google without a click) forbids autoplaying
+          embeds, and no local files of these videos exist. */}
+      {/* WHAT IT COSTS -- the live page's ruled pricing copy, verbatim. */}
+      <div class="ast-price" data-ast-price>
+        <p class="ast-beat__head"><span class="ast-ember">What</span> it costs.</p>
+        <p class="ast-price__lede">
+          Free for personal, learning, and portfolio work, and free for commercial work under
+          $100k a year. If you qualify for Maya Indie, Armature is free. Above that it is <b>$149 per artist, once</b>, with a year of updates.
+        </p>
+        <p class="ast-price__note">
+          Armature is a new standalone application. It is not the Armature step inside the Maya
+          toolset, and it is not part of that free download.
+        </p>
+        <p class="ast-price__contact">
+          Bringing an existing rig into Armature? <a href="mailto:adrian@fabricator.studio?subject=Armature%3A%20existing%20rig">Talk to us</a>.
+        </p>
+      </div>
+
+      {/* The strip's standing title, BEHIND the cards: the first video wipes it as it
+          passes, and the fade below matches that moment. */}
+      <p class="ast-reels__title" aria-hidden="true"><span class="ast-ember">Tutorial</span> Video<br />Series</p>
+
+      <div class="ast-reels" data-ast-reels>
+        <div class="ast-reels__strip">
+          {WALKTHROUGHS.map((w) => (
+            <a class="ast-reel" href={w.href} target="_blank" rel="noopener" aria-label={w.title}>
+              <img src={w.thumb} alt="" loading="lazy" />
+              <span class="ast-reel__play" aria-hidden="true">&#9654;</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* THE CLOSE: the same doors as the landing. A reader who got this far without
+          downloading is exactly the one who wanted to read first. */}
+      <div class="ast-end" data-ast-end>
+        <div class="getblock__actions">
+          <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+            Download for Windows
+          </button>
+          <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-close">
+            Read the docs
+          </a>
+        </div>
+        <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
+      </div>
+    </header>
+    </div>
+
+    {/* The licence picker (COPY-LAUNCH.md §2, verbatim; ruling 2026-07-28b). Download opens
+        this rather than downloading. Eligibility leads, price follows: a user reading these
+        cannot pick wrongly by accident. Rows are data-driven from src/data/armature.ts so
+        the education grant lands as a third row without touching this markup. The selection
+        here is a default; the installer's click-through selection is the operative one
+        (EULA §3.4). */}
+    <dialog class="shot-dialog picker" id="picker-dialog" aria-labelledby="picker-title">
+      <div class="picker__inner">
+        <p class="picker__head" id="picker-title">Download Armature {ARMATURE.version}</p>
+        {/* R19: the refund line does its job by reducing hesitation AT the checkout, so it
+            sits inside the picker, above the Commercial button, rather than only on the
+            pricing page a buyer may never revisit. */}
+        <p class="picker__refund">Fourteen days, no questions. If Armature is not what you needed, email us within fourteen days of buying and we will refund you.</p>
+        <ul class="picker__rows">
+          {PICKER_ROWS.map((row) => (
+            <li class="picker__row">
+              <div class="picker__copy">
+                <p class="picker__name">
+                  <b>{row.name}.</b> <span class="picker__price">{row.price}.</span>
+                </p>
+                <p class="picker__line">{row.line}</p>
+              </div>
+              {row.cta === 'download' ? (
+                <a class="btn picker__cta" href={ARMATURE.installer} data-goatcounter-click={row.event}>Download</a>
+              ) : ARMATURE.stripeCommercial ? (
+                <a class="btn picker__cta" href={ARMATURE.stripeCommercial} data-goatcounter-click={row.event}>Continue to checkout</a>
+              ) : (
+                <button class="btn picker__cta" type="button" disabled>Continue to checkout</button>
+              )}
+            </li>
+          ))}
+        </ul>
+        {/* The SmartScreen pre-empt, at the point of download (Adrian, 2026-08-01 evening).
+            The person reading this just pressed Download, so it carries only the two things
+            they need: the click path past the warning, and the hash to verify against. */}
+        <aside class="smartscreen smartscreen--picker" aria-labelledby="smartscreen-title">
+          <h3 class="smartscreen__title" id="smartscreen-title">Windows will warn you the first time you run this</h3>
+          <p>
+            Armature is a new installer from a new publisher, so Windows SmartScreen shows a
+            blue "Windows protected your PC" screen the first time you open it. Click <b>More info</b>, then <b>Run anyway</b>.
+          </p>
+          <pre class="smartscreen__code"><code>Get-FileHash .\{INSTALLER_NAME} -Algorithm SHA256</code></pre>
+          {ARMATURE.sha256 ? (
+            <p class="smartscreen__hash">SHA-256: <code>{ARMATURE.sha256}</code></p>
+          ) : (
+            <p class="smartscreen__hash">SHA-256: <code>published at release</code></p>
+          )}
+        </aside>
+        <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
+    </dialog>
+  </main>
+
+  <footer class="footer">
+    <div class="footer__inner">
+      {/* The signature treatment, not plain bold type (brand DNA section 4). */}
+      <p class="footer__wordmark"><Wordmark /></p>
+      <div class="footer__meta">
+        <nav class="footer__links" aria-label="Footer">
+          <a href="https://fabricator.studio">fabricator.studio</a>
+          <a href="/privacy/">Privacy</a>
+          <a href="/armature/eula/">EULA</a>
+        </nav>
+        {/* This page keeps its own footer so the Kubold credit ships here, where the
+            animations actually play. */}
+        <p class="footer__legal">&copy; 2026 FabricatorStudio LLC &middot; Animations by <a href="https://www.kubold.com" target="_blank" rel="noopener">Kubold</a></p>
+      </div>
+    </div>
+  </footer>
 </BaseLayout>
 
 <script is:inline>
   (function () {
-    var reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
-
-    var spine = document.getElementById('spine');
-    var draw = document.getElementById('spine-draw');
-    var shell = document.querySelector('.shell');
-    var sections = Array.prototype.slice.call(document.querySelectorAll('[data-spine-section]'));
-    var joints = Array.prototype.slice.call(spine.querySelectorAll('.joint'));
-    // The spine begins BELOW the hero (Adrian, 2026-08-01): the art is its own full-bleed
-    // world and a skeleton rail running over it read as page chrome laid on a picture.
-    var heroEl = document.querySelector('.hero--art');
-    var spineOffset = 0;
-    var bones = Array.prototype.slice.call(spine.querySelectorAll('.bone'));
-
-    // A joint sits at every section boundary; a bone spans the gap between two joints.
-    function placeSpine() {
-      var shellTop = shell.getBoundingClientRect().top + window.scrollY;
-      spineOffset = heroEl
-        ? heroEl.getBoundingClientRect().bottom + window.scrollY - shellTop
-        : 0;
-      spine.style.top = spineOffset + 'px';
-      spine.style.height = Math.max(0, shell.offsetHeight - spineOffset) + 'px';
-
-      // Every point below is measured from the SPINE's own origin, not the shell's, or the
-      // joints land one hero-height too low.
-      var points = sections.map(function (s) {
-        return s.getBoundingClientRect().top + window.scrollY - shellTop - spineOffset;
-      });
-      var last = sections[sections.length - 1];
-      points.push(last.getBoundingClientRect().bottom + window.scrollY - shellTop - spineOffset);
-
-      // The first boundary sits exactly on the hero's bottom edge, and the hero's opaque art
-      // paints over the spine's overhang, which cut the first joint circle in half (Adrian,
-      // 2026-08-01). Seat it clear below the line, tuned by eye at 32; its bone shortens by
-      // the same amount.
-      points[0] += 32;
-
-      points.forEach(function (y, i) {
-        var top = y;
-        if (joints[i]) joints[i].style.top = top + 'px';
-        if (bones[i] && points[i + 1] != null) {
-          bones[i].style.top = top + 14 + 'px';
-          bones[i].style.height = Math.max(0, points[i + 1] - top - 28) + 'px';
-        }
-      });
-    }
-
-    function updateDraw() {
-      if (reduced.matches) return;
-      var top = shell.getBoundingClientRect().top + window.scrollY + spineOffset;
-      var progress = window.scrollY + window.innerHeight * 0.62 - top;
-      draw.style.height = Math.max(0, Math.min(progress, spine.offsetHeight)) + 'px';
-    }
-
-    placeSpine();
-    updateDraw();
-
-    var ticking = false;
-    window.addEventListener(
-      'scroll',
-      function () {
-        if (ticking) return;
-        ticking = true;
-        window.requestAnimationFrame(function () {
-          updateDraw();
-          ticking = false;
-        });
-      },
-      { passive: true }
-    );
-
-    var resizeTimer;
-    window.addEventListener('resize', function () {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(function () {
-        placeSpine();
-        updateDraw();
-      }, 150);
-    });
-
-    // Images settle after the spine is first measured, so re-measure once everything has loaded.
-    window.addEventListener('load', function () {
-      placeSpine();
-      updateDraw();
-    });
-
-    function lightSection(section) {
-      var i = sections.indexOf(section);
-      if (i > -1) {
-        if (joints[i]) joints[i].classList.add('is-lit');
-        if (joints[i + 1]) joints[i + 1].classList.add('is-lit');
-        if (bones[i]) bones[i].classList.add('is-lit');
-      }
-      section.classList.add('is-in');
-      Array.prototype.forEach.call(section.querySelectorAll('.reveal'), function (el, n) {
-        el.style.transitionDelay = Math.min(n * 70, 350) + 'ms';
-        el.classList.add('is-in');
-      });
-    }
-
-    if ('IntersectionObserver' in window && !reduced.matches) {
-      var sectionObserver = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (e) {
-            if (!e.isIntersecting) return;
-            lightSection(e.target);
-            sectionObserver.unobserve(e.target);
-          });
-        },
-        { rootMargin: '0px 0px -12% 0px', threshold: 0.08 }
-      );
-      sections.forEach(function (s) {
-        sectionObserver.observe(s);
-      });
-
-      var stageObserver = new IntersectionObserver(
-        function (entries) {
-          entries.forEach(function (e) {
-            if (!e.isIntersecting) return;
-            e.target.classList.add('is-in');
-            stageObserver.unobserve(e.target);
-          });
-        },
-        { rootMargin: '0px 0px -18% 0px', threshold: 0.25 }
-      );
-      document.querySelectorAll('[data-stage]').forEach(function (s) {
-        stageObserver.observe(s);
-      });
-    } else {
-      sections.forEach(lightSection);
-      document.querySelectorAll('[data-stage]').forEach(function (s) {
-        s.classList.add('is-in');
-      });
-    }
-
-    // Anything already on screen at load lights immediately, observer or not.
-    sections.forEach(function (s) {
-      if (s.getBoundingClientRect().top < window.innerHeight * 0.9) lightSection(s);
-    });
-
-    if (reduced.matches) {
-      document.querySelectorAll('video[autoplay]').forEach(function (v) {
-        v.removeAttribute('autoplay');
-        v.pause();
-      });
-    }
-
-    // The proof clip: poster by default, loop on hover or keyboard focus. Same convention as
-    // the homepage proof cards. Bails on touch and under reduced motion, where the poster is
-    // the whole experience and preload="none" means the clip is never fetched at all.
-    var proofFig = document.getElementById('proof-clip');
-    var proofVid = proofFig && proofFig.querySelector('video');
-    if (proofVid && !reduced.matches && window.matchMedia('(hover: hover)').matches) {
-      var playProof = function () {
-        var p = proofVid.play();
-        // Autoplay policy can still reject a programmatic play(); swallow it rather than
-        // throwing an unhandled rejection into the console on every hover.
-        if (p && p.catch) p.catch(function () {});
-      };
-      var stopProof = function () { proofVid.pause(); };
-      proofFig.addEventListener('pointerenter', playProof);
-      proofFig.addEventListener('pointerleave', stopProof);
-      proofFig.addEventListener('focusin', playProof);
-      proofFig.addEventListener('focusout', stopProof);
-      // Keyboard reachable, since the figure is not otherwise focusable.
-      proofFig.setAttribute('tabindex', '0');
-    }
-
-    /* ---- enlargeable shots and the teaser player ---- */
-    var loop = document.getElementById('teaser-loop');
-
+    // The licence picker. Download opens the picker rather than downloading. With JS
+    // disabled the dialog cannot open, so the hero carries a <noscript> fallback rendering
+    // the same rows as plain links.
     function wireDialog(dlg) {
       if (!dlg) return;
-      // Clicking the backdrop means clicking the dialog element itself, which only works
-      // because the dialog carries no padding of its own.
       dlg.addEventListener('click', function (e) {
         if (e.target === dlg) dlg.close();
       });
@@ -806,350 +265,249 @@ const STAGES = [
         });
       });
     }
-    document.querySelectorAll('.shot-dialog').forEach(wireDialog);
-
-    document.querySelectorAll('[data-shot]').forEach(function (trigger) {
-      trigger.addEventListener('click', function () {
-        var dlg = document.getElementById('shot-' + trigger.getAttribute('data-shot'));
-        if (dlg && dlg.showModal) dlg.showModal();
-      });
-    });
-
-    // The licence picker. Download opens the picker rather than downloading. With JS disabled
-    // the dialog cannot open, so the hero getblock carries a <noscript> fallback rendering the
-    // same rows as plain links.
     var pickerDialog = document.getElementById('picker-dialog');
+    wireDialog(pickerDialog);
     document.querySelectorAll('[data-picker-open]').forEach(function (trigger) {
       trigger.addEventListener('click', function () {
         if (pickerDialog && pickerDialog.showModal) pickerDialog.showModal();
       });
     });
-
-    var teaserDialog = document.getElementById('teaser-dialog');
-    var teaserOpen = document.querySelector('[data-teaser-open]');
-    var trailerMount = document.getElementById('trailer-mount');
-    var TRAILER_ID = 'PhHXmcpcGKk';
-    if (teaserDialog && teaserOpen && trailerMount && teaserDialog.showModal) {
-      teaserOpen.addEventListener('click', function () {
-        teaserDialog.showModal();
-        if (loop) loop.pause();
-        if (!trailerMount.querySelector('iframe')) {
-          var frame = document.createElement('iframe');
-          frame.className = 'trailer-frame';
-          // youtube-nocookie is YouTube's privacy-enhanced host; rel=0 keeps the end-of-video
-          // suggestions inside our own channel rather than handing the viewer away from a page
-          // whose only job is the download.
-          frame.src =
-            'https://www.youtube-nocookie.com/embed/' + TRAILER_ID +
-            '?autoplay=1&rel=0&modestbranding=1&playsinline=1';
-          frame.title = 'Armature | Standalone Rigging and Skinning App | Unreal';
-          frame.allow =
-            'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
-          frame.referrerPolicy = 'strict-origin-when-cross-origin';
-          frame.allowFullscreen = true;
-          trailerMount.insertBefore(frame, trailerMount.firstChild);
-        }
-      });
-      // Covers every close path: the button, the backdrop and Escape. The iframe is destroyed
-      // rather than paused, because there is no way to pause someone else's player from here
-      // and a hidden dialog would otherwise keep talking.
-      teaserDialog.addEventListener('close', function () {
-        var frame = trailerMount.querySelector('iframe');
-        if (frame) frame.remove();
-        if (loop && !reduced.matches) loop.play();
-      });
-    }
   })();
 </script>
 
 <style>
-  .shell {
-    --rail: 30px;
-    --gutter: 20px;
-    --col: 34em;
+  /* ---- the stripped hero: one fullscreen stage, everything positioned against it ---- */
+  .ast-hero {
     position: relative;
-  }
-
-  .skip-link {
-    position: absolute;
-    left: var(--rail);
-    top: 8px;
-    z-index: 50;
-    padding: 10px 16px;
-    background: var(--iron);
-    border: 1px solid var(--plasma);
-    border-radius: var(--radius-pill);
-    color: var(--plasma);
-    font-size: 13px;
-    text-decoration: none;
-    transform: translateY(-200%);
-  }
-  .skip-link:focus-visible {
-    transform: translateY(0);
-  }
-
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
+    min-height: calc(100svh - var(--header-h));
     overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
+    border-bottom: 1px solid var(--iron-2);
   }
-
-  /* ---------- the spine ---------- */
-
-  /* The sections stay full bleed, but their inner column is capped and centred. Past about
-     1330px the spine would otherwise be stranded against the viewport edge with a growing void
-     between it and the copy it is supposed to be the skeleton of, so it tracks the same
-     centring. Below that width the max() resolves to 0 and nothing moves. */
-  .spine {
+  .ast-hero :global(.hero__art) {
     position: absolute;
-    top: 0;
-    left: max(0px, calc((100vw - var(--rail) - var(--gutter) - 1180px) / 2));
-    width: var(--rail);
-    height: 100%;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .spine__track,
-  .spine__draw {
-    position: absolute;
-    left: 50%;
-    top: 0;
-    width: 2px;
-    margin-left: -1px;
-    border-radius: var(--radius-pill);
-    background: var(--cobalt);
-  }
-  .spine__track {
-    height: 100%;
-    opacity: 0.16;
-  }
-  .spine__draw {
-    height: 0;
-    opacity: 0.55;
-    transition: height 120ms linear;
-  }
-
-  /* Joints and bones are placed by script from the real section offsets. With no script they
-     have no `top` and would pile up at the head of the rail, so the rail falls back to the
-     plain undrawn line. */
-  :global(html:not(.js)) .joint,
-  :global(html:not(.js)) .bone {
-    display: none;
-  }
-
-  .bone {
-    position: absolute;
-    left: 50%;
-    width: 11px;
-    margin-left: -5.5px;
-    background: var(--cobalt);
-    opacity: 0.22;
-    clip-path: polygon(0% 0%, 100% 0%, 62% 100%, 38% 100%);
-    transition: opacity 600ms var(--ease-out);
-  }
-  .bone.is-lit {
-    opacity: 0.4;
-  }
-
-  .joint {
-    position: absolute;
-    left: 50%;
-    width: 18px;
-    height: 18px;
-    margin-left: -9px;
-    margin-top: -9px;
-    border-radius: 50%;
-    border: 1.5px solid var(--cobalt);
-    background: var(--carbon);
-    opacity: 0.4;
-    display: grid;
-    place-items: center;
-    transition:
-      opacity 500ms var(--ease-out),
-      border-color 500ms var(--ease-out),
-      transform 620ms var(--ease-spring),
-      box-shadow 500ms var(--ease-out);
-  }
-  .joint::after {
-    content: '';
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--cobalt);
-    transition: background 500ms var(--ease-out);
-  }
-  .joint.is-lit {
-    opacity: 1;
-    border-color: var(--plasma);
-    transform: scale(1.18);
-    box-shadow: 0 0 0 5px var(--plasma-glow);
-  }
-  .joint.is-lit::after {
-    background: var(--plasma);
-  }
-
-  /* ---------- layout primitives ---------- */
-
-  main {
-    position: relative;
-    z-index: 2;
-  }
-
-  /* base.css carries a global `section { max-width: 72rem; margin: 0 auto }` element rule. It
-     insets every <section> by 144px at 1440 while the <header> hero stays full bleed, so the
-     hero and every section below it sit on two different left edges. Reset it here: this page
-     runs its own rail-based measure. */
-  .section {
-    max-width: none;
-    margin: 0;
-    padding: 0 var(--gutter) 0 var(--rail);
-  }
-  .wrap {
-    width: 100%;
-    max-width: 1180px;
-    margin: 0 auto;
-    padding-left: 12px;
-  }
-
-  .eyebrow {
-    font-size: 11px;
-    font-weight: 700;
-    letter-spacing: 0.22em;
-    color: var(--ember);
-    text-transform: uppercase;
-    margin-bottom: 14px;
-  }
-
-  .section-title {
-    font-size: clamp(26px, 6.4vw, 44px);
-    font-weight: 700;
-    line-height: 1.12;
-    letter-spacing: -0.02em;
-    text-wrap: pretty;
-  }
-
-  .pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 9px;
-    padding: 7px 15px 7px 12px;
-    border-radius: var(--radius-pill);
-    border: 1px solid var(--iron-3);
-    background: var(--iron);
-    font-size: 12px;
-    font-weight: 500;
-    letter-spacing: 0.06em;
-    color: var(--bone);
-  }
-  .pill__dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    background: var(--plasma);
-    box-shadow: 0 0 0 4px var(--plasma-glow);
-  }
-
-  .slot {
-    position: relative;
-    border-radius: var(--radius);
-    border: 1px solid var(--iron-2);
-    background-color: var(--iron);
-    background-image: var(--shine);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-  }
-  .slot :global(img),
-  .slot video {
-    display: block;
+    inset: 0;
     width: 100%;
     height: 100%;
     object-fit: cover;
+    object-position: center;
   }
-  .slot__tag {
-    position: absolute;
-    left: 10px;
-    bottom: 10px;
-    padding: 4px 10px;
-    border-radius: var(--radius-sm);
-    background: var(--carbon);
-    border: 1px solid var(--iron-3);
-    color: var(--bone-dim);
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-  }
-
-  /* ---------- enlargeable shots ---------- */
-
-  .shot-open {
-    display: block;
-    width: 100%;
-    height: 100%;
-    padding: 0;
-    border: 0;
-    background: none;
-    cursor: zoom-in;
-  }
-  .shot-open :global(img) {
-    transition: transform 480ms var(--ease-out);
-  }
-  .shot-open:hover :global(img) {
-    transform: scale(1.015);
-  }
-
-  /* For the video, the trigger sits OVER the frame instead of wrapping it. */
-  .shot-open--overlay {
+  .hero__scrim {
     position: absolute;
     inset: 0;
-    cursor: pointer;
+    background:
+      linear-gradient(90deg, rgba(11, 14, 16, 0.82) 0%, rgba(11, 14, 16, 0.45) 22%, rgba(11, 14, 16, 0) 42%),
+      linear-gradient(0deg, rgba(11, 14, 16, 0.8) 0%, rgba(11, 14, 16, 0) 30%);
+  }
+  /* The live stage replaces the art as backdrop; visibility, not display, so nothing
+     reflows when it goes live. */
+  .ast-hero[data-stage-live] :global(.hero__art),
+  .ast-hero[data-stage-live] .hero__scrim { visibility: hidden; }
+
+  /* The runway: one screen on the fallback; the story's length when the stage is live.
+     The hero rides it sticky, so the room never leaves while the beats play. */
+  .ast-scroll { position: relative; }
+  .ast-scroll[data-live] { height: 880svh; }
+  .ast-scroll[data-live] .ast-hero {
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100svh - var(--header-h));
   }
 
-  .shot-open__badge {
+  /* The landing copy leaves as the story starts; visibility follows so the faded doors
+     cannot be clicked (pointer-events on a parent loses to a child's explicit value). */
+  .ast-hero__intro,
+  .ast-hero__actions {
+    opacity: calc(1 - var(--aland, 0));
+    transform: translateY(calc(var(--aland, 0) * -18px));
+  }
+  .ast-hero[data-land-gone] .ast-hero__intro,
+  .ast-hero[data-land-gone] .ast-hero__actions { visibility: hidden; }
+
+  /* The copy beats: the LEFT FLANK the landing stanza vacates (Adrian, 2026-08-19),
+     stage-header over line, one grid cell, crossfading on their vars. */
+  .ast-beats {
     position: absolute;
-    right: 10px;
-    bottom: 10px;
-    width: 30px;
-    height: 30px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    border: 1px solid var(--iron-3);
-    background: var(--carbon);
+    left: 8vw;
+    top: 16%;
+    width: min(34rem, 36vw);
+    display: none;
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+  }
+  .ast-hero[data-stage-live] .ast-beats { display: grid; }
+  .ast-beat {
+    grid-area: 1 / 1;
+    align-self: start;
+  }
+  .ast-beat__head {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.2rem, 3.2vw, 3.4rem);
+    line-height: 1.05;
+    color: var(--bone);
+  }
+  /* Every title speaks in bone with its FIRST WORD in ember (Adrian, 2026-08-19). */
+  .ast-ember { color: var(--ember); }
+
+  /* The reels' standing title, over the passing strip. Driven by --reelt from the loop. */
+  .ast-reels__title {
+    position: absolute;
+    top: 9%;
+    right: 8vw;
+    text-align: right;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 3.6vw, 3.8rem);
+    line-height: 1.05;
+    color: var(--bone);
+    opacity: var(--reelt, 0);
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+    display: none;
+  }
+  .ast-hero[data-stage-live] .ast-reels__title { display: block; }
+  .ast-beat__line {
+    margin-top: 0.8rem;
+    font-weight: 300;
+    font-size: clamp(1.15rem, 1.7vw, 1.6rem);
+    line-height: 1.35;
+    color: var(--bone);
+  }
+  .ast-beats :global(.ast-beat__img) {
+    margin-top: 1.4rem;
+    width: min(34rem, 36vw);
+    height: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--iron-2);
+  }
+
+  /* THE REELS: a textless strip in the right column, translated past the viewport by
+     --reel from the loop. Cards take clicks (out to YouTube); the layer does not. */
+  .ast-reels {
+    position: absolute;
+    right: 7vw;
+    top: 0;
+    bottom: 0;
+    width: min(30rem, 34vw);
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .ast-reels[data-active] { visibility: visible; }
+  .ast-reels__strip {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5vh;
+    transform: translateY(calc(102vh - var(--reel, 0) * 215vh));
+    will-change: transform;
+  }
+  .ast-reel {
+    position: relative;
+    display: block;
+    pointer-events: auto;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--iron-2);
+    box-shadow: var(--shadow-lg);
+  }
+  .ast-reel img { display: block; width: 100%; height: auto; }
+  .ast-reel__play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    color: var(--bone);
+    text-shadow: 0 2px 10px rgba(11, 14, 16, 0.8);
+    opacity: 0.85;
+  }
+  .ast-reel:hover .ast-reel__play { color: var(--plasma); }
+
+  /* WHAT IT COSTS + THE CLOSE: the right column she faces from screen left. */
+  .ast-price,
+  .ast-end {
+    position: absolute;
+    left: 48%;
+    right: 7vw;
+    pointer-events: none;
+    visibility: hidden;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+  }
+  .ast-price { top: 22%; opacity: var(--price, 0); }
+  .ast-end { top: 66%; opacity: var(--endd, 0); }
+  .ast-price[data-active],
+  .ast-end[data-active] { visibility: visible; }
+  .ast-price[data-active] a,
+  .ast-end[data-active] :is(a, button) { pointer-events: auto; }
+  .ast-price__lede {
+    margin-top: 1.2rem;
+    font-weight: 300;
+    font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+    line-height: 1.45;
+    color: var(--bone);
+  }
+  .ast-price__lede b { font-weight: 700; color: var(--bone); }
+  .ast-price__note {
+    margin-top: 1rem;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    line-height: 1.5;
     color: var(--bone-dim);
-    font-size: 15px;
-    font-weight: 700;
-    line-height: 1;
-    opacity: 0;
-    transform: translateY(4px);
-    transition:
-      opacity 260ms var(--ease-out),
-      transform 320ms var(--ease-spring),
-      border-color 260ms var(--ease-out),
-      color 260ms var(--ease-out);
   }
-  .shot-open__badge--play {
-    font-size: 12px;
-    padding-left: 2px;
+  .ast-price__contact {
+    margin-top: 1rem;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    color: var(--bone-dim);
   }
-  .shot-open:hover .shot-open__badge,
-  .shot-open:focus-visible .shot-open__badge {
-    opacity: 1;
-    transform: none;
-    border-color: var(--plasma);
-    color: var(--plasma);
+  .ast-price__contact a { color: var(--plasma); text-decoration: none; }
+  .ast-price__contact a:hover { color: var(--plasma-dim); }
+
+  /* The left column: lockup, then the three ruled lines. It rides the left flank the old
+     hero's lede lived on, so the fallback art's scrim already guarantees its contrast. */
+  .ast-hero__intro {
+    position: absolute;
+    left: 8vw;
+    top: 24%;
+    max-width: min(44rem, 42vw);
   }
-  /* A pointer is a hover affordance. On touch there is no hover, so it just shows. */
-  @media (hover: none) {
-    .shot-open__badge {
-      opacity: 1;
-      transform: none;
-    }
+  .ast-hero__lockup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+  .ast-hero__lockup :global(.ast-hero__lockup-mark) {
+    width: clamp(48px, 4vw, 72px);
+    height: auto;
+  }
+  .ast-hero__tagline {
+    margin-top: 1.6rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.2rem, 3.4vw, 3.6rem);
+    line-height: 1.05;
+    color: var(--bone);
+  }
+  .ast-hero__line {
+    margin-top: 0.4rem;
+    font-weight: 300;
+    font-size: clamp(1.15rem, 1.7vw, 1.6rem);
+    line-height: 1.3;
+    color: var(--bone);
+  }
+  /* The first line clears the title a touch more than the lines clear each other. */
+  .ast-hero__tagline + .ast-hero__line { margin-top: 0.9rem; }
+  .ast-hero__plus { color: var(--plasma); font-weight: 700; }
+
+  .ast-hero__actions {
+    position: absolute;
+    left: 50%;
+    bottom: 9%;
+    transform: translateX(-50%);
+    text-align: center;
   }
 
   .shot-dialog {
@@ -1176,7 +534,6 @@ const STAGES = [
     overflow: hidden;
     line-height: 0;
   }
-  .shot-dialog :global(img),
   .shot-dialog video {
     display: block;
     width: auto;
@@ -1185,15 +542,11 @@ const STAGES = [
     max-height: 88vh;
     object-fit: contain;
   }
-  /* The trailer is 16:9, so this frame is width-led. */
   .shot-dialog--video .shot-dialog__inner {
     width: min(94vw, 1400px);
     aspect-ratio: 16 / 9;
     max-height: 88vh;
   }
-  /* :global, because this iframe is CREATED BY SCRIPT and so never carries Astro's scoping
-     attribute. A plain scoped rule silently does not match it and the player renders at the
-     browser default 300x150 in the corner of the frame. */
   .shot-dialog--video :global(.trailer-frame) {
     display: block;
     width: 100%;
@@ -1227,207 +580,15 @@ const STAGES = [
     color: var(--plasma);
     border-color: var(--plasma);
   }
-
-  /* ---------- hero ---------- */
-
-  /* Full-bleed art stage. The art is the hero; everything else is arranged on its flanks. */
-  /* MOBILE FIRST, and deliberately NOT the overlay. At 390px a full-bleed cover crop shows a
-     narrow slice of the art, which cuts the baked-in "Artist+AI Rigging" and "You drive." in
-     half and puts body copy over the samurai's armour. So the phone gets the art whole, at its
-     real 16:9, with the content stacked beneath it on carbon. The overlay switches on at 720px,
-     where there is room for flanks. */
-  .hero--art {
-    position: relative;
-    padding: 0;
-    display: block;
-    border-bottom: 1px solid var(--iron-2);
-  }
-  .hero__art {
-    position: relative;
-    display: block;
-    width: 100%;
-    height: auto;
-    aspect-ratio: 16 / 9;
-    object-fit: cover;
-    object-position: center;
-  }
-  /* Contrast insurance on both flanks, plus a floor so the buttons never sit on bright art. */
-  .hero__scrim {
-    display: none;
-    position: absolute;
-    inset: 0;
-    background:
-      linear-gradient(90deg, rgba(11, 14, 16, 0.82) 0%, rgba(11, 14, 16, 0.45) 22%, rgba(11, 14, 16, 0) 42%),
-      linear-gradient(0deg, rgba(11, 14, 16, 0.8) 0%, rgba(11, 14, 16, 0) 30%);
-  }
-  /* The live lockup box, anchored top left so the art's baked centre text stays clear.
-     On mobile it mirrors the in-flow 16:9 art exactly. Sizes are fractions of the box
-     width so the marks keep scale with the art, with px floors so a phone still gets a
-     readable wordmark; the corner seat is percentage padding so it scales the same way. */
-  .hero__lockup {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    aspect-ratio: 16 / 9;
-    display: flex;
-    justify-content: flex-start;
-    align-items: flex-start;
-    padding: 2.5% 0 0 2.75%;
-    pointer-events: none;
-    z-index: 2;
-  }
-  /* The stack shrink-wraps in the corner, so the marks size in vw rather than %: a
-     percentage would resolve against this content-sized column, and the art box spans
-     the full viewport width in both hero modes anyway. */
-  .hero__lockup-stack {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: clamp(6px, 1vw, 16px);
-  }
-  .hero__lockup-mark {
-    width: clamp(34px, 5.2vw, 148px);
-    height: auto;
-  }
-  .hero__lockup-word {
-    width: clamp(104px, 15vw, 400px);
-    height: auto;
-  }
-
-  .hero__stage {
-    position: relative;
-    z-index: 2;
-    width: 100%;
-    max-width: 1600px;
-    margin: 0 auto;
-    padding: 22px var(--gutter) 30px var(--rail);
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-  /* On a phone the reel flows in the column under the art at a sane size, not over it.
-     It lives outside the stage now, so it carries its own gutter. */
-  .hero__flank--right { padding: 16px var(--gutter) 0 var(--rail); }
-  /* Top right corner of the art box, the mirror of the lockup's top-left seat: same
-     percentage padding, so the two hold the same height off the corner at every width. */
-  .hero__pill {
-    position: absolute;
-    top: 0;
-    right: 0;
-    margin: 0;
-    padding: 2.5% 2.75% 0 0;
-    z-index: 2;
-  }
-
-  .hero__lede {
-    font-size: clamp(17px, 4.6vw, 22px);
-    line-height: 1.35;
-    color: var(--bone);
-    text-wrap: balance;
-  }
-  .hero__sub {
-    margin-top: 10px;
-    font-size: 14.5px;
-    line-height: 1.55;
-    color: var(--bone-dim);
-    max-width: 38ch;
-    text-wrap: pretty;
-  }
-
-  /* The vertical cut, in the shape it was made in. */
-  .hero__reel {
-    position: relative;
-    width: min(100%, 190px);
-    aspect-ratio: 9 / 16;
-    border-radius: var(--radius);
-    overflow: hidden;
-    border: 1px solid var(--iron-3);
-    box-shadow: var(--shadow-lg);
-  }
-  .hero__reel video {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .hero__actions { display: grid; gap: 0; }
-
-  .hero {
-    padding-top: 26px;
-    padding-bottom: 64px;
-  }
-
-  .hero__wordmark {
-    width: min(230px, 60vw);
-    height: auto;
-    object-fit: contain;
-    object-position: left center;
-    margin-bottom: 14px;
-  }
-
-  .hero__kicker {
-    font-size: 11px;
-    font-weight: 500;
-    letter-spacing: 0.2em;
-    color: var(--bone-dim);
-    margin-bottom: 10px;
-  }
-  .hero__kicker b {
-    color: var(--bone);
-    font-weight: 700;
-  }
-
-  .hero__title {
-    font-size: clamp(33px, 8.8vw, 76px);
-    font-weight: 700;
-    line-height: 1.05;
-    letter-spacing: -0.035em;
-    max-width: 15ch;
-    text-wrap: balance;
-    /* Was tight because the paragraph used to finish this sentence. The headline is now a
-       standalone lockup, so it gets ordinary heading separation. */
-    margin-bottom: 18px;
-  }
-
-  .hero__plus {
-    color: var(--plasma);
-  }
-
-  .hero__copy {
-    display: grid;
-    gap: 10px;
-    margin-bottom: 16px;
-  }
-  .hero__copy p {
-    font-size: 14.5px;
-    line-height: 1.5;
-    max-width: var(--col);
-    text-wrap: pretty;
-  }
-  .hero__copy p + p {
-    color: var(--bone-dim);
-  }
-
-  .hero__status {
-    margin-bottom: 16px;
-  }
-
   .getblock {
     max-width: 560px;
   }
-
-  /* Wraps rather than squeezing: on a narrow phone the docs button drops to its own line at
-     full readable size instead of both shrinking below a comfortable tap target. */
   .getblock__actions {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     align-items: center;
   }
-
-
   .btn {
     min-height: 48px;
     padding: 12px 26px;
@@ -1458,10 +619,6 @@ const STAGES = [
     background: var(--plasma-dim);
     box-shadow: none;
   }
-
-  /* The secondary door. Iron and bone, NEVER plasma: plasma means go, and there is already a
-     go on this row. Must be declared AFTER .btn, not before: same specificity means source
-     order decides, and sitting above .btn is how this shipped as a second green button. */
   .btn--quiet {
     background: var(--iron);
     color: var(--bone);
@@ -1482,19 +639,11 @@ const STAGES = [
     background: var(--iron-2);
     box-shadow: none;
   }
-
   .reassure {
     margin-top: 11px;
     font-size: 12.5px;
     color: var(--bone-dim);
   }
-  .reassure a { color: var(--bone); border-bottom: 1px solid var(--iron-3); }
-  .reassure a:hover { color: var(--plasma); border-color: var(--plasma); }
-
-  /* ---------- SmartScreen pre-empt ---------- */
-
-  /* Ember is label / attention doing its sanctioned job: this panel is a heads-up, not an
-     error. It sits directly under the download control so it is on screen before the click. */
   .smartscreen {
     margin-top: 18px;
     padding: 16px 18px;
@@ -1544,15 +693,10 @@ const STAGES = [
     color: var(--bone);
     word-break: break-all;
   }
-  /* Inside the picker: separated from the licence rows, and flatter than the page card so
-     the rows stay the loudest thing in the dialog. */
   .smartscreen--picker {
     margin-top: 18px;
     box-shadow: none;
   }
-
-  /* ---------- the licence picker ---------- */
-
   .picker {
     width: min(94vw, 560px);
   }
@@ -1626,465 +770,15 @@ const STAGES = [
     color: var(--bone-faint);
     cursor: not-allowed;
   }
-  /* The no-JS fallback renders the same rows inline under the hero button. */
   .picker__rows--inline {
     margin-top: 14px;
   }
-
-  @media (min-width: 480px) {
     .picker__row {
       grid-template-columns: minmax(0, 1fr) auto;
     }
     .picker__cta {
       justify-self: end;
     }
-  }
-
-  .pricing__contact {
-    margin-top: 18px;
-    font-size: 14px;
-    color: var(--bone-dim);
-  }
-  .pricing__contact a {
-    color: var(--plasma);
-    text-underline-offset: 4px;
-  }
-  .pricing__contact a:hover {
-    color: var(--bone);
-  }
-
-  /* The teaser is a 9:16 cut, so it stays 9:16 at every width. A vertical film pillarboxed
-     into a wide frame reads as a mistake. */
-  .hero__media {
-    margin-top: 26px;
-    aspect-ratio: 16 / 9;
-    width: 100%;
-  }
-
-  /* ---------- workflow ---------- */
-
-  .workflow {
-    padding-top: 72px;
-    padding-bottom: 72px;
-  }
-  .workflow__head {
-    margin-bottom: 34px;
-  }
-  .workflow__thesis {
-    margin-top: 12px;
-    font-size: 15px;
-    line-height: 1.55;
-    color: var(--bone-dim);
-    max-width: 62ch;
-    text-wrap: pretty;
-  }
-
-  .stages {
-    list-style: none;
-    padding: 0;
-    margin: 30px 0 0;
-    display: grid;
-  }
-
-  /* Explicit placement, because the three children have to land differently at each width: on a
-     phone the shot stacks UNDER its text in the same column, on desktop it takes a third column
-     beside it. Left implicit, the figure auto-flows into the 30px rail column and renders as a
-     sliver. */
-  .stage {
-    display: grid;
-    grid-template-columns: 30px 1fr;
-    gap: 16px;
-  }
-
-  .stage__rail {
-    grid-column: 1;
-    grid-row: 1 / span 2;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .stage__joint {
-    width: 16px;
-    height: 16px;
-    margin-top: 4px;
-    border-radius: 50%;
-    border: 1.5px solid var(--cobalt);
-    background: var(--carbon);
-    display: grid;
-    place-items: center;
-    flex: none;
-    transition:
-      border-color 500ms var(--ease-out),
-      transform 620ms var(--ease-spring),
-      box-shadow 500ms var(--ease-out);
-  }
-  .stage__joint::after {
-    content: '';
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--cobalt);
-    transition: background 500ms var(--ease-out);
-  }
-  .stage.is-in .stage__joint {
-    border-color: var(--plasma);
-    transform: scale(1.15);
-    box-shadow: 0 0 0 5px var(--plasma-glow);
-  }
-  .stage.is-in .stage__joint::after {
-    background: var(--plasma);
-  }
-
-  .stage__bone {
-    flex: 1;
-    width: 9px;
-    min-height: 24px;
-    margin: 6px 0;
-    background: var(--cobalt);
-    opacity: 0.22;
-    clip-path: polygon(0% 0%, 100% 0%, 64% 100%, 36% 100%);
-  }
-  .stage:last-child .stage__bone {
-    display: none;
-  }
-
-  .stage__body {
-    grid-column: 2;
-    grid-row: 1;
-    padding-bottom: 16px;
-  }
-  .stage:last-child .stage__body {
-    padding-bottom: 0;
-  }
-
-  .stage__index {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--bone-faint);
-    letter-spacing: 0.14em;
-    margin-bottom: 6px;
-  }
-  .stage__text {
-    font-size: 15.5px;
-    line-height: 1.6;
-    max-width: var(--col);
-    text-wrap: pretty;
-    margin-bottom: 16px;
-  }
-  .stage__text b {
-    color: var(--ember);
-    font-weight: 700;
-    letter-spacing: 0.04em;
-  }
-  /* The shot column carries its own bottom gap. Without it consecutive screenshots butt edge to
-     edge and read as one broken image. */
-  /* 16/9 since the Archangel stage shots landed (2026-08-03). The frame was 16/10 to match
-     the old captures exactly; leaving it there would have had object-fit: cover crop 10% off
-     the top and bottom of every new shot, which is precisely the menu bar and the tool bar
-     they exist to show. The LOAD capture was trimmed to match. */
-  .stage__shot {
-    grid-column: 2;
-    grid-row: 2;
-    aspect-ratio: 16 / 9;
-    margin-bottom: 40px;
-  }
-  .stage:last-child .stage__shot {
-    margin-bottom: 0;
-  }
-
-  /* ---------- walkthroughs ---------- */
-
-  .walkthroughs {
-    padding-top: 72px;
-    padding-bottom: 72px;
-  }
-  .walk-grid {
-    display: grid;
-    gap: 20px;
-    margin-top: 30px;
-  }
-  .walk {
-    display: block;
-    text-decoration: none;
-  }
-  .walk__shot {
-    position: relative;
-    margin: 0 0 12px;
-    aspect-ratio: 16 / 9;
-    border-radius: var(--radius);
-    border: 1px solid var(--iron-2);
-    background: var(--iron);
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-  }
-  .walk__shot img {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 480ms var(--ease-out);
-  }
-  .walk:hover .walk__shot img {
-    transform: scale(1.02);
-  }
-  /* Magma reads as YouTube on sight, which is the convention the docs video cards already
-     set. It is a depiction, never a CTA, so the accent law still holds.
-     BOTTOM RIGHT, not centred: these thumbnails are Adrian's own end cards with the title
-     already set into the left of the frame, and a centred badge sat on top of the word. */
-  .walk__play {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 46px;
-    height: 46px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--carbon);
-    border: 1px solid var(--magma);
-    color: var(--magma);
-    font-size: 17px;
-    padding-left: 3px;
-    transition:
-      transform 320ms var(--ease-spring),
-      background 260ms var(--ease-out),
-      color 260ms var(--ease-out);
-  }
-  .walk:hover .walk__play {
-    transform: scale(1.08);
-    background: var(--magma);
-    color: var(--carbon);
-  }
-  .walk__name {
-    font-size: 15.5px;
-    font-weight: 700;
-    color: var(--bone);
-  }
-  .walk__sub {
-    margin-top: 3px;
-    font-size: 13px;
-    line-height: 1.5;
-    color: var(--bone-dim);
-  }
-
-  /* ---------- pillar ---------- */
-
-  .pillar {
-    padding-top: 92px;
-    padding-bottom: 92px;
-    border-top: 1px solid var(--iron-2);
-    border-bottom: 1px solid var(--iron-2);
-    background-image: var(--shine);
-  }
-
-  .mantra {
-    font-size: clamp(28px, 8vw, 62px);
-    font-weight: 700;
-    line-height: 1.08;
-    letter-spacing: -0.03em;
-    margin-bottom: 44px;
-    max-width: 16ch;
-  }
-  .mantra span {
-    display: block;
-    transition:
-      opacity 700ms var(--ease-out),
-      transform 700ms var(--ease-spring);
-  }
-  :global(html.js) .mantra span {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  .mantra span:nth-child(2) {
-    transition-delay: 160ms;
-  }
-  .mantra span:nth-child(3) {
-    transition-delay: 320ms;
-    color: var(--plasma);
-  }
-  .is-in .mantra span {
-    opacity: 1;
-    transform: none;
-  }
-
-  .pillar__copy {
-    display: grid;
-    gap: 20px;
-    max-width: var(--col);
-  }
-  .pillar__copy p {
-    font-size: 15.5px;
-    line-height: 1.68;
-    color: var(--bone-dim);
-    text-wrap: pretty;
-  }
-
-  .pillar__note {
-    margin-top: 52px;
-    padding-top: 30px;
-    border-top: 1px solid var(--iron-2);
-    font-size: clamp(19px, 4.6vw, 30px);
-    line-height: 1.35;
-    color: var(--bone-dim);
-    letter-spacing: -0.01em;
-    max-width: 22ch;
-  }
-
-  /* ---------- status ---------- */
-
-  .status {
-    padding-top: 72px;
-    padding-bottom: 72px;
-  }
-  .status__grid {
-    display: grid;
-    gap: 16px;
-    margin-top: 30px;
-  }
-
-  .panel {
-    padding: 22px;
-    border-radius: var(--radius);
-    border: 1px solid var(--iron-2);
-    background-color: var(--iron);
-    background-image: var(--shine);
-    box-shadow: var(--shadow-sm);
-  }
-  .panel__head {
-    margin-bottom: 12px;
-  }
-  .panel__text {
-    font-size: 15px;
-    line-height: 1.6;
-    color: var(--bone-dim);
-    text-wrap: pretty;
-  }
-  /* The panel carries TWO statements since R25 split shipped from demonstrated. Without a gap
-     they butt together and read as one run-on claim, which defeats the whole point of the
-     split. */
-  .panel__text + .panel__text {
-    margin-top: 12px;
-  }
-  .panel__text a {
-    color: var(--plasma);
-    text-underline-offset: 3px;
-  }
-  .panel__text a:hover {
-    color: var(--bone);
-  }
-  /* 4:3, because the clip is 1200x900. Same rule the 16:10 still followed: the slot takes the
-     asset's shape rather than cropping it. */
-  .status__proof {
-    aspect-ratio: 4 / 3;
-  }
-  .status__vid {
-    display: block;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-  .status__play {
-    position: absolute;
-    right: 12px;
-    bottom: 12px;
-    width: 46px;
-    height: 46px;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-    background: var(--carbon);
-    border: 1px solid var(--magma);
-    color: var(--magma);
-    font-size: 15px;
-    padding-left: 3px;
-    transition:
-      transform 320ms var(--ease-spring),
-      opacity 260ms var(--ease-out);
-  }
-  /* It has done its job once the clip is running. */
-  .status__proof:hover .status__play,
-  .status__proof:focus-within .status__play {
-    opacity: 0;
-    transform: scale(0.9);
-  }
-
-  /* ---------- studio ---------- */
-
-  .studio {
-    padding-top: 72px;
-    padding-bottom: 72px;
-  }
-  .studio__grid {
-    display: grid;
-    gap: 26px;
-    margin-top: 30px;
-  }
-  /* Square, because the source is square. A 4:5 crop of this frame cuts into his face. */
-  .studio__portrait {
-    aspect-ratio: 1 / 1;
-    max-width: 280px;
-  }
-  .studio__copy {
-    display: grid;
-    gap: 18px;
-    max-width: var(--col);
-  }
-  .studio__copy p {
-    font-size: 15.5px;
-    line-height: 1.66;
-    color: var(--bone-dim);
-    text-wrap: pretty;
-  }
-  .studio__copy p:first-child {
-    color: var(--bone);
-  }
-
-  /* ---------- pricing ---------- */
-
-  .pricing {
-    padding-top: 72px;
-    padding-bottom: 72px;
-  }
-  .pricing__lede {
-    margin-top: 26px;
-    font-size: clamp(17px, 4.3vw, 24px);
-    line-height: 1.55;
-    letter-spacing: -0.01em;
-    max-width: 30ch;
-    color: var(--bone-dim);
-    text-wrap: pretty;
-  }
-  .pricing__lede b {
-    color: var(--bone);
-    font-weight: 700;
-  }
-  .pricing__note {
-    margin-top: 24px;
-    font-size: 13px;
-    line-height: 1.6;
-    color: var(--bone-dim);
-    max-width: var(--col);
-    text-wrap: pretty;
-  }
-
-  /* ---------- close ---------- */
-
-  .close {
-    padding-top: 96px;
-    padding-bottom: 96px;
-    border-top: 1px solid var(--iron-2);
-  }
-  .close__title {
-    font-size: clamp(30px, 8.6vw, 66px);
-    font-weight: 700;
-    line-height: 1.08;
-    letter-spacing: -0.03em;
-    margin-bottom: 30px;
-  }
-
-  /* ---------- footer ---------- */
-
   .footer {
     position: relative;
     z-index: 2;
@@ -2129,233 +823,9 @@ const STAGES = [
     color: var(--ember);
     border-color: var(--ember);
   }
-
-  /* ---------- reveal ---------- */
-
-  .reveal {
-    transition:
-      opacity 780ms var(--ease-out),
-      transform 780ms var(--ease-out);
-  }
-  :global(html.js) .reveal {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  :global(html.js) .reveal.is-in {
-    opacity: 1;
-    transform: none;
-  }
-
-  /* The hero is one orchestrated load rather than a scroll trigger, so it animates on its own
-     clock and never waits for an observer. */
-  .hero .reveal {
-    animation: rise 820ms var(--ease-spring) both;
-    transition: none;
-  }
-  /* Beats the html.js hidden state above: the hero animates on its own clock and must never
-     wait on the observer. The animation's `both` fill still owns what is actually painted. */
-  :global(html.js) .hero .reveal {
-    opacity: 1;
-    transform: none;
-  }
-  .hero .r1 {
-    animation-delay: 40ms;
-  }
-  .hero .r2 {
-    animation-delay: 130ms;
-  }
-  .hero .r3 {
-    animation-delay: 220ms;
-  }
-  .hero .r4 {
-    animation-delay: 320ms;
-  }
-  .hero .r5 {
-    animation-delay: 420ms;
-  }
-  .hero .r6 {
-    animation-delay: 520ms;
-  }
-  .hero .r7 {
-    animation-delay: 640ms;
-  }
-
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(22px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
-  }
-
-  /* ---------- desktop ---------- */
-
-  @media (min-width: 720px) {
-    .shell {
-      --rail: 76px;
-      --gutter: 40px;
-    }
-
-    .joint {
-      width: 22px;
-      height: 22px;
-      margin-left: -11px;
-      margin-top: -11px;
-    }
-    .joint::after {
-      width: 9px;
-      height: 9px;
-    }
-    .bone {
-      width: 14px;
-      margin-left: -7px;
-    }
-
-    .hero--art {
-      display: grid;
-      min-height: min(88vh, 780px);
-      overflow: hidden;
-    }
-    .hero__art {
-      position: absolute;
-      inset: 0;
-      height: 100%;
-      aspect-ratio: auto;
-    }
-    .hero__scrim { display: block; }
-    /* The lockup box follows the art to full bleed: the cover crop is centre-anchored, so
-       the baked text's horizontal centre holds and its top edge only drifts between ~44%
-       and ~46% of the container across aspect ratios. The 43% floor stays above it. */
-    .hero__lockup {
-      inset: 0;
-      width: auto;
-      aspect-ratio: auto;
-    }
-    /* Left copy, centre buttons under the art's own "You drive.", right reel over the squid. */
-    .hero__stage {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr) minmax(0, 1fr);
-      grid-template-areas:
-        "left    .       right"
-        "left    actions right";
-      align-content: end;
-      gap: 20px 26px;
-      padding-bottom: 40px;
-    }
-    .hero__flank--left { grid-area: left; align-self: center; }
-    /* Pinned under the pill on the right edge: 2.5vw matches the pill's percentage seat
-       (the hero is full-bleed, so vw and container % agree), plus the pill's own height. */
-    .hero__flank--right {
-      position: absolute;
-      top: calc(2.5vw + 44px);
-      right: 2.75vw;
-      width: 308px; /* 220 + 40%, Adrian's call on the pinned reel */
-      padding: 0;
-      z-index: 2;
-    }
-    .hero__actions { grid-area: actions; justify-self: center; text-align: center; }
-    .hero__actions .getblock__actions { justify-content: center; }
-    .hero__reel { width: min(100%, 308px); }
-    .hero__wordmark {
-      width: 300px;
-      margin-bottom: 20px;
-    }
-    .hero__title {
-      font-size: clamp(46px, 5.4vw, 62px);
-    }
-    .hero__copy p {
-      /* Larger than ordinary body copy: this paragraph finishes the headline's sentence, and
-         a full body-size drop makes the two read as separate thoughts. */
-      font-size: 18px;
-      line-height: 1.55;
-    }
-    .hero__media {
-      margin-top: 34px;
-      width: 100%;
-    }
-
     .btn {
       min-height: 44px;
     }
-
-    .workflow {
-      padding-top: 120px;
-      padding-bottom: 120px;
-    }
-    .walkthroughs {
-      padding-top: 120px;
-      padding-bottom: 120px;
-    }
-    .walk-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-    .stage {
-      grid-template-columns: 34px minmax(0, 1fr) minmax(0, 0.9fr);
-      align-items: start;
-      gap: 24px;
-    }
-    .stage__rail {
-      grid-row: 1;
-    }
-    .stage__body {
-      padding-bottom: 56px;
-    }
-    .stage__shot {
-      grid-column: 3;
-      grid-row: 1;
-      margin-bottom: 56px;
-    }
-    .stage__text {
-      margin-bottom: 0;
-    }
-
-    .pillar {
-      padding-top: 150px;
-      padding-bottom: 150px;
-    }
-    .pillar__note {
-      margin-top: 68px;
-    }
-
-    .status {
-      padding-top: 120px;
-      padding-bottom: 120px;
-    }
-    .status__grid {
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
-      align-items: start;
-      gap: 26px;
-    }
-    .status__panels {
-      display: grid;
-      gap: 16px;
-    }
-
-    .studio {
-      padding-top: 120px;
-      padding-bottom: 120px;
-    }
-    .studio__grid {
-      grid-template-columns: minmax(0, 0.62fr) minmax(0, 1fr);
-      gap: 56px;
-      align-items: start;
-    }
-    .studio__portrait {
-      max-width: none;
-    }
-
-    .pricing {
-      padding-top: 120px;
-      padding-bottom: 120px;
-    }
-
-    .close {
-      padding-top: 170px;
-      padding-bottom: 170px;
-    }
-
     .footer__inner {
       grid-template-columns: auto 1fr;
       align-items: center;
@@ -2368,66 +838,4 @@ const STAGES = [
       gap: 26px;
       flex-wrap: wrap;
     }
-  }
-
-  @media (min-width: 1100px) {
-    .shell {
-      --rail: 108px;
-    }
-    .stage {
-      grid-template-columns: 40px minmax(0, 1fr) minmax(0, 1fr);
-      gap: 34px;
-    }
-  }
-
-  /* The hero only goes two-column once each column can carry display type. */
-  @media (min-width: 1150px) {
-    .hero {
-      padding-top: 74px;
-    }
-    .hero__inner {
-      display: grid;
-      grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
-      gap: 56px;
-      align-items: center;
-    }
-    .hero__title {
-      font-size: clamp(50px, 4.3vw, 70px);
-    }
-    .hero__copy p {
-      font-size: 19px;
-    }
-    /* Was capped at 360px around a 9:16 video. A 16:9 shot needs the whole column, or it
-       renders postage-stamp sized beside display type. */
-    .hero__media {
-      margin-top: 0;
-      width: 100%;
-      justify-self: end;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-      animation-duration: 1ms !important;
-      animation-delay: 0ms !important;
-      transition-duration: 1ms !important;
-    }
-    .reveal {
-      opacity: 1;
-      transform: none;
-    }
-    .mantra span {
-      opacity: 1;
-      transform: none;
-    }
-    .spine__draw {
-      display: none;
-    }
-    .joint,
-    .stage__joint {
-      opacity: 1;
-    }
-  }
 </style>

@@ -1,10 +1,14 @@
 ---
-// LINKS is back (2026-07-23): the email gate is retired and Download is a direct link to
-// the stable installer key on R2 (see links.ts). DownloadGate is gone with it.
-// NewsletterPop rides here for the same reason DownloadGate did: the nav is on every page,
-// so the post-download ask exists wherever an installer link does.
-import { LINKS } from '../data/links';
+// Download opens /store/, the hub for everything the studio ships (Adrian, 2026-08-19:
+// one download page). NewsletterPop still rides here because the nav is on every page, so
+// the post-download ask exists wherever installer links do (the store's own download
+// buttons carry data-installer).
 import NewsletterPop from './NewsletterPop.astro';
+
+// The current page's tab reads plasma (Adrian, 2026-08-19). Prefix match, so a docs
+// subpage lights Docs and /armature/eula/ lights Armature; the homepage lights none.
+const path = Astro.url.pathname;
+const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active' : '');
 ---
 <nav class="navbar">
   <a class="navbar__brand" href="/">
@@ -14,23 +18,22 @@ import NewsletterPop from './NewsletterPop.astro';
   <button class="navbar__burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
     <span></span><span></span><span></span>
   </button>
-  {/* Two doors at the top of every page, one per direction, which is the two-layer system
-      expressed in navigation instead of prose. Services is the hire door and carries the
-      outlined weight; Download is the toolset door and stays the loudest thing up here,
-      because most arrivals today are coming for the toolset.
-
-      Community moved to the footer in the same pass: it was a dropdown holding two social
-      links, and the nav needed the slot for Toolset and Store. Swap, not addition. */}
+  {/* One row of tabs, no side doors (Adrian, 2026-08-19): the Download and Services
+      buttons retired -- Downloads (the /store/ hub) and Services are tabs like everything
+      else, and the page's own beats carry the loud doors now. */}
   <div class="navbar__menu" id="nav-menu">
-    <a class="navbar__tab" href="/tools/">Toolset</a>
-    {/* Sits next to Toolset because they are the two products, and after it because the free
-        Maya suite is still what most arrivals come for. */}
-    <a class="navbar__tab" href="/armature/">Armature</a>
-    <a class="navbar__tab" href="/store/">Store</a>
-    <a class="navbar__tab" href="/docs/">Docs</a>
-    <a class="navbar__tab" href="/tutorials/">Tutorials</a>
-    <a class="nav-services" href="/services/" data-goatcounter-click="nav-services">Services</a>
-    <a class="nav-download" href={LINKS.installer} data-installer data-goatcounter-click="nav-download">Download</a>
+    {/* Centred as a group on the bar (Adrian, 2026-08-19): the five tabs hold the middle,
+        the two doors hold the right. On narrower desktops the group falls back into the
+        row, and on mobile the wrapper dissolves into the dropdown. */}
+    <div class="navbar__tabs">
+      {/* Armature leads the row (Adrian, 2026-08-19). */}
+      <a class={'navbar__tab' + active('/armature/')} href="/armature/">Armature</a>
+      <a class={'navbar__tab' + active('/tools/')} href="/tools/">Toolset</a>
+      <a class={'navbar__tab' + active('/store/')} href="/store/">Downloads</a>
+      <a class={'navbar__tab' + active('/docs/')} href="/docs/">Docs</a>
+      <a class={'navbar__tab' + active('/tutorials/')} href="/tutorials/">Tutorials</a>
+      <a class={'navbar__tab navbar__tab--bold' + active('/services/')} href="/services/">Services</a>
+    </div>
   </div>
 </nav>
 <NewsletterPop />
@@ -66,8 +69,18 @@ import NewsletterPop from './NewsletterPop.astro';
     justify-content: space-between;
     gap: 1rem;
     padding: 0 1.5rem;
-    background: var(--carbon);
-    border-bottom: 1px solid var(--iron-2);
+    /* Glass, not solid (Adrian, 2026-08-19). The bar is unchanged in every other respect; it
+       just stops being a lid on the 3D scene it now floats over.
+       Unprefixed ONLY: hand-writing the -webkit- twin makes lightningcss drop the standard
+       property and Firefox loses the blur silently. */
+    background: rgba(11, 14, 16, 0.55);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid rgba(232, 224, 208, 0.08);
+  }
+  /* Tests the STANDARD property only: ORing in the -webkit- alias reads true on an older
+     Safari that supports the alias while the build emits none, leaving a see-through bar. */
+  @supports not (backdrop-filter: blur(1px)) {
+    .navbar { background: rgba(11, 14, 16, 0.92); }
   }
   .navbar__brand {
     display: flex;
@@ -84,6 +97,23 @@ import NewsletterPop from './NewsletterPop.astro';
     align-items: center;
     gap: 1.5rem;
   }
+  /* Centred against the BAR, not the menu: the group is lifted out of the flex flow so its
+     midpoint is the viewport's, whatever the brand and the doors weigh. The fixed navbar is
+     the containing block. */
+  .navbar__tabs {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  /* Below this the centred group starts crowding the brand and the doors: fall back into
+     the row on the right, as it laid out before the centring. */
+  @media (max-width: 1100px) {
+    .navbar__tabs { position: static; transform: none; }
+  }
   .navbar__tab {
     text-decoration: none;
     text-transform: uppercase;
@@ -94,28 +124,12 @@ import NewsletterPop from './NewsletterPop.astro';
     list-style: none;
   }
   .navbar__tab:hover { color: var(--bone); }
-
-  /* The two doors, weighted the same way the hero weights them: the toolset door is filled,
-     the hire door is outlined. Same shape so they read as a pair, different weight so they
-     do not compete. */
-  .nav-services,
-  .nav-download {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    text-decoration: none;
-    border-radius: var(--radius-pill);
-    padding: 0.45rem 1.05rem;
-    cursor: pointer;
-    white-space: nowrap;
-    transition: background var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out), border-color var(--t-fast) var(--ease-out);
-  }
-  .nav-services { color: var(--bone); background: none; border: 1px solid rgba(232, 224, 208, 0.3); }
-  .nav-services:hover { color: var(--bone); border-color: var(--bone); }
-  .nav-download { color: var(--carbon); background: var(--plasma); border: 1px solid var(--plasma); }
-  .nav-download:hover { background: var(--plasma-dim); border-color: var(--plasma-dim); color: var(--carbon); }
+  /* Services BOLD (Adrian, 2026-08-19, after trying the serif): the hire door stands apart
+     from the product tabs by weight, in the same voice. */
+  .navbar__tab--bold { font-weight: 700; color: var(--bone); }
+  /* The page you are on. */
+  .navbar__tab--active { color: var(--plasma); }
+  .navbar__tab--active:hover { color: var(--plasma); }
 
   /* Hamburger: hidden on desktop, shown on narrow screens. */
   .navbar__burger { display: none; }
@@ -159,8 +173,7 @@ import NewsletterPop from './NewsletterPop.astro';
       padding: 0.25rem 1.5rem 1rem;
     }
     .navbar__menu.is-open { display: flex; }
+    .navbar__tabs { display: contents; }
     .navbar__menu .navbar__tab { padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
-    .nav-services,
-    .nav-download { align-self: flex-start; margin-top: 1rem; }
   }
 </style>

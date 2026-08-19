@@ -1,0 +1,113 @@
+---
+// THE CLOSING BEAT (Adrian, 2026-08-19): About Me and Available for engagements,
+// consolidated into one fullscreen layout over the room -- the page's last screen. The
+// welcome video (his spoken introduction, click-to-play, no third-party script until
+// pressed) stands left; the ask stands right with both of its doors. Copy is carried over
+// VERBATIM from the two sections it consolidates (branch commit d9e73c5); nothing here is
+// new prose.
+import BracketButton from './BracketButton.astro';
+import WelcomeVideo from './WelcomeVideo.astro';
+---
+
+<div class="cl" data-close-overlay>
+  <p class="cl__title">About Me</p>
+
+  <div class="cl__media">
+    <WelcomeVideo />
+  </div>
+
+  <div class="cl__copy">
+    <p class="cl__head">Available for engagements.</p>
+    <p class="cl__line">Rig and export setup, custom Maya tools, fractional TA and retainers. Delivered by the technical artist who built Fabricator, documented, and yours to keep.</p>
+    <div class="cl__ctas">
+      <BracketButton kind="hard" href="/services/" label="Learn More" event="home-services" />
+      <a class="cl__mail" href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Fixed layer over the room, the page's last beat; same grammar as Armature's. */
+  .cl {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .cl[data-active] { visibility: visible; }
+  .cl[data-active] :is(a, button) { pointer-events: auto; }
+
+  .cl__title {
+    position: absolute;
+    left: 50%;
+    top: 8%;
+    transform: translateX(-50%);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3rem, 5.6vw, 5.4rem);
+    line-height: 1;
+    color: var(--ember);
+    opacity: var(--close, 0);
+    white-space: nowrap;
+  }
+
+  .cl__media {
+    position: absolute;
+    left: 10.5%;
+    top: 24%;
+    width: 38%;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    opacity: var(--close, 0);
+    transform: translateY(calc((1 - var(--close, 0)) * 22px));
+  }
+  /* The component brings its own section paddings for the in-flow page; the overlay wants
+     just the stage. */
+  .cl__media :global(section) { padding: 0; max-width: none; }
+
+  .cl__copy {
+    position: absolute;
+    left: 55%;
+    right: 8%;
+    top: 32%;
+    opacity: var(--close, 0);
+    transform: translateY(calc((1 - var(--close, 0)) * 22px));
+  }
+  .cl__head {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.6rem, 4.4vw, 4.6rem);
+    line-height: 1.02;
+    color: var(--bone);
+  }
+  .cl__line {
+    margin-top: 1.4rem;
+    font-weight: 300;
+    font-size: clamp(1.2rem, 1.8vw, 1.6rem);
+    line-height: 1.45;
+    color: var(--bone);
+    max-width: 44ch;
+  }
+  .cl__ctas {
+    margin-top: 2.2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    flex-wrap: wrap;
+    font-size: 0.95rem;
+  }
+  .cl__mail {
+    font-weight: 300;
+    font-size: 1.15rem;
+    color: var(--plasma);
+    text-decoration: none;
+  }
+  .cl__mail:hover { color: var(--plasma-dim); }
+
+  /* The cinematic never runs under 900px or in the static fallback. */
+  @media (max-width: 900px) {
+    .cl { display: none; }
+  }
+</style>

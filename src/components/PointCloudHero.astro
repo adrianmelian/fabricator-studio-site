@@ -1,0 +1,1455 @@
+---
+// THE OPENING. The FS mark as 5,000 glowing points, scroll-driven into an explosion that
+// hands the page over to the hero video. Adrian dialled every number in a local harness
+// (MrMiata: workspace/website/2026-08-18_point-cloud-hero/build) and they are transcribed
+// here verbatim; nothing in this file is an implementer's choice.
+//
+// This is the FIRST client-side JavaScript the site has ever shipped, which is why it is
+// hand-rolled WebGL2 rather than three.js: the alternative was 150-200 KB plus a GLB
+// download to draw 5,000 dots. The mark never changes, so its geometry is baked at build
+// time (MrMiata: build/bake.py) into a 9 KB positions+normals+indices binary, and the
+// even-surface sampling runs once on load from a fixed seed.
+//
+// It is progressive enhancement over the static markup below it. Reduced motion, no WebGL2,
+// or a failed init all leave the copy standing on carbon, and the scroll runway collapses so
+// nobody scrolls through three empty screens to reach the page.
+import { Image } from 'astro:assets';
+import BracketButton from './BracketButton.astro';
+import heroWordmark from '../assets/hero/wordmark-banner.png';
+---
+
+{/* THE STAGE IS A STACK OF FIXED LAYERS (Adrian, 2026-08-19). Nothing scrolls past anything:
+    scroll position is just the clock, and the layers fade and move against it in place.
+      z0  the 3D scene (canvas: grid + cloud), never scrolls away
+      z1  the hero video, which FADES IN over the scene as the cloud explodes (the section
+          itself, promoted to a fixed layer by [data-cine] in index.astro)
+      z2  this copy layer: text that clears on beat one, and the two download buttons, which
+          never fade at all -- they travel to centre-bottom and STAY, above the video
+      higher  the nav */}
+<div class="pc" data-pc>
+  <div class="pc__stage">
+    <canvas class="pc__canvas" data-pc-canvas aria-hidden="true"></canvas>
+  </div>
+</div>
+
+<div class="pc__copylayer">
+  <div class="pc__copy">
+    <div class="pc__text" data-pc-text>
+      <p class="pc__display">Artist<span class="pc__plus">+</span>AI Toolset</p>
+      <p class="pc__sub">Game Development<br />Re-imagined.</p>
+      {/* The wordmark stays the h1, as it was before this section existed, so the page's
+          heading shape is unchanged. Its vertical offset is set once at load to sit on the
+          crossbar of the F in the point cloud (Adrian's alignment, 2026-08-19). */}
+      <h1 class="pc__wordmark" data-pc-wordmark>
+        <Image src={heroWordmark} alt="FabricatorStudio" widths={[760, 1180]} sizes="(max-width: 820px) 86vw, 760px" loading="eager" />
+      </h1>
+    </div>
+    {/* ONE download door now (Adrian, 2026-08-19: every download converges on /store/,
+        the hub). It never fades: it travels to the centre of the screen as the camera
+        centres -- the philosophy line lands just above it -- and holds there, above the
+        video, for as long as the stage is on screen. The ask outlives the whole opening.
+        That is why it sits outside .pc__text, which owns the text fade, and on a layer
+        above the video's z1. */}
+    <div class="pc__cta" data-pc-cta>
+      <BracketButton kind="hard" href="/store/" label="Downloads" event="hero-download" />
+      <BracketButton kind="plasma-outline" href="/services/" label="Services" event="hero-services" />
+    </div>
+  </div>
+
+  {/* THE PHILOSOPHY (Adrian, 2026-08-19): fades in when the camera lands at beat B, centred
+      above the download buttons, and STAYS up through the video. This is his own rewrite of
+      2026-08-01, moved from the old video-hero copy block; the emphasis markup is carried
+      over verbatim, owner's override on the "These are not AI tools" shape included. */}
+  <div class="pc__philosophy">
+    {/* Stepped, not simultaneous (Adrian, 2026-08-19): the studio line stands with the mark
+        at beat B, then hands off to the refinement line as the video fades in. They occupy
+        the same grid cell so the swap happens in place rather than reflowing. */}
+    <p class="pc__phil-lead" style="opacity: var(--phil1, 0)"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="pc__phil-hl">Free for small studios.</b></p>
+    <p class="pc__phil-line" style="opacity: var(--phil2, 0)">Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can <b class="pc__phil-ember">drive your asset to production level standards</b>.</b></p>
+  </div>
+</div>
+
+{/* The scroll the whole stage is spent on. Purely a clock: the OPENING owns the first 1.6
+    screens of scroll (its beat fractions are ruled against exactly that length, so it never
+    changes when the runway grows); the video owns the screen to 2.0, then clears as the
+    room returns with THE PIPELINE (Adrian's sketch: chaos in, four x-ray sections, a
+    character out), which holds for hover to 4.4 and is gone by 4.8; from 5.2 to 6.3 the
+    da Vinci man materialises floor-to-head with the scroll; Armature's copy rises over him
+    from 6.4 and holds; from 7.1 it clears and THE SCAN runs to 8.5, the slit climbing the
+    screen with the download riding it; then the CLOSE (About Me + engagements, one screen)
+    rises from 8.6 and holds to the end. 100svh viewport + 9.6 scroll screens = 1060svh. */}
+<div class="pc-runway" data-pc-runway></div>
+
+<style>
+  .pc {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    /* The nav sits over this; the panels sit over it too. Nothing here ever takes a click. */
+    pointer-events: none;
+    background: var(--carbon);
+  }
+  .pc__stage { position: absolute; inset: 0; overflow: hidden; }
+  /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
+     in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
+  .pc-runway { height: 1060svh; }
+
+  /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
+     clickable and visible after the video has faded in underneath them. */
+  .pc__copylayer {
+    position: fixed;
+    inset: 0;
+    /* 3, not 2: the toolset glass lives at 2 and the buttons must stand ON it, sharp,
+       never blurred under it. */
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .pc__canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Nothing to look at until the cloud has been sampled and drawn once. */
+    opacity: 0;
+    transition: opacity 400ms var(--ease-out);
+  }
+  .pc__canvas[data-ready] { opacity: 1; }
+
+  .pc__copy {
+    position: absolute;
+    left: 9vw;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 44vw;
+    display: flex;
+    flex-direction: column;
+    /* The layer is click-through; the buttons are the one thing that takes a click. The
+       faded-out text must NOT: pointer-events comes back on the CTA row only. */
+    pointer-events: none;
+  }
+  .pc__cta :global(a) { pointer-events: auto; }
+
+  /* One group with the buttons, riding the LOWER-THIRD line (Adrian, 2026-08-19 second
+     pass: dead centre read too high, the old bottom landing too low -- rule of thirds):
+     the paragraph's baseline just above the line, the buttons just below. Text over moving
+     footage with no scrim, so the shadow is what keeps it legible. */
+  .pc__philosophy {
+    position: absolute;
+    left: 50%;
+    bottom: calc(33.3% + 1.6rem);
+    transform: translateX(-50%);
+    width: min(52rem, 86vw);
+    text-align: center;
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+    /* Both paragraphs share one cell: the handoff is a crossfade in place, never a reflow. */
+    display: grid;
+  }
+  .pc__philosophy > p { grid-area: 1 / 1; align-self: end; }
+  /* Same register as the opening's "Game Development Re-imagined." line (Adrian,
+     2026-08-19): the two beats speak at one size. */
+  .pc__phil-lead,
+  .pc__phil-line {
+    font-weight: 300;
+    line-height: 1.22;
+    color: var(--bone);
+    font-size: clamp(1.3rem, 2.3vw, 2.05rem);
+  }
+
+  .pc__philosophy b { color: var(--bone); font-weight: 700; }
+  .pc__philosophy .pc__phil-hl { color: var(--plasma); }
+  .pc__philosophy .pc__phil-ember { color: var(--ember); }
+
+  /* The fade lives here and not on .pc__copy, because a child cannot be more opaque than its
+     parent and the buttons have to outlive the text. */
+  .pc__text {
+    display: flex;
+    flex-direction: column;
+    opacity: calc(1 - var(--pc-out, 0));
+    transform: translateY(calc(var(--pc-out, 0) * -24px));
+  }
+
+  .pc__display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.005em;
+    font-size: clamp(2.6rem, 5.2vw, 5rem);
+    color: var(--bone);
+  }
+  /* The plus stands in plasma (Adrian, 2026-08-19): the collaboration, said in one glyph. */
+  .pc__display .pc__plus { color: var(--plasma); }
+
+  .pc__sub {
+    font-weight: 300;
+    line-height: 1.22;
+    color: var(--bone);
+    font-size: clamp(1.3rem, 2.3vw, 2.05rem);
+    margin-top: 0.35rem;
+  }
+
+  /* position/top and NOT a margin: the offset that sits this on the F's crossbar must not
+     change the copy column's height, because the column's height is what the mark's framing
+     was set against. */
+  .pc__wordmark {
+    margin: 2.2rem 0 0;
+    position: relative;
+    top: var(--pc-wm, 0px);
+  }
+  .pc__wordmark :global(img) {
+    display: block;
+    width: min(34vw, 470px);
+    height: auto;
+  }
+
+  .pc__cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 3.4rem;
+    font-size: 0.95rem;
+    will-change: transform, opacity;
+    /* max-content, not the column's width: the travel math centres THIS rect on the canvas,
+       and a full-width rect parks a lone button left of centre. */
+    width: max-content;
+  }
+
+  /* ---- the fallback -------------------------------------------------------------------
+     Reduced motion, no WebGL2, or a failed init: the canvas layer goes entirely, the copy
+     layer drops into the flow as an ordinary opening screen on carbon, and the runway
+     collapses so nobody scrolls two and a half empty screens to reach the page. The video
+     section keeps its normal in-flow life because [data-cine] is never set. */
+  .pc[data-pc-static] { display: none; }
+  .pc[data-pc-static] ~ .pc__copylayer {
+    position: relative;
+    inset: auto;
+    pointer-events: auto;
+    min-height: calc(100svh - var(--header-h));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__philosophy {
+    position: relative;
+    left: 0;
+    bottom: auto;
+    transform: none;
+    width: auto;
+    max-width: min(44rem, 82vw);
+    margin: 1.5rem 0 0 9vw;
+    text-align: left;
+    text-shadow: none;
+    display: block;
+  }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__philosophy > p { opacity: 1 !important; }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__phil-line { margin-top: 0.9rem; }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__copy {
+    position: relative;
+    top: auto;
+    left: 0;
+    transform: none;
+    max-width: min(44rem, 82vw);
+    margin-left: 9vw;
+    padding: var(--sp-7) 0;
+    pointer-events: auto;
+  }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__text { opacity: 1; transform: none; }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__wordmark { top: 0; }
+  .pc[data-pc-static] ~ .pc-runway { display: none; }
+
+  @media (max-width: 900px) {
+    /* Mobile is composed but NOT dialled: Adrian ruled the layout (mark toward the top, copy
+       in the lower third, buttons at the bottom) and deferred its camera. Until that framing
+       exists this width takes the static fallback rather than an undialled cinematic. */
+    .pc { display: none; }
+    .pc__copylayer { position: relative; inset: auto; pointer-events: auto; min-height: calc(100svh - var(--header-h)); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+    .pc__philosophy { position: relative; left: 0; bottom: auto; transform: none; width: auto; margin: 1.25rem 0 0 0; padding: 0 var(--container-px, 20px); text-align: left; text-shadow: none; display: block; }
+    .pc__philosophy > p { opacity: 1 !important; }
+    .pc__phil-line { margin-top: 0.9rem; }
+    .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); pointer-events: auto; }
+    .pc__text { opacity: 1; transform: none; }
+    .pc__wordmark { top: 0; }
+    .pc__wordmark :global(img) { width: min(86vw, 470px); }
+    .pc-runway { display: none; }
+  }
+</style>
+
+<script>
+  // ---------------------------------------------------------------- the ruled numbers
+  // Transcribed from Adrian's harness. Do not tune these here; tune them there and copy back.
+  const P = {
+    count: 5000, seed: 1, size: 0.0356,
+    freq: 3, rip: 2, freq2: 1, rip2: 5.3, mix2: 0.1,
+    oscLow: 0.008, oscHigh: 0.855, oscSpeed: 0.1, oscShape: 1.45, oscAttack: 0.175,
+    cFreq: 0.35, cSpread: 0.06, fadeDepth: 0,
+    bloomStrength: 2.4, bloomRadius: 0.34, bloomThreshold: 0.3, bloomKnee: 0.15,
+    gridOpacity: 1, fogNear: 2.0, fogFar: 14.0,
+    exDist: 1.5, exCurl: 2.16, exCam: 1.06,
+    restAmp: 0.012, wakeAt: 0.04,
+    anchorY: 0.415, ctaDropPx: 34,
+    // The star shell (Adrian, 2026-08-19): environment, indifferent to the beats. Dim enough
+    // that only the brightest twinkle just past the bloom threshold.
+    // Sizes vary per star, 0.02-0.1 (Adrian, 2026-08-19), biased small so a handful of big
+    // ones carry the presence and the rest carry the depth.
+    starCount: 2600, starSizeMin: 0.02, starSizeMax: 0.35, starSpeed: 0.015, starBright: 1.0,
+  };
+  const CAM_A = { yaw: -0.0200, pitch: -0.0240, dist: 4.36448, tx: -0.62800, ty: 0.89876, tz: -0.83070, fov: 42 };
+  const CAM_B = { yaw: -0.0320, pitch: -0.1160, dist: 3.14928, tx: 0.08734, ty: 0.79470, tz: 0.00000, fov: 42 };
+  // The man's framing: centred, pulled back enough that his full 2.1 units stand in frame.
+  // A first-pass guess, NOT dialled by Adrian yet -- his eye owns these numbers.
+  const CAM_C = { yaw: 0.0, pitch: -0.02, dist: 3.7, tx: 0.0, ty: 1.02, tz: 0.0, fov: 42 };
+
+  const root = document.querySelector('[data-pc]') as HTMLElement | null;
+  if (root) start(root);
+
+  function fallback(el: HTMLElement) {
+    el.setAttribute('data-pc-static', '');
+    // If init died after the video was promoted to a fixed layer, un-promote it, or the page
+    // is left with an invisible fixed video and no hero at all.
+    const hero = document.getElementById('hero');
+    if (hero) { hero.removeAttribute('data-cine'); hero.style.opacity = ''; }
+  }
+
+  async function start(host: HTMLElement) {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const narrow = matchMedia('(max-width: 900px)').matches;
+    if (reduced || narrow) { fallback(host); return; }
+
+    const canvas = host.querySelector('[data-pc-canvas]') as HTMLCanvasElement;
+    const gl = canvas.getContext('webgl2', { antialias: true, alpha: false });
+    if (!gl) { fallback(host); return; }
+
+    try { await run(host, canvas, gl); }
+    catch (err) {
+      // NEVER silent: a swallowed init error demotes the whole opening to the static page
+      // with no trace, which cost a debugging round on 2026-08-19.
+      console.error('[pointcloud] init failed, static fallback:', err);
+      fallback(host);
+    }
+  }
+
+  // ---------------------------------------------------------------- maths
+  const sub = (a: number[], b: number[]) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const dot = (a: number[], b: number[]) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a: number[], b: number[]) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const norm = (a: number[]) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
+  const smooth = (t: number) => t * t * (3 - 2 * t);
+
+  function perspective(fovDeg: number, aspect: number, near: number, far: number) {
+    const f = 1 / Math.tan((fovDeg * Math.PI / 180) / 2), nf = 1 / (near - far);
+    return new Float32Array([f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) * nf, -1, 0, 0, 2 * far * near * nf, 0]);
+  }
+  function lookAt(eye: number[], target: number[], up: number[]) {
+    const z = norm(sub(eye, target)), x = norm(cross(up, z)), y = cross(z, x);
+    return new Float32Array([
+      x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0,
+      -dot(x, eye), -dot(y, eye), -dot(z, eye), 1]);
+  }
+  // Deterministic: Adrian tuned against ONE cloud, so an unseeded sample would be a slightly
+  // different cloud on every machine.
+  function mulberry32(a: number) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  async function run(host: HTMLElement, canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
+    const HDR = gl.getExtension('EXT_color_buffer_float') ? gl.RGBA16F : gl.RGBA8;
+    gl.getExtension('OES_texture_float_linear');
+
+    const sh = (type: number, src: string) => {
+      const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) || 'shader');
+      return s;
+    };
+    const prog = (vs: string, fs: string) => {
+      const p = gl.createProgram()!;
+      gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || 'link');
+      const u: Record<string, WebGLUniformLocation | null> = {};
+      const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+      for (let i = 0; i < n; i++) {
+        const nm = gl.getActiveUniform(p, i)!.name.replace('[0]', '');
+        u[nm] = gl.getUniformLocation(p, nm);
+      }
+      return { p, u };
+    };
+    const target = (w: number, h: number, fmt: number) => {
+      const t = gl.createTexture()!;
+      gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, fmt, w, h, 0, gl.RGBA, fmt === gl.RGBA16F ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      const f = gl.createFramebuffer()!;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return { f, t, w, h };
+    };
+
+    // ---- shaders. The prototype's, unchanged in behaviour.
+    const POINT_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor; in float aPhase; in float aPhase2; in vec3 aRand; in float aYN;
+uniform mat4 uProj, uView;
+uniform float uTime, uAmp, uFreq, uRip, uFreq2, uRip2, uMix2, uSize;
+uniform float uCFreq, uCSpread, uFadeDepth;
+uniform float uExplode, uExDist, uExCurl, uExCam;
+uniform float uReveal, uFade;
+uniform vec3 uCamDir;
+out float vFade; out float vWave; out float vAlive; out float vEdge;
+void main() {
+  // Two crossing waves MIXED rather than summed, so the blend changes the character of the
+  // motion without changing how far the points travel.
+  float w1 = sin(uTime * uFreq + aPhase * uRip);
+  float w2 = sin(uTime * uFreq2 + aPhase2 * uRip2);
+  float w = mix(w1, w2, uMix2);
+  vec3 p = aPos + aNor * (w * uAmp);
+  // The explosion is a pluck that never comes back: same snap, but the point keeps its
+  // velocity. Direction is seeded per point, never radial, because radial reads as fireworks.
+  if (uExplode > 0.0) {
+    float e = uExplode;
+    vec3 dir = normalize(mix(normalize(aRand * 2.0 - 1.0), aNor, 0.35) + uCamDir * uExCam);
+    vec3 curl = normalize(cross(dir, aNor + vec3(0.0, 0.001, 0.0)));
+    p += dir * (e * e * uExDist) + curl * (sin(e * 3.14159 + aPhase) * e * uExCurl);
+  }
+  vec4 mv = uView * vec4(p, 1.0);
+  gl_Position = uProj * mv;
+  // Point size is a PIXEL size, not a world size, against this exact scaling.
+  gl_PointSize = uSize * (300.0 / -mv.z);
+  vFade = 1.0 - uFadeDepth * 0.9 * (0.5 - 0.5 * w);
+  vWave = sin(uTime * uCFreq + aPhase * uRip * uCSpread);
+  // THE REVEAL (Adrian, 2026-08-19): points materialise floor-to-head as uReveal climbs.
+  // aYN is the point's normalised height; a soft band at the frontier and a brightness
+  // spike just under it read as the materialisation front rather than a hard wipe.
+  float vis = 1.0 - smoothstep(uReveal, uReveal + 0.045, aYN);
+  vEdge = (uReveal < 1.05 ? 1.0 : 0.0) * max(0.0, 1.0 - abs(aYN - uReveal) / 0.05);
+  vAlive = (1.0 - uExplode * 0.65) * vis * uFade;
+}`;
+
+    const POINT_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uEmber, uBone;
+uniform float uSplitY;
+in float vFade; in float vWave; in float vAlive; in float vEdge;
+out vec4 frag;
+void main() {
+  // Below the scan line the man is the solid x-ray's, not the points'.
+  if (uSplitY >= 0.0 && gl_FragCoord.y < uSplitY) discard;
+  if (vAlive < 0.003) discard;
+  vec2 d = gl_PointCoord - vec2(0.5);
+  float r = dot(d, d);
+  if (r > 0.25) discard;
+  float soft = smoothstep(0.25, 0.0, r);
+  // Bone at the wave's midpoint, Plasma at one crest and Ember at the other. The reveal
+  // frontier burns brighter, which is what makes the wipe read as materialisation.
+  vec3 c = vWave > 0.0 ? mix(uBone, uPlasma, vWave) : mix(uBone, uEmber, -vWave);
+  c *= 1.0 + vEdge * 1.6;
+  frag = vec4(c * vFade, soft * vAlive);
+}`;
+
+    // Stars: a slow uniform orbit around Y, done in the shader so the buffer never updates.
+    // aSeed.x is a twinkle phase, aSeed.y a per-star brightness.
+    const STAR_VS = `#version 300 es
+in vec3 aPos; in vec3 aSeed;
+uniform mat4 uProj, uView; uniform float uTime, uSpeed;
+out float vB;
+void main() {
+  float a = uTime * uSpeed;
+  float c = cos(a), s = sin(a);
+  vec3 p = vec3(aPos.x * c - aPos.z * s, aPos.y, aPos.x * s + aPos.z * c);
+  vec4 mv = uView * vec4(p, 1.0);
+  gl_Position = uProj * mv;
+  // aSeed.z is this star's own size; the floor keeps the far small ones from flickering out.
+  gl_PointSize = max(aSeed.z * (300.0 / -mv.z), 1.0);
+  vB = aSeed.y * (0.75 + 0.25 * sin(uTime * 0.6 + aSeed.x));
+}`;
+
+    const STAR_FS = `#version 300 es
+precision highp float;
+uniform vec3 uBone; uniform float uBright;
+in float vB; out vec4 frag;
+void main() {
+  vec2 d = gl_PointCoord - vec2(0.5);
+  float r = dot(d, d);
+  if (r > 0.25) discard;
+  frag = vec4(uBone * vB * uBright, smoothstep(0.25, 0.0, r));
+}`;
+
+    // THE SOLID X-RAY (Adrian, 2026-08-19): below the scan line the man stops being points
+    // and becomes the actual model, rendered as a fresnel shell -- bright at grazing angles,
+    // near-dark face-on, both faces adding, which is the classic hologram x-ray. He is
+    // STATIC here on purpose: solidified, no longer waving.
+    const XRAY_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor;
+uniform mat4 uProj, uView;
+out vec3 vN; out vec3 vV;
+void main() {
+  vec4 mv = uView * vec4(aPos, 1.0);
+  gl_Position = uProj * mv;
+  vN = mat3(uView) * aNor;
+  vV = -mv.xyz;
+}`;
+
+    const XRAY_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uBone;
+uniform float uAlpha, uSplitY;
+in vec3 vN; in vec3 vV;
+out vec4 frag;
+void main() {
+  // visible only BELOW the scan line (screen px from the bottom); the points own above
+  if (gl_FragCoord.y > uSplitY) discard;
+  // Cooler than the first cut (Adrian, 2026-08-19: the fresnel was a little hot): a
+  // tighter rim falloff and about half the energy, so the shell reads as glass, not neon.
+  float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 3.0);
+  vec3 c = mix(uBone * 0.04, mix(uBone, uPlasma, 0.55), rim * 0.55);
+  frag = vec4(c * uAlpha, 1.0);
+}`;
+
+    // THE PIPE (Adrian, 2026-08-19 second pass, from his sketch): the x-ray machine the
+    // tools story runs through. Same fresnel grammar as the man's solid, plus a per-vertex
+    // section id so the hovered quarter can light up. Placeholder geometry is procedural
+    // until Adrian's modelled pipe lands (OBJ -> FSMH).
+    const PIPE_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor; in float aSeg;
+uniform mat4 uProj, uView;
+out vec3 vN; out vec3 vV; out float vSeg;
+void main() {
+  vec4 mv = uView * vec4(aPos, 1.0);
+  gl_Position = uProj * mv;
+  vN = mat3(uView) * aNor;
+  vV = -mv.xyz;
+  vSeg = aSeg;
+}`;
+
+    const PIPE_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uBone;
+uniform float uAlpha, uHover;
+in vec3 vN; in vec3 vV; in float vSeg;
+out vec4 frag;
+void main() {
+  float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 3.0);
+  // The hovered section burns hotter; flanges carry seg -1 and never match.
+  float hot = (uHover >= 0.0 && abs(vSeg - uHover) < 0.5) ? 1.9 : 1.0;
+  vec3 c = mix(uBone * 0.03, mix(uBone, uPlasma, 0.6), rim * 0.5 * hot);
+  frag = vec4(c * uAlpha, 1.0);
+}`;
+
+    // THE FLOW: one particle system carries the whole journey. Each point's lifecycle is a
+    // pure function of time and its seeds -- chaos orbit at the intake, suction to the
+    // mouth, a churning helix down the pipe, assembly onto its target point on the man,
+    // then an arrival flash that dies into the standing shimmer. uAssembled=1 re-draws the
+    // same buffer with every point AT its target, faint: the man's persistent silhouette
+    // under the live stream.
+    const FLOW_VS = `#version 300 es
+in vec3 aTgt; in vec4 aR;
+uniform mat4 uProj, uView;
+uniform float uTime, uSpeed, uSize, uAssembled, uJourney;
+out float vA; out float vMix;
+const float B_END = 0.26, S_END = 0.36, P_END = 0.74, A_END = 0.88;
+vec3 pipeAt(float s, float rr, float th0) {
+  float x = mix(-2.4, 2.0, s);
+  float th = th0 + s * 12.0 + uTime * 1.5;
+  float r = rr * (0.55 + 0.45 * sin(s * 17.0 + th0 * 3.0 + uTime * 0.8));
+  return vec3(x, 1.25 + cos(th) * r, sin(th) * r);
+}
+vec3 blobAt(float t0, float th0, float ry) {
+  float w = t0 * (0.4 + 0.7 * ry) + th0;
+  float r2 = 0.15 + 0.6 * ry;
+  return vec3(-3.2, 1.25, 0.0) + vec3(cos(w) * r2, sin(w * 1.31 + ry * 4.0) * r2 * 0.8, sin(w) * r2);
+}
+void main() {
+  // THE PACKET (Adrian, 2026-08-19): most of the flow rides the SCROLL down the pipe as
+  // one group; the rest keeps the ambient time loop so the machine never reads dead.
+  // The packet's clamp parks it landed on the man, still lit: he builds up as it arrives.
+  float speed = uSpeed * (0.75 + 0.5 * aR.x);
+  float th0 = aR.z * 6.2831853;
+  float t;
+  if (aR.x < 0.7) {
+    t = clamp(0.16 + uJourney * 0.8 + (aR.w - 0.5) * 0.07, 0.0, 0.96);
+    float wander = sin(uTime * (0.4 + 0.6 * aR.y) + th0 * 2.0) * (0.006 + 0.012 * aR.y);
+    t = clamp(t + wander * (1.0 - smoothstep(0.8, 0.88, t)), 0.0, 0.96);
+  } else {
+    t = fract(aR.w + uTime * speed);
+  }
+  float rr = 0.05 + 0.2 * aR.y;
+  vec3 p;
+  float bright;
+  if (uAssembled > 0.5) {
+    p = aTgt;
+    bright = 0.2 + 0.08 * sin(uTime * 1.7 + aR.x * 6.2831853);
+  } else if (t < B_END) {
+    p = blobAt(uTime, th0, aR.y);
+    bright = 0.55;
+  } else if (t < S_END) {
+    float st = (t - B_END) / (S_END - B_END);
+    p = mix(blobAt(uTime, th0, aR.y), pipeAt(0.0, rr, th0), st * st);
+    bright = 0.7;
+  } else if (t < P_END) {
+    p = pipeAt((t - S_END) / (P_END - S_END), rr, th0);
+    bright = 1.0;
+  } else if (t < A_END) {
+    float st = (t - P_END) / (A_END - P_END);
+    st = 1.0 - (1.0 - st) * (1.0 - st);
+    p = mix(pipeAt(1.0, rr, th0), aTgt, st);
+    bright = 1.1;
+  } else {
+    p = aTgt;
+    bright = 1.3 * (1.0 - (t - A_END) / (1.0 - A_END));
+  }
+  if (aR.x < 0.7 && uAssembled < 0.5) bright *= 0.6;
+  vec4 mv = uView * vec4(p, 1.0);
+  gl_Position = uProj * mv;
+  gl_PointSize = max(uSize * (0.55 + 0.9 * aR.y) * (300.0 / -mv.z), 1.0);
+  vA = bright;
+  vMix = aR.y;
+}`;
+
+    const FLOW_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uEmber, uBone;
+uniform float uFade;
+in float vA; in float vMix;
+out vec4 frag;
+void main() {
+  vec2 d = gl_PointCoord - vec2(0.5);
+  float r = dot(d, d);
+  if (r > 0.25) discard;
+  float soft = smoothstep(0.25, 0.0, r);
+  vec3 c = vMix > 0.93 ? uEmber : mix(uBone, uPlasma, 0.35 + 0.6 * vMix);
+  frag = vec4(c * vA, soft * vA * uFade);
+}`;
+
+    const GRID_VS = `#version 300 es
+in vec3 aPos; uniform mat4 uProj, uView; out float vDist;
+void main() { vec4 mv = uView * vec4(aPos, 1.0); vDist = -mv.z; gl_Position = uProj * mv; }`;
+
+    const GRID_FS = `#version 300 es
+precision highp float;
+uniform vec3 uColor, uFogColor; uniform float uOpacity, uFogNear, uFogFar;
+in float vDist; out vec4 frag;
+void main() {
+  float f = clamp((uFogFar - vDist) / (uFogFar - uFogNear), 0.0, 1.0);
+  frag = vec4(mix(uFogColor, uColor, f), uOpacity * f);
+}`;
+
+    const QUAD_VS = `#version 300 es
+in vec2 aPos; out vec2 vUv;
+void main() { vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+    // Threshold 0 blooms everything, which was right over an empty void and wrong the moment
+    // the grid existed: the floor glowed.
+    const BRIGHT_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uTex; uniform float uThreshold, uKnee;
+in vec2 vUv; out vec4 frag;
+void main() {
+  vec3 c = texture(uTex, vUv).rgb;
+  float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+  frag = vec4(c * smoothstep(uThreshold, uThreshold + uKnee, l), 1.0);
+}`;
+
+    const BLUR_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uTex; uniform vec2 uDir, uTexel;
+in vec2 vUv; out vec4 frag;
+void main() {
+  vec3 c = texture(uTex, vUv).rgb * 0.2270270270;
+  vec2 o = uDir * uTexel;
+  c += (texture(uTex, vUv + o).rgb + texture(uTex, vUv - o).rgb) * 0.1945945946;
+  c += (texture(uTex, vUv + o * 2.0).rgb + texture(uTex, vUv - o * 2.0).rgb) * 0.1216216216;
+  c += (texture(uTex, vUv + o * 3.0).rgb + texture(uTex, vUv - o * 3.0).rgb) * 0.0540540541;
+  c += (texture(uTex, vUv + o * 4.0).rgb + texture(uTex, vUv - o * 4.0).rgb) * 0.0162162162;
+  frag = vec4(c, 1.0);
+}`;
+
+    // UnrealBloomPass's own factor curve, so `radius` behaves as it did on the dial.
+    const COMP_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uScene, uM0, uM1, uM2, uM3, uM4;
+uniform float uStrength, uRadius;
+in vec2 vUv; out vec4 frag;
+float lf(float f, float r) { return mix(f, 1.2 - f, r); }
+void main() {
+  vec3 b = lf(1.0, uRadius) * texture(uM0, vUv).rgb
+         + lf(0.8, uRadius) * texture(uM1, vUv).rgb
+         + lf(0.6, uRadius) * texture(uM2, vUv).rgb
+         + lf(0.4, uRadius) * texture(uM3, vUv).rgb
+         + lf(0.2, uRadius) * texture(uM4, vUv).rgb;
+  frag = vec4(texture(uScene, vUv).rgb + b * uStrength, 1.0);
+}`;
+
+    const P_POINT = prog(POINT_VS, POINT_FS);
+    const P_XRAY = prog(XRAY_VS, XRAY_FS);
+    const P_PIPE = prog(PIPE_VS, PIPE_FS);
+    const P_FLOW = prog(FLOW_VS, FLOW_FS);
+    const P_STAR = prog(STAR_VS, STAR_FS);
+    const P_GRID = prog(GRID_VS, GRID_FS);
+    const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
+    const P_BLUR = prog(QUAD_VS, BLUR_FS);
+    const P_COMP = prog(QUAD_VS, COMP_FS);
+
+    const quadVao = gl.createVertexArray()!;
+    gl.bindVertexArray(quadVao);
+    const qb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, qb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+    // The Armature viewport's own grid: cell 0.1 on iron-2, section 1.0 on iron-3. WebGL will
+    // not draw a line thicker than 1px, so the app's thickness difference is alpha here.
+    function makeGrid(size: number, divs: number) {
+      const half = size / 2, step = size / divs, v: number[] = [];
+      for (let i = 0; i <= divs; i++) {
+        const q = -half + i * step;
+        v.push(-half, 0, q, half, 0, q, q, 0, -half, q, 0, half);
+      }
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const b = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(v), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+      return { vao, count: v.length / 3 };
+    }
+    const gridFine = makeGrid(20, 200);
+    const gridSect = makeGrid(20, 20);
+
+    // The star shell: seeded like the cloud, so every visitor sees the same sky. Radius 7-18
+    // around the origin, height biased toward the horizon like a real sky, and never below
+    // the floor: a star under the grid reads as a hole in the room, not a star.
+    const starVao = gl.createVertexArray()!;
+    {
+      const rs = mulberry32(P.seed ^ 0xBADC0DE);
+      const n = P.starCount;
+      const sp = new Float32Array(n * 3), ss = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        const az = rs() * Math.PI * 2;
+        const rad = 4 + rs() * 9;
+        const h = rs();
+        sp[i * 3] = Math.cos(az) * rad;
+        sp[i * 3 + 1] = 0.2 + 12.8 * h;
+        sp[i * 3 + 2] = Math.sin(az) * rad;
+        ss[i * 3] = rs() * Math.PI * 2;
+        ss[i * 3 + 1] = 0.55 + rs() * 0.45;
+        // linear spread: enough mid-size stars that the field reads as present, with the
+        // extremes still carrying a few heroes and a dust of faint ones
+        ss[i * 3 + 2] = P.starSizeMin + (P.starSizeMax - P.starSizeMin) * rs();
+      }
+      gl.bindVertexArray(starVao);
+      const sattr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_STAR.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      sattr('aPos', sp, 3);
+      sattr('aSeed', ss, 3);
+    }
+
+    // ---- clouds. Meshes are baked at build time (no GLB container parsed in the browser);
+    // makeCloud() normalises, samples the surface area-weighted from a fixed seed, and adds
+    // aYN, the point's normalised height, which is what the floor-to-head reveal gates on.
+    async function makeCloud(url: string, count: number, seed: number, withSolid = false) {
+      const buf = await (await fetch(url)).arrayBuffer();
+      const dv = new DataView(buf);
+      if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== 'FSMH')
+        throw new Error('bad mesh: ' + url);
+      const nv = dv.getUint32(4, true), ni = dv.getUint32(8, true);
+      let off = 12;
+      const rawPos = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
+      const rawNor = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
+      const idx = new Uint16Array(buf.slice(off, off + ni * 2));
+
+      // Normalise: largest dimension to 2.1, then STAND IT ON the grid rather than centring
+      // the box, which would bury half the model under y=0.
+      const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+      for (let i = 0; i < rawPos.length; i += 3)
+        for (let k = 0; k < 3; k++) {
+          if (rawPos[i + k] < mn[k]) mn[k] = rawPos[i + k];
+          if (rawPos[i + k] > mx[k]) mx[k] = rawPos[i + k];
+        }
+      const size = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
+      const sc = 2.1 / Math.max(size[0], size[1], size[2], 1e-6);
+      const ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+      const pos = new Float32Array(rawPos.length);
+      for (let i = 0; i < pos.length; i += 3) {
+        pos[i] = (rawPos[i] - ctr[0]) * sc;
+        pos[i + 1] = (rawPos[i + 1] - ctr[1]) * sc + (size[1] * sc) / 2;
+        pos[i + 2] = (rawPos[i + 2] - ctr[2]) * sc;
+      }
+
+      // even surface sampling, area-weighted: density ignores tessellation
+      const tri = idx.length / 3;
+      const cum = new Float32Array(tri);
+      let totalArea = 0;
+      for (let t = 0; t < tri; t++) {
+        const a = idx[t * 3] * 3, b = idx[t * 3 + 1] * 3, c = idx[t * 3 + 2] * 3;
+        const ux = pos[b] - pos[a], uy = pos[b + 1] - pos[a + 1], uz = pos[b + 2] - pos[a + 2];
+        const vx = pos[c] - pos[a], vy = pos[c + 1] - pos[a + 1], vz = pos[c + 2] - pos[a + 2];
+        totalArea += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+        cum[t] = totalArea;
+      }
+      const rnd = mulberry32(seed);
+      const aPos = new Float32Array(count * 3), aNor = new Float32Array(count * 3);
+      const aPhase = new Float32Array(count), aPhase2 = new Float32Array(count);
+      const aRand = new Float32Array(count * 3), aYN = new Float32Array(count);
+      const bmn = [Infinity, Infinity, Infinity], bmx = [-Infinity, -Infinity, -Infinity];
+      for (let i = 0; i < count; i++) {
+        const r = rnd() * totalArea;
+        let lo = 0, hi = tri - 1;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < r) lo = m + 1; else hi = m; }
+        const a = idx[lo * 3] * 3, b = idx[lo * 3 + 1] * 3, c = idx[lo * 3 + 2] * 3;
+        let u = rnd(), v = rnd();
+        if (u + v > 1) { u = 1 - u; v = 1 - v; }
+        const w = 1 - u - v;
+        for (let k = 0; k < 3; k++) {
+          const pv = pos[a + k] * w + pos[b + k] * u + pos[c + k] * v;
+          aPos[i * 3 + k] = pv;
+          aNor[i * 3 + k] = rawNor[a + k] * w + rawNor[b + k] * u + rawNor[c + k] * v;
+          if (pv < bmn[k]) bmn[k] = pv;
+          if (pv > bmx[k]) bmx[k] = pv;
+        }
+        const l = Math.hypot(aNor[i * 3], aNor[i * 3 + 1], aNor[i * 3 + 2]) || 1;
+        aNor[i * 3] /= l; aNor[i * 3 + 1] /= l; aNor[i * 3 + 2] /= l;
+        // Phase seeded from position so the sheet RIPPLES across the surface instead of
+        // pulsing as one body. Axis 2 is perpendicular to axis 1 in xy, so it crosses it.
+        aPhase[i] = aPos[i * 3] * 1.7 + aPos[i * 3 + 1] * 2.3 + aPos[i * 3 + 2] * 1.1;
+        aPhase2[i] = aPos[i * 3] * 2.3 + aPos[i * 3 + 1] * -1.7 + aPos[i * 3 + 2] * 0.9;
+      }
+      const r2 = mulberry32(seed ^ 0x9E3779B9);
+      for (let i = 0; i < count * 3; i++) aRand[i] = r2();
+      const ySpan = (bmx[1] - bmn[1]) || 1;
+      for (let i = 0; i < count; i++) aYN[i] = (aPos[i * 3 + 1] - bmn[1]) / ySpan;
+
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const attr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_POINT.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      attr('aPos', aPos, 3); attr('aNor', aNor, 3);
+      attr('aPhase', aPhase, 1); attr('aPhase2', aPhase2, 1);
+      attr('aRand', aRand, 3); attr('aYN', aYN, 1);
+
+      // The solid: the SAME mesh the points were sampled from, indexed, for the x-ray.
+      // Free in payload -- the index buffer was already in the file for the sampling.
+      let solid: { vao: WebGLVertexArrayObject; count: number } | null = null;
+      if (withSolid) {
+        const sv = gl.createVertexArray()!;
+        gl.bindVertexArray(sv);
+        const battr = (prg: any, name: string, data: Float32Array, sz: number) => {
+          const loc = gl.getAttribLocation(prg.p, name);
+          if (loc < 0) return;
+          const b = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, b);
+          gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(loc);
+          gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+        };
+        battr(P_XRAY, 'aPos', pos, 3);
+        battr(P_XRAY, 'aNor', rawNor, 3);
+        const ib = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+        solid = { vao: sv, count: idx.length };
+      }
+      return { vao, count, bmn, bmx, solid, pts: aPos };
+    }
+
+    const logo = await makeCloud('/mesh/fs_logo.mesh', P.count, P.seed);
+    const cloudVao = logo.vao, bmn = logo.bmn, bmx = logo.bmx, N = logo.count;
+
+    // THE MAN (Adrian, 2026-08-19): height_man, centred in the room after the toolset, his
+    // points materialising floor-to-head as the visitor scrolls. Fetched lazily once the
+    // carousel is near, so his 170 KB mesh costs the first paint nothing.
+    let man: Awaited<ReturnType<typeof makeCloud>> | null = null;
+    let manLoading = false;
+    function ensureMan() {
+      if (man || manLoading) return;
+      manLoading = true;
+      makeCloud('/mesh/height_man.mesh', P.count, P.seed, true).then((c) => { man = c; }).catch(() => { manLoading = false; });
+    }
+
+    // ---- the pipe scene. Shared constants: the camera leg, the hover-band projection and
+    // the flow shader's hardcoded path all speak this layout (x -2.4..2.0 at y 1.25).
+    const PIPE_X0 = -2.4, PIPE_SEGL = 1.1, PIPE_Y = 1.25, PIPE_HALFW = 3.95;
+    const pipe = (() => {
+      const RS = 40, R = 0.34, FR = 0.42, FW = 0.05;
+      const pos: number[] = [], nor: number[] = [], seg: number[] = [], idx: number[] = [];
+      const ring = (x: number, r: number, sg: number) => {
+        const base = pos.length / 3;
+        for (let i = 0; i < RS; i++) {
+          const a = (i / RS) * Math.PI * 2;
+          pos.push(x, PIPE_Y + Math.cos(a) * r, Math.sin(a) * r);
+          nor.push(0, Math.cos(a), Math.sin(a));
+          seg.push(sg);
+        }
+        return base;
+      };
+      const tube = (x0: number, x1: number, r: number, sg: number) => {
+        const a = ring(x0, r, sg), b = ring(x1, r, sg);
+        for (let i = 0; i < RS; i++) {
+          const j = (i + 1) % RS;
+          idx.push(a + i, b + i, b + j, a + i, b + j, a + j);
+        }
+      };
+      // Four section tubes inset at the joints, five flange rings covering them (the two
+      // outermost are the mouths).
+      for (let k = 0; k < 4; k++) tube(PIPE_X0 + k * PIPE_SEGL + 0.06, PIPE_X0 + (k + 1) * PIPE_SEGL - 0.06, R, k);
+      for (let f = 0; f <= 4; f++) tube(PIPE_X0 + f * PIPE_SEGL - FW, PIPE_X0 + f * PIPE_SEGL + FW, FR, -1);
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const pattr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_PIPE.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      pattr('aPos', new Float32Array(pos), 3);
+      pattr('aNor', new Float32Array(nor), 3);
+      pattr('aSeg', new Float32Array(seg), 1);
+      const ib = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(idx), gl.STATIC_DRAW);
+      return { vao, count: idx.length };
+    })();
+
+    // The flow buffer waits on the man's mesh: its targets are the first 3000 of his
+    // sampled points, scaled to the pipe man standing at the outflow.
+    let flow: { vao: WebGLVertexArrayObject; n: number } | null = null;
+    function buildFlow() {
+      if (flow || !man) return;
+      const n = 3000, sc = 0.857;
+      const tgt = new Float32Array(n * 3), rnd4 = new Float32Array(n * 4);
+      const r = mulberry32(P.seed ^ 0x51DEC0DE);
+      for (let i = 0; i < n; i++) {
+        tgt[i * 3] = man.pts[i * 3] * sc + 2.75;
+        tgt[i * 3 + 1] = man.pts[i * 3 + 1] * sc;
+        tgt[i * 3 + 2] = man.pts[i * 3 + 2] * sc;
+        for (let k = 0; k < 4; k++) rnd4[i * 4 + k] = r();
+      }
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const fattr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_FLOW.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      fattr('aTgt', tgt, 3);
+      fattr('aR', rnd4, 4);
+      flow = { vao, n };
+    }
+
+    // ---- colours, from the DNA
+    const hex = (h: string) => new Float32Array([
+      parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]);
+    const CARBON = hex('#0B0E10'), IRON2 = hex('#262C33'), IRON3 = hex('#353D45');
+    const PLASMA = hex('#7CFFB2'), EMBER = hex('#FF7A3D'), BONE = hex('#E8E0D0');
+
+    // ---- targets
+    let T: any = null;
+    // Capped at 2: a fullscreen five-mip bloom chain at a phone's 3x is three million pixels
+    // a frame for a halo nobody can resolve.
+    const DPR = Math.min(devicePixelRatio || 1, 2);
+    function resize() {
+      const w = Math.max(1, Math.round(canvas.clientWidth * DPR));
+      const h = Math.max(1, Math.round(canvas.clientHeight * DPR));
+      if (canvas.width === w && canvas.height === h && T) return false;
+      canvas.width = w; canvas.height = h;
+      if (T) for (const t of [T.scene, T.bright, ...T.mips, ...T.ping]) { gl.deleteTexture(t.t); gl.deleteFramebuffer(t.f); }
+      T = { scene: target(w, h, HDR), bright: target(w >> 1, h >> 1, HDR), mips: [] as any[], ping: [] as any[] };
+      let mw = w, mh = h;
+      for (let i = 0; i < 5; i++) {
+        mw = Math.max(1, mw >> 1); mh = Math.max(1, mh >> 1);
+        T.mips.push(target(mw, mh, HDR)); T.ping.push(target(mw, mh, HDR));
+      }
+      return true;
+    }
+
+    const quad = (pr: any, setup: (u: any) => void) => {
+      gl.useProgram(pr.p); gl.bindVertexArray(quadVao); setup(pr.u); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+    const bindTex = (loc: any, tex: any, unit: number) => {
+      gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(loc, unit);
+    };
+
+    // ---- the wordmark sits on the crossbar of the F.
+    // Solved in ONE shot, not iterated: the mark's screen position does not depend on where
+    // the wordmark is, so the offset is simply the gap between them. Measured with the offset
+    // cleared, so repeat calls never compound.
+    // document, not host: the copy moved to its own fixed layer BESIDE the stage so the
+    // buttons could sit above the video's z1, so these are no longer the host's descendants.
+    const wmEl = document.querySelector('[data-pc-wordmark]') as HTMLElement;
+    const ctaEl = document.querySelector('[data-pc-cta]') as HTMLElement;
+    let ctaRest: DOMRect | null = null;
+    function relayout() {
+      const rect = canvas.getBoundingClientRect();
+      const view = viewOf(CAM_A), proj = perspective(CAM_A.fov, rect.width / rect.height, 0.01, 100);
+      const a = project([(bmn[0] + bmx[0]) / 2, lerp(bmn[1], bmx[1], P.anchorY), (bmn[2] + bmx[2]) / 2],
+        view, proj, rect.width, rect.height);
+      document.documentElement.style.setProperty('--pc-wm', '0px');
+      const wm = wmEl.getBoundingClientRect();
+      if (a) document.documentElement.style.setProperty('--pc-wm', (a[1] - ((wm.top + wm.bottom) / 2 - rect.top)).toFixed(1) + 'px');
+      const prev = ctaEl.style.transform;
+      ctaEl.style.transform = 'none';
+      ctaRest = ctaEl.getBoundingClientRect();
+      ctaEl.style.transform = prev;
+    }
+    function project(p: number[], view: Float32Array, proj: Float32Array, w: number, h: number) {
+      const x = view[0] * p[0] + view[4] * p[1] + view[8] * p[2] + view[12];
+      const y = view[1] * p[0] + view[5] * p[1] + view[9] * p[2] + view[13];
+      const z = view[2] * p[0] + view[6] * p[1] + view[10] * p[2] + view[14];
+      if (-z <= 1e-6) return null;
+      return [((proj[0] * x / -z) * 0.5 + 0.5) * w, (1 - ((proj[5] * y / -z) * 0.5 + 0.5)) * h];
+    }
+    function viewOf(c: typeof CAM_A) {
+      const t = [c.tx, c.ty, c.tz];
+      return lookAt([
+        t[0] + c.dist * Math.cos(c.pitch) * Math.sin(c.yaw),
+        t[1] + c.dist * Math.sin(c.pitch),
+        t[2] + c.dist * Math.cos(c.pitch) * Math.cos(c.yaw)], t, [0, 1, 0]);
+    }
+
+    // ---- the loop. Progress is read in rAF, not from a scroll listener: touch momentum
+    // stalls listeners and there is nothing to throttle when the loop is running anyway.
+    const runwayEl = document.querySelector('[data-pc-runway]') as HTMLElement | null;
+    let time = 0, oscPhase = 0, prev = 0, ready = false, wakeBlend = 0;
+
+    // ---- ELASTIC ORBIT (Adrian, 2026-08-19). Click-drag peeks around the mark. The offset
+    // feeds through tanh, so the bound is not a wall: displacement costs more the further
+    // out it goes and the limit is only ever approached. Release springs back to the
+    // composed framing, slightly underdamped so the return has the elasticity he asked
+    // for. It must return to zero: the crossbar alignment and the whole composition are
+    // ruled against the un-offset camera. Mouse only; touch owns scrolling.
+    let orbY = 0, orbP = 0, orbVY = 0, orbVP = 0, orbDrag = false, orbLast: number[] | null = null;
+    let scanOn = false;
+    let pipeOn = false;
+    const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
+    document.addEventListener('pointerdown', (e) => {
+      if (e.button !== 0 || e.pointerType !== 'mouse') return;
+      const t = e.target as HTMLElement;
+      if (t.closest('a, button, nav, input, [data-pipeline-overlay]')) return;
+      // The cloud is only there to orbit while the video has not taken the screen.
+      if (heroSec && parseFloat(heroSec.style.opacity || '0') > 0.5) return;
+      if (scanOn || pipeOn) return;
+      orbDrag = true;
+      orbLast = [e.clientX, e.clientY];
+      e.preventDefault(); // stops text selection; targets that need clicks were excluded above
+    });
+    document.addEventListener('pointermove', (e) => {
+      if (!orbDrag || !orbLast) return;
+      orbY -= (e.clientX - orbLast[0]) * 0.004;
+      orbP += (e.clientY - orbLast[1]) * 0.003;
+      orbVY = 0; orbVP = 0;
+      orbLast = [e.clientX, e.clientY];
+    });
+    addEventListener('pointerup', () => { orbDrag = false; });
+
+    // (The pipe sections' hover listener retired 2026-08-19: the journey owns the lit
+    // section outright -- the scroll is the only hand on the machine.)
+
+    // The hero video is promoted from an in-flow section to a fixed layer at z1, between the
+    // scene (z0) and the copy (z2). It does not scroll up; it FADES IN in place over the
+    // scene as the cloud explodes (Adrian, 2026-08-19). [data-cine] carries the promotion so
+    // the fallback paths, which never set it, keep the section's normal in-flow life.
+    const heroSec = document.getElementById('hero');
+    heroSec?.setAttribute('data-cine', '');
+
+    function frame(now: number) {
+      requestAnimationFrame(frame);
+      const dt = Math.min(0.05, (now - prev) / 1000 || 0);
+      prev = now;
+      if (resize()) relayout();
+
+      // The opening's beats are ruled against 1.6 screens of scroll, HARDCODED so growing
+      // the runway for later beats can never retime what Adrian already approved.
+      const p = clamp01(scrollY / Math.max(1, innerHeight * 1.6));
+      // THE PIPELINE BEAT (Adrian, 2026-08-19 second pass) replaced the carousel: the video
+      // clears over 2.0-2.6 and the room returns with the pipe, which holds for hover until
+      // 4.4 and is gone by 4.8, where the man's beats begin exactly as before. Declared at
+      // the top of the frame (a const consumed above its declaration kills the whole loop).
+      const videoOut = smooth(clamp01((scrollY - innerHeight * 2.0) / (innerHeight * 0.6)));
+      const pipeF = smooth(clamp01((scrollY - innerHeight * 2.2) / (innerHeight * 0.5)))
+        * (1 - smooth(clamp01((scrollY - innerHeight * 4.4) / (innerHeight * 0.4))));
+      pipeOn = pipeF > 0.2;
+      // The reveal IS the scroll: feet at 5.2 screens, head at 6.3.
+      const manReveal = clamp01((scrollY - innerHeight * 5.2) / (innerHeight * 1.1));
+      // The man's mesh feeds BOTH his beat and the flow's targets now, so he loads on the
+      // first scroll and the flow buffer builds as soon as he lands.
+      if (scrollY > innerHeight * 0.3) ensureMan();
+      if (man && !flow && scrollY > innerHeight * 0.8) buildFlow();
+      const armIn = smooth(clamp01((scrollY - innerHeight * 6.4) / (innerHeight * 0.4)));
+      // Armature clears before the scan begins, and the SCAN owns the rest: the band's whole
+      // travel is linear in scroll, so the visitor's hand is the scanner motor.
+      const arm = armIn * (1 - smooth(clamp01((scrollY - innerHeight * 7.1) / (innerHeight * 0.3))));
+      const scan = clamp01((scrollY - innerHeight * 7.3) / (innerHeight * 1.2));
+      scanOn = scan > 0 && scan < 1.01;
+      document.documentElement.style.setProperty('--scan', scan.toFixed(4));
+      const wallEl = document.querySelector('[data-wall-overlay]');
+      if (wallEl) {
+        if (scan > 0.001 && scan < 0.999) wallEl.setAttribute('data-active', '');
+        else wallEl.removeAttribute('data-active');
+      }
+
+      // THE CLOSE (Adrian, 2026-08-19): About Me and the engagements ask, one screen,
+      // rising over the room once the scan has left.
+      const close = smooth(clamp01((scrollY - innerHeight * 8.6) / (innerHeight * 0.4)));
+      document.documentElement.style.setProperty('--close', close.toFixed(3));
+      const closeEl = document.querySelector('[data-close-overlay]');
+      if (closeEl) {
+        if (close > 0.01) closeEl.setAttribute('data-active', '');
+        else closeEl.removeAttribute('data-active');
+      }
+
+      const tCam = smooth(clamp01(p / 0.45));
+      const explode = clamp01((p - 0.62) / 0.38);
+      // documentElement, not host: the text lives on the sibling copy layer now, and a custom
+      // property set on the stage does not cascade sideways.
+      document.documentElement.style.setProperty('--pc-out', String(clamp01(p / 0.28)));
+
+      // The video fades in through the explosion: it starts becoming visible as the points
+      // scatter and owns the screen by the end of the runway.
+      if (heroSec) heroSec.style.opacity = (smooth(clamp01((p - 0.66) / 0.32)) * (1 - videoOut)).toFixed(3);
+
+      // The philosophy is STEPPED (Adrian, 2026-08-19): the studio line arrives with the
+      // camera at beat B and stands until the video begins, then hands off to the refinement
+      // line, which fades in with the footage and stays.
+      const phil1 = smooth(clamp01((p - 0.30) / 0.15)) * (1 - smooth(clamp01((p - 0.64) / 0.12)));
+      // ...and hands off again to the toolset beat: the refinement line clears before the
+      // glass arrives, so the stage never says two things at once.
+      const phil2 = smooth(clamp01((p - 0.70) / 0.15)) * (1 - smooth(clamp01((scrollY - innerHeight * 1.6) / (innerHeight * 0.24))));
+      document.documentElement.style.setProperty('--phil1', phil1.toFixed(3));
+      document.documentElement.style.setProperty('--phil2', phil2.toFixed(3));
+
+      // THE JOURNEY (Adrian, 2026-08-19): the packet's trip down the pipe IS the scroll
+      // across the beat's hold. The section under the packet's head lights up, lights its
+      // label, and raises its card.
+      const journey = clamp01((scrollY - innerHeight * 2.8) / (innerHeight * 1.55));
+      const tPack = 0.16 + journey * 0.8;
+      let journeySeg = -1;
+      if (tPack > 0.3 && tPack < 0.36) journeySeg = 0;
+      else if (tPack >= 0.36 && tPack < 0.74)
+        journeySeg = Math.max(0, Math.min(3, Math.floor(((tPack - 0.36) / 0.38) * 4)));
+      const litSeg = journeySeg;
+
+      // THE PIPELINE OVERLAY rides --pipe. Its hover bands are placed later in the frame,
+      // once this frame's camera exists to project the pipe's bounds against.
+      document.documentElement.style.setProperty('--pipe', pipeF.toFixed(3));
+      const plEl = document.querySelector('[data-pipeline-overlay]');
+      if (plEl) {
+        if (pipeF > 0.01) plEl.setAttribute('data-active', '');
+        else plEl.removeAttribute('data-active');
+        // ONE owner for the card state: the loop writes it, the overlay only reports.
+        if (litSeg >= 0) { if (plEl.getAttribute('data-hover') !== String(litSeg)) plEl.setAttribute('data-hover', String(litSeg)); }
+        else plEl.removeAttribute('data-hover');
+      }
+
+      document.documentElement.style.setProperty('--arm', arm.toFixed(3));
+      const armEl = document.querySelector('[data-armature-overlay]');
+      if (armEl) {
+        if (arm > 0.01) armEl.setAttribute('data-active', '');
+        else armEl.removeAttribute('data-active');
+      }
+      // The buttons travel to just below the lower-third line on the camera's easing --
+      // one centred group with the philosophy line above them (Adrian, 2026-08-19 second
+      // pass) -- and stand above the video, then FADE OUT as the toolset beat arrives
+      // (the carousel is that beat's own set of doors).
+      if (ctaRest) {
+        const rect = canvas.getBoundingClientRect();
+        const dx = (rect.left + rect.width / 2) - (ctaRest.left + ctaRest.width / 2);
+        const dy = (rect.top + rect.height * 0.667 + P.ctaDropPx) - ctaRest.top;
+        ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
+        const o = 1 - smooth(clamp01((scrollY - innerHeight * 1.6) / (innerHeight * 0.19)));
+        ctaEl.style.opacity = o.toFixed(3);
+        // visibility, NOT pointer-events: the anchors inside carry their own explicit
+        // pointer-events auto (the layer is click-through), and none on the parent does not
+        // beat an explicit value on a child, so invisible buttons stayed clickable.
+        ctaEl.style.visibility = o < 0.05 ? 'hidden' : '';
+      }
+
+      time += dt;
+      // The pluck does not run at the top of the page: the amplitude sits at rest so the
+      // first thing anyone sees is the logo rather than a performance. wakeBlend CHASES the
+      // scroll-derived target on a time constant instead of tracking it raw: scrolling back
+      // to the top used to snap the wave to rest in a frame, which read as a pop (Adrian,
+      // 2026-08-19). Now it settles. The phase is reset only once the blend has actually
+      // arrived at rest, so the attack still fires from the start of its cycle every time
+      // the mark wakes, never from mid-swing.
+      const wakeTarget = P.wakeAt > 0 ? clamp01(p / P.wakeAt) : 1;
+      wakeBlend += (wakeTarget - wakeBlend) * Math.min(1, dt * 4);
+      if (wakeBlend > 0.005) oscPhase += dt * P.oscSpeed * Math.PI * 2;
+      else { wakeBlend = 0; oscPhase = 0; }
+      const u = (oscPhase / (Math.PI * 2)) % 1;
+      const tAmp = u < P.oscAttack
+        ? u / P.oscAttack
+        : Math.pow(1 - (u - P.oscAttack) / (1 - P.oscAttack), P.oscShape);
+      const amp = lerp(P.restAmp, P.oscLow + (P.oscHigh - P.oscLow) * tAmp, wakeBlend) * lerp(1, 1.45, clamp01(p / 0.45));
+
+      // Elastic orbit: spring the raw offset home when released (underdamped on purpose,
+      // the slight overshoot is the elasticity), then apply it through tanh so the limit
+      // resists harder the further out the drag goes.
+      if (!orbDrag) {
+        orbVY += (-60 * orbY - 10 * orbVY) * dt; orbY += orbVY * dt;
+        orbVP += (-60 * orbP - 10 * orbVP) * dt; orbP += orbVP * dt;
+      }
+      const oy = Math.tanh(orbY / ORB_LIM_Y) * ORB_LIM_Y;
+      const op = Math.tanh(orbP / ORB_LIM_P) * ORB_LIM_P;
+
+      // Four camera legs: A->B on the opening, B->P as the video clears and the pipe takes
+      // the stage, P->C as the man's beat arrives. P's distance is derived from the aspect
+      // so the pipe's full run always fits the width, whatever the window (a narrow window
+      // pulls back further; the room just shows more height).
+      const tMan = smooth(clamp01((scrollY - innerHeight * 4.9) / (innerHeight * 0.6)));
+      // THE TRAVELLING SHOT (Adrian, 2026-08-19): opens swung LEFT over the intake, the
+      // yaw sweeps through centre as the target tracks the packet down the pipe -- an
+      // orbit, not a pan -- and lands in front of the man at the outflow.
+      const jm = smooth(journey);
+      const CAM_P = {
+        yaw: lerp(0.38, -0.38, jm),
+        pitch: -0.03,
+        fov: 42,
+        tx: lerp(-2.2, 2.6, jm),
+        ty: lerp(1.2, 0.98, jm),
+        tz: 0,
+        dist: 3.5,
+      };
+      const leg = (a: number, b: number, pp: number, d: number) => lerp(lerp(lerp(a, b, tCam), pp, videoOut), d, tMan);
+      const c = {
+        yaw: leg(CAM_A.yaw, CAM_B.yaw, CAM_P.yaw, CAM_C.yaw) + oy,
+        pitch: leg(CAM_A.pitch, CAM_B.pitch, CAM_P.pitch, CAM_C.pitch) + op,
+        dist: leg(CAM_A.dist, CAM_B.dist, CAM_P.dist, CAM_C.dist),
+        fov: leg(CAM_A.fov, CAM_B.fov, CAM_P.fov, CAM_C.fov),
+        tx: leg(CAM_A.tx, CAM_B.tx, CAM_P.tx, CAM_C.tx),
+        ty: leg(CAM_A.ty, CAM_B.ty, CAM_P.ty, CAM_C.ty),
+        tz: leg(CAM_A.tz, CAM_B.tz, CAM_P.tz, CAM_C.tz),
+      };
+      const tgt = [c.tx, c.ty, c.tz];
+      const eye = [
+        tgt[0] + c.dist * Math.cos(c.pitch) * Math.sin(c.yaw),
+        tgt[1] + c.dist * Math.sin(c.pitch),
+        tgt[2] + c.dist * Math.cos(c.pitch) * Math.cos(c.yaw)];
+      const view = lookAt(eye, tgt, [0, 1, 0]);
+      const proj = perspective(c.fov, canvas.width / canvas.height, 0.01, 100);
+      const camDir = new Float32Array(norm(sub(tgt, eye)));
+
+      // The hover bands wear the pipe's projected bounds; written only while the beat is on
+      // stage. Fractions of the canvas, so DPR never enters into it.
+      if (pipeF > 0.001) {
+        for (let i = 0; i <= 4; i++) {
+          const sp = project([PIPE_X0 + i * PIPE_SEGL, PIPE_Y, 0], view, proj, canvas.width, canvas.height);
+          if (sp) document.documentElement.style.setProperty('--pipe-x' + i, (sp[0] / canvas.width).toFixed(4));
+        }
+        const yt = project([0, PIPE_Y + 0.55, 0], view, proj, canvas.width, canvas.height);
+        const yb = project([0, PIPE_Y - 0.55, 0], view, proj, canvas.width, canvas.height);
+        if (yt) document.documentElement.style.setProperty('--pipe-yt', (yt[1] / canvas.height).toFixed(4));
+        if (yb) document.documentElement.style.setProperty('--pipe-yb', (yb[1] / canvas.height).toFixed(4));
+      }
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, T.scene.f);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clearColor(CARBON[0], CARBON[1], CARBON[2], 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.disable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+
+      // Stars first, additive, so the grid's alpha lines read over them and the room keeps
+      // its floor. They ignore every beat: the sky does not care about the explosion.
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.useProgram(P_STAR.p);
+      gl.uniformMatrix4fv(P_STAR.u.uProj, false, proj);
+      gl.uniformMatrix4fv(P_STAR.u.uView, false, view);
+      gl.uniform1f(P_STAR.u.uTime, time);
+      gl.uniform1f(P_STAR.u.uSpeed, P.starSpeed);
+      gl.uniform1f(P_STAR.u.uBright, P.starBright);
+      gl.uniform3fv(P_STAR.u.uBone, BONE);
+      gl.bindVertexArray(starVao);
+      gl.drawArrays(gl.POINTS, 0, P.starCount);
+
+      // grid on normal alpha, then the cloud additive over it
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.useProgram(P_GRID.p);
+      gl.uniformMatrix4fv(P_GRID.u.uProj, false, proj);
+      gl.uniformMatrix4fv(P_GRID.u.uView, false, view);
+      gl.uniform3fv(P_GRID.u.uFogColor, CARBON);
+      gl.uniform1f(P_GRID.u.uFogNear, P.fogNear);
+      gl.uniform1f(P_GRID.u.uFogFar, P.fogFar);
+      for (const [g, col, op] of [[gridFine, IRON2, 0.55], [gridSect, IRON3, 1.0]] as const) {
+        gl.uniform3fv(P_GRID.u.uColor, col);
+        gl.uniform1f(P_GRID.u.uOpacity, op * P.gridOpacity);
+        gl.bindVertexArray(g.vao);
+        gl.drawArrays(gl.LINES, 0, g.count);
+      }
+
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.useProgram(P_POINT.p);
+      const U = P_POINT.u;
+      gl.uniformMatrix4fv(U.uProj, false, proj);
+      gl.uniformMatrix4fv(U.uView, false, view);
+      gl.uniform1f(U.uTime, time);
+      gl.uniform1f(U.uAmp, amp);
+      gl.uniform1f(U.uFreq, P.freq); gl.uniform1f(U.uRip, P.rip);
+      gl.uniform1f(U.uFreq2, P.freq2); gl.uniform1f(U.uRip2, P.rip2); gl.uniform1f(U.uMix2, P.mix2);
+      gl.uniform1f(U.uSize, P.size);
+      gl.uniform1f(U.uCFreq, P.cFreq); gl.uniform1f(U.uCSpread, P.cSpread);
+      gl.uniform1f(U.uFadeDepth, P.fadeDepth);
+      gl.uniform1f(U.uExplode, explode);
+      gl.uniform1f(U.uExDist, P.exDist); gl.uniform1f(U.uExCurl, P.exCurl); gl.uniform1f(U.uExCam, P.exCam);
+      gl.uniform3fv(U.uCamDir, camDir);
+      gl.uniform3fv(U.uPlasma, PLASMA); gl.uniform3fv(U.uEmber, EMBER); gl.uniform3fv(U.uBone, BONE);
+      // The logo: no reveal gate (2.0 means every point passes), and it dies away with the
+      // video, so the explosion's scattered points cannot haunt the pipe's stage.
+      gl.uniform1f(U.uReveal, 2.0);
+      gl.uniform1f(U.uSplitY, -1);
+      gl.uniform1f(U.uFade, 1 - videoOut);
+      gl.bindVertexArray(cloudVao);
+      gl.drawArrays(gl.POINTS, 0, N);
+
+      // THE PIPE AND ITS FLOW. Fresnel shell first; then the man's faint standing
+      // silhouette (the same flow buffer with every point at its target), then the live
+      // stream over it. Additive throughout, like every glowing thing in the room.
+      if (pipeF > 0.003) {
+        gl.useProgram(P_PIPE.p);
+        gl.uniformMatrix4fv(P_PIPE.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_PIPE.u.uView, false, view);
+        gl.uniform3fv(P_PIPE.u.uPlasma, PLASMA);
+        gl.uniform3fv(P_PIPE.u.uBone, BONE);
+        gl.uniform1f(P_PIPE.u.uAlpha, 0.5 * pipeF);
+        gl.uniform1f(P_PIPE.u.uHover, litSeg);
+        gl.bindVertexArray(pipe.vao);
+        gl.drawElements(gl.TRIANGLES, pipe.count, gl.UNSIGNED_SHORT, 0);
+        if (flow) {
+          gl.useProgram(P_FLOW.p);
+          const F = P_FLOW.u;
+          gl.uniformMatrix4fv(F.uProj, false, proj);
+          gl.uniformMatrix4fv(F.uView, false, view);
+          gl.uniform1f(F.uTime, time);
+          gl.uniform1f(F.uSpeed, 0.11);
+          gl.uniform1f(F.uSize, 0.08);
+          gl.uniform1f(F.uFade, pipeF);
+          gl.uniform1f(F.uJourney, journey);
+          gl.uniform3fv(F.uPlasma, PLASMA);
+          gl.uniform3fv(F.uEmber, EMBER);
+          gl.uniform3fv(F.uBone, BONE);
+          gl.bindVertexArray(flow.vao);
+          gl.uniform1f(F.uAssembled, 1);
+          gl.drawArrays(gl.POINTS, 0, flow.n);
+          gl.uniform1f(F.uAssembled, 0);
+          gl.drawArrays(gl.POINTS, 0, flow.n);
+        }
+      }
+
+      // THE MAN, materialising floor-to-head on the scroll. Same preset, same shader; his
+      // wave sits at a calm fixed amplitude (he is being MADE, not performing) and he never
+      // explodes. Draws only in his beat window and only once his mesh has arrived.
+      // The scan line in DEVICE pixels from the bottom (gl_FragCoord's space): the slit's
+      // bottom edge. Before the scan starts it is disabled and the man is all points; as
+      // the slit climbs, the points keep everything above it and the solid takes below;
+      // when the slit has left, the whole man is the solid.
+      const bandBottomFrac = 1.08 - 1.26 * scan + 0.16;
+      const splitY = scan > 0.001 ? (1 - Math.min(1.08, bandBottomFrac)) * canvas.height : -1;
+
+      if (man && manReveal > 0) {
+        gl.uniform1f(U.uSplitY, splitY);
+        // Slow and subtle (Adrian, 2026-08-19): about a quarter of the logo's wave speed
+        // and a smaller swell. He should read as breathing, not rippling.
+        gl.uniform1f(U.uAmp, 0.013);
+        gl.uniform1f(U.uFreq, 0.7);
+        gl.uniform1f(U.uFreq2, 0.3);
+        gl.uniform1f(U.uExplode, 0);
+        gl.uniform1f(U.uReveal, manReveal * 1.08);
+        gl.uniform1f(U.uFade, 1);
+        gl.bindVertexArray(man.vao);
+        gl.drawArrays(gl.POINTS, 0, man.count);
+        gl.uniform1f(U.uSplitY, -1);
+
+        // The solidified man below the line. Additive, both faces, no depth: shells add up,
+        // which is the x-ray.
+        if (man.solid && splitY > 0) {
+          gl.useProgram(P_XRAY.p);
+          gl.uniformMatrix4fv(P_XRAY.u.uProj, false, proj);
+          gl.uniformMatrix4fv(P_XRAY.u.uView, false, view);
+          gl.uniform3fv(P_XRAY.u.uPlasma, PLASMA);
+          gl.uniform3fv(P_XRAY.u.uBone, BONE);
+          gl.uniform1f(P_XRAY.u.uAlpha, 0.5);
+          gl.uniform1f(P_XRAY.u.uSplitY, splitY);
+          gl.bindVertexArray(man.solid.vao);
+          gl.drawElements(gl.TRIANGLES, man.solid.count, gl.UNSIGNED_SHORT, 0);
+        }
+      }
+      gl.disable(gl.BLEND);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, T.bright.f);
+      gl.viewport(0, 0, T.bright.w, T.bright.h);
+      quad(P_BRIGHT, (u2) => {
+        bindTex(u2.uTex, T.scene.t, 0);
+        gl.uniform1f(u2.uThreshold, P.bloomThreshold);
+        gl.uniform1f(u2.uKnee, P.bloomKnee);
+      });
+      let src = T.bright;
+      for (let i = 0; i < 5; i++) {
+        const mip = T.mips[i], png = T.ping[i];
+        gl.bindFramebuffer(gl.FRAMEBUFFER, png.f);
+        gl.viewport(0, 0, png.w, png.h);
+        quad(P_BLUR, (u2) => {
+          bindTex(u2.uTex, src.t, 0);
+          gl.uniform2f(u2.uDir, 1, 0);
+          gl.uniform2f(u2.uTexel, 1 / png.w, 1 / png.h);
+        });
+        gl.bindFramebuffer(gl.FRAMEBUFFER, mip.f);
+        gl.viewport(0, 0, mip.w, mip.h);
+        quad(P_BLUR, (u2) => {
+          bindTex(u2.uTex, png.t, 0);
+          gl.uniform2f(u2.uDir, 0, 1);
+          gl.uniform2f(u2.uTexel, 1 / mip.w, 1 / mip.h);
+        });
+        src = mip;
+      }
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      quad(P_COMP, (u2) => {
+        bindTex(u2.uScene, T.scene.t, 0);
+        for (let i = 0; i < 5; i++) bindTex(u2['uM' + i], T.mips[i].t, i + 1);
+        gl.uniform1f(u2.uStrength, P.bloomStrength);
+        gl.uniform1f(u2.uRadius, P.bloomRadius);
+      });
+
+      if (!ready) { ready = true; canvas.setAttribute('data-ready', ''); }
+    }
+
+    resize();
+    relayout();
+    addEventListener('resize', relayout);
+    requestAnimationFrame(frame);
+  }
+</script>

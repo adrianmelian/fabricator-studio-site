@@ -22,7 +22,6 @@
 // Deliberately untouched: the hero video, the wordmark, the download gate and its
 // MailerLite/R2 path, the welcome video's position, the WHY quote (Adrian's verbatim story),
 // and Mindmeld 2.0 styling everywhere.
-import { Image } from 'astro:assets';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import BracketButton from '../components/BracketButton.astro';
 import NavBar from '../components/NavBar.astro';
@@ -32,12 +31,16 @@ import SectionHead from '../components/SectionHead.astro';
 import Pill from '../components/Pill.astro';
 import YouTubeFacade from '../components/YouTubeFacade.astro';
 import DownloadBand from '../components/DownloadBand.astro';
-import FabricatorHero from '../components/FabricatorHero.astro';
+import ToolsSection from '../components/ToolsSection.astro';
+import PointCloudHero from '../components/PointCloudHero.astro';
+import PipelineOverlay from '../components/PipelineOverlay.astro';
+import ArmatureOverlay from '../components/ArmatureOverlay.astro';
+import WallOverlay from '../components/WallOverlay.astro';
+import CloseOverlay from '../components/CloseOverlay.astro';
 
 // The product card art rather than a trailer frame (Adrian, 2026-08-04): it carries the
 // lockup and the tagline baked in, so the thumbnail says what the video is before a click.
 import trailerPoster from '../assets/armature/armature-card-poster.jpg';
-import heroWordmark from '../assets/hero/wordmark-banner.png';
 // One flag governs every control-rig claim on the site (R25, R27). See src/data/armature.ts.
 import { ARMATURE, MAYA_CONTROL_RIG } from '../data/armature';
 
@@ -110,7 +113,15 @@ const PROOF = [
 >
   <NavBar />
 
-  <section id="hero" class="hero-v2">
+  {/* THE OPENING (Adrian, 2026-08-19). The FS mark as 5,000 points over the app's own grid,
+      scroll-driven through a centring push-in and then an explosion that hands the page to
+      the hero video below. It carries the identity and the two free doors, which is why the
+      video hero no longer repeats them. Progressive enhancement: reduced motion, no WebGL2
+      and every width under 900px get the same copy standing on carbon, and the scroll runway
+      collapses with it. */}
+  <PointCloudHero />
+
+  <section id="hero" class="hero-v2" data-panel>
     {/* New Armature cut, 2026-08-03. Dated filenames rather than overwriting: public/ assets
         are served unhashed, so reusing the old names would leave the previous cut in browser
         and CDN caches for days. 2560x1440 (was 2560x1080), which crops less at desktop widths
@@ -121,192 +132,40 @@ const PROOF = [
       aria-hidden="true">
     </video>
     <img class="hero-media hero-poster" src="/demo/fs_hero_poster_2026-08.jpg" alt="" aria-hidden="true" />
-    <div class="hero-scrim" aria-hidden="true"></div>
-    <div class="hero-copy">
-      <h1 class="hero-wordmark">
-        <Image src={heroWordmark} alt="FabricatorStudio" widths={[1180, 2205]} sizes="(max-width: 820px) 92vw, 1180px" loading="eager" />
-      </h1>
-      <p class="hero-tagline">ARTIST+AI STUDIO TOOLSET</p>
-      <div class="hero-divider" aria-hidden="true">
-        <span class="hero-divider__bar"></span>
-        <span class="hero-divider__gem"></span>
-        <span class="hero-divider__bar"></span>
-      </div>
-      {/* Adrian's own rewrite, 2026-08-01 evening, shipped as written. The philosophy leads
-          now: Artist Driven AI tools, the dev-to-artist floor-and-ceiling, and the refinement
-          contrast. He knowingly kept the "These are not AI tools" shape against the anti-slop
-          Tier A rule; owner's override, recorded here so nobody "fixes" it back. The
-          available-for-hire line moved out of the hero on the same pass; hiring converts in
-          the closing band, after the proof. */}
-      <p class="hero-sub hero-sub--studio"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="hero-sub__hl">Free for small studios.</b></p>
-      <p class="hero-sub">Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can <b class="hero-sub__ember">drive your asset to production level standards</b>.</b></p>
-      {/* Two doors, unequal on purpose. Most arrivals today come for the toolset, so the free
-          download keeps the visual weight it has always had and the paid door sits beside it
-          rather than competing with it. Hiring is NOT in the hero: it is a different audience
-          and it converts better after the proof, in the closing band. */}
-      <div class="hero-ctas">
-        <BracketButton kind="hard" installer label="Get the free toolset" event="hero-download" />
-        <BracketButton kind="soft" href="/store/" label="Advanced Modules →" event="hero-store" />
-      </div>
-    </div>
+    {/* NO SCRIM AND NO COPY (Adrian, 2026-08-19). This panel is the video and nothing else.
+        The scrim existed to make text legible over it; with the text gone it was only
+        dimming the footage. The identity moved into the opening, and the philosophy copy
+        that used to sit here moved out with it rather than being restated over a video
+        nobody is reading. */}
   </section>
 
-  {/* ARMATURE, directly under the hero (Adrian, 2026-07-29). It was mid-page, after the free
-      Maya toolset, on the argument that "the same work without a Maya seat" only reads once a
-      visitor knows what the Maya toolset is. That argument loses to the simpler one: Armature
-      is the newest thing the studio has, and burying the newest thing below four sections is
-      how announcements get missed.
+  {/* THE PIPELINE BEAT (Adrian, 2026-08-19 second pass): the x-ray pipe in the room --
+      chaos drawn in at the left, four hoverable sections, a character condensing out at the
+      right. Replaced the tool carousel. Choreography and the 3D scene live in
+      PointCloudHero; this layer is the title, the labels and the hover cards. */}
+  <PipelineOverlay />
 
-      The media is the 86-second voiceover trailer on YouTube, loaded through a facade so
-      nothing reaches Google until a visitor actually clicks play. Copy is lifted verbatim from
-      the /armature/ hero, so the card and the page it opens cannot drift. */}
-  <section id="armature">
-    <SectionHead eyebrow="FABRICATORSTUDIO" title="ARMATURE" />
-    <div class="arm-grid">
-      <YouTubeFacade
-        class="arm-media"
-        id="PhHXmcpcGKk"
-        title="Armature | Standalone Rigging & Skinning App | Unreal"
-        poster={trailerPoster}
-        posterAlt="Armature product art: a samurai, a dog and a squid, with the line Artist plus AI Rigging, You drive."
-        widths={[480, 960]}
-        sizes="(min-width: 900px) 56vw, 92vw"
-      />
-      <div class="arm-body">
-        <Pill text={`Out now · ${ARMATURE.version}`} tone="plasma" />
-        <h3 class="arm-head">High End Character Rigging</h3>
-        <p class="arm-lead">has always lived inside expensive applications. Armature is for the indie dev who cannot justify one, and the veteran rigger who wants to move faster.</p>
-        {/* The clarifying line for toolset owners carries the thesis (SPEC-SITE-LAUNCH item 1),
-            worded for a reader who already knows the Maya toolset. */}
-        <p class="arm-note">Armature is a new standalone application, no Maya seat needed: its AI half gets a character rigged in minutes, and its hand tools refine the result to production level.</p>
-        <div class="arm-ctas">
-          <BracketButton kind="hard" href="/armature/" label="See Armature" event="home-armature" />
-        </div>
-      </div>
-    </div>
-  </section>
+  {/* THE ARMATURE BEAT (Adrian, 2026-08-19): after the carousel's last step the toolset
+      clears and Armature rises on the same glass. Choreography in PointCloudHero's loop. */}
+  <ArmatureOverlay />
 
-  {/* WAS: six key-feature cards. They claimed "Easy to use", "Studio-grade tools", and
-      "Non-destructive workflow" immediately after four blocks that demonstrated exactly
-      those things with real UI. Claims placed after proof are worse than useless; they
-      weaken the proof. This section shows what the pipeline has MADE instead. */}
-  <section id="proof">
-    <SectionHead eyebrow="FABRICATORSTUDIO" title="BUILT WITH IT" />
-    <div class="pf-grid">
-      {PROOF.map((p) => (
-        <article class="pf-card">
-          <div class="pf-media">
-            {p.video ? (
-              <>
-                <video class="pf-vid" src={p.video} poster={p.poster} muted loop playsinline preload="none" aria-label={p.alt}></video>
-                <span class="pf-play" aria-hidden="true"></span>
-              </>
-            ) : (
-              <div class="pf-pending" role="img" aria-label={`${p.name}: media pending`}>
-                <span class="pf-shot">ASSET PENDING</span>
-              </div>
-            )}
-          </div>
-          <div class="pf-body">
-            <div class="pf-top">
-              <h3 class="pf-name">{p.name}</h3>
-              <span class="pf-pill">{p.pill}</span>
-            </div>
-            <p class="pf-claim">{p.claim}</p>
-            <details class="pf-more">
-              <summary class="pf-more__q">How</summary>
-              <p class="pf-more__a">{p.detail}</p>
-            </details>
-          </div>
-        </article>
-      ))}
+  {/* THE DOWNLOAD BEAT (Adrian, 2026-08-19): the tool wall scanned into view by a climbing
+      band with the download riding it. Choreography in PointCloudHero's loop. */}
+  <WallOverlay />
 
-      {/* The third entry's evidence is textual rather than photographic, so it is set as
-          type instead of faked as a screenshot. Every line below is checkable by clicking
-          it, which is a stronger argument than a picture of a repo page would have been. */}
-      <article class="pf-card">
-        <div class="pf-media pf-media--type">
-          <span class="pf-v">v1</span>
-          <span class="pf-v__lic">BUSL-1.1, source available</span>
-          <div class="pf-v__links">
-            <a href="/docs/">Docs</a>
-            <a href="/changelog/">Changelog</a>
-            <a href="/known-issues/">Known issues</a>
-            <a href="https://github.com/adrianmelian/FabricatorStudio" target="_blank" rel="noopener">Source</a>
-          </div>
-        </div>
-        <div class="pf-body">
-          <div class="pf-top">
-            <h3 class="pf-name">Maya Toolset v1</h3>
-            <span class="pf-pill">SHIPPED</span>
-          </div>
-          <p class="pf-claim">Public source, full docs, a public issue tracker, and outside users.</p>
-          <details class="pf-more">
-            <summary class="pf-more__q">How</summary>
-            <p class="pf-more__a">Shipped 2026-07-20 under BUSL-1.1, with documentation, a public issue tracker, a changelog, and a known-issues page. Every version becomes fully open source four years after it ships, automatically.</p>
-          </details>
-        </div>
-      </article>
-    </div>
-  </section>
+  {/* THE CLOSING BEAT (Adrian, 2026-08-19): About Me and the engagements ask, one
+      fullscreen layout over the room, after the scan has passed. */}
+  <CloseOverlay />
 
-  {/* WAS: four full-bleed tool cards. They were the strongest thing on the site and they are
-      not lost: they moved to /tools/ intact, popups and all, where the toolset can grow
-      without making this page longer every time a tool ships. What stays here is one block
-      that names the box and gets out of the way, carrying the Fabricator graphic so the
-      homepage keeps a real visual anchor for the product. */}
-  <section id="toolset">
-    <SectionHead eyebrow="FABRICATORSTUDIO" title="THE TOOLSET" />
-    <div class="tk-grid">
-      <div class="tk-ui"><FabricatorHero /></div>
-      <div class="tk-body">
-        <p class="tk-lead">Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an engine-ready contract.</p>
-        {/* The two products meet here, added 2026-08-04. Until toolset 1.3.0 and Armature
-            2.1.0 shipped this week, the road ran one way and the page had nothing to say
-            about the pair beyond selling each of them separately. */}
-        <p class="tk-line">The USD export is the road to <a href="/armature/">Armature</a> and back: send a rig out of Maya, work on it, bring it home.</p>
-        <p class="tk-line">Pure Python, source available, nothing to compile, nothing hidden.</p>
-        <p class="tk-lic">Free for studios under $2 million a year. <a href="/licensing/">See licensing</a>.</p>
-        <div class="tk-ctas">
-          <BracketButton kind="hard" href="/tools/" label="See the toolset" event="home-toolset" />
-        </div>
-      </div>
-    </div>
-  </section>
+  {/* STILL STRIPPED (Adrian, 2026-08-19): one transition at a time. Armature, proof,
+      DownloadBand, hire and about return from git (this branch, commit d9e73c5) as each
+      transition lands. */}
 
-  <DownloadBand />
-
-  {/* WAS: the tutorials grid. It spent a full section telling a visitor that a page in the
-      nav exists, using YouTube's thumbnails, which made it the least on-brand block on the
-      page. Tutorials keep their nav item, their page, and a footer link. In its place, the
-      thing the homepage never had: an ask. */}
-  <section id="hire">
-    <div class="hb-card">
-      <h2 class="hb-head">Available for engagements.</h2>
-      <p class="hb-line">Rig and export setup, custom Maya tools, fractional TA and retainers. Delivered by the technical artist who built Fabricator, documented, and yours to keep.</p>
-      <div class="hb-ctas">
-        <BracketButton kind="hard" href="/services/" label="See services" event="home-services" />
-        <a class="hb-mail" href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>
-      </div>
-    </div>
-  </section>
-
-  {/* ABOUT ME is now the spoken introduction rather than a wall of prose (Adrian, 2026-07-29).
-      The welcome video used to sit directly under the hero; Armature took that slot, and this
-      is where it landed. A section titled ABOUT ME whose content is Adrian talking to camera
-      is a better answer to "who is this" than three paragraphs and a pull quote were.
-
-      REMOVED with the prose, and worth knowing rather than discovering later: the bio
-      paragraphs, the WHY pull quote, and the "14 YEARS / SHIPPED" title list. The WHY story is
-      still live on /licensing, and the full credential is still on /armature under "Who built
-      it", so neither is lost from the site. It IS gone from the homepage. Restoring the
-      shipped-titles strip alone is a small edit if that trade turns out to be wrong. */}
-  <section id="about">
-    <SectionHead eyebrow="FABRICATORSTUDIO" title="ABOUT ME" />
-    <WelcomeVideo />
-  </section>
-
-  <Footer />
+  {/* Raised above the fixed video layer (z1), or scrolling past the runway would slide the
+      footer invisibly underneath it. */}
+  <div class="site-footer-raise">
+    <Footer />
+  </div>
 
   {/* Proof cards: poster by default, loop on hover or keyboard focus.
       Bails entirely on touch (no hover pointer) and under reduced-motion, where the poster
@@ -372,6 +231,8 @@ const PROOF = [
 </BaseLayout>
 
 <style>
+  .site-footer-raise { position: relative; z-index: 3; background: var(--carbon); }
+
   .hero-v2 {
     position: relative;
     overflow: hidden;
@@ -390,6 +251,26 @@ const PROOF = [
     justify-content: flex-end;
     flex-direction: column;
   }
+
+  /* THE CINEMATIC PROMOTION (Adrian, 2026-08-19). When the point-cloud opening is running it
+     sets [data-cine], and this section stops being an in-flow panel and becomes a fixed layer
+     at z1: above the 3D scene (z0), below the copy and its download buttons (z2). It does not
+     scroll up; it FADES IN in place as the cloud explodes, opacity driven per frame by the
+     opening's own loop. The fallback paths never set the attribute, so reduced-motion,
+     no-WebGL and mobile keep the normal in-flow section. */
+  .hero-v2[data-cine] {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    min-height: 0;
+    opacity: 0;
+    /* The video is pure backdrop while the buttons above it take the clicks. */
+    pointer-events: none;
+  }
+
   .hero-media {
     position: absolute;
     inset: 0;
@@ -404,63 +285,6 @@ const PROOF = [
     .hero-v2 video.hero-media { display: none; }
     .hero-v2 img.hero-poster { display: block; }
   }
-  .hero-scrim {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(to top, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0.55) 40%, rgba(11, 14, 16, 0) 65%);
-  }
-  /* A full-bleed BAND, not a floating plate. The video is the worst offender for legibility:
-     it MOVES, so a scrim that reads fine on one frame washes the copy out on the next. A
-     plate makes legibility independent of whatever frame is playing behind it. */
-  .hero-copy {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    text-align: center;
-    align-self: stretch;
-    min-height: calc(0.6 * (100vh - var(--header-h)));
-    min-height: calc(0.6 * (100svh - var(--header-h)));
-    padding: 1.75rem 2rem;
-    background: rgba(11, 14, 16, 0.31);
-    /* Unprefixed ONLY: hand-writing the -webkit- twin makes lightningcss drop the standard
-       property and Firefox loses the blur silently. */
-    backdrop-filter: blur(6px) saturate(115%);
-    border: 0;
-    border-top: 1px solid rgba(232, 224, 208, 0.1);
-    border-bottom: 1px solid rgba(232, 224, 208, 0.1);
-    box-shadow: var(--shadow-lg);
-    text-shadow: 0 1px 2px rgba(11, 14, 16, 0.55);
-  }
-  /* Tests the STANDARD property only. ORing in the -webkit- alias would make this false on
-     older Safari (which supports the alias) while the build emits no alias declaration, so
-     Safari would land on a see-through plate with no blur and no fallback. */
-  @supports not (backdrop-filter: blur(1px)) {
-    .hero-copy { background: rgba(11, 14, 16, 0.55); }
-  }
-  .hero-wordmark { margin: 0; width: min(73.75rem, 100%); }
-  .hero-wordmark :global(img) {
-    display: block;
-    width: 100%;
-    height: auto;
-    filter: drop-shadow(0 18px 40px rgba(11, 14, 16, 0.55));
-  }
-  .hero-tagline { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: clamp(1rem, 2vw, 1.5rem); letter-spacing: 0.28em; color: var(--ember); }
-  .hero-divider { display: flex; align-items: center; gap: 0.75rem; }
-  .hero-divider__bar { width: 3rem; height: 3px; background: var(--plasma); border-radius: var(--radius-pill); }
-  .hero-divider__gem { width: 0.55rem; height: 0.55rem; background: var(--plasma); transform: rotate(45deg); }
-  .hero-sub { font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.7; color: var(--bone); max-width: 52rem; }
-  /* The posture line reads a step up from the description under it: mono, slightly larger,
-     so the first thing a visitor parses is what this place IS. */
-  .hero-sub--studio { font-family: var(--font-mono); font-size: clamp(1.0625rem, 1.6vw, 1.1875rem); }
-  .hero-sub b { color: var(--bone); }
-  .hero-sub .hero-sub__hl { color: var(--plasma); }
-  .hero-sub .hero-sub__ember { color: var(--ember); }
-  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; margin-top: 0.75rem; }
 
   /* BUILT WITH IT. Reuses the card furniture the key-features grid used, so this cost
      styling work rather than design work, and the section it replaces is not missed. */
