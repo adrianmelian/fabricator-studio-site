@@ -74,16 +74,37 @@ const UI: Record<string, any> = {
     opacity: var(--tools, 0);
   }
 
+  /* NO frame (Adrian, 2026-08-19): the window itself is the object. No card plate, no
+     radius, no clipping; each app window floats free on the glass with its own animation. */
   .tf__item {
     display: block;
     min-width: 0;
     min-height: 0;
-    overflow: hidden;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow-lg);
     transition: transform var(--t-base) var(--ease-spring), opacity var(--t-fast) var(--ease-out);
     will-change: transform;
   }
+
+  /* Pull the windows out of their frames: hide each component's baked-in text and strip the
+     card chrome, keeping only the animated window art. Scoped to this overlay, so the same
+     components keep their full card lives on /tools/ and in the docs. */
+  .tf__item :global(.fabhero__brand),
+  .tf__item :global(.animhero .headline),
+  .tf__item :global(.bh-eyebrow),
+  .tf__item :global(.bh-title),
+  .tf__item :global(.bh-tagline),
+  .tf__item :global(.bh-caption),
+  .tf__item :global(.reggiehero .title) { display: none !important; }
+  .tf__item :global(.fabhero),
+  .tf__item :global(.animhero),
+  .tf__item :global(.bridgehero),
+  .tf__item :global(.reggiehero) {
+    background: none !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+  /* Reggie's chat panel sat low in its stage once its title was hidden and hung into the
+     info text. Scaled at the ROOT, which the components' own fit observers never touch. */
+  .tf__item :global(.reggiehero) { transform: scale(0.84) translateY(-7%); }
   .tf[data-active] .tf__item { pointer-events: auto; }
 
   /* The hover trade: the focused one grows, the rest step back. */
