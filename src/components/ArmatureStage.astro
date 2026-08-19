@@ -379,6 +379,19 @@ void main() {
       gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     }
 
+    // the SQUARE, for the control shapes (Adrian, 2026-08-19): rig grammar, circles are
+    // joints, squares are controls
+    const squareVao = gl.createVertexArray()!;
+    {
+      gl.bindVertexArray(squareVao);
+      const sb = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, sb);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, 1, 1, -1, 1]), gl.STATIC_DRAW);
+      const loc = gl.getAttribLocation(P_CTRL.p, 'aPos');
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    }
+
     const quadVao = gl.createVertexArray()!;
     gl.bindVertexArray(quadVao);
     const qb = gl.createBuffer();
@@ -1260,6 +1273,7 @@ void main() {
         // THE CONTROLS (Adrian, 2026-08-19): a THICKER single line, solid and glowing --
         // five tightly nested loops read as one heavy stroke through the bloom.
         if (alive > 0.5) {
+          gl.bindVertexArray(squareVao);
           gl.uniform1f(P_CTRL.u.uAlpha, alive);
           const pulse = 1 + 0.06 * Math.sin(time * 2.2);
           for (let i = 0; i < effJoint.length; i++) {
@@ -1271,7 +1285,7 @@ void main() {
             const rad = (nm === 'head' ? 0.13 : nm === 'spine_03' ? 0.18 : 0.12) * pulse;
             for (let k = -1; k <= 1; k++) {
               gl.uniform1f(P_CTRL.u.uRadius, rad + k * 0.006);
-              gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
+              gl.drawArrays(gl.LINE_LOOP, 0, 4);
             }
           }
         }
