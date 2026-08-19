@@ -36,7 +36,8 @@ import WelcomeVideo from './WelcomeVideo.astro';
     visibility: hidden;
   }
   .cl[data-active] { visibility: visible; }
-  .cl[data-active] :is(a, button) { pointer-events: auto; }
+  .cl[data-active] :global(a),
+  .cl[data-active] :global(button) { pointer-events: auto; }
 
   .cl__title {
     position: absolute;

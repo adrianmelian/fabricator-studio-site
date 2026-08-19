@@ -37,7 +37,8 @@ import wall from '../assets/wall/FS_Tool_Wall.png';
     --band-top: calc((1.08 - 1.26 * var(--scan, 0)) * 100%);
   }
   .wl[data-active] { visibility: visible; }
-  .wl[data-active] :is(a, button) { pointer-events: auto; }
+  .wl[data-active] :global(a),
+  .wl[data-active] :global(button) { pointer-events: auto; }
 
   .wl__wall {
     position: absolute;

@@ -50,7 +50,8 @@ import trailerPoster from '../assets/armature/armature-card-poster.jpg';
     visibility: hidden;
   }
   .am[data-active] { visibility: visible; }
-  .am[data-active] :is(a, button) { pointer-events: auto; }
+  .am[data-active] :global(a),
+  .am[data-active] :global(button) { pointer-events: auto; }
 
   .am__title {
     position: absolute;
