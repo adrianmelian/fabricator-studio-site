@@ -556,8 +556,8 @@ out float vA; out float vMix;
 const float B_END = 0.26, S_END = 0.36, P_END = 0.74, A_END = 0.88;
 vec3 pipeAt(float s, float rr, float th0) {
   float x = mix(-2.4, 2.0, s);
-  float th = th0 + s * 12.0;
-  float r = rr * (0.55 + 0.45 * sin(s * 17.0 + th0 * 3.0));
+  float th = th0 + s * 12.0 + uTime * 1.5;
+  float r = rr * (0.55 + 0.45 * sin(s * 17.0 + th0 * 3.0 + uTime * 0.8));
   return vec3(x, 1.25 + cos(th) * r, sin(th) * r);
 }
 vec3 blobAt(float t0, float th0, float ry) {
@@ -570,11 +570,16 @@ void main() {
   // one group; the rest keeps the ambient time loop so the machine never reads dead.
   // The packet's clamp parks it landed on the man, still lit: he builds up as it arrives.
   float speed = uSpeed * (0.75 + 0.5 * aR.x);
-  float t = aR.x < 0.7
-    ? clamp(0.16 + uJourney * 0.8 + (aR.w - 0.5) * 0.07, 0.0, 0.96)
-    : fract(aR.w + uTime * speed);
-  float rr = 0.05 + 0.2 * aR.y;
   float th0 = aR.z * 6.2831853;
+  float t;
+  if (aR.x < 0.7) {
+    t = clamp(0.16 + uJourney * 0.8 + (aR.w - 0.5) * 0.07, 0.0, 0.96);
+    float wander = sin(uTime * (0.4 + 0.6 * aR.y) + th0 * 2.0) * (0.006 + 0.012 * aR.y);
+    t = clamp(t + wander * (1.0 - smoothstep(0.8, 0.88, t)), 0.0, 0.96);
+  } else {
+    t = fract(aR.w + uTime * speed);
+  }
+  float rr = 0.05 + 0.2 * aR.y;
   vec3 p;
   float bright;
   if (uAssembled > 0.5) {
