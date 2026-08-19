@@ -431,9 +431,12 @@ void main() {
     const POINT_FS = `#version 300 es
 precision highp float;
 uniform vec3 uPlasma, uEmber, uBone;
+uniform float uSplitY;
 in float vFade; in float vWave; in float vAlive; in float vEdge;
 out vec4 frag;
 void main() {
+  // Below the scan line the man is the solid x-ray's, not the points'.
+  if (uSplitY >= 0.0 && gl_FragCoord.y < uSplitY) discard;
   if (vAlive < 0.003) discard;
   vec2 d = gl_PointCoord - vec2(0.5);
   float r = dot(d, d);
@@ -472,6 +475,35 @@ void main() {
   float r = dot(d, d);
   if (r > 0.25) discard;
   frag = vec4(uBone * vB * uBright, smoothstep(0.25, 0.0, r));
+}`;
+
+    // THE SOLID X-RAY (Adrian, 2026-08-19): below the scan line the man stops being points
+    // and becomes the actual model, rendered as a fresnel shell -- bright at grazing angles,
+    // near-dark face-on, both faces adding, which is the classic hologram x-ray. He is
+    // STATIC here on purpose: solidified, no longer waving.
+    const XRAY_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor;
+uniform mat4 uProj, uView;
+out vec3 vN; out vec3 vV;
+void main() {
+  vec4 mv = uView * vec4(aPos, 1.0);
+  gl_Position = uProj * mv;
+  vN = mat3(uView) * aNor;
+  vV = -mv.xyz;
+}`;
+
+    const XRAY_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uBone;
+uniform float uAlpha, uSplitY;
+in vec3 vN; in vec3 vV;
+out vec4 frag;
+void main() {
+  // visible only BELOW the scan line (screen px from the bottom); the points own above
+  if (gl_FragCoord.y > uSplitY) discard;
+  float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.4);
+  vec3 c = mix(uBone * 0.06, mix(uBone, uPlasma, 0.55), rim);
+  frag = vec4(c * uAlpha, 1.0);
 }`;
 
     const GRID_VS = `#version 300 es
@@ -534,6 +566,7 @@ void main() {
 }`;
 
     const P_POINT = prog(POINT_VS, POINT_FS);
+    const P_XRAY = prog(XRAY_VS, XRAY_FS);
     const P_STAR = prog(STAR_VS, STAR_FS);
     const P_GRID = prog(GRID_VS, GRID_FS);
     const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
@@ -606,7 +639,7 @@ void main() {
     // ---- clouds. Meshes are baked at build time (no GLB container parsed in the browser);
     // makeCloud() normalises, samples the surface area-weighted from a fixed seed, and adds
     // aYN, the point's normalised height, which is what the floor-to-head reveal gates on.
-    async function makeCloud(url: string, count: number, seed: number) {
+    async function makeCloud(url: string, count: number, seed: number, withSolid = false) {
       const buf = await (await fetch(url)).arrayBuffer();
       const dv = new DataView(buf);
       if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== 'FSMH')
@@ -692,7 +725,30 @@ void main() {
       attr('aPos', aPos, 3); attr('aNor', aNor, 3);
       attr('aPhase', aPhase, 1); attr('aPhase2', aPhase2, 1);
       attr('aRand', aRand, 3); attr('aYN', aYN, 1);
-      return { vao, count, bmn, bmx };
+
+      // The solid: the SAME mesh the points were sampled from, indexed, for the x-ray.
+      // Free in payload -- the index buffer was already in the file for the sampling.
+      let solid: { vao: WebGLVertexArrayObject; count: number } | null = null;
+      if (withSolid) {
+        const sv = gl.createVertexArray()!;
+        gl.bindVertexArray(sv);
+        const battr = (prg: any, name: string, data: Float32Array, sz: number) => {
+          const loc = gl.getAttribLocation(prg.p, name);
+          if (loc < 0) return;
+          const b = gl.createBuffer();
+          gl.bindBuffer(gl.ARRAY_BUFFER, b);
+          gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+          gl.enableVertexAttribArray(loc);
+          gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+        };
+        battr(P_XRAY, 'aPos', pos, 3);
+        battr(P_XRAY, 'aNor', rawNor, 3);
+        const ib = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+        solid = { vao: sv, count: idx.length };
+      }
+      return { vao, count, bmn, bmx, solid };
     }
 
     const logo = await makeCloud('/mesh/fs_logo.mesh', P.count, P.seed);
@@ -706,7 +762,7 @@ void main() {
     function ensureMan() {
       if (man || manLoading) return;
       manLoading = true;
-      makeCloud('/mesh/height_man.mesh', P.count, P.seed).then((c) => { man = c; }).catch(() => { manLoading = false; });
+      makeCloud('/mesh/height_man.mesh', P.count, P.seed, true).then((c) => { man = c; }).catch(() => { manLoading = false; });
     }
 
     // ---- colours, from the DNA
@@ -1037,6 +1093,7 @@ void main() {
       // once the room comes back, so the explosion's scattered points cannot haunt the
       // man's beat as background noise.
       gl.uniform1f(U.uReveal, 2.0);
+      gl.uniform1f(U.uSplitY, -1);
       gl.uniform1f(U.uFade, 1 - smooth(clamp01((scrollY - innerHeight * 4.6) / (innerHeight * 0.4))));
       gl.bindVertexArray(cloudVao);
       gl.drawArrays(gl.POINTS, 0, N);
@@ -1044,7 +1101,15 @@ void main() {
       // THE MAN, materialising floor-to-head on the scroll. Same preset, same shader; his
       // wave sits at a calm fixed amplitude (he is being MADE, not performing) and he never
       // explodes. Draws only in his beat window and only once his mesh has arrived.
+      // The scan line in DEVICE pixels from the bottom (gl_FragCoord's space): the slit's
+      // bottom edge. Before the scan starts it is disabled and the man is all points; as
+      // the slit climbs, the points keep everything above it and the solid takes below;
+      // when the slit has left, the whole man is the solid.
+      const bandBottomFrac = 1.08 - 1.26 * scan + 0.16;
+      const splitY = scan > 0.001 ? (1 - Math.min(1.08, bandBottomFrac)) * canvas.height : -1;
+
       if (man && manReveal > 0) {
+        gl.uniform1f(U.uSplitY, splitY);
         // Slow and subtle (Adrian, 2026-08-19): about a quarter of the logo's wave speed
         // and a smaller swell. He should read as breathing, not rippling.
         gl.uniform1f(U.uAmp, 0.013);
@@ -1055,6 +1120,21 @@ void main() {
         gl.uniform1f(U.uFade, 1);
         gl.bindVertexArray(man.vao);
         gl.drawArrays(gl.POINTS, 0, man.count);
+        gl.uniform1f(U.uSplitY, -1);
+
+        // The solidified man below the line. Additive, both faces, no depth: shells add up,
+        // which is the x-ray.
+        if (man.solid && splitY > 0) {
+          gl.useProgram(P_XRAY.p);
+          gl.uniformMatrix4fv(P_XRAY.u.uProj, false, proj);
+          gl.uniformMatrix4fv(P_XRAY.u.uView, false, view);
+          gl.uniform3fv(P_XRAY.u.uPlasma, PLASMA);
+          gl.uniform3fv(P_XRAY.u.uBone, BONE);
+          gl.uniform1f(P_XRAY.u.uAlpha, 0.5);
+          gl.uniform1f(P_XRAY.u.uSplitY, splitY);
+          gl.bindVertexArray(man.solid.vao);
+          gl.drawElements(gl.TRIANGLES, man.solid.count, gl.UNSIGNED_SHORT, 0);
+        }
       }
       gl.disable(gl.BLEND);
 
