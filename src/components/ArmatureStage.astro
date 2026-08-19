@@ -1122,7 +1122,7 @@ void main() {
       const price = smooth(clamp01((q - 6.55) / 0.45));
       const endd = smooth(clamp01((q - 7.15) / 0.4));
       de.setProperty('--reel', reel.toFixed(4));
-      de.setProperty('--reelt', (smooth(clamp01(reel * 6)) * (1 - smooth(clamp01((reel - 0.85) / 0.15)))).toFixed(3));
+      de.setProperty('--reelt', (smooth(clamp01(reel * 6)) * (1 - smooth(clamp01((reel - 0.34) / 0.12)))).toFixed(3));
       de.setProperty('--price', price.toFixed(3));
       de.setProperty('--endd', endd.toFixed(3));
       const reelsEl = document.querySelector('[data-ast-reels]');

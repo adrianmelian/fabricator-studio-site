@@ -129,6 +129,10 @@ const DESCRIPTION =
           side. Thumbnails are self-hosted stills and each card is click-to-YouTube: the
           privacy ruling (nothing reaches Google without a click) forbids autoplaying
           embeds, and no local files of these videos exist. */}
+      {/* The strip's standing title, BEHIND the cards: the first video wipes it as it
+          passes, and the fade below matches that moment. */}
+      <p class="ast-reels__title" aria-hidden="true"><span class="ast-ember">Tutorial</span> Video<br />Series</p>
+
       <div class="ast-reels" data-ast-reels>
         <div class="ast-reels__strip">
           {WALKTHROUGHS.map((w) => (
@@ -139,8 +143,6 @@ const DESCRIPTION =
           ))}
         </div>
       </div>
-
-      <p class="ast-reels__title" aria-hidden="true"><span class="ast-ember">Full</span> Tutorial<br />Series</p>
 
       {/* WHAT IT COSTS -- the live page's ruled pricing copy, verbatim. */}
       <div class="ast-price" data-ast-price>
