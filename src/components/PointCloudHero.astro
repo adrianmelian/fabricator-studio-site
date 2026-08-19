@@ -822,13 +822,17 @@ void main() {
         else tools.removeAttribute('data-active');
       }
 
-      // The buttons travel to centre-bottom on the camera's easing, then STAY, above the
-      // video, for as long as the stage is on screen. They never fade (Adrian, 2026-08-19).
+      // The buttons travel to centre-bottom on the camera's easing and stand above the
+      // video, then FADE OUT as the toolset beat arrives (Adrian, 2026-08-19: the carousel
+      // is that beat's own set of doors, and its strip lives where the buttons stood).
       if (ctaRest) {
         const rect = canvas.getBoundingClientRect();
         const dx = (rect.left + rect.width / 2) - (ctaRest.left + ctaRest.width / 2);
         const dy = (rect.top + rect.height - rect.height * P.ctaBottom - ctaRest.height) - ctaRest.top;
         ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
+        const o = 1 - smooth(clamp01(pt / 0.16));
+        ctaEl.style.opacity = o.toFixed(3);
+        ctaEl.style.pointerEvents = o < 0.05 ? 'none' : '';
       }
 
       time += dt;
