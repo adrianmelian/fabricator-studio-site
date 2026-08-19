@@ -1,0 +1,720 @@
+---
+// THE OPENING. The FS mark as 5,000 glowing points, scroll-driven into an explosion that
+// hands the page over to the hero video. Adrian dialled every number in a local harness
+// (MrMiata: workspace/website/2026-08-18_point-cloud-hero/build) and they are transcribed
+// here verbatim; nothing in this file is an implementer's choice.
+//
+// This is the FIRST client-side JavaScript the site has ever shipped, which is why it is
+// hand-rolled WebGL2 rather than three.js: the alternative was 150-200 KB plus a GLB
+// download to draw 5,000 dots. The mark never changes, so its geometry is baked at build
+// time (MrMiata: build/bake.py) into a 9 KB positions+normals+indices binary, and the
+// even-surface sampling runs once on load from a fixed seed.
+//
+// It is progressive enhancement over the static markup below it. Reduced motion, no WebGL2,
+// or a failed init all leave the copy standing on carbon, and the scroll runway collapses so
+// nobody scrolls through three empty screens to reach the page.
+import { Image } from 'astro:assets';
+import BracketButton from './BracketButton.astro';
+import heroWordmark from '../assets/hero/wordmark-banner.png';
+---
+
+<div class="pc" data-pc>
+  <div class="pc__sticky">
+    <canvas class="pc__canvas" data-pc-canvas aria-hidden="true"></canvas>
+
+    <div class="pc__copy">
+      {/* The text clears on the first beat. The buttons do NOT: they travel to centre-bottom
+          with the mark and go out with it at the explosion, so the ask survives the
+          transition instead of being thrown away and asked again lower down. That is why
+          they sit outside .pc__text, which owns the fade. */}
+      <div class="pc__text" data-pc-text>
+        <p class="pc__display">Artist+AI Toolset</p>
+        <p class="pc__sub">Game Development<br />Re-imagined.</p>
+        {/* The wordmark stays the h1, as it was before this section existed, so the page's
+            heading shape is unchanged. Its vertical offset is set once at load to sit on the
+            crossbar of the F in the point cloud (Adrian's alignment, 2026-08-19). */}
+        <h1 class="pc__wordmark" data-pc-wordmark>
+          <Image src={heroWordmark} alt="FabricatorStudio" widths={[760, 1180]} sizes="(max-width: 820px) 86vw, 760px" loading="eager" />
+        </h1>
+      </div>
+      <div class="pc__cta" data-pc-cta>
+        <BracketButton kind="hard" installer label="Download Toolset" event="hero-download" />
+        <BracketButton kind="plasma-outline" href="/armature/" label="Download Armature" event="hero-armature" />
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Full-bleed, same escape as .hero-v2. The runway is what the scroll is spent on: three
+     screens of it carry the mark from its opening framing, through the centring push-in, to
+     the explosion. */
+  .pc {
+    position: relative;
+    width: 100vw;
+    max-width: 100vw;
+    margin: 0 0 0 calc(50% - 50vw);
+    padding: 0;
+    height: 300svh;
+  }
+
+  .pc__sticky {
+    position: sticky;
+    top: 0;
+    /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so the
+       stage would be taller than what you can see and anything pinned would jump when the
+       URL bar collapses mid-scroll. */
+    height: 100svh;
+    overflow: hidden;
+    background: var(--carbon);
+  }
+
+  .pc__canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    /* Nothing to look at until the cloud has been sampled and drawn once. */
+    opacity: 0;
+    transition: opacity 400ms var(--ease-out);
+  }
+  .pc__canvas[data-ready] { opacity: 1; }
+
+  .pc__copy {
+    position: absolute;
+    left: 9vw;
+    top: 50%;
+    transform: translateY(-50%);
+    max-width: 44vw;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+  }
+
+  /* The fade lives here and not on .pc__copy, because a child cannot be more opaque than its
+     parent and the buttons have to outlive the text. */
+  .pc__text {
+    display: flex;
+    flex-direction: column;
+    opacity: calc(1 - var(--pc-out, 0));
+    transform: translateY(calc(var(--pc-out, 0) * -24px));
+  }
+
+  .pc__display {
+    font-family: var(--font-display);
+    font-weight: 400;
+    line-height: 1.02;
+    letter-spacing: -0.005em;
+    font-size: clamp(2.6rem, 5.2vw, 5rem);
+    color: var(--bone);
+  }
+
+  .pc__sub {
+    font-weight: 300;
+    line-height: 1.22;
+    color: var(--bone);
+    font-size: clamp(1.3rem, 2.3vw, 2.05rem);
+    margin-top: 0.35rem;
+  }
+
+  /* position/top and NOT a margin: the offset that sits this on the F's crossbar must not
+     change the copy column's height, because the column's height is what the mark's framing
+     was set against. */
+  .pc__wordmark {
+    margin: 2.2rem 0 0;
+    position: relative;
+    top: var(--pc-wm, 0px);
+  }
+  .pc__wordmark :global(img) {
+    display: block;
+    width: min(34vw, 470px);
+    height: auto;
+  }
+
+  .pc__cta {
+    display: flex;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-top: 3.4rem;
+    font-size: 0.95rem;
+    will-change: transform, opacity;
+  }
+
+  /* ---- the fallback -------------------------------------------------------------------
+     Reduced motion, no WebGL2, or a failed init. The runway collapses to one screen so the
+     scroll cost of an effect that is not running is not paid, the canvas goes, and the copy
+     stands on carbon exactly as it is composed above. */
+  .pc[data-pc-static] { height: auto; }
+  .pc[data-pc-static] .pc__sticky {
+    position: relative;
+    height: auto;
+    min-height: calc(100svh - var(--header-h));
+    display: flex;
+    align-items: center;
+  }
+  .pc[data-pc-static] .pc__canvas { display: none; }
+  .pc[data-pc-static] .pc__copy {
+    position: relative;
+    top: auto;
+    transform: none;
+    max-width: min(44rem, 82vw);
+    padding: var(--sp-7) 0;
+  }
+  .pc[data-pc-static] .pc__text { opacity: 1; transform: none; }
+  .pc[data-pc-static] .pc__wordmark { top: 0; }
+
+  @media (max-width: 900px) {
+    /* Mobile is composed but NOT dialled: Adrian ruled the layout (mark toward the top, copy
+       in the lower third, buttons at the bottom) and deferred its camera. Until that framing
+       exists this width takes the static fallback rather than an undialled cinematic. */
+    .pc { height: auto; }
+    .pc__sticky { position: relative; height: auto; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; }
+    .pc__canvas { display: none; }
+    .pc__copy { position: relative; top: auto; transform: none; left: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); }
+    .pc__text { opacity: 1; transform: none; }
+    .pc__wordmark { top: 0; }
+    .pc__wordmark :global(img) { width: min(86vw, 470px); }
+  }
+</style>
+
+<script>
+  // ---------------------------------------------------------------- the ruled numbers
+  // Transcribed from Adrian's harness. Do not tune these here; tune them there and copy back.
+  const P = {
+    count: 5000, seed: 1, size: 0.0356,
+    freq: 3, rip: 2, freq2: 1, rip2: 5.3, mix2: 0.1,
+    oscLow: 0.008, oscHigh: 0.855, oscSpeed: 0.1, oscShape: 1.45, oscAttack: 0.175,
+    cFreq: 0.35, cSpread: 0.06, fadeDepth: 0,
+    bloomStrength: 2.4, bloomRadius: 0.34, bloomThreshold: 0.3, bloomKnee: 0.15,
+    gridOpacity: 1, fogNear: 2.0, fogFar: 14.0,
+    exDist: 1.5, exCurl: 2.16, exCam: 1.06,
+    restAmp: 0.012, wakeAt: 0.04,
+    anchorY: 0.415, ctaBottom: 0.08,
+  };
+  const CAM_A = { yaw: -0.0200, pitch: -0.0240, dist: 4.36448, tx: -0.62800, ty: 0.89876, tz: -0.83070, fov: 42 };
+  const CAM_B = { yaw: -0.0320, pitch: -0.1160, dist: 3.14928, tx: 0.08734, ty: 0.79470, tz: 0.00000, fov: 42 };
+
+  const root = document.querySelector('[data-pc]') as HTMLElement | null;
+  if (root) start(root);
+
+  function fallback(el: HTMLElement) { el.setAttribute('data-pc-static', ''); }
+
+  async function start(host: HTMLElement) {
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const narrow = matchMedia('(max-width: 900px)').matches;
+    if (reduced || narrow) { fallback(host); return; }
+
+    const canvas = host.querySelector('[data-pc-canvas]') as HTMLCanvasElement;
+    const gl = canvas.getContext('webgl2', { antialias: true, alpha: false });
+    if (!gl) { fallback(host); return; }
+
+    try { await run(host, canvas, gl); }
+    catch { fallback(host); }
+  }
+
+  // ---------------------------------------------------------------- maths
+  const sub = (a: number[], b: number[]) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const dot = (a: number[], b: number[]) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const cross = (a: number[], b: number[]) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const norm = (a: number[]) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
+  const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
+  const smooth = (t: number) => t * t * (3 - 2 * t);
+
+  function perspective(fovDeg: number, aspect: number, near: number, far: number) {
+    const f = 1 / Math.tan((fovDeg * Math.PI / 180) / 2), nf = 1 / (near - far);
+    return new Float32Array([f / aspect, 0, 0, 0, 0, f, 0, 0, 0, 0, (far + near) * nf, -1, 0, 0, 2 * far * near * nf, 0]);
+  }
+  function lookAt(eye: number[], target: number[], up: number[]) {
+    const z = norm(sub(eye, target)), x = norm(cross(up, z)), y = cross(z, x);
+    return new Float32Array([
+      x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0,
+      -dot(x, eye), -dot(y, eye), -dot(z, eye), 1]);
+  }
+  // Deterministic: Adrian tuned against ONE cloud, so an unseeded sample would be a slightly
+  // different cloud on every machine.
+  function mulberry32(a: number) {
+    return function () {
+      a |= 0; a = (a + 0x6D2B79F5) | 0;
+      let t = Math.imul(a ^ (a >>> 15), 1 | a);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  async function run(host: HTMLElement, canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
+    const HDR = gl.getExtension('EXT_color_buffer_float') ? gl.RGBA16F : gl.RGBA8;
+    gl.getExtension('OES_texture_float_linear');
+
+    const sh = (type: number, src: string) => {
+      const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(s) || 'shader');
+      return s;
+    };
+    const prog = (vs: string, fs: string) => {
+      const p = gl.createProgram()!;
+      gl.attachShader(p, sh(gl.VERTEX_SHADER, vs)); gl.attachShader(p, sh(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(p);
+      if (!gl.getProgramParameter(p, gl.LINK_STATUS)) throw new Error(gl.getProgramInfoLog(p) || 'link');
+      const u: Record<string, WebGLUniformLocation | null> = {};
+      const n = gl.getProgramParameter(p, gl.ACTIVE_UNIFORMS);
+      for (let i = 0; i < n; i++) {
+        const nm = gl.getActiveUniform(p, i)!.name.replace('[0]', '');
+        u[nm] = gl.getUniformLocation(p, nm);
+      }
+      return { p, u };
+    };
+    const target = (w: number, h: number, fmt: number) => {
+      const t = gl.createTexture()!;
+      gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.texImage2D(gl.TEXTURE_2D, 0, fmt, w, h, 0, gl.RGBA, fmt === gl.RGBA16F ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, null);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      const f = gl.createFramebuffer()!;
+      gl.bindFramebuffer(gl.FRAMEBUFFER, f);
+      gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      return { f, t, w, h };
+    };
+
+    // ---- shaders. The prototype's, unchanged in behaviour.
+    const POINT_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor; in float aPhase; in float aPhase2; in vec3 aRand;
+uniform mat4 uProj, uView;
+uniform float uTime, uAmp, uFreq, uRip, uFreq2, uRip2, uMix2, uSize;
+uniform float uCFreq, uCSpread, uFadeDepth;
+uniform float uExplode, uExDist, uExCurl, uExCam;
+uniform vec3 uCamDir;
+out float vFade; out float vWave; out float vAlive;
+void main() {
+  // Two crossing waves MIXED rather than summed, so the blend changes the character of the
+  // motion without changing how far the points travel.
+  float w1 = sin(uTime * uFreq + aPhase * uRip);
+  float w2 = sin(uTime * uFreq2 + aPhase2 * uRip2);
+  float w = mix(w1, w2, uMix2);
+  vec3 p = aPos + aNor * (w * uAmp);
+  // The explosion is a pluck that never comes back: same snap, but the point keeps its
+  // velocity. Direction is seeded per point, never radial, because radial reads as fireworks.
+  if (uExplode > 0.0) {
+    float e = uExplode;
+    vec3 dir = normalize(mix(normalize(aRand * 2.0 - 1.0), aNor, 0.35) + uCamDir * uExCam);
+    vec3 curl = normalize(cross(dir, aNor + vec3(0.0, 0.001, 0.0)));
+    p += dir * (e * e * uExDist) + curl * (sin(e * 3.14159 + aPhase) * e * uExCurl);
+  }
+  vec4 mv = uView * vec4(p, 1.0);
+  gl_Position = uProj * mv;
+  // Point size is a PIXEL size, not a world size, against this exact scaling.
+  gl_PointSize = uSize * (300.0 / -mv.z);
+  vFade = 1.0 - uFadeDepth * 0.9 * (0.5 - 0.5 * w);
+  vWave = sin(uTime * uCFreq + aPhase * uRip * uCSpread);
+  vAlive = 1.0 - uExplode * 0.65;
+}`;
+
+    const POINT_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uEmber, uBone;
+in float vFade; in float vWave; in float vAlive;
+out vec4 frag;
+void main() {
+  vec2 d = gl_PointCoord - vec2(0.5);
+  float r = dot(d, d);
+  if (r > 0.25) discard;
+  float soft = smoothstep(0.25, 0.0, r);
+  // Bone at the wave's midpoint, Plasma at one crest and Ember at the other.
+  vec3 c = vWave > 0.0 ? mix(uBone, uPlasma, vWave) : mix(uBone, uEmber, -vWave);
+  frag = vec4(c * vFade, soft * vAlive);
+}`;
+
+    const GRID_VS = `#version 300 es
+in vec3 aPos; uniform mat4 uProj, uView; out float vDist;
+void main() { vec4 mv = uView * vec4(aPos, 1.0); vDist = -mv.z; gl_Position = uProj * mv; }`;
+
+    const GRID_FS = `#version 300 es
+precision highp float;
+uniform vec3 uColor, uFogColor; uniform float uOpacity, uFogNear, uFogFar;
+in float vDist; out vec4 frag;
+void main() {
+  float f = clamp((uFogFar - vDist) / (uFogFar - uFogNear), 0.0, 1.0);
+  frag = vec4(mix(uFogColor, uColor, f), uOpacity * f);
+}`;
+
+    const QUAD_VS = `#version 300 es
+in vec2 aPos; out vec2 vUv;
+void main() { vUv = aPos * 0.5 + 0.5; gl_Position = vec4(aPos, 0.0, 1.0); }`;
+
+    // Threshold 0 blooms everything, which was right over an empty void and wrong the moment
+    // the grid existed: the floor glowed.
+    const BRIGHT_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uTex; uniform float uThreshold, uKnee;
+in vec2 vUv; out vec4 frag;
+void main() {
+  vec3 c = texture(uTex, vUv).rgb;
+  float l = dot(c, vec3(0.2126, 0.7152, 0.0722));
+  frag = vec4(c * smoothstep(uThreshold, uThreshold + uKnee, l), 1.0);
+}`;
+
+    const BLUR_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uTex; uniform vec2 uDir, uTexel;
+in vec2 vUv; out vec4 frag;
+void main() {
+  vec3 c = texture(uTex, vUv).rgb * 0.2270270270;
+  vec2 o = uDir * uTexel;
+  c += (texture(uTex, vUv + o).rgb + texture(uTex, vUv - o).rgb) * 0.1945945946;
+  c += (texture(uTex, vUv + o * 2.0).rgb + texture(uTex, vUv - o * 2.0).rgb) * 0.1216216216;
+  c += (texture(uTex, vUv + o * 3.0).rgb + texture(uTex, vUv - o * 3.0).rgb) * 0.0540540541;
+  c += (texture(uTex, vUv + o * 4.0).rgb + texture(uTex, vUv - o * 4.0).rgb) * 0.0162162162;
+  frag = vec4(c, 1.0);
+}`;
+
+    // UnrealBloomPass's own factor curve, so `radius` behaves as it did on the dial.
+    const COMP_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uScene, uM0, uM1, uM2, uM3, uM4;
+uniform float uStrength, uRadius;
+in vec2 vUv; out vec4 frag;
+float lf(float f, float r) { return mix(f, 1.2 - f, r); }
+void main() {
+  vec3 b = lf(1.0, uRadius) * texture(uM0, vUv).rgb
+         + lf(0.8, uRadius) * texture(uM1, vUv).rgb
+         + lf(0.6, uRadius) * texture(uM2, vUv).rgb
+         + lf(0.4, uRadius) * texture(uM3, vUv).rgb
+         + lf(0.2, uRadius) * texture(uM4, vUv).rgb;
+  frag = vec4(texture(uScene, vUv).rgb + b * uStrength, 1.0);
+}`;
+
+    const P_POINT = prog(POINT_VS, POINT_FS);
+    const P_GRID = prog(GRID_VS, GRID_FS);
+    const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
+    const P_BLUR = prog(QUAD_VS, BLUR_FS);
+    const P_COMP = prog(QUAD_VS, COMP_FS);
+
+    const quadVao = gl.createVertexArray()!;
+    gl.bindVertexArray(quadVao);
+    const qb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, qb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+    // The Armature viewport's own grid: cell 0.1 on iron-2, section 1.0 on iron-3. WebGL will
+    // not draw a line thicker than 1px, so the app's thickness difference is alpha here.
+    function makeGrid(size: number, divs: number) {
+      const half = size / 2, step = size / divs, v: number[] = [];
+      for (let i = 0; i <= divs; i++) {
+        const q = -half + i * step;
+        v.push(-half, 0, q, half, 0, q, q, 0, -half, q, 0, half);
+      }
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const b = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(v), gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(0);
+      gl.vertexAttribPointer(0, 3, gl.FLOAT, false, 0, 0);
+      return { vao, count: v.length / 3 };
+    }
+    const gridFine = makeGrid(20, 200);
+    const gridSect = makeGrid(20, 20);
+
+    // ---- mesh, baked at build time so no GLB container is parsed in the browser
+    const buf = await (await fetch('/mesh/fs_logo.mesh')).arrayBuffer();
+    const dv = new DataView(buf);
+    if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== 'FSMH')
+      throw new Error('bad mesh');
+    const nv = dv.getUint32(4, true), ni = dv.getUint32(8, true);
+    let off = 12;
+    const rawPos = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
+    const rawNor = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
+    const idx = new Uint16Array(buf.slice(off, off + ni * 2));
+
+    // Normalise: largest dimension to 2.1, then STAND IT ON the grid rather than centring the
+    // box, which would bury half the mark under y=0. A rigid shift moves every phase by one
+    // constant, so the wave pattern is identical and the ruled preset reads as saved.
+    const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+    for (let i = 0; i < rawPos.length; i += 3)
+      for (let k = 0; k < 3; k++) {
+        if (rawPos[i + k] < mn[k]) mn[k] = rawPos[i + k];
+        if (rawPos[i + k] > mx[k]) mx[k] = rawPos[i + k];
+      }
+    const size = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
+    const sc = 2.1 / Math.max(size[0], size[1], size[2], 1e-6);
+    const ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+    const pos = new Float32Array(rawPos.length);
+    for (let i = 0; i < pos.length; i += 3) {
+      pos[i] = (rawPos[i] - ctr[0]) * sc;
+      pos[i + 1] = (rawPos[i + 1] - ctr[1]) * sc + (size[1] * sc) / 2;
+      pos[i + 2] = (rawPos[i + 2] - ctr[2]) * sc;
+    }
+
+    // ---- even surface sampling, area-weighted: density ignores tessellation
+    const tri = idx.length / 3;
+    const cum = new Float32Array(tri);
+    let totalArea = 0;
+    for (let t = 0; t < tri; t++) {
+      const a = idx[t * 3] * 3, b = idx[t * 3 + 1] * 3, c = idx[t * 3 + 2] * 3;
+      const ux = pos[b] - pos[a], uy = pos[b + 1] - pos[a + 1], uz = pos[b + 2] - pos[a + 2];
+      const vx = pos[c] - pos[a], vy = pos[c + 1] - pos[a + 1], vz = pos[c + 2] - pos[a + 2];
+      totalArea += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+      cum[t] = totalArea;
+    }
+    const rnd = mulberry32(P.seed);
+    const N = P.count;
+    const aPos = new Float32Array(N * 3), aNor = new Float32Array(N * 3);
+    const aPhase = new Float32Array(N), aPhase2 = new Float32Array(N), aRand = new Float32Array(N * 3);
+    const bmn = [Infinity, Infinity, Infinity], bmx = [-Infinity, -Infinity, -Infinity];
+    for (let i = 0; i < N; i++) {
+      const r = rnd() * totalArea;
+      let lo = 0, hi = tri - 1;
+      while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < r) lo = m + 1; else hi = m; }
+      const a = idx[lo * 3] * 3, b = idx[lo * 3 + 1] * 3, c = idx[lo * 3 + 2] * 3;
+      let u = rnd(), v = rnd();
+      if (u + v > 1) { u = 1 - u; v = 1 - v; }
+      const w = 1 - u - v;
+      for (let k = 0; k < 3; k++) {
+        const pv = pos[a + k] * w + pos[b + k] * u + pos[c + k] * v;
+        aPos[i * 3 + k] = pv;
+        aNor[i * 3 + k] = rawNor[a + k] * w + rawNor[b + k] * u + rawNor[c + k] * v;
+        if (pv < bmn[k]) bmn[k] = pv;
+        if (pv > bmx[k]) bmx[k] = pv;
+      }
+      const l = Math.hypot(aNor[i * 3], aNor[i * 3 + 1], aNor[i * 3 + 2]) || 1;
+      aNor[i * 3] /= l; aNor[i * 3 + 1] /= l; aNor[i * 3 + 2] /= l;
+      // Phase seeded from position so the sheet RIPPLES across the surface instead of pulsing
+      // as one body. Axis 2 is perpendicular to axis 1 in xy, so it crosses it.
+      aPhase[i] = aPos[i * 3] * 1.7 + aPos[i * 3 + 1] * 2.3 + aPos[i * 3 + 2] * 1.1;
+      aPhase2[i] = aPos[i * 3] * 2.3 + aPos[i * 3 + 1] * -1.7 + aPos[i * 3 + 2] * 0.9;
+    }
+    const r2 = mulberry32(P.seed ^ 0x9E3779B9);
+    for (let i = 0; i < N * 3; i++) aRand[i] = r2();
+
+    const cloudVao = gl.createVertexArray()!;
+    gl.bindVertexArray(cloudVao);
+    const attr = (name: string, data: Float32Array, sz: number) => {
+      const loc = gl.getAttribLocation(P_POINT.p, name);
+      if (loc < 0) return;
+      const b = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, b);
+      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+      gl.enableVertexAttribArray(loc);
+      gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+    };
+    attr('aPos', aPos, 3); attr('aNor', aNor, 3);
+    attr('aPhase', aPhase, 1); attr('aPhase2', aPhase2, 1); attr('aRand', aRand, 3);
+
+    // ---- colours, from the DNA
+    const hex = (h: string) => new Float32Array([
+      parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]);
+    const CARBON = hex('#0B0E10'), IRON2 = hex('#262C33'), IRON3 = hex('#353D45');
+    const PLASMA = hex('#7CFFB2'), EMBER = hex('#FF7A3D'), BONE = hex('#E8E0D0');
+
+    // ---- targets
+    let T: any = null;
+    // Capped at 2: a fullscreen five-mip bloom chain at a phone's 3x is three million pixels
+    // a frame for a halo nobody can resolve.
+    const DPR = Math.min(devicePixelRatio || 1, 2);
+    function resize() {
+      const w = Math.max(1, Math.round(canvas.clientWidth * DPR));
+      const h = Math.max(1, Math.round(canvas.clientHeight * DPR));
+      if (canvas.width === w && canvas.height === h && T) return false;
+      canvas.width = w; canvas.height = h;
+      if (T) for (const t of [T.scene, T.bright, ...T.mips, ...T.ping]) { gl.deleteTexture(t.t); gl.deleteFramebuffer(t.f); }
+      T = { scene: target(w, h, HDR), bright: target(w >> 1, h >> 1, HDR), mips: [] as any[], ping: [] as any[] };
+      let mw = w, mh = h;
+      for (let i = 0; i < 5; i++) {
+        mw = Math.max(1, mw >> 1); mh = Math.max(1, mh >> 1);
+        T.mips.push(target(mw, mh, HDR)); T.ping.push(target(mw, mh, HDR));
+      }
+      return true;
+    }
+
+    const quad = (pr: any, setup: (u: any) => void) => {
+      gl.useProgram(pr.p); gl.bindVertexArray(quadVao); setup(pr.u); gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+    const bindTex = (loc: any, tex: any, unit: number) => {
+      gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(loc, unit);
+    };
+
+    // ---- the wordmark sits on the crossbar of the F.
+    // Solved in ONE shot, not iterated: the mark's screen position does not depend on where
+    // the wordmark is, so the offset is simply the gap between them. Measured with the offset
+    // cleared, so repeat calls never compound.
+    const wmEl = host.querySelector('[data-pc-wordmark]') as HTMLElement;
+    const ctaEl = host.querySelector('[data-pc-cta]') as HTMLElement;
+    let ctaRest: DOMRect | null = null;
+    function relayout() {
+      const rect = canvas.getBoundingClientRect();
+      const view = viewOf(CAM_A), proj = perspective(CAM_A.fov, rect.width / rect.height, 0.01, 100);
+      const a = project([(bmn[0] + bmx[0]) / 2, lerp(bmn[1], bmx[1], P.anchorY), (bmn[2] + bmx[2]) / 2],
+        view, proj, rect.width, rect.height);
+      host.style.setProperty('--pc-wm', '0px');
+      const wm = wmEl.getBoundingClientRect();
+      if (a) host.style.setProperty('--pc-wm', (a[1] - ((wm.top + wm.bottom) / 2 - rect.top)).toFixed(1) + 'px');
+      const prev = ctaEl.style.transform;
+      ctaEl.style.transform = 'none';
+      ctaRest = ctaEl.getBoundingClientRect();
+      ctaEl.style.transform = prev;
+    }
+    function project(p: number[], view: Float32Array, proj: Float32Array, w: number, h: number) {
+      const x = view[0] * p[0] + view[4] * p[1] + view[8] * p[2] + view[12];
+      const y = view[1] * p[0] + view[5] * p[1] + view[9] * p[2] + view[13];
+      const z = view[2] * p[0] + view[6] * p[1] + view[10] * p[2] + view[14];
+      if (-z <= 1e-6) return null;
+      return [((proj[0] * x / -z) * 0.5 + 0.5) * w, (1 - ((proj[5] * y / -z) * 0.5 + 0.5)) * h];
+    }
+    function viewOf(c: typeof CAM_A) {
+      const t = [c.tx, c.ty, c.tz];
+      return lookAt([
+        t[0] + c.dist * Math.cos(c.pitch) * Math.sin(c.yaw),
+        t[1] + c.dist * Math.sin(c.pitch),
+        t[2] + c.dist * Math.cos(c.pitch) * Math.cos(c.yaw)], t, [0, 1, 0]);
+    }
+
+    // ---- the loop. Progress is read from the runway's own rect in rAF rather than from a
+    // scroll listener, so touch momentum cannot stall it and there is no listener to throttle.
+    let time = 0, oscPhase = 0, prev = 0, ready = false, visible = true;
+    new IntersectionObserver((es) => { visible = es[0].isIntersecting; }, { rootMargin: '10%' }).observe(host);
+
+    function frame(now: number) {
+      requestAnimationFrame(frame);
+      const dt = Math.min(0.05, (now - prev) / 1000 || 0);
+      prev = now;
+      if (!visible) return;
+      if (resize()) relayout();
+
+      const box = host.getBoundingClientRect();
+      const runway = box.height - canvas.clientHeight;
+      const p = runway > 0 ? clamp01(-box.top / runway) : 0;
+
+      const tCam = smooth(clamp01(p / 0.45));
+      const explode = clamp01((p - 0.62) / 0.38);
+      host.style.setProperty('--pc-out', String(clamp01(p / 0.28)));
+
+      // The buttons travel to centre-bottom instead of fading, then clear with the cloud.
+      if (ctaRest) {
+        const rect = canvas.getBoundingClientRect();
+        const dx = (rect.left + rect.width / 2) - (ctaRest.left + ctaRest.width / 2);
+        const dy = (rect.top + rect.height - rect.height * P.ctaBottom - ctaRest.height) - ctaRest.top;
+        ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
+        const o = 1 - clamp01(explode / 0.6);
+        ctaEl.style.opacity = o.toFixed(3);
+        ctaEl.style.pointerEvents = o < 0.05 ? 'none' : '';
+      }
+
+      time += dt;
+      // The pluck does not run at the top of the page: its phase is HELD at zero and the
+      // amplitude sits at rest, so the first thing anyone sees is the logo rather than a
+      // performance. Past wakeAt the clock starts and the attack fires from the beginning.
+      const wake = P.wakeAt > 0 ? clamp01(p / P.wakeAt) : 1;
+      if (wake >= 1) oscPhase += dt * P.oscSpeed * Math.PI * 2; else oscPhase = 0;
+      const u = (oscPhase / (Math.PI * 2)) % 1;
+      const tAmp = u < P.oscAttack
+        ? u / P.oscAttack
+        : Math.pow(1 - (u - P.oscAttack) / (1 - P.oscAttack), P.oscShape);
+      const amp = lerp(P.restAmp, P.oscLow + (P.oscHigh - P.oscLow) * tAmp, wake) * lerp(1, 1.45, clamp01(p / 0.45));
+
+      const c = {
+        yaw: lerp(CAM_A.yaw, CAM_B.yaw, tCam), pitch: lerp(CAM_A.pitch, CAM_B.pitch, tCam),
+        dist: lerp(CAM_A.dist, CAM_B.dist, tCam), fov: lerp(CAM_A.fov, CAM_B.fov, tCam),
+        tx: lerp(CAM_A.tx, CAM_B.tx, tCam), ty: lerp(CAM_A.ty, CAM_B.ty, tCam), tz: lerp(CAM_A.tz, CAM_B.tz, tCam),
+      };
+      const tgt = [c.tx, c.ty, c.tz];
+      const eye = [
+        tgt[0] + c.dist * Math.cos(c.pitch) * Math.sin(c.yaw),
+        tgt[1] + c.dist * Math.sin(c.pitch),
+        tgt[2] + c.dist * Math.cos(c.pitch) * Math.cos(c.yaw)];
+      const view = lookAt(eye, tgt, [0, 1, 0]);
+      const proj = perspective(c.fov, canvas.width / canvas.height, 0.01, 100);
+      const camDir = new Float32Array(norm(sub(tgt, eye)));
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, T.scene.f);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clearColor(CARBON[0], CARBON[1], CARBON[2], 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.disable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+
+      // grid first on normal alpha, then the cloud additive over it
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.useProgram(P_GRID.p);
+      gl.uniformMatrix4fv(P_GRID.u.uProj, false, proj);
+      gl.uniformMatrix4fv(P_GRID.u.uView, false, view);
+      gl.uniform3fv(P_GRID.u.uFogColor, CARBON);
+      gl.uniform1f(P_GRID.u.uFogNear, P.fogNear);
+      gl.uniform1f(P_GRID.u.uFogFar, P.fogFar);
+      for (const [g, col, op] of [[gridFine, IRON2, 0.55], [gridSect, IRON3, 1.0]] as const) {
+        gl.uniform3fv(P_GRID.u.uColor, col);
+        gl.uniform1f(P_GRID.u.uOpacity, op * P.gridOpacity);
+        gl.bindVertexArray(g.vao);
+        gl.drawArrays(gl.LINES, 0, g.count);
+      }
+
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.useProgram(P_POINT.p);
+      const U = P_POINT.u;
+      gl.uniformMatrix4fv(U.uProj, false, proj);
+      gl.uniformMatrix4fv(U.uView, false, view);
+      gl.uniform1f(U.uTime, time);
+      gl.uniform1f(U.uAmp, amp);
+      gl.uniform1f(U.uFreq, P.freq); gl.uniform1f(U.uRip, P.rip);
+      gl.uniform1f(U.uFreq2, P.freq2); gl.uniform1f(U.uRip2, P.rip2); gl.uniform1f(U.uMix2, P.mix2);
+      gl.uniform1f(U.uSize, P.size);
+      gl.uniform1f(U.uCFreq, P.cFreq); gl.uniform1f(U.uCSpread, P.cSpread);
+      gl.uniform1f(U.uFadeDepth, P.fadeDepth);
+      gl.uniform1f(U.uExplode, explode);
+      gl.uniform1f(U.uExDist, P.exDist); gl.uniform1f(U.uExCurl, P.exCurl); gl.uniform1f(U.uExCam, P.exCam);
+      gl.uniform3fv(U.uCamDir, camDir);
+      gl.uniform3fv(U.uPlasma, PLASMA); gl.uniform3fv(U.uEmber, EMBER); gl.uniform3fv(U.uBone, BONE);
+      gl.bindVertexArray(cloudVao);
+      gl.drawArrays(gl.POINTS, 0, N);
+      gl.disable(gl.BLEND);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, T.bright.f);
+      gl.viewport(0, 0, T.bright.w, T.bright.h);
+      quad(P_BRIGHT, (u2) => {
+        bindTex(u2.uTex, T.scene.t, 0);
+        gl.uniform1f(u2.uThreshold, P.bloomThreshold);
+        gl.uniform1f(u2.uKnee, P.bloomKnee);
+      });
+      let src = T.bright;
+      for (let i = 0; i < 5; i++) {
+        const mip = T.mips[i], png = T.ping[i];
+        gl.bindFramebuffer(gl.FRAMEBUFFER, png.f);
+        gl.viewport(0, 0, png.w, png.h);
+        quad(P_BLUR, (u2) => {
+          bindTex(u2.uTex, src.t, 0);
+          gl.uniform2f(u2.uDir, 1, 0);
+          gl.uniform2f(u2.uTexel, 1 / png.w, 1 / png.h);
+        });
+        gl.bindFramebuffer(gl.FRAMEBUFFER, mip.f);
+        gl.viewport(0, 0, mip.w, mip.h);
+        quad(P_BLUR, (u2) => {
+          bindTex(u2.uTex, png.t, 0);
+          gl.uniform2f(u2.uDir, 0, 1);
+          gl.uniform2f(u2.uTexel, 1 / mip.w, 1 / mip.h);
+        });
+        src = mip;
+      }
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      quad(P_COMP, (u2) => {
+        bindTex(u2.uScene, T.scene.t, 0);
+        for (let i = 0; i < 5; i++) bindTex(u2['uM' + i], T.mips[i].t, i + 1);
+        gl.uniform1f(u2.uStrength, P.bloomStrength);
+        gl.uniform1f(u2.uRadius, P.bloomRadius);
+      });
+
+      if (!ready) { ready = true; canvas.setAttribute('data-ready', ''); }
+    }
+
+    resize();
+    relayout();
+    addEventListener('resize', relayout);
+    requestAnimationFrame(frame);
+  }
+</script>
