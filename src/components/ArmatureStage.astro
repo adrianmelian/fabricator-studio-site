@@ -243,22 +243,23 @@ void main() {
     // The rig itself: joints as bright points, bones as glowing lines, revealed by chain
     // depth (aD in 0..1, root -> fingertips) with a burn at the growth frontier.
     const BONE_VS = `#version 300 es
-in vec3 aPos; in float aD;
+in vec3 aPos; in float aD; in vec3 aCol;
 uniform mat4 uProj, uView;
 uniform float uGrow;
-out float vA;
+out float vA; out vec3 vCol;
 void main() {
   gl_Position = uProj * uView * vec4(aPos, 1.0);
   vA = 1.0 - smoothstep(uGrow, uGrow + 0.02, aD);
+  vCol = aCol;
 }`;
     const BONE_FS = `#version 300 es
 precision highp float;
-uniform vec3 uPlasma; uniform float uAlpha;
-in float vA;
+uniform float uAlpha;
+in float vA; in vec3 vCol;
 out vec4 frag;
 void main() {
   if (vA < 0.003) discard;
-  frag = vec4(uPlasma * 0.9, vA * uAlpha);
+  frag = vec4(vCol * 0.9, vA * uAlpha);
 }`;
     // The control rings: camera-billboarded circles in the rig's colours, drawn as
     // LINE_LOOPs at each effector. Simplified controller-rig grammar.
@@ -614,7 +615,7 @@ void main() {
     const smallJoint = (n: string) => /thumb|index|middle|ring|pinky|twist|ball_/.test(n);
     const shownDisp = shown.map((j) => ({
       d: depth[j] / maxDepth,
-      r: smallJoint(jNames[j]) ? 0.022 : 0.066,
+      r: smallJoint(jNames[j]) ? 0.013 : 0.033,
       col: jNames[j].endsWith('_l') ? BLUE : jNames[j].endsWith('_r') ? RED : YELLOW,
     }));
 
@@ -638,6 +639,18 @@ void main() {
       const ld = gl.getAttribLocation(P_BONE.p, 'aD');
       gl.enableVertexAttribArray(ld);
       gl.vertexAttribPointer(ld, 1, gl.FLOAT, false, 0, 0);
+      // the child joint's side colour, on all six of the bone's vertices
+      const cArr = new Float32Array(boneList.length * 18);
+      boneList.forEach((j, i) => {
+        const c = jNames[j].endsWith('_l') ? BLUE : jNames[j].endsWith('_r') ? RED : YELLOW;
+        for (let k = 0; k < 6; k++) { cArr[i * 18 + k * 3] = c[0]; cArr[i * 18 + k * 3 + 1] = c[1]; cArr[i * 18 + k * 3 + 2] = c[2]; }
+      });
+      const cb = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, cb);
+      gl.bufferData(gl.ARRAY_BUFFER, cArr, gl.STATIC_DRAW);
+      const lc = gl.getAttribLocation(P_BONE.p, 'aCol');
+      gl.enableVertexAttribArray(lc);
+      gl.vertexAttribPointer(lc, 3, gl.FLOAT, false, 0, 0);
     }
 
     // joint-matrix texture: 4 texels per joint (the matrix columns), one row per joint
@@ -1243,7 +1256,6 @@ void main() {
         gl.useProgram(P_BONE.p);
         gl.uniformMatrix4fv(P_BONE.u.uProj, false, proj);
         gl.uniformMatrix4fv(P_BONE.u.uView, false, view);
-        gl.uniform3fv(P_BONE.u.uPlasma, PLASMA);
         gl.uniform1f(P_BONE.u.uGrow, grow);
         gl.uniform1f(P_BONE.u.uAlpha, skelAlpha);
         gl.bindVertexArray(boneVao);
