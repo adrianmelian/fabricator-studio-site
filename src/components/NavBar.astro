@@ -22,13 +22,18 @@ import NewsletterPop from './NewsletterPop.astro';
       Community moved to the footer in the same pass: it was a dropdown holding two social
       links, and the nav needed the slot for Toolset and Store. Swap, not addition. */}
   <div class="navbar__menu" id="nav-menu">
-    <a class="navbar__tab" href="/tools/">Toolset</a>
-    {/* Sits next to Toolset because they are the two products, and after it because the free
-        Maya suite is still what most arrivals come for. */}
-    <a class="navbar__tab" href="/armature/">Armature</a>
-    <a class="navbar__tab" href="/store/">Store</a>
-    <a class="navbar__tab" href="/docs/">Docs</a>
-    <a class="navbar__tab" href="/tutorials/">Tutorials</a>
+    {/* Centred as a group on the bar (Adrian, 2026-08-19): the five tabs hold the middle,
+        the two doors hold the right. On narrower desktops the group falls back into the
+        row, and on mobile the wrapper dissolves into the dropdown. */}
+    <div class="navbar__tabs">
+      <a class="navbar__tab" href="/tools/">Toolset</a>
+      {/* Sits next to Toolset because they are the two products, and after it because the
+          free Maya suite is still what most arrivals come for. */}
+      <a class="navbar__tab" href="/armature/">Armature</a>
+      <a class="navbar__tab" href="/store/">Store</a>
+      <a class="navbar__tab" href="/docs/">Docs</a>
+      <a class="navbar__tab" href="/tutorials/">Tutorials</a>
+    </div>
     <a class="nav-services" href="/services/" data-goatcounter-click="nav-services">Services</a>
     <a class="nav-download" href={LINKS.installer} data-installer data-goatcounter-click="nav-download">Download</a>
   </div>
@@ -93,6 +98,23 @@ import NewsletterPop from './NewsletterPop.astro';
     display: flex;
     align-items: center;
     gap: 1.5rem;
+  }
+  /* Centred against the BAR, not the menu: the group is lifted out of the flex flow so its
+     midpoint is the viewport's, whatever the brand and the doors weigh. The fixed navbar is
+     the containing block. */
+  .navbar__tabs {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+  }
+  /* Below this the centred group starts crowding the brand and the doors: fall back into
+     the row on the right, as it laid out before the centring. */
+  @media (max-width: 1100px) {
+    .navbar__tabs { position: static; transform: none; }
   }
   .navbar__tab {
     text-decoration: none;
@@ -169,6 +191,7 @@ import NewsletterPop from './NewsletterPop.astro';
       padding: 0.25rem 1.5rem 1rem;
     }
     .navbar__menu.is-open { display: flex; }
+    .navbar__tabs { display: contents; }
     .navbar__menu .navbar__tab { padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
     .nav-services,
     .nav-download { align-self: flex-start; margin-top: 1rem; }
