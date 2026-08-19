@@ -729,14 +729,15 @@ void main() {
       const t = tt % ROM_LEN;
       const name = jNames[j];
       const side = jSide[j];
-      // 0-3s: arms rise laterally to the T and come back (clavicles help). About world Z,
-      // outward = toward the joint's own side.
+      // 0-3s: arms rise laterally to the T and come back. The CLAVICLE carries ~85% of
+      // the raise and the shoulder only ~15% (Adrian, 2026-08-19: an upperarm-driven
+      // raise squashes the deltoid, and a rigger cannot watch that).
       if (name.startsWith('upperarm_')) {
-        const d = 62 * hump(t, 0, 3);
+        const d = 11 * hump(t, 0, 3);
         if (d) return { ax: [0, 0, 1], deg: d * side };
       }
       if (name.startsWith('clavicle_')) {
-        const d = 12 * hump(t, 0, 3);
+        const d = 61 * hump(t, 0, 3);
         if (d) return { ax: [0, 0, 1], deg: d * side };
       }
       // 3-5.5s: both elbows bend
