@@ -18,41 +18,47 @@ import BracketButton from './BracketButton.astro';
 import heroWordmark from '../assets/hero/wordmark-banner.png';
 ---
 
-{/* THE BACKDROP. Fixed, full viewport, z-index 0, and it NEVER scrolls away: the page is not
-    content moving past a hero, it is panels rising over a room that stays. The cloud disperses
-    at the end of the opening and the grid it stood on remains as the environment every panel
-    after it floats in. */}
+{/* THE STAGE IS A STACK OF FIXED LAYERS (Adrian, 2026-08-19). Nothing scrolls past anything:
+    scroll position is just the clock, and the layers fade and move against it in place.
+      z0  the 3D scene (canvas: grid + cloud), never scrolls away
+      z1  the hero video, which FADES IN over the scene as the cloud explodes (the section
+          itself, promoted to a fixed layer by [data-cine] in index.astro)
+      z2  this copy layer: text that clears on beat one, and the two download buttons, which
+          never fade at all -- they travel to centre-bottom and STAY, above the video
+      higher  the nav */}
 <div class="pc" data-pc>
   <div class="pc__stage">
     <canvas class="pc__canvas" data-pc-canvas aria-hidden="true"></canvas>
+  </div>
+</div>
 
-    <div class="pc__copy">
-      {/* The text clears on the first beat. The buttons do NOT: they travel to centre-bottom
-          with the mark and go out with it at the explosion, so the ask survives the
-          transition instead of being thrown away and asked again lower down. That is why
-          they sit outside .pc__text, which owns the fade. */}
-      <div class="pc__text" data-pc-text>
-        <p class="pc__display">Artist+AI Toolset</p>
-        <p class="pc__sub">Game Development<br />Re-imagined.</p>
-        {/* The wordmark stays the h1, as it was before this section existed, so the page's
-            heading shape is unchanged. Its vertical offset is set once at load to sit on the
-            crossbar of the F in the point cloud (Adrian's alignment, 2026-08-19). */}
-        <h1 class="pc__wordmark" data-pc-wordmark>
-          <Image src={heroWordmark} alt="FabricatorStudio" widths={[760, 1180]} sizes="(max-width: 820px) 86vw, 760px" loading="eager" />
-        </h1>
-      </div>
-      <div class="pc__cta" data-pc-cta>
-        <BracketButton kind="hard" installer label="Download Toolset" event="hero-download" />
-        <BracketButton kind="plasma-outline" href="/armature/" label="Download Armature" event="hero-armature" />
-      </div>
+<div class="pc__copylayer">
+  <div class="pc__copy">
+    <div class="pc__text" data-pc-text>
+      <p class="pc__display">Artist+AI Toolset</p>
+      <p class="pc__sub">Game Development<br />Re-imagined.</p>
+      {/* The wordmark stays the h1, as it was before this section existed, so the page's
+          heading shape is unchanged. Its vertical offset is set once at load to sit on the
+          crossbar of the F in the point cloud (Adrian's alignment, 2026-08-19). */}
+      <h1 class="pc__wordmark" data-pc-wordmark>
+        <Image src={heroWordmark} alt="FabricatorStudio" widths={[760, 1180]} sizes="(max-width: 820px) 86vw, 760px" loading="eager" />
+      </h1>
+    </div>
+    {/* The buttons never fade (Adrian, 2026-08-19): they travel to centre-bottom as the
+        camera centres, then hold there, above the video, for as long as the stage is on
+        screen. The ask outlives the whole opening. That is why they sit outside .pc__text,
+        which owns the text fade, and on a layer above the video's z1. */}
+    <div class="pc__cta" data-pc-cta>
+      <BracketButton kind="hard" installer label="Download Toolset" event="hero-download" />
+      <BracketButton kind="plasma-outline" href="/armature/" label="Download Armature" event="hero-armature" />
     </div>
   </div>
 </div>
 
-{/* The scroll the opening is spent on, and nothing else. Its height is what times the beats:
-    at 260svh the next panel's top crosses the viewport bottom at progress 0.615, which is
-    exactly where the explosion starts, so the mark blows apart AS the hero video arrives
-    rather than before it. Change one and the other has to move with it. */}
+{/* The scroll the opening is spent on, and nothing else. Nothing scrolls in from below any
+    more, so this is purely the clock: progress = scrollY / (runway - viewport), and every
+    beat (camera, text, explosion, video fade) is a fraction of it. 260svh gives the whole
+    opening 1.6 screens of scroll. */}
 <div class="pc-runway" data-pc-runway></div>
 
 <style>
@@ -68,6 +74,15 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
      in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
   .pc-runway { height: 260svh; }
+
+  /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
+     clickable and visible after the video has faded in underneath them. */
+  .pc__copylayer {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
 
   .pc__canvas {
     position: absolute;
@@ -89,12 +104,11 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     max-width: 44vw;
     display: flex;
     flex-direction: column;
-    z-index: 2;
-    /* The stage is click-through so the panels above it stay usable; the two download
-       buttons are the one thing in here that has to take a click. */
+    /* The layer is click-through; the buttons are the one thing that takes a click. The
+       faded-out text must NOT: pointer-events comes back on the CTA row only. */
     pointer-events: none;
   }
-  .pc__copy > * { pointer-events: auto; }
+  .pc__cta :global(a) { pointer-events: auto; }
 
   /* The fade lives here and not on .pc__copy, because a child cannot be more opaque than its
      parent and the buttons have to outlive the text. */
@@ -146,13 +160,12 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   }
 
   /* ---- the fallback -------------------------------------------------------------------
-     Reduced motion, no WebGL2, or a failed init. The runway collapses to one screen so the
-     scroll cost of an effect that is not running is not paid, the canvas goes, and the copy
-     stands on carbon exactly as it is composed above. */
-  /* The backdrop stops being a backdrop: it drops into the flow as an ordinary opening
-     screen, the canvas goes, and the runway collapses so nobody scrolls two and a half empty
-     screens to reach the page. */
-  .pc[data-pc-static] {
+     Reduced motion, no WebGL2, or a failed init: the canvas layer goes entirely, the copy
+     layer drops into the flow as an ordinary opening screen on carbon, and the runway
+     collapses so nobody scrolls two and a half empty screens to reach the page. The video
+     section keeps its normal in-flow life because [data-cine] is never set. */
+  .pc[data-pc-static] { display: none; }
+  .pc[data-pc-static] ~ .pc__copylayer {
     position: relative;
     inset: auto;
     pointer-events: auto;
@@ -160,9 +173,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     display: flex;
     align-items: center;
   }
-  .pc[data-pc-static] .pc__stage { position: static; overflow: visible; width: 100%; }
-  .pc[data-pc-static] .pc__canvas { display: none; }
-  .pc[data-pc-static] .pc__copy {
+  .pc[data-pc-static] ~ .pc__copylayer .pc__copy {
     position: relative;
     top: auto;
     left: 0;
@@ -170,19 +181,19 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     max-width: min(44rem, 82vw);
     margin-left: 9vw;
     padding: var(--sp-7) 0;
+    pointer-events: auto;
   }
-  .pc[data-pc-static] .pc__text { opacity: 1; transform: none; }
-  .pc[data-pc-static] .pc__wordmark { top: 0; }
-  .pc[data-pc-static] + .pc-runway { display: none; }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__text { opacity: 1; transform: none; }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__wordmark { top: 0; }
+  .pc[data-pc-static] ~ .pc-runway { display: none; }
 
   @media (max-width: 900px) {
     /* Mobile is composed but NOT dialled: Adrian ruled the layout (mark toward the top, copy
        in the lower third, buttons at the bottom) and deferred its camera. Until that framing
        exists this width takes the static fallback rather than an undialled cinematic. */
-    .pc { position: relative; inset: auto; pointer-events: auto; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; }
-    .pc__stage { position: static; overflow: visible; width: 100%; }
-    .pc__canvas { display: none; }
-    .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); }
+    .pc { display: none; }
+    .pc__copylayer { position: relative; inset: auto; pointer-events: auto; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; }
+    .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); pointer-events: auto; }
     .pc__text { opacity: 1; transform: none; }
     .pc__wordmark { top: 0; }
     .pc__wordmark :global(img) { width: min(86vw, 470px); }
@@ -210,7 +221,13 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   const root = document.querySelector('[data-pc]') as HTMLElement | null;
   if (root) start(root);
 
-  function fallback(el: HTMLElement) { el.setAttribute('data-pc-static', ''); }
+  function fallback(el: HTMLElement) {
+    el.setAttribute('data-pc-static', '');
+    // If init died after the video was promoted to a fixed layer, un-promote it, or the page
+    // is left with an invisible fixed video and no hero at all.
+    const hero = document.getElementById('hero');
+    if (hero) { hero.removeAttribute('data-cine'); hero.style.opacity = ''; }
+  }
 
   async function start(host: HTMLElement) {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -222,7 +239,12 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     if (!gl) { fallback(host); return; }
 
     try { await run(host, canvas, gl); }
-    catch { fallback(host); }
+    catch (err) {
+      // NEVER silent: a swallowed init error demotes the whole opening to the static page
+      // with no trace, which cost a debugging round on 2026-08-19.
+      console.error('[pointcloud] init failed, static fallback:', err);
+      fallback(host);
+    }
   }
 
   // ---------------------------------------------------------------- maths
@@ -555,17 +577,19 @@ void main() {
     // Solved in ONE shot, not iterated: the mark's screen position does not depend on where
     // the wordmark is, so the offset is simply the gap between them. Measured with the offset
     // cleared, so repeat calls never compound.
-    const wmEl = host.querySelector('[data-pc-wordmark]') as HTMLElement;
-    const ctaEl = host.querySelector('[data-pc-cta]') as HTMLElement;
+    // document, not host: the copy moved to its own fixed layer BESIDE the stage so the
+    // buttons could sit above the video's z1, so these are no longer the host's descendants.
+    const wmEl = document.querySelector('[data-pc-wordmark]') as HTMLElement;
+    const ctaEl = document.querySelector('[data-pc-cta]') as HTMLElement;
     let ctaRest: DOMRect | null = null;
     function relayout() {
       const rect = canvas.getBoundingClientRect();
       const view = viewOf(CAM_A), proj = perspective(CAM_A.fov, rect.width / rect.height, 0.01, 100);
       const a = project([(bmn[0] + bmx[0]) / 2, lerp(bmn[1], bmx[1], P.anchorY), (bmn[2] + bmx[2]) / 2],
         view, proj, rect.width, rect.height);
-      host.style.setProperty('--pc-wm', '0px');
+      document.documentElement.style.setProperty('--pc-wm', '0px');
       const wm = wmEl.getBoundingClientRect();
-      if (a) host.style.setProperty('--pc-wm', (a[1] - ((wm.top + wm.bottom) / 2 - rect.top)).toFixed(1) + 'px');
+      if (a) document.documentElement.style.setProperty('--pc-wm', (a[1] - ((wm.top + wm.bottom) / 2 - rect.top)).toFixed(1) + 'px');
       const prev = ctaEl.style.transform;
       ctaEl.style.transform = 'none';
       ctaRest = ctaEl.getBoundingClientRect();
@@ -586,17 +610,17 @@ void main() {
         t[2] + c.dist * Math.cos(c.pitch) * Math.cos(c.yaw)], t, [0, 1, 0]);
     }
 
-    // ---- the loop. Progress is read from the runway's own rect in rAF rather than from a
-    // scroll listener, so touch momentum cannot stall it and there is no listener to throttle.
-    // The backdrop is fixed, so progress comes from the page's own scroll against the runway
-    // element rather than from the stage's rect, which no longer moves. Read in rAF, not from
-    // a scroll listener: touch momentum stalls listeners and there is nothing to throttle.
+    // ---- the loop. Progress is read in rAF, not from a scroll listener: touch momentum
+    // stalls listeners and there is nothing to throttle when the loop is running anyway.
     const runwayEl = document.querySelector('[data-pc-runway]') as HTMLElement | null;
     let time = 0, oscPhase = 0, prev = 0, ready = false;
-    // The panels rise over this scene, so once the opening is behind us the cloud is spent and
-    // only the grid is doing any work. Keep drawing it, but there is no reason to keep sampling
-    // 5,000 exploded points for a room nobody is looking at through them.
-    const panels = Array.from(document.querySelectorAll('[data-panel]')) as HTMLElement[];
+
+    // The hero video is promoted from an in-flow section to a fixed layer at z1, between the
+    // scene (z0) and the copy (z2). It does not scroll up; it FADES IN in place over the
+    // scene as the cloud explodes (Adrian, 2026-08-19). [data-cine] carries the promotion so
+    // the fallback paths, which never set it, keep the section's normal in-flow life.
+    const heroSec = document.getElementById('hero');
+    heroSec?.setAttribute('data-cine', '');
 
     function frame(now: number) {
       requestAnimationFrame(frame);
@@ -604,30 +628,29 @@ void main() {
       prev = now;
       if (resize()) relayout();
 
+      // Denominator is runway MINUS viewport: with the video out of the flow, the document
+      // ends at the runway's foot, so the runway's last screenful can never be scrolled past
+      // and progress mapped over the full runway would top out around 0.75.
       const H = runwayEl ? runwayEl.offsetHeight : innerHeight * 2.6;
-      const p = clamp01(scrollY / Math.max(1, H));
-
-      // Every panel rises, fades and settles as it arrives. One pass over a handful of
-      // elements, in the loop that is already running, so there is no second observer and no
-      // second source of truth about where the page is.
-      for (const el of panels) {
-        const r = el.getBoundingClientRect();
-        el.style.setProperty('--enter', smooth(clamp01((innerHeight - r.top) / (innerHeight * 0.75))).toFixed(3));
-      }
+      const p = clamp01(scrollY / Math.max(1, H - innerHeight));
 
       const tCam = smooth(clamp01(p / 0.45));
       const explode = clamp01((p - 0.62) / 0.38);
-      host.style.setProperty('--pc-out', String(clamp01(p / 0.28)));
+      // documentElement, not host: the text lives on the sibling copy layer now, and a custom
+      // property set on the stage does not cascade sideways.
+      document.documentElement.style.setProperty('--pc-out', String(clamp01(p / 0.28)));
 
-      // The buttons travel to centre-bottom instead of fading, then clear with the cloud.
+      // The video fades in through the explosion: it starts becoming visible as the points
+      // scatter and owns the screen by the end of the runway.
+      if (heroSec) heroSec.style.opacity = smooth(clamp01((p - 0.66) / 0.32)).toFixed(3);
+
+      // The buttons travel to centre-bottom on the camera's easing, then STAY, above the
+      // video, for as long as the stage is on screen. They never fade (Adrian, 2026-08-19).
       if (ctaRest) {
         const rect = canvas.getBoundingClientRect();
         const dx = (rect.left + rect.width / 2) - (ctaRest.left + ctaRest.width / 2);
         const dy = (rect.top + rect.height - rect.height * P.ctaBottom - ctaRest.height) - ctaRest.top;
         ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
-        const o = 1 - clamp01(explode / 0.6);
-        ctaEl.style.opacity = o.toFixed(3);
-        ctaEl.style.pointerEvents = o < 0.05 ? 'none' : '';
       }
 
       time += dt;

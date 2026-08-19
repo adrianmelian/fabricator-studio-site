@@ -140,7 +140,11 @@ const PROOF = [
       first two impossible to judge. The toolset, Armature, proof, DownloadBand, hire and
       about sections return from git (this branch, commit d9e73c5) as each transition lands. */}
 
-  <Footer />
+  {/* Raised above the fixed video layer (z1), or scrolling past the runway would slide the
+      footer invisibly underneath it. */}
+  <div class="site-footer-raise">
+    <Footer />
+  </div>
 
   {/* Proof cards: poster by default, loop on hover or keyboard focus.
       Bails entirely on touch (no hover pointer) and under reduced-motion, where the poster
@@ -206,6 +210,8 @@ const PROOF = [
 </BaseLayout>
 
 <style>
+  .site-footer-raise { position: relative; z-index: 3; background: var(--carbon); }
+
   .hero-v2 {
     position: relative;
     overflow: hidden;
@@ -224,6 +230,26 @@ const PROOF = [
     justify-content: flex-end;
     flex-direction: column;
   }
+
+  /* THE CINEMATIC PROMOTION (Adrian, 2026-08-19). When the point-cloud opening is running it
+     sets [data-cine], and this section stops being an in-flow panel and becomes a fixed layer
+     at z1: above the 3D scene (z0), below the copy and its download buttons (z2). It does not
+     scroll up; it FADES IN in place as the cloud explodes, opacity driven per frame by the
+     opening's own loop. The fallback paths never set the attribute, so reduced-motion,
+     no-WebGL and mobile keep the normal in-flow section. */
+  .hero-v2[data-cine] {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    width: auto;
+    max-width: none;
+    margin: 0;
+    min-height: 0;
+    opacity: 0;
+    /* The video is pure backdrop while the buttons above it take the clicks. */
+    pointer-events: none;
+  }
+
   .hero-media {
     position: absolute;
     inset: 0;
