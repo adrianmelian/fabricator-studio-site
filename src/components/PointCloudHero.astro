@@ -265,6 +265,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     exDist: 1.5, exCurl: 2.16, exCam: 1.06,
     restAmp: 0.012, wakeAt: 0.04,
     anchorY: 0.415, ctaBottom: 0.08,
+    // The star shell (Adrian, 2026-08-19): environment, indifferent to the beats. Dim enough
+    // that only the brightest twinkle just past the bloom threshold.
+    starCount: 1000, starSize: 0.085, starSpeed: 0.015, starBright: 0.6,
   };
   const CAM_A = { yaw: -0.0200, pitch: -0.0240, dist: 4.36448, tx: -0.62800, ty: 0.89876, tz: -0.83070, fov: 42 };
   const CAM_B = { yaw: -0.0320, pitch: -0.1160, dist: 3.14928, tx: 0.08734, ty: 0.79470, tz: 0.00000, fov: 42 };
@@ -413,6 +416,33 @@ void main() {
   frag = vec4(c * vFade, soft * vAlive);
 }`;
 
+    // Stars: a slow uniform orbit around Y, done in the shader so the buffer never updates.
+    // aSeed.x is a twinkle phase, aSeed.y a per-star brightness.
+    const STAR_VS = `#version 300 es
+in vec3 aPos; in vec2 aSeed;
+uniform mat4 uProj, uView; uniform float uTime, uSpeed, uSize;
+out float vB;
+void main() {
+  float a = uTime * uSpeed;
+  float c = cos(a), s = sin(a);
+  vec3 p = vec3(aPos.x * c - aPos.z * s, aPos.y, aPos.x * s + aPos.z * c);
+  vec4 mv = uView * vec4(p, 1.0);
+  gl_Position = uProj * mv;
+  gl_PointSize = max(uSize * (300.0 / -mv.z), 1.0);
+  vB = aSeed.y * (0.75 + 0.25 * sin(uTime * 0.6 + aSeed.x));
+}`;
+
+    const STAR_FS = `#version 300 es
+precision highp float;
+uniform vec3 uBone; uniform float uBright;
+in float vB; out vec4 frag;
+void main() {
+  vec2 d = gl_PointCoord - vec2(0.5);
+  float r = dot(d, d);
+  if (r > 0.25) discard;
+  frag = vec4(uBone * vB * uBright, smoothstep(0.25, 0.0, r));
+}`;
+
     const GRID_VS = `#version 300 es
 in vec3 aPos; uniform mat4 uProj, uView; out float vDist;
 void main() { vec4 mv = uView * vec4(aPos, 1.0); vDist = -mv.z; gl_Position = uProj * mv; }`;
@@ -473,6 +503,7 @@ void main() {
 }`;
 
     const P_POINT = prog(POINT_VS, POINT_FS);
+    const P_STAR = prog(STAR_VS, STAR_FS);
     const P_GRID = prog(GRID_VS, GRID_FS);
     const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
     const P_BLUR = prog(QUAD_VS, BLUR_FS);
@@ -505,6 +536,38 @@ void main() {
     }
     const gridFine = makeGrid(20, 200);
     const gridSect = makeGrid(20, 20);
+
+    // The star shell: seeded like the cloud, so every visitor sees the same sky. Radius 7-18
+    // around the origin, height biased toward the horizon like a real sky, and never below
+    // the floor: a star under the grid reads as a hole in the room, not a star.
+    const starVao = gl.createVertexArray()!;
+    {
+      const rs = mulberry32(P.seed ^ 0xBADC0DE);
+      const n = P.starCount;
+      const sp = new Float32Array(n * 3), ss = new Float32Array(n * 2);
+      for (let i = 0; i < n; i++) {
+        const az = rs() * Math.PI * 2;
+        const rad = 5.5 + rs() * 10;
+        const h = rs();
+        sp[i * 3] = Math.cos(az) * rad;
+        sp[i * 3 + 1] = 0.2 + 13.8 * h;
+        sp[i * 3 + 2] = Math.sin(az) * rad;
+        ss[i * 2] = rs() * Math.PI * 2;
+        ss[i * 2 + 1] = 0.35 + rs() * 0.65;
+      }
+      gl.bindVertexArray(starVao);
+      const sattr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_STAR.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      sattr('aPos', sp, 3);
+      sattr('aSeed', ss, 2);
+    }
 
     // ---- mesh, baked at build time so no GLB container is parsed in the browser
     const buf = await (await fetch('/mesh/fs_logo.mesh')).arrayBuffer();
@@ -747,7 +810,21 @@ void main() {
       gl.disable(gl.DEPTH_TEST);
       gl.enable(gl.BLEND);
 
-      // grid first on normal alpha, then the cloud additive over it
+      // Stars first, additive, so the grid's alpha lines read over them and the room keeps
+      // its floor. They ignore every beat: the sky does not care about the explosion.
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.useProgram(P_STAR.p);
+      gl.uniformMatrix4fv(P_STAR.u.uProj, false, proj);
+      gl.uniformMatrix4fv(P_STAR.u.uView, false, view);
+      gl.uniform1f(P_STAR.u.uTime, time);
+      gl.uniform1f(P_STAR.u.uSpeed, P.starSpeed);
+      gl.uniform1f(P_STAR.u.uSize, P.starSize);
+      gl.uniform1f(P_STAR.u.uBright, P.starBright);
+      gl.uniform3fv(P_STAR.u.uBone, BONE);
+      gl.bindVertexArray(starVao);
+      gl.drawArrays(gl.POINTS, 0, P.starCount);
+
+      // grid on normal alpha, then the cloud additive over it
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
       gl.useProgram(P_GRID.p);
       gl.uniformMatrix4fv(P_GRID.u.uProj, false, proj);
