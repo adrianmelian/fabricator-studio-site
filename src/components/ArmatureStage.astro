@@ -242,32 +242,6 @@ void main() {
 }`;
     // The rig itself: joints as bright points, bones as glowing lines, revealed by chain
     // depth (aD in 0..1, root -> fingertips) with a burn at the growth frontier.
-    const JOINT_VS = `#version 300 es
-in vec3 aPos; in float aD;
-uniform mat4 uProj, uView;
-uniform float uGrow, uSize;
-out float vA; out float vEdge;
-void main() {
-  vec4 mv = uView * vec4(aPos, 1.0);
-  gl_Position = uProj * mv;
-  gl_PointSize = max(uSize * (300.0 / -mv.z), 2.0);
-  float vis = 1.0 - smoothstep(uGrow, uGrow + 0.02, aD);
-  vEdge = max(0.0, 1.0 - abs(aD - uGrow) / 0.08);
-  vA = vis;
-}`;
-    const JOINT_FS = `#version 300 es
-precision highp float;
-uniform vec3 uPlasma; uniform float uAlpha;
-in float vA; in float vEdge;
-out vec4 frag;
-void main() {
-  if (vA < 0.003) discard;
-  vec2 d = gl_PointCoord - vec2(0.5);
-  float r = dot(d, d);
-  if (r > 0.25) discard;
-  float soft = smoothstep(0.25, 0.0, r);
-  frag = vec4(uPlasma * (1.2 + vEdge * 1.8), soft * vA * uAlpha);
-}`;
     const BONE_VS = `#version 300 es
 in vec3 aPos; in float aD;
 uniform mat4 uProj, uView;
@@ -380,7 +354,6 @@ void main() {
     const P_XRAY = prog(XRAY_VS, XRAY_FS);
     const P_SKIN = prog(XRAYSKIN_VS, XRAY_FS);
     const P_PT = prog(PT_VS, PT_FS);
-    const P_JOINT = prog(JOINT_VS, JOINT_FS);
     const P_BONE = prog(BONE_VS, BONE_FS);
     const P_CTRL = prog(CTRL_VS, CTRL_FS);
     const P_STAR = prog(STAR_VS, STAR_FS);
@@ -622,34 +595,30 @@ void main() {
     const boneList = shown.filter((j) => jParent[j] >= 0 && jNames[jParent[j]] !== 'root'
       && !jNames[jParent[j]].startsWith('ik_') && !jNames[jParent[j]].startsWith('pivot_'));
 
-    const jointPosBuf = gl.createBuffer();
-    const jointVao = gl.createVertexArray()!;
-    {
-      gl.bindVertexArray(jointVao);
-      gl.bindBuffer(gl.ARRAY_BUFFER, jointPosBuf);
-      gl.bufferData(gl.ARRAY_BUFFER, shown.length * 12, gl.DYNAMIC_DRAW);
-      const lp = gl.getAttribLocation(P_JOINT.p, 'aPos');
-      gl.enableVertexAttribArray(lp);
-      gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
-      const dArr = new Float32Array(shown.map((j) => depth[j] / maxDepth));
-      const db = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, db);
-      gl.bufferData(gl.ARRAY_BUFFER, dArr, gl.STATIC_DRAW);
-      const ld = gl.getAttribLocation(P_JOINT.p, 'aD');
-      gl.enableVertexAttribArray(ld);
-      gl.vertexAttribPointer(ld, 1, gl.FLOAT, false, 0, 0);
-    }
+    // THE JOINT SHAPES (Adrian, 2026-08-19): Armature's own double-ring joint shape, in
+    // the side colours. Fingers and twists stay small; every other joint TRIPLES.
+    const BLUE = [0.32, 0.55, 1.0], RED = [1.0, 0.3, 0.28], YELLOW = [1.0, 0.84, 0.25];
+    const smallJoint = (n: string) => /thumb|index|middle|ring|pinky|twist|ball_/.test(n);
+    const shownDisp = shown.map((j) => ({
+      d: depth[j] / maxDepth,
+      r: smallJoint(jNames[j]) ? 0.022 : 0.066,
+      col: jNames[j].endsWith('_l') ? BLUE : jNames[j].endsWith('_r') ? RED : YELLOW,
+    }));
+
+    // THE BONES (Adrian, 2026-08-19): thin line TRIANGLES pointing at the child, Maya's
+    // own grammar -- base at the parent in the view plane, apex at the child. Three line
+    // segments per bone, rebuilt per frame.
     const bonePosBuf = gl.createBuffer();
     const boneVao = gl.createVertexArray()!;
     {
       gl.bindVertexArray(boneVao);
       gl.bindBuffer(gl.ARRAY_BUFFER, bonePosBuf);
-      gl.bufferData(gl.ARRAY_BUFFER, boneList.length * 24, gl.DYNAMIC_DRAW);
+      gl.bufferData(gl.ARRAY_BUFFER, boneList.length * 72, gl.DYNAMIC_DRAW);
       const lp = gl.getAttribLocation(P_BONE.p, 'aPos');
       gl.enableVertexAttribArray(lp);
       gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
-      const dArr = new Float32Array(boneList.length * 2);
-      boneList.forEach((j, i) => { dArr[i * 2] = depth[j] / maxDepth; dArr[i * 2 + 1] = depth[j] / maxDepth; });
+      const dArr = new Float32Array(boneList.length * 6);
+      boneList.forEach((j, i) => { for (let k = 0; k < 6; k++) dArr[i * 6 + k] = depth[j] / maxDepth; });
       const db = gl.createBuffer();
       gl.bindBuffer(gl.ARRAY_BUFFER, db);
       gl.bufferData(gl.ARRAY_BUFFER, dArr, gl.STATIC_DRAW);
@@ -694,24 +663,6 @@ void main() {
     let ikSettling = false;
     const ikTarget = new Float32Array(3);
     const effNatural = new Float32Array(effJoint.length * 3); // pre-IK effector positions
-
-    // the handle markers: a second, larger, pulsing draw of only the effector joints
-    const effPosBuf = gl.createBuffer();
-    const effVao = gl.createVertexArray()!;
-    {
-      gl.bindVertexArray(effVao);
-      gl.bindBuffer(gl.ARRAY_BUFFER, effPosBuf);
-      gl.bufferData(gl.ARRAY_BUFFER, effJoint.length * 12, gl.DYNAMIC_DRAW);
-      const lp = gl.getAttribLocation(P_JOINT.p, 'aPos');
-      gl.enableVertexAttribArray(lp);
-      gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
-      const db = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, db);
-      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(effJoint.length), gl.STATIC_DRAW);
-      const ld = gl.getAttribLocation(P_JOINT.p, 'aD');
-      gl.enableVertexAttribArray(ld);
-      gl.vertexAttribPointer(ld, 1, gl.FLOAT, false, 0, 0);
-    }
 
     // THE RANGE OF MOTION (Adrian's routine, 2026-08-19; replaced the floaty idle): a
     // looped calisthenics pass at the skinning beat. Every move is a WORLD-AXIS rotation
@@ -798,7 +749,7 @@ void main() {
     const locals: Float32Array[] = new Array(NJ);
     const skinPix = new Float32Array(NJ * 16);
     const jointPts = new Float32Array(shown.length * 3);
-    const bonePts = new Float32Array(boneList.length * 6);
+    const bonePts = new Float32Array(boneList.length * 18);
     const effPts = new Float32Array(effJoint.length * 3);
     function evalPose(t: number, amp: number, dt: number) {
       // pass 1: FK from the bind locals, with the ROM's world-axis rotations applied at
@@ -950,19 +901,31 @@ void main() {
         jointPts[i * 3] = worlds[j][12]; jointPts[i * 3 + 1] = worlds[j][13]; jointPts[i * 3 + 2] = worlds[j][14];
       });
       boneList.forEach((j, i) => {
-        const p = jParent[j];
-        bonePts[i * 6] = worlds[p][12]; bonePts[i * 6 + 1] = worlds[p][13]; bonePts[i * 6 + 2] = worlds[p][14];
-        bonePts[i * 6 + 3] = worlds[j][12]; bonePts[i * 6 + 4] = worlds[j][13]; bonePts[i * 6 + 5] = worlds[j][14];
+        const par = jParent[j];
+        const px = worlds[par][12], py = worlds[par][13], pz = worlds[par][14];
+        const cx = worlds[j][12], cy = worlds[j][13], cz = worlds[j][14];
+        // width direction: perpendicular to the bone in the view plane (last frame's
+        // camera; the one-frame lag is invisible)
+        let ex = 0, ey = 0, ez = 1;
+        if (lastView) { ex = lastEye[0] - px; ey = lastEye[1] - py; ez = lastEye[2] - pz; }
+        const bx = cx - px, by = cy - py, bz = cz - pz;
+        let wx = by * ez - bz * ey, wy = bz * ex - bx * ez, wz = bx * ey - by * ex;
+        const wl = Math.hypot(wx, wy, wz) || 1;
+        const HW = 0.02;
+        wx = (wx / wl) * HW; wy = (wy / wl) * HW; wz = (wz / wl) * HW;
+        const o = i * 18;
+        bonePts[o] = px + wx; bonePts[o + 1] = py + wy; bonePts[o + 2] = pz + wz;
+        bonePts[o + 3] = px - wx; bonePts[o + 4] = py - wy; bonePts[o + 5] = pz - wz;
+        bonePts[o + 6] = px - wx; bonePts[o + 7] = py - wy; bonePts[o + 8] = pz - wz;
+        bonePts[o + 9] = cx; bonePts[o + 10] = cy; bonePts[o + 11] = cz;
+        bonePts[o + 12] = cx; bonePts[o + 13] = cy; bonePts[o + 14] = cz;
+        bonePts[o + 15] = px + wx; bonePts[o + 16] = py + wy; bonePts[o + 17] = pz + wz;
       });
       effJoint.forEach((j, i) => {
         effPts[i * 3] = worlds[j][12]; effPts[i * 3 + 1] = worlds[j][13]; effPts[i * 3 + 2] = worlds[j][14];
       });
-      gl.bindBuffer(gl.ARRAY_BUFFER, effPosBuf);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, effPts);
       gl.bindTexture(gl.TEXTURE_2D, jointTex);
       gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 4, NJ, gl.RGBA, gl.FLOAT, skinPix);
-      gl.bindBuffer(gl.ARRAY_BUFFER, jointPosBuf);
-      gl.bufferSubData(gl.ARRAY_BUFFER, 0, jointPts);
       gl.bindBuffer(gl.ARRAY_BUFFER, bonePosBuf);
       gl.bufferSubData(gl.ARRAY_BUFFER, 0, bonePts);
     }
@@ -1271,43 +1234,45 @@ void main() {
         gl.uniform1f(P_BONE.u.uGrow, grow);
         gl.uniform1f(P_BONE.u.uAlpha, skelAlpha);
         gl.bindVertexArray(boneVao);
-        gl.drawArrays(gl.LINES, 0, boneList.length * 2);
+        gl.drawArrays(gl.LINES, 0, boneList.length * 6);
 
-        gl.useProgram(P_JOINT.p);
-        gl.uniformMatrix4fv(P_JOINT.u.uProj, false, proj);
-        gl.uniformMatrix4fv(P_JOINT.u.uView, false, view);
-        gl.uniform3fv(P_JOINT.u.uPlasma, PLASMA);
-        gl.uniform1f(P_JOINT.u.uGrow, grow);
-        gl.uniform1f(P_JOINT.u.uSize, 0.05);
-        gl.uniform1f(P_JOINT.u.uAlpha, skelAlpha);
-        gl.bindVertexArray(jointVao);
-        gl.drawArrays(gl.POINTS, 0, shown.length);
+        // THE JOINTS: Armature's double-ring shape at every joint, side-coloured,
+        // growing root-outward with a brightness burn at the frontier.
+        gl.useProgram(P_CTRL.p);
+        gl.uniformMatrix4fv(P_CTRL.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_CTRL.u.uView, false, view);
+        gl.uniform3f(P_CTRL.u.uRight, view[0], view[4], view[8]);
+        gl.uniform3f(P_CTRL.u.uUp, view[1], view[5], view[9]);
+        gl.bindVertexArray(circleVao);
+        for (let i = 0; i < shown.length; i++) {
+          const jd = shownDisp[i];
+          if (jd.d > grow + 0.02) continue;
+          const edge = Math.max(0, 1 - Math.abs(jd.d - grow) / 0.08);
+          gl.uniform1f(P_CTRL.u.uAlpha, skelAlpha * (0.38 + edge * 0.9));
+          gl.uniform3f(P_CTRL.u.uColor, jd.col[0], jd.col[1], jd.col[2]);
+          gl.uniform3f(P_CTRL.u.uCenter, jointPts[i * 3], jointPts[i * 3 + 1], jointPts[i * 3 + 2]);
+          gl.uniform1f(P_CTRL.u.uRadius, jd.r);
+          gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
+          gl.uniform1f(P_CTRL.u.uRadius, jd.r * 0.72);
+          gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
+        }
 
-        // THE CONTROLS (Adrian, 2026-08-19): simplified controller-rig rings at the six
-        // handles, in the rig's colours -- blue on screen left, yellow centre, red right,
-        // resolved by each control's actual side of the body.
+        // THE CONTROLS (Adrian, 2026-08-19): a THICKER single line, solid and glowing --
+        // five tightly nested loops read as one heavy stroke through the bloom.
         if (alive > 0.5) {
-          gl.useProgram(P_CTRL.p);
-          gl.uniformMatrix4fv(P_CTRL.u.uProj, false, proj);
-          gl.uniformMatrix4fv(P_CTRL.u.uView, false, view);
-          gl.uniform3f(P_CTRL.u.uRight, view[0], view[4], view[8]);
-          gl.uniform3f(P_CTRL.u.uUp, view[1], view[5], view[9]);
-          gl.uniform1f(P_CTRL.u.uAlpha, 0.9 * alive);
-          gl.bindVertexArray(circleVao);
+          gl.uniform1f(P_CTRL.u.uAlpha, alive);
           const pulse = 1 + 0.06 * Math.sin(time * 2.2);
           for (let i = 0; i < effJoint.length; i++) {
-            // CHARACTER-side colours (Adrian, 2026-08-19): her left is blue, her right
-            // is red, centre yellow -- rig convention, read from the joint names.
             const nm = jNames[effJoint[i]];
             if (nm.endsWith('_l')) gl.uniform3f(P_CTRL.u.uColor, 0.32, 0.55, 1.0);
             else if (nm.endsWith('_r')) gl.uniform3f(P_CTRL.u.uColor, 1.0, 0.3, 0.28);
             else gl.uniform3f(P_CTRL.u.uColor, 1.0, 0.84, 0.25);
             gl.uniform3f(P_CTRL.u.uCenter, effPts[i * 3], effPts[i * 3 + 1], effPts[i * 3 + 2]);
-            const rad = (nm === 'head' ? 0.17 : nm === 'spine_03' ? 0.2 : 0.12) * pulse;
-            gl.uniform1f(P_CTRL.u.uRadius, rad);
-            gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
-            gl.uniform1f(P_CTRL.u.uRadius, rad * 0.9);
-            gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
+            const rad = (nm === 'head' ? 0.13 : nm === 'spine_03' ? 0.18 : 0.12) * pulse;
+            for (let k = -1; k <= 1; k++) {
+              gl.uniform1f(P_CTRL.u.uRadius, rad + k * 0.006);
+              gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
+            }
           }
         }
       }
