@@ -1,12 +1,9 @@
 ---
-// THE DOWNLOAD BEAT: the scan (Adrian, 2026-08-19). The tool wall -- every FS window
-// receding to the horizon -- stands fullscreen BEHIND the room, hidden. As the visitor
-// scrolls, a horizontal band climbs the screen like a scanner: above it the room carries
-// on, below it the wall is revealed, and the wall itself never moves. The download button
-// rides in the middle of the band.
-//
-// The band's trailing (bottom) edge is the scan line, plasma, glowing: it is the edge that
-// unveils. The room was built floor-to-head; the scan retires it the same way.
+// THE DOWNLOAD BEAT: the scan (Adrian, 2026-08-19, corrected same day). The tool wall --
+// every FS window receding to the horizon -- stands fullscreen BEHIND the room, hidden. The
+// climbing band is a SLIT: only through it do you see the wall, the room carrying on above
+// and below, and since the wall never moves the slit reads as an x-ray aperture scanning
+// the scene. The download button rides the slit's middle, sitting on the wall it shows.
 import { Image } from 'astro:assets';
 import BracketButton from './BracketButton.astro';
 import wall from '../assets/wall/FS_Tool_Wall.png';
@@ -44,9 +41,9 @@ import wall from '../assets/wall/FS_Tool_Wall.png';
   .wl__wall {
     position: absolute;
     inset: 0;
-    /* Revealed from the band's trailing edge down: everything above it is clipped away,
-       and since the image never moves, the band reads as scanning the wall into view. */
-    clip-path: inset(calc(var(--band-top) + var(--band-h)) 0 0 0);
+    /* Visible ONLY through the slit: clipped above the band's top edge and below its
+       bottom edge. The image never moves; the aperture does. */
+    clip-path: inset(var(--band-top) 0 calc(100% - var(--band-top) - var(--band-h)) 0);
   }
   .wl__wall :global(img) {
     display: block;
@@ -64,11 +61,11 @@ import wall from '../assets/wall/FS_Tool_Wall.png';
     display: flex;
     align-items: center;
     justify-content: center;
-    background: var(--carbon);
-    border-top: 1px solid rgba(232, 224, 208, 0.10);
-    /* The trailing edge is the scan line. Plasma, and the only glow in the piece. */
-    border-bottom: 2px solid var(--plasma);
-    box-shadow: 0 6px 24px rgba(124, 255, 178, 0.22);
+    /* No fill: the wall IS the band's interior. The edges are the aperture. */
+    background: none;
+    border-top: 1.5px solid var(--plasma);
+    border-bottom: 1.5px solid var(--plasma);
+    box-shadow: 0 -5px 20px rgba(124, 255, 178, 0.18), 0 5px 20px rgba(124, 255, 178, 0.18);
     font-size: 1rem;
   }
 
