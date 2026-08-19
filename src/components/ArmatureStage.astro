@@ -830,23 +830,52 @@ void main() {
           if (dx * dx + dy * dy + dz * dz < 0.0004) { ikChain = -1; ikSettling = false; }
         }
         if (ikChain >= 0) {
-          for (let it = 0; it < 4; it++) {
-            for (let ci = chain.length - 2; ci >= 0; ci--) {
-              const j = chain[ci];
-              const px = worlds[j][12], py = worlds[j][13], pz = worlds[j][14];
-              const ex = worlds[eff][12] - px, ey = worlds[eff][13] - py, ez = worlds[eff][14] - pz;
-              const tx = ikTarget[0] - px, ty2 = ikTarget[1] - py, tz = ikTarget[2] - pz;
-              const cr = vcross([ex, ey, ez], [tx, ty2, tz]);
-              const crl = Math.hypot(cr[0], cr[1], cr[2]);
-              const el = Math.hypot(ex, ey, ez), tl = Math.hypot(tx, ty2, tz);
-              if (crl < 1e-6 || el < 1e-6 || tl < 1e-6) continue;
-              let ang = Math.acos(Math.min(1, Math.max(-1, (ex * tx + ey * ty2 + ez * tz) / (el * tl))));
-              ang = Math.min(0.35, ang * 0.85);
-              const R = mmul(mmul(translation(px, py, pz), rotAxis(cr, ang)), translation(-px, -py, -pz));
-              worlds[j] = mmul(R, worlds[j]);
-              // refresh the chain below the rotated joint
-              for (let k2 = ci + 1; k2 < chain.length; k2++)
-                worlds[chain[k2]] = mmul(worlds[chain[k2 - 1]], locals[chain[k2]]);
+          // ANALYTIC TWO-BONE SOLVE (Adrian, 2026-08-19: the elbow and knee must FOLD):
+          // the mid joint's inner angle is set by law of cosines about its own hinge,
+          // then the root aims the whole limb onto the target. Convention-free: the
+          // hinge is measured from the live pose, and a numeric check flips a wrong-way
+          // bend rather than trusting any axis convention.
+          const jA = chain[0], jB = chain[1], jE = chain[2];
+          for (let pass = 0; pass < 3; pass++) {
+            const pA = [worlds[jA][12], worlds[jA][13], worlds[jA][14]];
+            const pB = [worlds[jB][12], worlds[jB][13], worlds[jB][14]];
+            const pC = [worlds[jE][12], worlds[jE][13], worlds[jE][14]];
+            const L1 = Math.hypot(pB[0] - pA[0], pB[1] - pA[1], pB[2] - pA[2]);
+            const L2 = Math.hypot(pC[0] - pB[0], pC[1] - pB[1], pC[2] - pB[2]);
+            const dv = [ikTarget[0] - pA[0], ikTarget[1] - pA[1], ikTarget[2] - pA[2]];
+            const d = Math.min(L1 + L2 - 1e-3, Math.max(Math.abs(L1 - L2) + 1e-3, Math.hypot(dv[0], dv[1], dv[2])));
+            const phi = Math.acos(Math.min(1, Math.max(-1, (L1 * L1 + L2 * L2 - d * d) / (2 * L1 * L2))));
+            const vBA = [pA[0] - pB[0], pA[1] - pB[1], pA[2] - pB[2]];
+            const vBC = [pC[0] - pB[0], pC[1] - pB[1], pC[2] - pB[2]];
+            const psi = Math.acos(Math.min(1, Math.max(-1, vdot(vnorm(vBA), vnorm(vBC)))));
+            let hinge = vcross(vBC, vBA);
+            if (Math.hypot(hinge[0], hinge[1], hinge[2]) < 1e-5 && lastView)
+              hinge = vcross(vBA, [lastView[2], lastView[6], lastView[10]]);
+            const rotB = (delta: number) => {
+              const M = mmul(mmul(translation(pB[0], pB[1], pB[2]), rotAxis(hinge, delta)), translation(-pB[0], -pB[1], -pB[2]));
+              worlds[jB] = mmul(M, worlds[jB]);
+              worlds[jE] = mmul(worlds[jB], locals[jE]);
+            };
+            rotB(psi - phi);
+            {
+              const pC2 = [worlds[jE][12], worlds[jE][13], worlds[jE][14]];
+              const vBC2 = [pC2[0] - pB[0], pC2[1] - pB[1], pC2[2] - pB[2]];
+              const psi2 = Math.acos(Math.min(1, Math.max(-1, vdot(vnorm(vBA), vnorm(vBC2)))));
+              if (Math.abs(psi2 - phi) > Math.abs(psi - phi)) rotB(2 * (phi - psi));
+            }
+            locals[jB] = mmul(rigidInverse(worlds[jA]), worlds[jB]);
+            // the root aims the folded limb onto the target, unclamped
+            const pC3 = [worlds[jE][12], worlds[jE][13], worlds[jE][14]];
+            const vAC = [pC3[0] - pA[0], pC3[1] - pA[1], pC3[2] - pA[2]];
+            const vAT = [ikTarget[0] - pA[0], ikTarget[1] - pA[1], ikTarget[2] - pA[2]];
+            const ax = vcross(vAC, vAT);
+            const lC = Math.hypot(vAC[0], vAC[1], vAC[2]), lT = Math.hypot(vAT[0], vAT[1], vAT[2]);
+            if (Math.hypot(ax[0], ax[1], ax[2]) > 1e-6 && lC > 1e-6 && lT > 1e-6) {
+              const ang = Math.acos(Math.min(1, Math.max(-1, vdot(vAC, vAT) / (lC * lT))));
+              const M = mmul(mmul(translation(pA[0], pA[1], pA[2]), rotAxis(ax, ang)), translation(-pA[0], -pA[1], -pA[2]));
+              worlds[jA] = mmul(M, worlds[jA]);
+              worlds[jB] = mmul(worlds[jA], locals[jB]);
+              worlds[jE] = mmul(worlds[jB], locals[jE]);
             }
           }
           // fold the solve back into locals, then rebuild EVERY world from locals so the
