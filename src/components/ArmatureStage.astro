@@ -973,6 +973,9 @@ void main() {
     // turned in toward the content, framed hips to head -- an upper shot she holds to
     // the bottom while reels, pricing and the closing doors ride the right side.
     const CAM_END = { yaw: -0.55, pitch: -0.02, dist: 2.05, tx: 0.42, ty: 1.45, tz: 0.95 };
+    // ...and the FINAL pull-back (Adrian, 2026-08-19): same angle, same left seat, the
+    // camera just retreats until her full body stands in frame for the closing doors.
+    const CAM_OUT = { yaw: -0.55, pitch: -0.02, dist: 3.7, tx: 0.42, ty: 1.12, tz: 0.95 };
     const CAM_FOV = 42;
     const MAN_M = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 
@@ -1158,14 +1161,16 @@ void main() {
       const t1 = smooth(clamp01((q - 0.55) / 0.5));
       const t2 = smooth(clamp01((q - 2.05) / 1.95));
       const t3 = smooth(clamp01((q - 4.35) / 0.6));
-      const leg = (a: number, b: number, c2: number, d2: number) => lerp(lerp(lerp(a, b, t1), c2, t2), d2, t3);
-      const camDist = leg(CAM_LAND.dist, CAM_FIT.dist, CAM_HER.dist, CAM_END.dist);
+      const t4 = smooth(clamp01((q - 6.95) / 0.6));
+      const leg = (a: number, b: number, c2: number, d2: number, e2: number) =>
+        lerp(lerp(lerp(lerp(a, b, t1), c2, t2), d2, t3), e2, t4);
+      const camDist = leg(CAM_LAND.dist, CAM_FIT.dist, CAM_HER.dist, CAM_END.dist, CAM_OUT.dist);
       const tgt = [
-        leg(CAM_LAND.tx, CAM_FIT.tx, CAM_HER.tx, CAM_END.tx),
-        leg(CAM_LAND.ty, CAM_FIT.ty, CAM_HER.ty, CAM_END.ty),
-        leg(CAM_LAND.tz, CAM_FIT.tz, CAM_HER.tz, CAM_END.tz)];
-      const yaw = leg(CAM_LAND.yaw, CAM_FIT.yaw, CAM_HER.yaw, CAM_END.yaw) + oy;
-      const pitch = leg(CAM_LAND.pitch, CAM_FIT.pitch, CAM_HER.pitch, CAM_END.pitch) + op;
+        leg(CAM_LAND.tx, CAM_FIT.tx, CAM_HER.tx, CAM_END.tx, CAM_OUT.tx),
+        leg(CAM_LAND.ty, CAM_FIT.ty, CAM_HER.ty, CAM_END.ty, CAM_OUT.ty),
+        leg(CAM_LAND.tz, CAM_FIT.tz, CAM_HER.tz, CAM_END.tz, CAM_OUT.tz)];
+      const yaw = leg(CAM_LAND.yaw, CAM_FIT.yaw, CAM_HER.yaw, CAM_END.yaw, CAM_OUT.yaw) + oy;
+      const pitch = leg(CAM_LAND.pitch, CAM_FIT.pitch, CAM_HER.pitch, CAM_END.pitch, CAM_OUT.pitch) + op;
       const eye = [
         tgt[0] + camDist * Math.cos(pitch) * Math.sin(yaw),
         tgt[1] + camDist * Math.sin(pitch),
