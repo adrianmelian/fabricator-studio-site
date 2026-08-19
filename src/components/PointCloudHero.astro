@@ -69,8 +69,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 
 {/* The scroll the whole stage is spent on. Purely a clock: the OPENING owns the first 1.6
     screens of scroll (its beat fractions are ruled against exactly that length, so it never
-    changes when the runway grows), the TOOLSET beat owns the next 1.2, and the last 0.2 is a
-    hold. 100svh viewport + 3.0 scroll screens = 400svh. */}
+    changes when the runway grows), the TOOLSET's glass-and-carousel entry owns the next 1.2,
+    then each of the remaining five tools takes 0.4 screens as a SNAPPED STEP, and the last
+    0.3 is a hold. 100svh viewport + 4.8 scroll screens = 580svh. */}
 <div class="pc-runway" data-pc-runway></div>
 
 <style>
@@ -85,7 +86,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc__stage { position: absolute; inset: 0; overflow: hidden; }
   /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
      in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
-  .pc-runway { height: 400svh; }
+  .pc-runway { height: 580svh; }
 
   /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
      clickable and visible after the video has faded in underneath them. */
@@ -773,6 +774,14 @@ void main() {
     });
     addEventListener('pointerup', () => { orbDrag = false; });
 
+    // A thumb click asks the scroll owner to travel to that tool's step; the loop then
+    // derives the selection from the new position, same as a wheel would.
+    addEventListener('fs:selectTool', (e) => {
+      const i = (e as CustomEvent).detail as number;
+      const y = i === 0 ? innerHeight * 2.3 : innerHeight * (2.5 + (i - 1) * 0.4 + 0.2);
+      scrollTo({ top: Math.round(y), behavior: 'smooth' });
+    });
+
     // The hero video is promoted from an in-flow section to a fixed layer at z1, between the
     // scene (z0) and the copy (z2). It does not scroll up; it FADES IN in place over the
     // scene as the cloud explodes (Adrian, 2026-08-19). [data-cine] carries the promotion so
@@ -816,10 +825,17 @@ void main() {
       // four tool interfaces float in over it. The layer itself is ToolsOverlay.astro.
       document.documentElement.style.setProperty('--glass', smooth(clamp01((pt - 0.1) / 0.3)).toFixed(3));
       document.documentElement.style.setProperty('--tools', smooth(clamp01((pt - 0.35) / 0.4)).toFixed(3));
-      const tools = document.querySelector('[data-tools-overlay]');
+      const tools = document.querySelector('[data-tools-overlay]') as HTMLElement | null;
       if (tools) {
         if (pt > 0.01) tools.setAttribute('data-active', '');
         else tools.removeAttribute('data-active');
+        // THE CAROUSEL STEPS ON SCROLL (Adrian, 2026-08-19). Selection is a pure function
+        // of scrollY: the entry ends at 2.5 screens with tool 0 standing, then every 0.4
+        // screens of scroll snaps the next tool. Scrolling up steps back the same stairs.
+        // The All Tools tile is a link, not a step. Pure-function-of-scroll also means a
+        // reload mid-carousel lands on the right tool for free.
+        const sel = Math.max(0, Math.min(5, Math.floor((scrollY - innerHeight * 2.5) / (innerHeight * 0.4)) + 1));
+        if (tools.dataset.sel !== String(sel)) tools.dataset.sel = String(sel);
       }
 
       // The buttons travel to centre-bottom on the camera's easing and stand above the

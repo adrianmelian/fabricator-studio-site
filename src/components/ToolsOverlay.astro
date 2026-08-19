@@ -67,7 +67,7 @@ const TOOLS = [
         <Image src={t.src} alt="" widths={[Math.min(t.src.width, 480)]} />
       </button>
     ))}
-    <a class="tf__more" href="/docs/maya/">More Tools...</a>
+    <a class="tf__more" href="/docs/maya/">All Tools...</a>
   </div>
 </div>
 
@@ -247,13 +247,17 @@ const TOOLS = [
 </style>
 
 <script>
-  // A carousel's whole job is stability: the strip never moves, selection is a click, and
-  // the only things that change are the big slot and the info card.
+  // Selection is OWNED BY SCROLL (Adrian, 2026-08-19): each scroll step snaps the next tool,
+  // so the loop in PointCloudHero derives data-sel from scrollY every frame. A thumb click
+  // just asks that owner to scroll to the tool's step, which keeps one source of truth and
+  // makes the click land exactly where the wheel would have.
   const tf = document.querySelector('[data-tools-overlay]') as HTMLElement | null;
   if (tf) {
     tf.dataset.sel = '0';
     for (const b of tf.querySelectorAll('[data-tf-thumb]')) {
-      b.addEventListener('click', () => { tf.dataset.sel = (b as HTMLElement).dataset.idx!; });
+      b.addEventListener('click', () => {
+        dispatchEvent(new CustomEvent('fs:selectTool', { detail: parseInt((b as HTMLElement).dataset.idx!, 10) }));
+      });
     }
   }
 </script>
