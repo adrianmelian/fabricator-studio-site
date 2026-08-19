@@ -1,16 +1,21 @@
 ---
-// THE ARMATURE LANDING SHOT (Adrian's ruling, 2026-08-19, made on the homepage build:
-// "The armature shot with height man... This is the opening scene on the Armature page").
-// The room from the homepage cinematic -- star shell, floor grid, five-mip bloom -- with
-// the height man standing SOLID in the x-ray fresnel, the state he holds after the scan.
-// Click-drag peeks around him on the same elastic orbit the homepage taught.
+// THE ARMATURE STORY (Adrian, 2026-08-19): the page is the product doing its job. From
+// the landing (the height man solid in the room, his ruled art piece), the scroll runs
+// the creation of a character:
+//   1. SHE MATERIALISES  -- SuperHeroin as a point cloud, floor to head, the man yielding
+//   2. THE SKELETON GROWS -- her real 87-joint rig, revealed root-outward, chain by chain
+//   3. SHE SOLIDIFIES     -- the x-ray fresnel takes over the points, skeleton inside
+//   4. SHE IS ALIVE       -- linear-blend skinning in the shader, a procedural idle
+//                            (first-pass curves; Adrian authors the real ones)
+// Scroll is the only clock for the beats; the idle and the room run on time. Everything
+// is a pure function of scrollY, so scrolling up runs her un-creation in reverse.
 //
-// This is a BACKDROP, not a page: it fills the hero header behind the ruled copy, and on
-// success it sets data-stage-live on the header, which hides the static art and its scrim
-// (they stay in the DOM as the fallback for no-WebGL2, reduced motion, and under 900px).
-// The shaders and constants are the homepage's (PointCloudHero.astro), trimmed to this
-// shot; if the two drift, the homepage is the source of truth. CAM here = CAM_C there,
-// still Adrian's to dial.
+// Data: /mesh/superheroin.skin ('FSSK', baked by the depot's bake.py --skin): welded
+// mesh + JOINTS/WEIGHTS + the skeleton (names, parents, bind locals, inverse binds), all
+// pre-normalised into the room's space. The man stays /mesh/height_man.mesh.
+//
+// The homepage (PointCloudHero.astro) is the source of truth for the shared shader
+// grammar (room, stars, bloom, fresnel); this stage owns only what the story needs.
 ---
 
 <canvas class="ast-canvas" data-armature-stage aria-hidden="true"></canvas>
@@ -34,7 +39,9 @@
 <script>
   const canvas = document.querySelector('[data-armature-stage]') as HTMLCanvasElement | null;
 
-  function lerp(a: number, b: number, t: number) { return a + (b - a) * t; }
+  const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
+  const smooth = (x: number) => x * x * (3 - 2 * x);
+  const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
   function mulberry32(a: number) {
     return function () {
       a |= 0; a = (a + 0x6D2B79F5) | 0;
@@ -49,16 +56,40 @@
     out[14] = (2 * far * near) / (near - far);
     return out;
   }
+  const vsub = (a: number[], b: number[]) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
+  const vcross = (a: number[], b: number[]) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const vdot = (a: number[], b: number[]) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const vnorm = (a: number[]) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
   function lookAt(eye: number[], target: number[], up: number[]) {
-    const z = norm(sub(eye, target)), x = norm(cross(up, z)), y = cross(z, x);
+    const z = vnorm(vsub(eye, target)), x = vnorm(vcross(up, z)), y = vcross(z, x);
     return new Float32Array([
       x[0], y[0], z[0], 0, x[1], y[1], z[1], 0, x[2], y[2], z[2], 0,
-      -dot(x, eye), -dot(y, eye), -dot(z, eye), 1]);
+      -vdot(x, eye), -vdot(y, eye), -vdot(z, eye), 1]);
   }
-  const sub = (a: number[], b: number[]) => [a[0] - b[0], a[1] - b[1], a[2] - b[2]];
-  const cross = (a: number[], b: number[]) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
-  const dot = (a: number[], b: number[]) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
-  const norm = (a: number[]) => { const l = Math.hypot(a[0], a[1], a[2]) || 1; return [a[0] / l, a[1] / l, a[2] / l]; };
+  // column-major A*B (B applies first), same convention the bake uses
+  function mmul(a: Float32Array | number[], b: Float32Array | number[]) {
+    const o = new Float32Array(16);
+    for (let c = 0; c < 4; c++)
+      for (let r = 0; r < 4; r++) {
+        let s = 0;
+        for (let k = 0; k < 4; k++) s += a[k * 4 + r] * b[c * 4 + k];
+        o[c * 4 + r] = s;
+      }
+    return o;
+  }
+  // small-angle local rotation, XYZ order, degrees
+  function rotXYZ(rx: number, ry: number, rz: number) {
+    const d = Math.PI / 180;
+    const cx = Math.cos(rx * d), sx = Math.sin(rx * d);
+    const cy = Math.cos(ry * d), sy = Math.sin(ry * d);
+    const cz = Math.cos(rz * d), sz = Math.sin(rz * d);
+    // Rz * Ry * Rx, column-major
+    return new Float32Array([
+      cy * cz, cy * sz, -sy, 0,
+      sx * sy * cz - cx * sz, sx * sy * sz + cx * cz, sx * cy, 0,
+      cx * sy * cz + sx * sz, cx * sy * sz - sx * cz, cx * cy, 0,
+      0, 0, 0, 1]);
+  }
 
   async function run(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
     const HDR = gl.getExtension('EXT_color_buffer_float') ? gl.RGBA16F : gl.RGBA8;
@@ -97,6 +128,7 @@
       return { f, t, w, h };
     };
 
+    // ---- shaders
     const XRAY_VS = `#version 300 es
 in vec3 aPos; in vec3 aNor;
 uniform mat4 uProj, uView;
@@ -105,6 +137,30 @@ void main() {
   vec4 mv = uView * vec4(aPos, 1.0);
   gl_Position = uProj * mv;
   vN = mat3(uView) * aNor;
+  vV = -mv.xyz;
+}`;
+    // Her solid: the same fresnel, SKINNED. Joint matrices ride a 4 x nj float texture;
+    // weights are u8-normalised and renormalised here.
+    const XRAYSKIN_VS = `#version 300 es
+in vec3 aPos; in vec4 aNor; in vec4 aJ; in vec4 aW;
+uniform mat4 uProj, uView;
+uniform sampler2D uJT;
+out vec3 vN; out vec3 vV;
+mat4 jm(float j) {
+  int y = int(j + 0.5);
+  return mat4(
+    texelFetch(uJT, ivec2(0, y), 0),
+    texelFetch(uJT, ivec2(1, y), 0),
+    texelFetch(uJT, ivec2(2, y), 0),
+    texelFetch(uJT, ivec2(3, y), 0));
+}
+void main() {
+  vec4 w = aW / max(aW.x + aW.y + aW.z + aW.w, 1e-5);
+  mat4 S = jm(aJ.x) * w.x + jm(aJ.y) * w.y + jm(aJ.z) * w.z + jm(aJ.w) * w.w;
+  vec4 p = S * vec4(aPos, 1.0);
+  vec4 mv = uView * p;
+  gl_Position = uProj * mv;
+  vN = mat3(uView) * (mat3(S) * aNor.xyz);
   vV = -mv.xyz;
 }`;
     const XRAY_FS = `#version 300 es
@@ -117,6 +173,85 @@ void main() {
   float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 3.0);
   vec3 c = mix(uBone * 0.04, mix(uBone, uPlasma, 0.55), rim * 0.55);
   frag = vec4(c * uAlpha, 1.0);
+}`;
+    // Her points: the homepage's materialisation grammar -- height-gated reveal, frontier
+    // burn, a calm breathing wave.
+    const PT_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor; in float aPhase; in vec3 aRand; in float aYN;
+uniform mat4 uProj, uView;
+uniform float uTime, uSize, uReveal, uFade;
+out float vWave; out float vAlive; out float vEdge;
+void main() {
+  float w = sin(uTime * 0.7 + aPhase * 2.0);
+  vec3 p = aPos + aNor * (w * 0.013);
+  vec4 mv = uView * vec4(p, 1.0);
+  gl_Position = uProj * mv;
+  gl_PointSize = max(0.0356 * uSize * (300.0 / -mv.z), 1.0);
+  vWave = sin(uTime * 0.35 + aPhase * 0.12);
+  float vis = 1.0 - smoothstep(uReveal, uReveal + 0.045, aYN);
+  vEdge = (uReveal < 1.05 ? 1.0 : 0.0) * max(0.0, 1.0 - abs(aYN - uReveal) / 0.05);
+  vAlive = vis * uFade;
+}`;
+    const PT_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma, uEmber, uBone;
+in float vWave; in float vAlive; in float vEdge;
+out vec4 frag;
+void main() {
+  if (vAlive < 0.003) discard;
+  vec2 d = gl_PointCoord - vec2(0.5);
+  float r = dot(d, d);
+  if (r > 0.25) discard;
+  float soft = smoothstep(0.25, 0.0, r);
+  vec3 c = vWave > 0.0 ? mix(uBone, uPlasma, vWave) : mix(uBone, uEmber, -vWave);
+  c *= 0.78 * (1.0 + vEdge * 1.6);
+  frag = vec4(c, soft * vAlive);
+}`;
+    // The rig itself: joints as bright points, bones as glowing lines, revealed by chain
+    // depth (aD in 0..1, root -> fingertips) with a burn at the growth frontier.
+    const JOINT_VS = `#version 300 es
+in vec3 aPos; in float aD;
+uniform mat4 uProj, uView;
+uniform float uGrow, uSize;
+out float vA; out float vEdge;
+void main() {
+  vec4 mv = uView * vec4(aPos, 1.0);
+  gl_Position = uProj * mv;
+  gl_PointSize = max(uSize * (300.0 / -mv.z), 2.0);
+  float vis = 1.0 - smoothstep(uGrow, uGrow + 0.02, aD);
+  vEdge = max(0.0, 1.0 - abs(aD - uGrow) / 0.08);
+  vA = vis;
+}`;
+    const JOINT_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma; uniform float uAlpha;
+in float vA; in float vEdge;
+out vec4 frag;
+void main() {
+  if (vA < 0.003) discard;
+  vec2 d = gl_PointCoord - vec2(0.5);
+  float r = dot(d, d);
+  if (r > 0.25) discard;
+  float soft = smoothstep(0.25, 0.0, r);
+  frag = vec4(uPlasma * (1.2 + vEdge * 1.8), soft * vA * uAlpha);
+}`;
+    const BONE_VS = `#version 300 es
+in vec3 aPos; in float aD;
+uniform mat4 uProj, uView;
+uniform float uGrow;
+out float vA;
+void main() {
+  gl_Position = uProj * uView * vec4(aPos, 1.0);
+  vA = 1.0 - smoothstep(uGrow, uGrow + 0.02, aD);
+}`;
+    const BONE_FS = `#version 300 es
+precision highp float;
+uniform vec3 uPlasma; uniform float uAlpha;
+in float vA;
+out vec4 frag;
+void main() {
+  if (vA < 0.003) discard;
+  frag = vec4(uPlasma * 0.9, vA * uAlpha);
 }`;
     const STAR_VS = `#version 300 es
 in vec3 aPos; in vec3 aSeed;
@@ -193,6 +328,10 @@ void main() {
 }`;
 
     const P_XRAY = prog(XRAY_VS, XRAY_FS);
+    const P_SKIN = prog(XRAYSKIN_VS, XRAY_FS);
+    const P_PT = prog(PT_VS, PT_FS);
+    const P_JOINT = prog(JOINT_VS, JOINT_FS);
+    const P_BONE = prog(BONE_VS, BONE_FS);
     const P_STAR = prog(STAR_VS, STAR_FS);
     const P_GRID = prog(GRID_VS, GRID_FS);
     const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
@@ -225,7 +364,6 @@ void main() {
     const gridFine = makeGrid(20, 200);
     const gridSect = makeGrid(20, 20);
 
-    // The same sky as the homepage: same seed, same shell.
     const STAR_N = 2600;
     const starVao = gl.createVertexArray()!;
     {
@@ -256,55 +394,282 @@ void main() {
       sattr('aSeed', ss, 3);
     }
 
-    // The man: FSMH parsed and normalised exactly as the homepage does it (largest
-    // dimension 2.1, stood on y=0), indexed, drawn as the fresnel shell only.
-    const buf = await (await fetch('/mesh/height_man.mesh')).arrayBuffer();
-    const dv = new DataView(buf);
-    if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== 'FSMH')
-      throw new Error('bad mesh');
-    const nv = dv.getUint32(4, true), ni = dv.getUint32(8, true);
-    let off = 12;
-    const rawPos = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
-    const rawNor = new Float32Array(buf.slice(off, off + nv * 12)); off += nv * 12;
-    const idx = new Uint16Array(buf.slice(off, off + ni * 2));
-    const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
-    for (let i = 0; i < rawPos.length; i += 3)
-      for (let k = 0; k < 3; k++) {
-        if (rawPos[i + k] < mn[k]) mn[k] = rawPos[i + k];
-        if (rawPos[i + k] > mx[k]) mx[k] = rawPos[i + k];
-      }
-    const size = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
-    const sc = 2.1 / Math.max(size[0], size[1], size[2], 1e-6);
-    const ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
-    const pos = new Float32Array(rawPos.length);
-    for (let i = 0; i < pos.length; i += 3) {
-      pos[i] = (rawPos[i] - ctr[0]) * sc;
-      pos[i + 1] = (rawPos[i + 1] - ctr[1]) * sc + (size[1] * sc) / 2;
-      pos[i + 2] = (rawPos[i + 2] - ctr[2]) * sc;
+    // ---- THE MAN (the landing): FSMH, solid only, exactly as before.
+    const manBuf = await (await fetch('/mesh/height_man.mesh')).arrayBuffer();
+    {
+      const dv = new DataView(manBuf);
+      if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== 'FSMH')
+        throw new Error('bad man mesh');
     }
+    const manNv = new DataView(manBuf).getUint32(4, true), manNi = new DataView(manBuf).getUint32(8, true);
+    let mo = 12;
+    const manRawPos = new Float32Array(manBuf.slice(mo, mo + manNv * 12)); mo += manNv * 12;
+    const manRawNor = new Float32Array(manBuf.slice(mo, mo + manNv * 12)); mo += manNv * 12;
+    const manIdx = new Uint16Array(manBuf.slice(mo, mo + manNi * 2));
     const manVao = gl.createVertexArray()!;
-    gl.bindVertexArray(manVao);
-    const battr = (name: string, data: Float32Array, sz: number) => {
-      const loc = gl.getAttribLocation(P_XRAY.p, name);
-      if (loc < 0) return;
-      const b = gl.createBuffer();
-      gl.bindBuffer(gl.ARRAY_BUFFER, b);
-      gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
-      gl.enableVertexAttribArray(loc);
-      gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
-    };
-    battr('aPos', pos, 3);
-    battr('aNor', rawNor, 3);
-    const ib = gl.createBuffer();
-    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
-    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, idx, gl.STATIC_DRAW);
+    {
+      const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+      for (let i = 0; i < manRawPos.length; i += 3)
+        for (let k = 0; k < 3; k++) {
+          if (manRawPos[i + k] < mn[k]) mn[k] = manRawPos[i + k];
+          if (manRawPos[i + k] > mx[k]) mx[k] = manRawPos[i + k];
+        }
+      const size = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
+      const sc = 2.1 / Math.max(size[0], size[1], size[2], 1e-6);
+      const ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+      const pos = new Float32Array(manRawPos.length);
+      for (let i = 0; i < pos.length; i += 3) {
+        pos[i] = (manRawPos[i] - ctr[0]) * sc;
+        pos[i + 1] = (manRawPos[i + 1] - ctr[1]) * sc + (size[1] * sc) / 2;
+        pos[i + 2] = (manRawPos[i + 2] - ctr[2]) * sc;
+      }
+      gl.bindVertexArray(manVao);
+      const battr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_XRAY.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      battr('aPos', pos, 3);
+      battr('aNor', manRawNor, 3);
+      const ib = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, manIdx, gl.STATIC_DRAW);
+    }
+
+    // ---- HER ('FSSK'): mesh + weights + skeleton, pre-normalised at bake.
+    const skBuf = await (await fetch('/mesh/superheroin.skin')).arrayBuffer();
+    const sdv = new DataView(skBuf);
+    if (String.fromCharCode(sdv.getUint8(0), sdv.getUint8(1), sdv.getUint8(2), sdv.getUint8(3)) !== 'FSSK')
+      throw new Error('bad skin mesh');
+    const NV = sdv.getUint32(4, true), NI = sdv.getUint32(8, true), NJ = sdv.getUint32(12, true);
+    let so = 16;
+    const hPos = new Float32Array(skBuf.slice(so, so + NV * 12)); so += NV * 12;
+    const hNor = new Int8Array(skBuf.slice(so, so + NV * 4)); so += NV * 4;
+    const hJnt = new Uint8Array(skBuf.slice(so, so + NV * 4)); so += NV * 4;
+    const hWgt = new Uint8Array(skBuf.slice(so, so + NV * 4)); so += NV * 4;
+    const hIdx = new Uint16Array(skBuf.slice(so, so + NI * 2)); so += NI * 2;
+    so = (so + 3) & ~3;
+    const jNames: string[] = [], jParent: number[] = [];
+    const jLocal: Float32Array[] = [], jIbm: Float32Array[] = [];
+    for (let j = 0; j < NJ; j++) {
+      const ln = sdv.getUint8(so); so += 1;
+      jNames.push(new TextDecoder().decode(new Uint8Array(skBuf, so, ln))); so += ln;
+      jParent.push(sdv.getInt16(so, true)); so += 2;
+      jLocal.push(new Float32Array(skBuf.slice(so, so + 64))); so += 64;
+      jIbm.push(new Float32Array(skBuf.slice(so, so + 64))); so += 64;
+    }
+
+    // her solid, skinned
+    const herVao = gl.createVertexArray()!;
+    {
+      gl.bindVertexArray(herVao);
+      const attr = (name: string, data: ArrayBufferView, sz: number, type: number, normalize: boolean) => {
+        const loc = gl.getAttribLocation(P_SKIN.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, type, normalize, 0, 0);
+      };
+      attr('aPos', hPos, 3, gl.FLOAT, false);
+      attr('aNor', hNor, 4, gl.BYTE, true);
+      attr('aJ', hJnt, 4, gl.UNSIGNED_BYTE, false);
+      attr('aW', hWgt, 4, gl.UNSIGNED_BYTE, true);
+      const ib = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, ib);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, hIdx, gl.STATIC_DRAW);
+    }
+
+    // her point cloud, sampled area-weighted (the homepage's recipe) with aYN for the reveal
+    const PT_N = 3200;
+    const ptVao = gl.createVertexArray()!;
+    {
+      const tri = NI / 3;
+      const cum = new Float32Array(tri);
+      let total = 0;
+      for (let t = 0; t < tri; t++) {
+        const a = hIdx[t * 3] * 3, b = hIdx[t * 3 + 1] * 3, c = hIdx[t * 3 + 2] * 3;
+        const ux = hPos[b] - hPos[a], uy = hPos[b + 1] - hPos[a + 1], uz = hPos[b + 2] - hPos[a + 2];
+        const vx = hPos[c] - hPos[a], vy = hPos[c + 1] - hPos[a + 1], vz = hPos[c + 2] - hPos[a + 2];
+        total += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+        cum[t] = total;
+      }
+      const rnd = mulberry32(7);
+      const pPos = new Float32Array(PT_N * 3), pNor = new Float32Array(PT_N * 3);
+      const pPh = new Float32Array(PT_N), pRnd = new Float32Array(PT_N * 3), pYN = new Float32Array(PT_N);
+      let ymin = Infinity, ymax = -Infinity;
+      for (let i = 0; i < PT_N; i++) {
+        const r = rnd() * total;
+        let lo = 0, hi = tri - 1;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < r) lo = m + 1; else hi = m; }
+        const a = hIdx[lo * 3], b = hIdx[lo * 3 + 1], c = hIdx[lo * 3 + 2];
+        let u = rnd(), v = rnd();
+        if (u + v > 1) { u = 1 - u; v = 1 - v; }
+        const w = 1 - u - v;
+        for (let k = 0; k < 3; k++) {
+          pPos[i * 3 + k] = hPos[a * 3 + k] * w + hPos[b * 3 + k] * u + hPos[c * 3 + k] * v;
+          pNor[i * 3 + k] = hNor[a * 4 + k] / 127 * w + hNor[b * 4 + k] / 127 * u + hNor[c * 4 + k] / 127 * v;
+        }
+        pPh[i] = pPos[i * 3] * 1.7 + pPos[i * 3 + 1] * 2.3 + pPos[i * 3 + 2] * 1.1;
+        pRnd[i * 3] = rnd(); pRnd[i * 3 + 1] = rnd(); pRnd[i * 3 + 2] = rnd();
+        if (pPos[i * 3 + 1] < ymin) ymin = pPos[i * 3 + 1];
+        if (pPos[i * 3 + 1] > ymax) ymax = pPos[i * 3 + 1];
+      }
+      const span = (ymax - ymin) || 1;
+      for (let i = 0; i < PT_N; i++) pYN[i] = (pPos[i * 3 + 1] - ymin) / span;
+      gl.bindVertexArray(ptVao);
+      const attr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_PT.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      attr('aPos', pPos, 3);
+      attr('aNor', pNor, 3);
+      attr('aPhase', pPh, 1);
+      attr('aRand', pRnd, 3);
+      attr('aYN', pYN, 1);
+    }
+
+    // ---- the skeleton's display set: helpers (root, ik_*, pivot_*) skin nothing visible
+    // and would draw crossing lines, so they stay out of the JOINT/BONE draws (they remain
+    // in the skinning math). Depth = chain hops from the root, normalised: the grow order.
+    const depth = new Array(NJ).fill(0);
+    for (let j = 0; j < NJ; j++) depth[j] = jParent[j] < 0 ? 0 : depth[jParent[j]] + 1;
+    const maxDepth = Math.max(...depth);
+    const shown: number[] = [];
+    for (let j = 0; j < NJ; j++) {
+      const n = jNames[j];
+      if (n === 'root' || n.startsWith('ik_') || n.startsWith('pivot_')) continue;
+      shown.push(j);
+    }
+    const boneList = shown.filter((j) => jParent[j] >= 0 && jNames[jParent[j]] !== 'root'
+      && !jNames[jParent[j]].startsWith('ik_') && !jNames[jParent[j]].startsWith('pivot_'));
+
+    const jointPosBuf = gl.createBuffer();
+    const jointVao = gl.createVertexArray()!;
+    {
+      gl.bindVertexArray(jointVao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, jointPosBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, shown.length * 12, gl.DYNAMIC_DRAW);
+      const lp = gl.getAttribLocation(P_JOINT.p, 'aPos');
+      gl.enableVertexAttribArray(lp);
+      gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
+      const dArr = new Float32Array(shown.map((j) => depth[j] / maxDepth));
+      const db = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, db);
+      gl.bufferData(gl.ARRAY_BUFFER, dArr, gl.STATIC_DRAW);
+      const ld = gl.getAttribLocation(P_JOINT.p, 'aD');
+      gl.enableVertexAttribArray(ld);
+      gl.vertexAttribPointer(ld, 1, gl.FLOAT, false, 0, 0);
+    }
+    const bonePosBuf = gl.createBuffer();
+    const boneVao = gl.createVertexArray()!;
+    {
+      gl.bindVertexArray(boneVao);
+      gl.bindBuffer(gl.ARRAY_BUFFER, bonePosBuf);
+      gl.bufferData(gl.ARRAY_BUFFER, boneList.length * 24, gl.DYNAMIC_DRAW);
+      const lp = gl.getAttribLocation(P_BONE.p, 'aPos');
+      gl.enableVertexAttribArray(lp);
+      gl.vertexAttribPointer(lp, 3, gl.FLOAT, false, 0, 0);
+      const dArr = new Float32Array(boneList.length * 2);
+      boneList.forEach((j, i) => { dArr[i * 2] = depth[j] / maxDepth; dArr[i * 2 + 1] = depth[j] / maxDepth; });
+      const db = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, db);
+      gl.bufferData(gl.ARRAY_BUFFER, dArr, gl.STATIC_DRAW);
+      const ld = gl.getAttribLocation(P_BONE.p, 'aD');
+      gl.enableVertexAttribArray(ld);
+      gl.vertexAttribPointer(ld, 1, gl.FLOAT, false, 0, 0);
+    }
+
+    // joint-matrix texture: 4 texels per joint (the matrix columns), one row per joint
+    const jointTex = gl.createTexture()!;
+    gl.bindTexture(gl.TEXTURE_2D, jointTex);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA32F, 4, NJ, 0, gl.RGBA, gl.FLOAT, null);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    const jIndexByName: Record<string, number> = {};
+    jNames.forEach((n, i) => { jIndexByName[n] = i; });
+
+    // THE IDLE (first-pass curves, Mr. Miata; Adrian authors the real ones -- these are
+    // deliberately subtle: breath through the spine, a slow weight sway, the head looking).
+    function poseRotation(name: string, t: number): Float32Array | null {
+      const b = Math.sin(t * 1.5);            // breath
+      const s = Math.sin(t * 0.45);           // sway
+      const l1 = Math.sin(t * 0.23 + 1.7);    // look, two incommensurate sines
+      const l2 = Math.sin(t * 0.31 + 0.4);
+      switch (name) {
+        case 'pelvis': return rotXYZ(0, s * 1.2, s * 0.8);
+        case 'spine_01': return rotXYZ(b * 1.6, 0, -s * 0.5);
+        case 'spine_02': return rotXYZ(b * 1.2, 0, -s * 0.4);
+        case 'spine_03': return rotXYZ(b * 0.8, s * 0.5, 0);
+        case 'neck_01': return rotXYZ(-b * 0.6, l1 * 2.0, 0);
+        case 'head': return rotXYZ(-b * 0.4, l1 * 3.0 + l2 * 1.5, 0);
+        case 'clavicle_l': return rotXYZ(0, 0, b * 0.8);
+        case 'clavicle_r': return rotXYZ(0, 0, -b * 0.8);
+        case 'upperarm_l': return rotXYZ(b * 0.7, 0, s * 0.6);
+        case 'upperarm_r': return rotXYZ(b * 0.7, 0, -s * 0.6);
+        default: return null;
+      }
+    }
+
+    const worlds: Float32Array[] = new Array(NJ);
+    const skinPix = new Float32Array(NJ * 16);
+    const jointPts = new Float32Array(shown.length * 3);
+    const bonePts = new Float32Array(boneList.length * 6);
+    function evalPose(t: number, amp: number) {
+      for (let j = 0; j < NJ; j++) {
+        let L = jLocal[j];
+        if (amp > 0.001) {
+          const R = poseRotation(jNames[j], t);
+          if (R) {
+            if (amp < 0.999) {
+              // scale the offset by blending the rotation toward identity
+              const Rs = rotXYZ(0, 0, 0);
+              for (let k = 0; k < 16; k++) Rs[k] = lerp(Rs[k], R[k], amp);
+              L = mmul(L, Rs);
+            } else {
+              L = mmul(L, R);
+            }
+          }
+        }
+        worlds[j] = jParent[j] < 0 ? (L as Float32Array) : mmul(worlds[jParent[j]], L);
+        const M = mmul(worlds[j], jIbm[j]);
+        skinPix.set(M, j * 16);
+      }
+      shown.forEach((j, i) => {
+        jointPts[i * 3] = worlds[j][12]; jointPts[i * 3 + 1] = worlds[j][13]; jointPts[i * 3 + 2] = worlds[j][14];
+      });
+      boneList.forEach((j, i) => {
+        const p = jParent[j];
+        bonePts[i * 6] = worlds[p][12]; bonePts[i * 6 + 1] = worlds[p][13]; bonePts[i * 6 + 2] = worlds[p][14];
+        bonePts[i * 6 + 3] = worlds[j][12]; bonePts[i * 6 + 4] = worlds[j][13]; bonePts[i * 6 + 5] = worlds[j][14];
+      });
+      gl.bindTexture(gl.TEXTURE_2D, jointTex);
+      gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 4, NJ, gl.RGBA, gl.FLOAT, skinPix);
+      gl.bindBuffer(gl.ARRAY_BUFFER, jointPosBuf);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, jointPts);
+      gl.bindBuffer(gl.ARRAY_BUFFER, bonePosBuf);
+      gl.bufferSubData(gl.ARRAY_BUFFER, 0, bonePts);
+    }
 
     const hex = (h: string) => new Float32Array([
       parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255]);
     const CARBON = hex('#0B0E10'), IRON2 = hex('#262C33'), IRON3 = hex('#353D45');
-    const PLASMA = hex('#7CFFB2'), BONE = hex('#E8E0D0');
+    const PLASMA = hex('#7CFFB2'), EMBER = hex('#FF7A3D'), BONE = hex('#E8E0D0');
 
-    // CAM_C from the homepage, still Adrian's to dial.
+    // CAM_C from the homepage; a gentle dolly-in rides the story (zero it if unwanted).
     const CAM = { yaw: 0, pitch: -0.02, dist: 3.7, tx: 0, ty: 1.02, tz: 0, fov: 42 };
 
     let T: any = null;
@@ -329,11 +694,11 @@ void main() {
       gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, tex); gl.uniform1i(loc, unit);
     };
 
-    // The homepage's elastic orbit, scoped to the hero: drag anywhere on the header that
-    // is not a link, button, or the reel.
+    // elastic orbit, unchanged
     let orbY = 0, orbP = 0, orbVY = 0, orbVP = 0, orbDrag = false, orbLast: number[] | null = null;
     const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
     const hero = canvas.closest('.hero--art') as HTMLElement | null;
+    const runway = document.querySelector('[data-ast-scroll]') as HTMLElement | null;
     hero?.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || e.pointerType !== 'mouse') return;
       const t = e.target as HTMLElement;
@@ -354,13 +719,38 @@ void main() {
     let time = 0, prev = 0, ready = false;
     function frame(now: number) {
       requestAnimationFrame(frame);
-      // Nothing draws while the hero is off screen; the loop idles at a rect check.
-      const r = canvas.getBoundingClientRect();
-      if (r.bottom < 0 || r.top > innerHeight) return;
+      const rw = runway ? runway.getBoundingClientRect() : canvas.getBoundingClientRect();
+      if (rw.bottom < 0 || rw.top > innerHeight) return;
       const dt = Math.min(0.05, (now - prev) / 1000 || 0);
       prev = now;
       resize();
       time += dt;
+
+      // THE CLOCK: q = screens scrolled into the runway. Beats (all pure functions of q):
+      //   landing copy out 0.15-0.55 | man out 0.4-0.9 | her points 0.9-2.0 |
+      //   skeleton grows 2.1-2.9 | solidify 2.9-3.6 | alive from 3.6 | hold to the end
+      const q = runway ? -rw.top / Math.max(1, innerHeight) : 0;
+      const aland = smooth(clamp01((q - 0.15) / 0.4));
+      const manOut = smooth(clamp01((q - 0.4) / 0.5));
+      const herReveal = clamp01((q - 0.9) / 1.1) * 1.08;
+      const grow = clamp01((q - 2.1) / 0.8);
+      const solid = smooth(clamp01((q - 2.9) / 0.7));
+      const alive = smooth(clamp01((q - 3.6) / 0.4));
+
+      const de = document.documentElement.style;
+      de.setProperty('--aland', aland.toFixed(3));
+      hero?.toggleAttribute('data-land-gone', aland > 0.95);
+      // the copy beats, one cell each, timed to their scenes
+      de.setProperty('--ab1', (smooth(clamp01((q - 1.15) / 0.3)) * (1 - smooth(clamp01((q - 1.95) / 0.25)))).toFixed(3));
+      de.setProperty('--ab2', (smooth(clamp01((q - 2.2) / 0.3)) * (1 - smooth(clamp01((q - 2.75) / 0.25)))).toFixed(3));
+      de.setProperty('--ab3', (smooth(clamp01((q - 3.0) / 0.3)) * (1 - smooth(clamp01((q - 3.5) / 0.25)))).toFixed(3));
+      de.setProperty('--ab4', smooth(clamp01((q - 3.75) / 0.35)).toFixed(3));
+
+      // the skeleton stays lit once grown; the points hand off to the solid
+      const ptFade = (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45);
+      const skelAlpha = grow > 0 ? 0.85 : 0;
+
+      evalPose(time, alive);
 
       if (!orbDrag) {
         orbVY += (-60 * orbY - 10 * orbVY) * dt; orbY += orbVY * dt;
@@ -369,12 +759,13 @@ void main() {
       const oy = Math.tanh(orbY / ORB_LIM_Y) * ORB_LIM_Y;
       const op = Math.tanh(orbP / ORB_LIM_P) * ORB_LIM_P;
 
+      const dolly = CAM.dist - 0.35 * smooth(clamp01((q - 1.0) / 2.6));
       const tgt = [CAM.tx, CAM.ty, CAM.tz];
       const yaw = CAM.yaw + oy, pitch = CAM.pitch + op;
       const eye = [
-        tgt[0] + CAM.dist * Math.cos(pitch) * Math.sin(yaw),
-        tgt[1] + CAM.dist * Math.sin(pitch),
-        tgt[2] + CAM.dist * Math.cos(pitch) * Math.cos(yaw)];
+        tgt[0] + dolly * Math.cos(pitch) * Math.sin(yaw),
+        tgt[1] + dolly * Math.sin(pitch),
+        tgt[2] + dolly * Math.cos(pitch) * Math.cos(yaw)];
       const view = lookAt(eye, tgt, [0, 1, 0]);
       const proj = perspective(CAM.fov, canvas.width / canvas.height, 0.01, 100);
 
@@ -411,14 +802,69 @@ void main() {
       }
 
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-      gl.useProgram(P_XRAY.p);
-      gl.uniformMatrix4fv(P_XRAY.u.uProj, false, proj);
-      gl.uniformMatrix4fv(P_XRAY.u.uView, false, view);
-      gl.uniform3fv(P_XRAY.u.uPlasma, PLASMA);
-      gl.uniform3fv(P_XRAY.u.uBone, BONE);
-      gl.uniform1f(P_XRAY.u.uAlpha, 0.5);
-      gl.bindVertexArray(manVao);
-      gl.drawElements(gl.TRIANGLES, ni, gl.UNSIGNED_SHORT, 0);
+
+      // the man, yielding the stage
+      if (manOut < 0.999) {
+        gl.useProgram(P_XRAY.p);
+        gl.uniformMatrix4fv(P_XRAY.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_XRAY.u.uView, false, view);
+        gl.uniform3fv(P_XRAY.u.uPlasma, PLASMA);
+        gl.uniform3fv(P_XRAY.u.uBone, BONE);
+        gl.uniform1f(P_XRAY.u.uAlpha, 0.5 * (1 - manOut));
+        gl.bindVertexArray(manVao);
+        gl.drawElements(gl.TRIANGLES, manNi, gl.UNSIGNED_SHORT, 0);
+      }
+
+      // her points, materialising
+      if (herReveal > 0 && ptFade > 0.003) {
+        gl.useProgram(P_PT.p);
+        gl.uniformMatrix4fv(P_PT.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_PT.u.uView, false, view);
+        gl.uniform1f(P_PT.u.uTime, time);
+        gl.uniform1f(P_PT.u.uSize, 1.0);
+        gl.uniform1f(P_PT.u.uReveal, herReveal);
+        gl.uniform1f(P_PT.u.uFade, ptFade);
+        gl.uniform3fv(P_PT.u.uPlasma, PLASMA);
+        gl.uniform3fv(P_PT.u.uEmber, EMBER);
+        gl.uniform3fv(P_PT.u.uBone, BONE);
+        gl.bindVertexArray(ptVao);
+        gl.drawArrays(gl.POINTS, 0, PT_N);
+      }
+
+      // her solid, skinned, the x-ray she becomes
+      if (solid > 0.003) {
+        gl.useProgram(P_SKIN.p);
+        gl.uniformMatrix4fv(P_SKIN.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_SKIN.u.uView, false, view);
+        gl.uniform3fv(P_SKIN.u.uPlasma, PLASMA);
+        gl.uniform3fv(P_SKIN.u.uBone, BONE);
+        gl.uniform1f(P_SKIN.u.uAlpha, 0.5 * solid);
+        bindTex(P_SKIN.u.uJT, jointTex, 6);
+        gl.bindVertexArray(herVao);
+        gl.drawElements(gl.TRIANGLES, NI, gl.UNSIGNED_SHORT, 0);
+      }
+
+      // the skeleton: bones then joints, growing root-outward, lit inside the x-ray
+      if (skelAlpha > 0.003) {
+        gl.useProgram(P_BONE.p);
+        gl.uniformMatrix4fv(P_BONE.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_BONE.u.uView, false, view);
+        gl.uniform3fv(P_BONE.u.uPlasma, PLASMA);
+        gl.uniform1f(P_BONE.u.uGrow, grow);
+        gl.uniform1f(P_BONE.u.uAlpha, skelAlpha);
+        gl.bindVertexArray(boneVao);
+        gl.drawArrays(gl.LINES, 0, boneList.length * 2);
+
+        gl.useProgram(P_JOINT.p);
+        gl.uniformMatrix4fv(P_JOINT.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_JOINT.u.uView, false, view);
+        gl.uniform3fv(P_JOINT.u.uPlasma, PLASMA);
+        gl.uniform1f(P_JOINT.u.uGrow, grow);
+        gl.uniform1f(P_JOINT.u.uSize, 0.05);
+        gl.uniform1f(P_JOINT.u.uAlpha, skelAlpha);
+        gl.bindVertexArray(jointVao);
+        gl.drawArrays(gl.POINTS, 0, shown.length);
+      }
       gl.disable(gl.BLEND);
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, T.bright.f);
@@ -460,8 +906,11 @@ void main() {
         ready = true;
         canvas.setAttribute('data-ready', '');
         hero?.setAttribute('data-stage-live', '');
+        // the runway exists only when the cinematic does; the fallback stays one screen
+        if (runway) runway.setAttribute('data-live', '');
       }
     }
+    evalPose(0, 0);
     resize();
     requestAnimationFrame(frame);
   }
@@ -474,7 +923,6 @@ void main() {
     const gl = canvas.getContext('webgl2', { antialias: false });
     if (gl) {
       run(canvas, gl).catch((err) => {
-        // The static art never left the DOM; a failed stage simply never hides it.
         console.error('[armature-stage]', err);
       });
     }
