@@ -6,10 +6,11 @@
 // PointCloudHero's canvas; THIS layer is the words: the title, the four section labels
 // under the pipe, and one info card at the bottom for whichever section the cursor is on.
 //
-// The hover bands are DOM, not 3D picking: the loop projects the pipe's section bounds to
-// screen fractions every frame (--pipe-x0..x4, --pipe-yt, --pipe-yb) and the bands wear
-// them, so they stay glued to the pipe at any aspect. Hover is announced to the loop via
-// the fs:pipeHover event (detail: section index, -1 for none) to light that pipe segment.
+// The bands are DOM anchors, not 3D picking: the loop projects the pipe's section bounds
+// to screen fractions every frame (--pipe-x0..x4, --pipe-yt, --pipe-yb) and the bands wear
+// them, so the labels stay glued to the pipe at any aspect. The JOURNEY drives everything:
+// the loop writes data-hover with the section under the packet (mouse hover was retired,
+// Adrian 2026-08-19 -- the scroll owns the ride), which lights that label and its card.
 //
 // DRAFT COPY: the four bodies below are placeholders for Adrian's pass; the four section
 // titles are his ruled names.
@@ -42,17 +43,16 @@ const bandStyle = (i: number) =>
     <p class="pl__sub">For Artists, By Artists</p>
   </div>
 
-  {/* The four hover bands, riding the projected pipe. Labels sit under their sections like
-      the sketch's brackets. */}
+  {/* The four bands, riding the projected pipe. Labels sit under their sections like the
+      sketch's brackets; the packet's position picks the lit one. */}
   {SECTIONS.map((s, i) => (
     <div class="pl__band" data-band={i} style={bandStyle(i)}>
       <p class="pl__label">{s.label}</p>
     </div>
   ))}
 
-  {/* One card at the bottom for the hovered section; a dim hint when nothing is. */}
+  {/* One card at the bottom for the section the packet is passing through. */}
   <div class="pl__cards">
-    <p class="pl__hint">Hover the pipeline to inspect each stage.</p>
     {SECTIONS.map((s, i) => (
       <div class="pl__card" data-card={i}>
         <p class="pl__card-title">{s.label}</p>
@@ -61,20 +61,6 @@ const bandStyle = (i: number) =>
     ))}
   </div>
 </div>
-
-<script>
-  // Hover is state on this layer (data-hover drives the cards) and an event to the loop
-  // (which lights the 3D segment). -1 clears both.
-  const host = document.querySelector('[data-pipeline-overlay]') as HTMLElement | null;
-  if (host) {
-    // Report only: the loop owns data-hover (the journey drives it when no mouse does).
-    const set = (i: number) => dispatchEvent(new CustomEvent('fs:pipeHover', { detail: i }));
-    host.querySelectorAll<HTMLElement>('[data-band]').forEach((b) => {
-      b.addEventListener('pointerenter', () => set(Number(b.dataset.band)));
-      b.addEventListener('pointerleave', () => set(-1));
-    });
-  }
-</script>
 
 <style>
   /* Fixed layer over the room, same grammar as the other beats; everything fades on
@@ -88,7 +74,6 @@ const bandStyle = (i: number) =>
     opacity: var(--pipe, 0);
   }
   .pl[data-active] { visibility: visible; }
-  .pl[data-active] .pl__band { pointer-events: auto; }
 
   .pl__head {
     position: absolute;
@@ -114,13 +99,12 @@ const bandStyle = (i: number) =>
     color: var(--bone-dim);
   }
 
-  /* The bands: invisible hit strips glued to the projected pipe; their labels are the
-     visible part, hanging under each section. */
+  /* The bands: invisible strips glued to the projected pipe; their labels are the visible
+     part, hanging under each section. */
   .pl__band {
     position: absolute;
     top: calc(var(--pipe-yt, 0.26) * 100%);
     height: calc((var(--pipe-yb, 0.52) - var(--pipe-yt, 0.26)) * 100%);
-    cursor: pointer;
   }
   .pl__label {
     position: absolute;
@@ -136,7 +120,11 @@ const bandStyle = (i: number) =>
     color: var(--bone-dim);
     transition: color var(--t-fast) var(--ease-out);
   }
-  .pl__band:hover .pl__label { color: var(--plasma); }
+  /* The packet's section carries its label lit, in step with the hot pipe segment. */
+  .pl[data-hover='0'] [data-band='0'] .pl__label,
+  .pl[data-hover='1'] [data-band='1'] .pl__label,
+  .pl[data-hover='2'] [data-band='2'] .pl__label,
+  .pl[data-hover='3'] [data-band='3'] .pl__label { color: var(--plasma); }
 
   /* One cell, crossfading cards; the hint holds the cell while nothing is hovered. */
   .pl__cards {
@@ -155,13 +143,6 @@ const bandStyle = (i: number) =>
     opacity: 0;
     transition: opacity 0.25s var(--ease-out);
   }
-  .pl__hint {
-    font-family: var(--font-mono);
-    font-size: 0.85rem;
-    letter-spacing: 0.08em;
-    color: var(--bone-dim);
-  }
-  .pl:not([data-hover]) .pl__hint { opacity: 1; }
   .pl[data-hover='0'] [data-card='0'],
   .pl[data-hover='1'] [data-card='1'],
   .pl[data-hover='2'] [data-card='2'],

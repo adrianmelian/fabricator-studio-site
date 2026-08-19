@@ -1048,7 +1048,7 @@ void main() {
     // ruled against the un-offset camera. Mouse only; touch owns scrolling.
     let orbY = 0, orbP = 0, orbVY = 0, orbVP = 0, orbDrag = false, orbLast: number[] | null = null;
     let scanOn = false;
-    let pipeOn = false, hoverSeg = -1;
+    let pipeOn = false;
     const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
     document.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || e.pointerType !== 'mouse') return;
@@ -1070,8 +1070,8 @@ void main() {
     });
     addEventListener('pointerup', () => { orbDrag = false; });
 
-    // The overlay's bands announce the hovered pipe section; -1 clears it.
-    addEventListener('fs:pipeHover', (e) => { hoverSeg = (e as CustomEvent).detail as number; });
+    // (The pipe sections' hover listener retired 2026-08-19: the journey owns the lit
+    // section outright -- the scroll is the only hand on the machine.)
 
     // The hero video is promoted from an in-flow section to a fixed layer at z1, between the
     // scene (z0) and the copy (z2). It does not scroll up; it FADES IN in place over the
@@ -1147,15 +1147,15 @@ void main() {
       document.documentElement.style.setProperty('--phil2', phil2.toFixed(3));
 
       // THE JOURNEY (Adrian, 2026-08-19): the packet's trip down the pipe IS the scroll
-      // across the beat's hold. The section under the packet's head lights up and raises
-      // its card; a mouse hover overrides while it lasts.
+      // across the beat's hold. The section under the packet's head lights up, lights its
+      // label, and raises its card.
       const journey = clamp01((scrollY - innerHeight * 2.8) / (innerHeight * 1.55));
       const tPack = 0.16 + journey * 0.8;
       let journeySeg = -1;
       if (tPack > 0.3 && tPack < 0.36) journeySeg = 0;
       else if (tPack >= 0.36 && tPack < 0.74)
         journeySeg = Math.max(0, Math.min(3, Math.floor(((tPack - 0.36) / 0.38) * 4)));
-      const litSeg = hoverSeg >= 0 ? hoverSeg : journeySeg;
+      const litSeg = journeySeg;
 
       // THE PIPELINE OVERLAY rides --pipe. Its hover bands are placed later in the frame,
       // once this frame's camera exists to project the pipe's bounds against.
