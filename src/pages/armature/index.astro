@@ -18,6 +18,7 @@
 // COPY REVISIONS since the design prompt are listed in that task folder's PORT.md. The prompt
 // is the original brief; PORT.md is what actually shipped.
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArmatureStage from '../../components/ArmatureStage.astro';
 import NavBar from '../../components/NavBar.astro';
 import Wordmark from '../../components/Wordmark.astro';
 import { Image } from 'astro:assets';
@@ -149,6 +150,14 @@ const STAGES = [
         {/* Legibility, not decoration: the art is bright in the middle and the copy sits over
             its flanks, so each side gets a carbon gradient to guarantee contrast at any crop. */}
         <div class="hero__scrim" aria-hidden="true"></div>
+
+        {/* THE LANDING SHOT (Adrian, 2026-08-19): the homepage's post-scan frame -- the
+            height man solid in the x-ray fresnel, standing in the starred room -- as the
+            hero's living backdrop. On success it sets data-stage-live on this header and
+            the static art above simply turns invisible; every word, door and layout rule
+            of this hero is untouched. Under 900px, reduced motion, or no WebGL2, the art
+            stays and nothing changes. */}
+        <ArmatureStage />
 
         {/* The live lockup: FS mark over the Armature wordmark, anchored to the art's top
             left (Adrian, 2026-08-01 evening: centred it obscured the baked headline). The
@@ -1242,6 +1251,10 @@ const STAGES = [
     display: block;
     border-bottom: 1px solid var(--iron-2);
   }
+  /* The live 3D stage replaces the art as backdrop; visibility (not display) so the in-flow
+     art keeps giving the header its height on narrower desktops. */
+  .hero--art[data-stage-live] .hero__art,
+  .hero--art[data-stage-live] .hero__scrim { visibility: hidden; }
   .hero__art {
     position: relative;
     display: block;
