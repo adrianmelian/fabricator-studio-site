@@ -1122,6 +1122,8 @@ void main() {
       // THE TAIL: the three walkthrough reels ride up past the right side, pricing fades
       // in where they passed, then the closing doors. She stays screen left, still alive.
       const reel = clamp01((q - 4.6) / 1.9);
+      const ungrow = smooth(clamp01((q - 4.75) / 1.2));
+      const growEff = grow - 1.06 * ungrow;
       const price = smooth(clamp01((q - 6.0) / 0.45));
       const endd = smooth(clamp01((q - 6.8) / 0.4));
       de.setProperty('--reel', reel.toFixed(4));
@@ -1262,7 +1264,7 @@ void main() {
         gl.useProgram(P_BONE.p);
         gl.uniformMatrix4fv(P_BONE.u.uProj, false, proj);
         gl.uniformMatrix4fv(P_BONE.u.uView, false, view);
-        gl.uniform1f(P_BONE.u.uGrow, grow);
+        gl.uniform1f(P_BONE.u.uGrow, growEff);
         gl.uniform1f(P_BONE.u.uAlpha, skelAlpha);
         gl.bindVertexArray(boneVao);
         gl.drawArrays(gl.LINES, 0, boneList.length * 6);
@@ -1277,8 +1279,8 @@ void main() {
         gl.bindVertexArray(circleVao);
         for (let i = 0; i < shown.length; i++) {
           const jd = shownDisp[i];
-          if (jd.d > grow + 0.02) continue;
-          const edge = Math.max(0, 1 - Math.abs(jd.d - grow) / 0.08);
+          if (jd.d > growEff + 0.02) continue;
+          const edge = Math.max(0, 1 - Math.abs(jd.d - growEff) / 0.08);
           gl.uniform1f(P_CTRL.u.uAlpha, skelAlpha * (0.38 + edge * 0.9));
           gl.uniform3f(P_CTRL.u.uColor, jd.col[0], jd.col[1], jd.col[2]);
           gl.uniform3f(P_CTRL.u.uCenter, jointPts[i * 3], jointPts[i * 3 + 1], jointPts[i * 3 + 2]);
