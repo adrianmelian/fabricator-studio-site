@@ -976,6 +976,9 @@ void main() {
     const CAM_LAND = { yaw: 0, pitch: -0.02, dist: 3.7, tx: 0, ty: 1.02, tz: 0 };
     const CAM_FIT = { yaw: 0.52, pitch: -0.02, dist: 4.4, tx: -0.38, ty: 1.0, tz: 0.35 };
     const CAM_HER = { yaw: 0, pitch: -0.02, dist: 3.5, tx: -0.22, ty: 1.02, tz: 0.95 };
+    // ...and the TAIL (Adrian, 2026-08-19): she slides to screen LEFT and holds court
+    // there to the bottom -- reels, pricing and the closing doors ride the right side.
+    const CAM_END = { yaw: 0, pitch: -0.02, dist: 3.6, tx: 0.62, ty: 1.02, tz: 0.95 };
     const CAM_FOV = 42;
     const MAN_M = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 
@@ -1117,7 +1120,31 @@ void main() {
       de.setProperty('--ab1', (smooth(clamp01((q - 1.1) / 0.3)) * (1 - smooth(clamp01((q - 1.95) / 0.25)))).toFixed(3));
       de.setProperty('--ab2', (smooth(clamp01((q - 2.2) / 0.3)) * (1 - smooth(clamp01((q - 2.75) / 0.25)))).toFixed(3));
       de.setProperty('--ab3', (smooth(clamp01((q - 3.0) / 0.3)) * (1 - smooth(clamp01((q - 3.5) / 0.25)))).toFixed(3));
-      de.setProperty('--ab4', smooth(clamp01((q - 3.75) / 0.35)).toFixed(3));
+      de.setProperty('--ab4', (smooth(clamp01((q - 3.75) / 0.35)) * (1 - smooth(clamp01((q - 4.35) / 0.35)))).toFixed(3));
+
+      // THE TAIL: the three walkthrough reels ride up past the right side, pricing fades
+      // in where they passed, then the closing doors. She stays screen left, still alive.
+      const reel = clamp01((q - 4.6) / 1.9);
+      const price = smooth(clamp01((q - 6.55) / 0.45));
+      const endd = smooth(clamp01((q - 7.15) / 0.4));
+      de.setProperty('--reel', reel.toFixed(4));
+      de.setProperty('--price', price.toFixed(3));
+      de.setProperty('--endd', endd.toFixed(3));
+      const reelsEl = document.querySelector('[data-ast-reels]');
+      if (reelsEl) {
+        if (reel > 0.001 && reel < 0.999) reelsEl.setAttribute('data-active', '');
+        else reelsEl.removeAttribute('data-active');
+      }
+      const priceEl = document.querySelector('[data-ast-price]');
+      if (priceEl) {
+        if (price > 0.01) priceEl.setAttribute('data-active', '');
+        else priceEl.removeAttribute('data-active');
+      }
+      const endEl = document.querySelector('[data-ast-end]');
+      if (endEl) {
+        if (endd > 0.01) endEl.setAttribute('data-active', '');
+        else endEl.removeAttribute('data-active');
+      }
 
       // the skeleton stays lit once grown; the points hand off to the solid
       const ptFade = (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45);
@@ -1135,14 +1162,15 @@ void main() {
       // LAND -> FIT on the first scroll; FIT -> HER as the man leaves.
       const t1 = smooth(clamp01((q - 0.55) / 0.5));
       const t2 = smooth(clamp01((q - 2.05) / 1.95));
-      const leg = (a: number, b: number, c2: number) => lerp(lerp(a, b, t1), c2, t2);
-      const camDist = leg(CAM_LAND.dist, CAM_FIT.dist, CAM_HER.dist);
+      const t3 = smooth(clamp01((q - 4.35) / 0.6));
+      const leg = (a: number, b: number, c2: number, d2: number) => lerp(lerp(lerp(a, b, t1), c2, t2), d2, t3);
+      const camDist = leg(CAM_LAND.dist, CAM_FIT.dist, CAM_HER.dist, CAM_END.dist);
       const tgt = [
-        leg(CAM_LAND.tx, CAM_FIT.tx, CAM_HER.tx),
-        leg(CAM_LAND.ty, CAM_FIT.ty, CAM_HER.ty),
-        leg(CAM_LAND.tz, CAM_FIT.tz, CAM_HER.tz)];
-      const yaw = leg(CAM_LAND.yaw, CAM_FIT.yaw, CAM_HER.yaw) + oy;
-      const pitch = leg(CAM_LAND.pitch, CAM_FIT.pitch, CAM_HER.pitch) + op;
+        leg(CAM_LAND.tx, CAM_FIT.tx, CAM_HER.tx, CAM_END.tx),
+        leg(CAM_LAND.ty, CAM_FIT.ty, CAM_HER.ty, CAM_END.ty),
+        leg(CAM_LAND.tz, CAM_FIT.tz, CAM_HER.tz, CAM_END.tz)];
+      const yaw = leg(CAM_LAND.yaw, CAM_FIT.yaw, CAM_HER.yaw, CAM_END.yaw) + oy;
+      const pitch = leg(CAM_LAND.pitch, CAM_FIT.pitch, CAM_HER.pitch, CAM_END.pitch) + op;
       const eye = [
         tgt[0] + camDist * Math.cos(pitch) * Math.sin(yaw),
         tgt[1] + camDist * Math.sin(pitch),

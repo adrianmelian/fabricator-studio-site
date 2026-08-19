@@ -22,6 +22,7 @@ import stageSkin from '../../assets/armature/stage-skin.png';
 import heroProduct from '../../assets/armature/hero-product.png';
 
 import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../../data/armature';
+import { ARMATURE_TUTORIALS as WALKTHROUGHS } from '../../data/tutorials';
 
 const TITLE = 'Armature, by FabricatorStudio';
 const DESCRIPTION =
@@ -119,8 +120,54 @@ const DESCRIPTION =
         </div>
         <div class="ast-beat" style="opacity: var(--ab4, 0)">
           <p class="ast-beat__head">Animation Ready in Minutes</p>
-          <p class="ast-beat__line">Send to Maya or Unreal for Control Rigs and Animation Retargeting.</p>
+          <p class="ast-beat__line">Go directly to Unreal or Maya for auto Fabricator Control Rig builds.</p>
         </div>
+      </div>
+
+      {/* THE REELS (Adrian, 2026-08-19): the live page's three walkthroughs -- three
+          characters, start to finish -- as a textless strip riding up past the right
+          side. Thumbnails are self-hosted stills and each card is click-to-YouTube: the
+          privacy ruling (nothing reaches Google without a click) forbids autoplaying
+          embeds, and no local files of these videos exist. */}
+      <div class="ast-reels" data-ast-reels>
+        <div class="ast-reels__strip">
+          {WALKTHROUGHS.map((w) => (
+            <a class="ast-reel" href={w.href} target="_blank" rel="noopener" aria-label={w.title}>
+              <img src={w.thumb} alt="" loading="lazy" />
+              <span class="ast-reel__play" aria-hidden="true">&#9654;</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* WHAT IT COSTS -- the live page's ruled pricing copy, verbatim. */}
+      <div class="ast-price" data-ast-price>
+        <p class="ast-beat__head">What it costs.</p>
+        <p class="ast-price__lede">
+          Free for personal, learning, and portfolio work, and free for commercial work under
+          $100k a year. If you qualify for Maya Indie, Armature is free. Above that it is <b>$149 per artist, once</b>, with a year of updates.
+        </p>
+        <p class="ast-price__note">
+          Armature is a new standalone application. It is not the Armature step inside the Maya
+          toolset, and it is not part of that free download.
+        </p>
+        <p class="ast-price__contact">
+          Bringing an existing rig into Armature? <a href="mailto:adrian@fabricator.studio?subject=Armature%3A%20existing%20rig">Talk to us</a>.
+        </p>
+      </div>
+
+      {/* THE CLOSE: the same doors as the landing. A reader who got this far without
+          downloading is exactly the one who wanted to read first. */}
+      <div class="ast-end" data-ast-end>
+        <div class="getblock__actions">
+          <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+            Download for Windows
+          </button>
+          <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-close">
+            Read the docs
+          </a>
+        </div>
+        <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
       </div>
     </header>
     </div>
@@ -255,7 +302,7 @@ const DESCRIPTION =
   /* The runway: one screen on the fallback; the story's length when the stage is live.
      The hero rides it sticky, so the room never leaves while the beats play. */
   .ast-scroll { position: relative; }
-  .ast-scroll[data-live] { height: 560svh; }
+  .ast-scroll[data-live] { height: 880svh; }
   .ast-scroll[data-live] .ast-hero {
     position: sticky;
     top: var(--header-h);
@@ -310,6 +357,89 @@ const DESCRIPTION =
     box-shadow: var(--shadow-lg);
     border: 1px solid var(--iron-2);
   }
+
+  /* THE REELS: a textless strip in the right column, translated past the viewport by
+     --reel from the loop. Cards take clicks (out to YouTube); the layer does not. */
+  .ast-reels {
+    position: absolute;
+    right: 7vw;
+    top: 0;
+    bottom: 0;
+    width: min(30rem, 34vw);
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .ast-reels[data-active] { visibility: visible; }
+  .ast-reels__strip {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5vh;
+    transform: translateY(calc(102vh - var(--reel, 0) * 215vh));
+    will-change: transform;
+  }
+  .ast-reel {
+    position: relative;
+    display: block;
+    pointer-events: auto;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--iron-2);
+    box-shadow: var(--shadow-lg);
+  }
+  .ast-reel img { display: block; width: 100%; height: auto; }
+  .ast-reel__play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    color: var(--bone);
+    text-shadow: 0 2px 10px rgba(11, 14, 16, 0.8);
+    opacity: 0.85;
+  }
+  .ast-reel:hover .ast-reel__play { color: var(--plasma); }
+
+  /* WHAT IT COSTS + THE CLOSE: the right column she faces from screen left. */
+  .ast-price,
+  .ast-end {
+    position: absolute;
+    left: 48%;
+    right: 7vw;
+    pointer-events: none;
+    visibility: hidden;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+  }
+  .ast-price { top: 22%; opacity: var(--price, 0); }
+  .ast-end { top: 66%; opacity: var(--endd, 0); }
+  .ast-price[data-active],
+  .ast-end[data-active] { visibility: visible; }
+  .ast-price[data-active] a,
+  .ast-end[data-active] :is(a, button) { pointer-events: auto; }
+  .ast-price__lede {
+    margin-top: 1.2rem;
+    font-weight: 300;
+    font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+    line-height: 1.45;
+    color: var(--bone);
+  }
+  .ast-price__lede b { font-weight: 700; color: var(--bone); }
+  .ast-price__note {
+    margin-top: 1rem;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    line-height: 1.5;
+    color: var(--bone-dim);
+  }
+  .ast-price__contact {
+    margin-top: 1rem;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    color: var(--bone-dim);
+  }
+  .ast-price__contact a { color: var(--plasma); text-decoration: none; }
+  .ast-price__contact a:hover { color: var(--plasma-dim); }
 
   /* The left column: lockup, then the three ruled lines. It rides the left flank the old
      hero's lede lived on, so the fallback art's scrim already guarantees its contrast. */
