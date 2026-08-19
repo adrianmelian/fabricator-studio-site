@@ -129,13 +129,14 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   }
   .pc__cta :global(a) { pointer-events: auto; }
 
-  /* Centred with the buttons as one group on the vertical midline (Adrian, 2026-08-19
-     second pass): the paragraph's baseline just above centre, the buttons just below. Text
-     over moving footage with no scrim, so the shadow is what keeps it legible. */
+  /* One group with the buttons, riding the LOWER-THIRD line (Adrian, 2026-08-19 second
+     pass: dead centre read too high, the old bottom landing too low -- rule of thirds):
+     the paragraph's baseline just above the line, the buttons just below. Text over moving
+     footage with no scrim, so the shadow is what keeps it legible. */
   .pc__philosophy {
     position: absolute;
     left: 50%;
-    bottom: calc(50% + 1.6rem);
+    bottom: calc(33.3% + 1.6rem);
     transform: translateX(-50%);
     width: min(52rem, 86vw);
     text-align: center;
@@ -978,14 +979,14 @@ void main() {
       // only its clicks leave. data-passive kills the pointer without killing the frost.
       if (tools) tools.toggleAttribute('data-passive', toolsOut > 0.5);
 
-      // The buttons travel to just below the vertical centre on the camera's easing --
+      // The buttons travel to just below the lower-third line on the camera's easing --
       // one centred group with the philosophy line above them (Adrian, 2026-08-19 second
       // pass) -- and stand above the video, then FADE OUT as the toolset beat arrives
       // (the carousel is that beat's own set of doors).
       if (ctaRest) {
         const rect = canvas.getBoundingClientRect();
         const dx = (rect.left + rect.width / 2) - (ctaRest.left + ctaRest.width / 2);
-        const dy = (rect.top + rect.height * 0.5 + P.ctaDropPx) - ctaRest.top;
+        const dy = (rect.top + rect.height * 0.667 + P.ctaDropPx) - ctaRest.top;
         ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
         const o = 1 - smooth(clamp01(pt / 0.16));
         ctaEl.style.opacity = o.toFixed(3);
