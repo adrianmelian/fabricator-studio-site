@@ -35,7 +35,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 <div class="pc__copylayer">
   <div class="pc__copy">
     <div class="pc__text" data-pc-text>
-      <p class="pc__display">Artist+AI Toolset</p>
+      <p class="pc__display">Artist<span class="pc__plus">+</span>AI Toolset</p>
       <p class="pc__sub">Game Development<br />Re-imagined.</p>
       {/* The wordmark stays the h1, as it was before this section existed, so the page's
           heading shape is unchanged. Its vertical offset is set once at load to sit on the
@@ -44,9 +44,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
         <Image src={heroWordmark} alt="FabricatorStudio" widths={[760, 1180]} sizes="(max-width: 820px) 86vw, 760px" loading="eager" />
       </h1>
     </div>
-    {/* The buttons never fade (Adrian, 2026-08-19): they travel to centre-bottom as the
-        camera centres, then hold there, above the video, for as long as the stage is on
-        screen. The ask outlives the whole opening. That is why they sit outside .pc__text,
+    {/* The buttons never fade (Adrian, 2026-08-19): they travel to the centre of the
+        screen as the camera centres -- the philosophy line lands just above them -- and hold
+        there, above the video, for as long as the stage is on screen. The ask outlives the whole opening. That is why they sit outside .pc__text,
         which owns the text fade, and on a layer above the video's z1. */}
     <div class="pc__cta" data-pc-cta>
       <BracketButton kind="hard" installer label="Download Toolset" event="hero-download" />
@@ -129,12 +129,13 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   }
   .pc__cta :global(a) { pointer-events: auto; }
 
-  /* Centred above the buttons' landing spot, driven by --phil-in from the loop. Text over
-     moving footage with no scrim, so the shadow is what keeps it legible on a bright frame. */
+  /* Centred with the buttons as one group on the vertical midline (Adrian, 2026-08-19
+     second pass): the paragraph's baseline just above centre, the buttons just below. Text
+     over moving footage with no scrim, so the shadow is what keeps it legible. */
   .pc__philosophy {
     position: absolute;
     left: 50%;
-    bottom: calc(8% + 6.5rem);
+    bottom: calc(50% + 1.6rem);
     transform: translateX(-50%);
     width: min(52rem, 86vw);
     text-align: center;
@@ -175,6 +176,8 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     font-size: clamp(2.6rem, 5.2vw, 5rem);
     color: var(--bone);
   }
+  /* The plus stands in plasma (Adrian, 2026-08-19): the collaboration, said in one glyph. */
+  .pc__display .pc__plus { color: var(--plasma); }
 
   .pc__sub {
     font-weight: 300;
@@ -280,7 +283,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     gridOpacity: 1, fogNear: 2.0, fogFar: 14.0,
     exDist: 1.5, exCurl: 2.16, exCam: 1.06,
     restAmp: 0.012, wakeAt: 0.04,
-    anchorY: 0.415, ctaBottom: 0.08,
+    anchorY: 0.415, ctaDropPx: 34,
     // The star shell (Adrian, 2026-08-19): environment, indifferent to the beats. Dim enough
     // that only the brightest twinkle just past the bloom threshold.
     // Sizes vary per star, 0.02-0.1 (Adrian, 2026-08-19), biased small so a handful of big
@@ -975,13 +978,14 @@ void main() {
       // only its clicks leave. data-passive kills the pointer without killing the frost.
       if (tools) tools.toggleAttribute('data-passive', toolsOut > 0.5);
 
-      // The buttons travel to centre-bottom on the camera's easing and stand above the
-      // video, then FADE OUT as the toolset beat arrives (Adrian, 2026-08-19: the carousel
-      // is that beat's own set of doors, and its strip lives where the buttons stood).
+      // The buttons travel to just below the vertical centre on the camera's easing --
+      // one centred group with the philosophy line above them (Adrian, 2026-08-19 second
+      // pass) -- and stand above the video, then FADE OUT as the toolset beat arrives
+      // (the carousel is that beat's own set of doors).
       if (ctaRest) {
         const rect = canvas.getBoundingClientRect();
         const dx = (rect.left + rect.width / 2) - (ctaRest.left + ctaRest.width / 2);
-        const dy = (rect.top + rect.height - rect.height * P.ctaBottom - ctaRest.height) - ctaRest.top;
+        const dy = (rect.top + rect.height * 0.5 + P.ctaDropPx) - ctaRest.top;
         ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
         const o = 1 - smooth(clamp01(pt / 0.16));
         ctaEl.style.opacity = o.toFixed(3);
