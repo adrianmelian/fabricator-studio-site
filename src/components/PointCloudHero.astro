@@ -70,8 +70,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 {/* The scroll the whole stage is spent on. Purely a clock: the OPENING owns the first 1.6
     screens of scroll (its beat fractions are ruled against exactly that length, so it never
     changes when the runway grows), the TOOLSET's glass-and-carousel entry owns the next 1.2,
-    then each of the remaining five tools takes 0.4 screens as a SNAPPED STEP, and the last
-    0.3 is a hold. 100svh viewport + 4.8 scroll screens = 580svh. */}
+    then each of the remaining five tools takes 0.4 screens as a SNAPPED STEP, the ARMATURE
+    beat takes over from 4.8 screens (carousel out, Armature in by 5.4), and the last 0.4 is
+    its hold. 100svh viewport + 5.8 scroll screens = 680svh. */}
 <div class="pc-runway" data-pc-runway></div>
 
 <style>
@@ -86,7 +87,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc__stage { position: absolute; inset: 0; overflow: hidden; }
   /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
      in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
-  .pc-runway { height: 580svh; }
+  .pc-runway { height: 680svh; }
 
   /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
      clickable and visible after the video has faded in underneath them. */
@@ -824,7 +825,8 @@ void main() {
       // THE TOOLSET BEAT (Adrian, 2026-08-19): glass blurs over the settled video, then the
       // four tool interfaces float in over it. The layer itself is ToolsOverlay.astro.
       document.documentElement.style.setProperty('--glass', smooth(clamp01((pt - 0.1) / 0.3)).toFixed(3));
-      document.documentElement.style.setProperty('--tools', smooth(clamp01((pt - 0.35) / 0.4)).toFixed(3));
+      document.documentElement.style.setProperty('--tools',
+        (smooth(clamp01((pt - 0.35) / 0.4)) * (1 - smooth(clamp01((scrollY - innerHeight * 4.8) / (innerHeight * 0.3))))).toFixed(3));
       const tools = document.querySelector('[data-tools-overlay]') as HTMLElement | null;
       if (tools) {
         if (pt > 0.01) tools.setAttribute('data-active', '');
@@ -837,6 +839,21 @@ void main() {
         const sel = Math.max(0, Math.min(5, Math.floor((scrollY - innerHeight * 2.5) / (innerHeight * 0.4)) + 1));
         if (tools.dataset.sel !== String(sel)) tools.dataset.sel = String(sel);
       }
+
+      // THE ARMATURE BEAT (Adrian, 2026-08-19): the carousel clears and Armature rises on
+      // the same glass. toolsOut multiplies the carousel's entry var, so its exit needs no
+      // second opacity channel, and the carousel loses its clicks as soon as it starts to go.
+      const toolsOut = smooth(clamp01((scrollY - innerHeight * 4.8) / (innerHeight * 0.3)));
+      const arm = smooth(clamp01((scrollY - innerHeight * 5.0) / (innerHeight * 0.4)));
+      document.documentElement.style.setProperty('--arm', arm.toFixed(3));
+      const armEl = document.querySelector('[data-armature-overlay]');
+      if (armEl) {
+        if (arm > 0.01) armEl.setAttribute('data-active', '');
+        else armEl.removeAttribute('data-active');
+      }
+      // The glass RIDES the carousel's layer, so that layer stays visible through Armature;
+      // only its clicks leave. data-passive kills the pointer without killing the frost.
+      if (tools) tools.toggleAttribute('data-passive', toolsOut > 0.5);
 
       // The buttons travel to centre-bottom on the camera's easing and stand above the
       // video, then FADE OUT as the toolset beat arrives (Adrian, 2026-08-19: the carousel

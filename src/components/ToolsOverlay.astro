@@ -88,6 +88,9 @@ const TOOLS = [
   }
   .tf[data-active] { visibility: visible; }
   .tf[data-active] :is(.tf__big, .tf__thumb, .tf__more, .tf__link) { pointer-events: auto; }
+  /* Passive: the carousel has faded but this layer still carries the glass for the beat
+     above it, so it must stay visible while taking no clicks. */
+  .tf[data-passive] :is(.tf__big, .tf__thumb, .tf__more, .tf__link) { pointer-events: none !important; }
 
   /* Ember display title, per the concept. */
   .tf__title {

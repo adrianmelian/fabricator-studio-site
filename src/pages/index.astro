@@ -34,6 +34,7 @@ import DownloadBand from '../components/DownloadBand.astro';
 import ToolsSection from '../components/ToolsSection.astro';
 import PointCloudHero from '../components/PointCloudHero.astro';
 import ToolsOverlay from '../components/ToolsOverlay.astro';
+import ArmatureOverlay from '../components/ArmatureOverlay.astro';
 
 // The product card art rather than a trailer frame (Adrian, 2026-08-04): it carries the
 // lockup and the tagline baked in, so the thumbnail says what the video is before a click.
@@ -140,6 +141,10 @@ const PROOF = [
       flagship tool interfaces float in over it; hover focuses one and pops its info. The
       choreography lives in PointCloudHero's loop; the layer lives in ToolsOverlay. */}
   <ToolsOverlay />
+
+  {/* THE ARMATURE BEAT (Adrian, 2026-08-19): after the carousel's last step the toolset
+      clears and Armature rises on the same glass. Choreography in PointCloudHero's loop. */}
+  <ArmatureOverlay />
 
   {/* STILL STRIPPED (Adrian, 2026-08-19): one transition at a time. Armature, proof,
       DownloadBand, hire and about return from git (this branch, commit d9e73c5) as each

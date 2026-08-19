@@ -1,0 +1,110 @@
+---
+// THE ARMATURE BEAT (Adrian, 2026-08-19, morning). After the carousel's last step, the
+// toolset clears and Armature rises on the same frosted room: the trailer on the left
+// (click-to-play facade, nothing reaches YouTube until a press), and on the right his three
+// ruled lines --
+//     Rigging Re-imagined.
+//     Auto Skeleton & Skinning workflow
+//     Artist tools for refinement.
+// -- with Armature's own door underneath, since the opening's buttons have left the stage
+// by now.
+//
+// The bigger Armature story (a live skinned rig the visitor can pose in the browser) is
+// HELD for the /armature/ page itself, by his ruling; this beat is the homepage's version.
+import BracketButton from './BracketButton.astro';
+import YouTubeFacade from './YouTubeFacade.astro';
+import trailerPoster from '../assets/armature/armature-card-poster.jpg';
+---
+
+<div class="am" data-armature-overlay>
+  <p class="am__title">Armature</p>
+
+  <div class="am__media">
+    <YouTubeFacade
+      id="PhHXmcpcGKk"
+      title="Armature trailer"
+      poster={trailerPoster}
+      posterAlt="The Armature trailer: a character rigged and posed in the standalone app."
+      sizes="(min-width: 900px) 34vw, 92vw"
+    />
+  </div>
+
+  <div class="am__copy">
+    <p class="am__tagline">Rigging Re&#8209;imagined.</p>
+    <p class="am__line">Auto Skeleton &amp; Skinning workflow</p>
+    <p class="am__line">Artist tools for refinement.</p>
+    <div class="am__cta">
+      <BracketButton kind="plasma-outline" href="/armature/" label="Download Armature" event="beat-armature" />
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Fixed layer over the same glass the toolset frosted; z2 like the carousel, later in the
+     DOM, so it paints above while both are mid-crossfade. Driven by --arm from the loop. */
+  .am {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .am[data-active] { visibility: visible; }
+  .am[data-active] :is(a, button) { pointer-events: auto; }
+
+  .am__title {
+    position: absolute;
+    left: 50%;
+    top: 8%;
+    transform: translateX(-50%);
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3rem, 5.6vw, 5.4rem);
+    line-height: 1;
+    color: var(--ember);
+    opacity: var(--arm, 0);
+    white-space: nowrap;
+  }
+
+  .am__media {
+    position: absolute;
+    left: 10.5%;
+    top: 24%;
+    width: 34%;
+    border-radius: var(--radius);
+    overflow: hidden;
+    box-shadow: var(--shadow-lg);
+    opacity: var(--arm, 0);
+    transform: translateY(calc((1 - var(--arm, 0)) * 22px));
+  }
+
+  .am__copy {
+    position: absolute;
+    left: 51%;
+    right: 8%;
+    top: 30%;
+    opacity: var(--arm, 0);
+    transform: translateY(calc((1 - var(--arm, 0)) * 22px));
+  }
+  .am__tagline {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.6rem, 4.4vw, 4.6rem);
+    line-height: 1.02;
+    color: var(--bone);
+  }
+  .am__line {
+    margin-top: 0.9rem;
+    font-weight: 300;
+    font-size: clamp(1.3rem, 2.3vw, 2.05rem);
+    line-height: 1.22;
+    color: var(--bone);
+  }
+  .am__line:first-of-type { margin-top: 1.4rem; }
+  .am__cta { margin-top: 2.2rem; font-size: 0.95rem; }
+
+  /* The cinematic never runs under 900px or in the static fallback. */
+  @media (max-width: 900px) {
+    .am { display: none; }
+  }
+</style>
