@@ -73,7 +73,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     then each of the remaining five tools takes 0.4 screens as a SNAPPED STEP. From 4.8 the
     toolset, glass and video ALL clear and the page returns to the room; from 5.2 to 6.3 the
     da Vinci man materialises floor-to-head with the scroll; Armature's copy rises over him
-    from 6.4; the last 0.4 is its hold. 100svh viewport + 7.0 scroll screens = 800svh. */}
+    from 6.4 and holds; from 7.1 it clears and THE SCAN runs to 8.5, the band climbing the
+    screen with the download riding it while the tool wall stands revealed beneath; the last
+    0.3 is the wall's hold. 100svh viewport + 8.8 scroll screens = 980svh. */}
 <div class="pc-runway" data-pc-runway></div>
 
 <style>
@@ -88,7 +90,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc__stage { position: absolute; inset: 0; overflow: hidden; }
   /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
      in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
-  .pc-runway { height: 800svh; }
+  .pc-runway { height: 980svh; }
 
   /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
      clickable and visible after the video has faded in underneath them. */
@@ -789,6 +791,7 @@ void main() {
     // for. It must return to zero: the crossbar alignment and the whole composition are
     // ruled against the un-offset camera. Mouse only; touch owns scrolling.
     let orbY = 0, orbP = 0, orbVY = 0, orbVP = 0, orbDrag = false, orbLast: number[] | null = null;
+    let scanOn = false;
     const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
     document.addEventListener('pointerdown', (e) => {
       if (e.button !== 0 || e.pointerType !== 'mouse') return;
@@ -796,6 +799,7 @@ void main() {
       if (t.closest('a, button, nav, input, [data-tools-overlay]')) return;
       // The cloud is only there to orbit while the video has not taken the screen.
       if (heroSec && parseFloat(heroSec.style.opacity || '0') > 0.5) return;
+      if (scanOn) return;
       orbDrag = true;
       orbLast = [e.clientX, e.clientY];
       e.preventDefault(); // stops text selection; targets that need clicks were excluded above
@@ -842,7 +846,18 @@ void main() {
       // The reveal IS the scroll: feet at 5.2 screens, head at 6.3.
       const manReveal = clamp01((scrollY - innerHeight * 5.2) / (innerHeight * 1.1));
       if (scrollY > innerHeight * 3.5) ensureMan();
-      const arm = smooth(clamp01((scrollY - innerHeight * 6.4) / (innerHeight * 0.4)));
+      const armIn = smooth(clamp01((scrollY - innerHeight * 6.4) / (innerHeight * 0.4)));
+      // Armature clears before the scan begins, and the SCAN owns the rest: the band's whole
+      // travel is linear in scroll, so the visitor's hand is the scanner motor.
+      const arm = armIn * (1 - smooth(clamp01((scrollY - innerHeight * 7.1) / (innerHeight * 0.3))));
+      const scan = clamp01((scrollY - innerHeight * 7.3) / (innerHeight * 1.2));
+      scanOn = scan > 0 && scan < 1.01;
+      document.documentElement.style.setProperty('--scan', scan.toFixed(4));
+      const wallEl = document.querySelector('[data-wall-overlay]');
+      if (wallEl) {
+        if (scan > 0.001) wallEl.setAttribute('data-active', '');
+        else wallEl.removeAttribute('data-active');
+      }
 
       const tCam = smooth(clamp01(p / 0.45));
       const explode = clamp01((p - 0.62) / 0.38);
