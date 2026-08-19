@@ -224,6 +224,9 @@ const DESCRIPTION =
     align-items: center;
     gap: 0.9rem;
   }
+  /* On the live stage the lockup sits at the man's HIP LINE (Adrian, 2026-08-19); the
+     fallback art keeps it high, clear of the art's baked headline. */
+  .ast-hero[data-stage-live] .ast-hero__lockup { top: 43%; }
   .ast-hero__lockup :global(.ast-hero__lockup-mark) {
     width: clamp(52px, 4.5vw, 80px);
     height: auto;
