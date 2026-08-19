@@ -267,7 +267,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     anchorY: 0.415, ctaBottom: 0.08,
     // The star shell (Adrian, 2026-08-19): environment, indifferent to the beats. Dim enough
     // that only the brightest twinkle just past the bloom threshold.
-    starCount: 1000, starSize: 0.085, starSpeed: 0.015, starBright: 0.6,
+    // Sizes vary per star, 0.02-0.1 (Adrian, 2026-08-19), biased small so a handful of big
+    // ones carry the presence and the rest carry the depth.
+    starCount: 2600, starSizeMin: 0.02, starSizeMax: 0.1, starSpeed: 0.015, starBright: 1.0,
   };
   const CAM_A = { yaw: -0.0200, pitch: -0.0240, dist: 4.36448, tx: -0.62800, ty: 0.89876, tz: -0.83070, fov: 42 };
   const CAM_B = { yaw: -0.0320, pitch: -0.1160, dist: 3.14928, tx: 0.08734, ty: 0.79470, tz: 0.00000, fov: 42 };
@@ -419,8 +421,8 @@ void main() {
     // Stars: a slow uniform orbit around Y, done in the shader so the buffer never updates.
     // aSeed.x is a twinkle phase, aSeed.y a per-star brightness.
     const STAR_VS = `#version 300 es
-in vec3 aPos; in vec2 aSeed;
-uniform mat4 uProj, uView; uniform float uTime, uSpeed, uSize;
+in vec3 aPos; in vec3 aSeed;
+uniform mat4 uProj, uView; uniform float uTime, uSpeed;
 out float vB;
 void main() {
   float a = uTime * uSpeed;
@@ -428,7 +430,8 @@ void main() {
   vec3 p = vec3(aPos.x * c - aPos.z * s, aPos.y, aPos.x * s + aPos.z * c);
   vec4 mv = uView * vec4(p, 1.0);
   gl_Position = uProj * mv;
-  gl_PointSize = max(uSize * (300.0 / -mv.z), 1.0);
+  // aSeed.z is this star's own size; the floor keeps the far small ones from flickering out.
+  gl_PointSize = max(aSeed.z * (300.0 / -mv.z), 1.0);
   vB = aSeed.y * (0.75 + 0.25 * sin(uTime * 0.6 + aSeed.x));
 }`;
 
@@ -544,16 +547,19 @@ void main() {
     {
       const rs = mulberry32(P.seed ^ 0xBADC0DE);
       const n = P.starCount;
-      const sp = new Float32Array(n * 3), ss = new Float32Array(n * 2);
+      const sp = new Float32Array(n * 3), ss = new Float32Array(n * 3);
       for (let i = 0; i < n; i++) {
         const az = rs() * Math.PI * 2;
-        const rad = 5.5 + rs() * 10;
+        const rad = 4 + rs() * 9;
         const h = rs();
         sp[i * 3] = Math.cos(az) * rad;
-        sp[i * 3 + 1] = 0.2 + 13.8 * h;
+        sp[i * 3 + 1] = 0.2 + 12.8 * h;
         sp[i * 3 + 2] = Math.sin(az) * rad;
-        ss[i * 2] = rs() * Math.PI * 2;
-        ss[i * 2 + 1] = 0.35 + rs() * 0.65;
+        ss[i * 3] = rs() * Math.PI * 2;
+        ss[i * 3 + 1] = 0.55 + rs() * 0.45;
+        // linear spread: enough mid-size stars that the field reads as present, with the
+        // extremes still carrying a few heroes and a dust of faint ones
+        ss[i * 3 + 2] = P.starSizeMin + (P.starSizeMax - P.starSizeMin) * rs();
       }
       gl.bindVertexArray(starVao);
       const sattr = (name: string, data: Float32Array, sz: number) => {
@@ -566,7 +572,7 @@ void main() {
         gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
       };
       sattr('aPos', sp, 3);
-      sattr('aSeed', ss, 2);
+      sattr('aSeed', ss, 3);
     }
 
     // ---- mesh, baked at build time so no GLB container is parsed in the browser
@@ -818,7 +824,6 @@ void main() {
       gl.uniformMatrix4fv(P_STAR.u.uView, false, view);
       gl.uniform1f(P_STAR.u.uTime, time);
       gl.uniform1f(P_STAR.u.uSpeed, P.starSpeed);
-      gl.uniform1f(P_STAR.u.uSize, P.starSize);
       gl.uniform1f(P_STAR.u.uBright, P.starBright);
       gl.uniform3fv(P_STAR.u.uBone, BONE);
       gl.bindVertexArray(starVao);
