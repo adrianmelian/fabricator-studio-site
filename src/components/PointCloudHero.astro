@@ -1020,7 +1020,11 @@ void main() {
       // wave sits at a calm fixed amplitude (he is being MADE, not performing) and he never
       // explodes. Draws only in his beat window and only once his mesh has arrived.
       if (man && manReveal > 0) {
-        gl.uniform1f(U.uAmp, 0.02);
+        // Slow and subtle (Adrian, 2026-08-19): about a quarter of the logo's wave speed
+        // and a smaller swell. He should read as breathing, not rippling.
+        gl.uniform1f(U.uAmp, 0.013);
+        gl.uniform1f(U.uFreq, 0.7);
+        gl.uniform1f(U.uFreq2, 0.3);
         gl.uniform1f(U.uExplode, 0);
         gl.uniform1f(U.uReveal, manReveal * 1.08);
         gl.uniform1f(U.uFade, 1);
