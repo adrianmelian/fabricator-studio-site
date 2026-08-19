@@ -501,8 +501,10 @@ out vec4 frag;
 void main() {
   // visible only BELOW the scan line (screen px from the bottom); the points own above
   if (gl_FragCoord.y > uSplitY) discard;
-  float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 2.4);
-  vec3 c = mix(uBone * 0.06, mix(uBone, uPlasma, 0.55), rim);
+  // Cooler than the first cut (Adrian, 2026-08-19: the fresnel was a little hot): a
+  // tighter rim falloff and about half the energy, so the shell reads as glass, not neon.
+  float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 3.0);
+  vec3 c = mix(uBone * 0.04, mix(uBone, uPlasma, 0.55), rim * 0.55);
   frag = vec4(c * uAlpha, 1.0);
 }`;
 
