@@ -136,7 +136,7 @@ const UNINSTALL = [
     <!-- WHAT IT DOES -->
     <section class="dd-panel" aria-labelledby="in-what">
       <div class="dd-panel__head">
-        <h2 id="in-what" class="dd-label dd-label--plasma">WHAT IT DOES</h2>
+        <h2 id="in-what" class="dd-label dd-label--plasma">What it does</h2>
         <p class="dd-lede">One file turns the download into a working setup</p>
       </div>
       <p class="dd-prose in-prose"><b>Fabricator_Install.py</b> is the drag and drop entry point that turns the downloaded folder into a working FabricatorStudio setup. It copies the toolset (or points at it where it already sits), appends a sentinel guarded bootstrap block to your <code>userSetup.py</code> so Maya loads the toolbar on every launch, and then builds everything immediately so you never have to restart. <b>Fabricator_Uninstall.py</b>, alongside it, is the exact inverse.</p>
@@ -146,7 +146,7 @@ const UNINSTALL = [
     <!-- THE WINDOW -->
     <section class="dd-panel" aria-labelledby="in-window">
       <div class="dd-panel__head">
-        <h2 id="in-window" class="dd-label dd-label--plasma">THE WINDOW</h2>
+        <h2 id="in-window" class="dd-label dd-label--plasma">The window</h2>
         <p class="dd-lede">One card: directory, mode, install</p>
       </div>
       <div class="in-gui">
@@ -171,7 +171,7 @@ const UNINSTALL = [
     <!-- TWO INSTALL MODES -->
     <section class="dd-section" aria-labelledby="in-modes">
       <div class="dd-panel__head dd-panel__head--bare">
-        <h2 id="in-modes" class="dd-label dd-label--ember">TWO INSTALL MODES</h2>
+        <h2 id="in-modes" class="dd-label dd-label--ember">Two install modes</h2>
         <p class="dd-lede">Decide this before you press Install</p>
       </div>
       <div class="in-modes">
@@ -195,7 +195,7 @@ const UNINSTALL = [
     <!-- QUICK START -->
     <section class="dd-section" aria-labelledby="in-start">
       <div class="dd-panel__head dd-panel__head--bare">
-        <h2 id="in-start" class="dd-label dd-label--ember">QUICK START</h2>
+        <h2 id="in-start" class="dd-label dd-label--ember">Quick start</h2>
         <p class="dd-lede">Unzip, drag, install</p>
       </div>
       <ol class="in-steps">
@@ -215,7 +215,7 @@ const UNINSTALL = [
     <!-- GOOD TO KNOW -->
     <section class="dd-section" aria-labelledby="in-gtk">
       <div class="dd-panel__head dd-panel__head--bare">
-        <h2 id="in-gtk" class="dd-label dd-label--plasma">GOOD TO KNOW</h2>
+        <h2 id="in-gtk" class="dd-label dd-label--plasma">Good to know</h2>
       </div>
       <div class="in-facts">
         {FACTS.map((f, i) => (
@@ -240,7 +240,7 @@ const UNINSTALL = [
     <!-- UNINSTALLING -->
     <section class="dd-panel dd-panel--ember" aria-labelledby="in-uninstall">
       <div class="dd-panel__head">
-        <h2 id="in-uninstall" class="dd-label dd-label--ember">UNINSTALLING</h2>
+        <h2 id="in-uninstall" class="dd-label dd-label--ember">Uninstalling</h2>
         <p class="dd-lede">Drag the uninstaller in the same way</p>
       </div>
       <p class="dd-prose in-prose">It strips exactly the sentinel block from userSetup.py and removes the menu and shelves from the running session. What happens to the files depends on the mode the install recorded.</p>

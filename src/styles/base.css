@@ -115,13 +115,14 @@ body {
 /* Display type: Instrument Serif at 400, set large. `.vt` is a 1.0 class name (it used to be
    the only route to VT323); it renders the current display face so nothing breaks
    mid-migration, and gets renamed to .display in P1.
-   The uppercase here is inherited from the monospace era and has NOT been revisited; the
-   portfolio site moved its headings to sentence case on 2026-08-18 and this one did not. */
+   Sentence case since 2026-08-18 (Adrian), matching adrianmelian.com. The uppercase here was
+   inherited from the monospace era; the rest of this site's headings were already sentence
+   case, so this rule was the odd one out rather than the norm. */
 .vt,
 .display {
   font-family: var(--font-display);
   font-weight: 400;
-  text-transform: uppercase;
+  text-transform: none;
   font-size: clamp(2.2rem, 6vw, 4rem);
   line-height: 1.05;
   letter-spacing: -0.01em;
