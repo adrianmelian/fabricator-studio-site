@@ -924,34 +924,20 @@ void main() {
       return { vao, count: idx.length };
     })();
 
-    // THE HEROINE (Adrian, 2026-08-19): his model for the pipe's outflow, the character
-    // the stream condenses into. Baked to a 36KB points-only file ('FSPT': pre-sampled,
-    // pre-normalised to 2.1 tall standing on y=0), fetched on the first scroll and built
-    // straight into the flow buffer -- the man's mesh is no longer on this path.
+    // The flow buffer waits on the man's mesh: its targets are the first 3000 of his
+    // sampled points, scaled to the pipe man standing at the outflow.
     let flow: { vao: WebGLVertexArrayObject; n: number } | null = null;
-    let flowLoading = false;
-    function ensureHeroine() {
-      if (flow || flowLoading) return;
-      flowLoading = true;
-      fetch('/mesh/superheroin.pts').then((r2) => r2.arrayBuffer()).then((buf) => {
-        const dv = new DataView(buf);
-        if (String.fromCharCode(dv.getUint8(0), dv.getUint8(1), dv.getUint8(2), dv.getUint8(3)) !== 'FSPT')
-          throw new Error('bad pts file');
-        const n = dv.getUint32(4, true);
-        const src = new Float32Array(buf.slice(8));
-        const sc = 0.857;
-        const tgt = new Float32Array(n * 3), rnd4 = new Float32Array(n * 4);
-        const r = mulberry32(P.seed ^ 0x51DEC0DE);
-        for (let i = 0; i < n; i++) {
-          tgt[i * 3] = src[i * 3] * sc + 2.75;
-          tgt[i * 3 + 1] = src[i * 3 + 1] * sc;
-          tgt[i * 3 + 2] = src[i * 3 + 2] * sc;
-          for (let k = 0; k < 4; k++) rnd4[i * 4 + k] = r();
-        }
-        buildFlow(tgt, rnd4, n);
-      }).catch(() => { flowLoading = false; });
-    }
-    function buildFlow(tgt: Float32Array, rnd4: Float32Array, n: number) {
+    function buildFlow() {
+      if (flow || !man) return;
+      const n = 3000, sc = 0.857;
+      const tgt = new Float32Array(n * 3), rnd4 = new Float32Array(n * 4);
+      const r = mulberry32(P.seed ^ 0x51DEC0DE);
+      for (let i = 0; i < n; i++) {
+        tgt[i * 3] = man.pts[i * 3] * sc + 2.75;
+        tgt[i * 3 + 1] = man.pts[i * 3 + 1] * sc;
+        tgt[i * 3 + 2] = man.pts[i * 3 + 2] * sc;
+        for (let k = 0; k < 4; k++) rnd4[i * 4 + k] = r();
+      }
       const vao = gl.createVertexArray()!;
       gl.bindVertexArray(vao);
       const fattr = (name: string, data: Float32Array, sz: number) => {
@@ -1102,9 +1088,10 @@ void main() {
       pipeOn = pipeF > 0.2;
       // The reveal IS the scroll: feet at 5.2 screens, head at 6.3.
       const manReveal = clamp01((scrollY - innerHeight * 5.2) / (innerHeight * 1.1));
-      if (scrollY > innerHeight * 3.5) ensureMan();
-      // The heroine's points feed the flow; 36KB, fetched on the first scroll.
-      if (scrollY > innerHeight * 0.3) ensureHeroine();
+      // The man's mesh feeds BOTH his beat and the flow's targets now, so he loads on the
+      // first scroll and the flow buffer builds as soon as he lands.
+      if (scrollY > innerHeight * 0.3) ensureMan();
+      if (man && !flow && scrollY > innerHeight * 0.8) buildFlow();
       const armIn = smooth(clamp01((scrollY - innerHeight * 6.4) / (innerHeight * 0.4)));
       // Armature clears before the scan begins, and the SCAN owns the rest: the band's whole
       // travel is linear in scroll, so the visitor's hand is the scanner motor.
