@@ -18,8 +18,12 @@ import BracketButton from './BracketButton.astro';
 import heroWordmark from '../assets/hero/wordmark-banner.png';
 ---
 
+{/* THE BACKDROP. Fixed, full viewport, z-index 0, and it NEVER scrolls away: the page is not
+    content moving past a hero, it is panels rising over a room that stays. The cloud disperses
+    at the end of the opening and the grid it stood on remains as the environment every panel
+    after it floats in. */}
 <div class="pc" data-pc>
-  <div class="pc__sticky">
+  <div class="pc__stage">
     <canvas class="pc__canvas" data-pc-canvas aria-hidden="true"></canvas>
 
     <div class="pc__copy">
@@ -45,29 +49,25 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   </div>
 </div>
 
-<style>
-  /* Full-bleed, same escape as .hero-v2. The runway is what the scroll is spent on: three
-     screens of it carry the mark from its opening framing, through the centring push-in, to
-     the explosion. */
-  .pc {
-    position: relative;
-    width: 100vw;
-    max-width: 100vw;
-    margin: 0 0 0 calc(50% - 50vw);
-    padding: 0;
-    height: 300svh;
-  }
+{/* The scroll the opening is spent on, and nothing else. Its height is what times the beats:
+    at 260svh the next panel's top crosses the viewport bottom at progress 0.615, which is
+    exactly where the explosion starts, so the mark blows apart AS the hero video arrives
+    rather than before it. Change one and the other has to move with it. */}
+<div class="pc-runway" data-pc-runway></div>
 
-  .pc__sticky {
-    position: sticky;
-    top: 0;
-    /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so the
-       stage would be taller than what you can see and anything pinned would jump when the
-       URL bar collapses mid-scroll. */
-    height: 100svh;
-    overflow: hidden;
+<style>
+  .pc {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    /* The nav sits over this; the panels sit over it too. Nothing here ever takes a click. */
+    pointer-events: none;
     background: var(--carbon);
   }
+  .pc__stage { position: absolute; inset: 0; overflow: hidden; }
+  /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
+     in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
+  .pc-runway { height: 260svh; }
 
   .pc__canvas {
     position: absolute;
@@ -90,7 +90,11 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     display: flex;
     flex-direction: column;
     z-index: 2;
+    /* The stage is click-through so the panels above it stay usable; the two download
+       buttons are the one thing in here that has to take a click. */
+    pointer-events: none;
   }
+  .pc__copy > * { pointer-events: auto; }
 
   /* The fade lives here and not on .pc__copy, because a child cannot be more opaque than its
      parent and the buttons have to outlive the text. */
@@ -145,36 +149,44 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
      Reduced motion, no WebGL2, or a failed init. The runway collapses to one screen so the
      scroll cost of an effect that is not running is not paid, the canvas goes, and the copy
      stands on carbon exactly as it is composed above. */
-  .pc[data-pc-static] { height: auto; }
-  .pc[data-pc-static] .pc__sticky {
+  /* The backdrop stops being a backdrop: it drops into the flow as an ordinary opening
+     screen, the canvas goes, and the runway collapses so nobody scrolls two and a half empty
+     screens to reach the page. */
+  .pc[data-pc-static] {
     position: relative;
-    height: auto;
+    inset: auto;
+    pointer-events: auto;
     min-height: calc(100svh - var(--header-h));
     display: flex;
     align-items: center;
   }
+  .pc[data-pc-static] .pc__stage { position: static; overflow: visible; width: 100%; }
   .pc[data-pc-static] .pc__canvas { display: none; }
   .pc[data-pc-static] .pc__copy {
     position: relative;
     top: auto;
+    left: 0;
     transform: none;
     max-width: min(44rem, 82vw);
+    margin-left: 9vw;
     padding: var(--sp-7) 0;
   }
   .pc[data-pc-static] .pc__text { opacity: 1; transform: none; }
   .pc[data-pc-static] .pc__wordmark { top: 0; }
+  .pc[data-pc-static] + .pc-runway { display: none; }
 
   @media (max-width: 900px) {
     /* Mobile is composed but NOT dialled: Adrian ruled the layout (mark toward the top, copy
        in the lower third, buttons at the bottom) and deferred its camera. Until that framing
        exists this width takes the static fallback rather than an undialled cinematic. */
-    .pc { height: auto; }
-    .pc__sticky { position: relative; height: auto; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; }
+    .pc { position: relative; inset: auto; pointer-events: auto; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; }
+    .pc__stage { position: static; overflow: visible; width: 100%; }
     .pc__canvas { display: none; }
-    .pc__copy { position: relative; top: auto; transform: none; left: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); }
+    .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); }
     .pc__text { opacity: 1; transform: none; }
     .pc__wordmark { top: 0; }
     .pc__wordmark :global(img) { width: min(86vw, 470px); }
+    .pc-runway { display: none; }
   }
 </style>
 
@@ -576,19 +588,32 @@ void main() {
 
     // ---- the loop. Progress is read from the runway's own rect in rAF rather than from a
     // scroll listener, so touch momentum cannot stall it and there is no listener to throttle.
-    let time = 0, oscPhase = 0, prev = 0, ready = false, visible = true;
-    new IntersectionObserver((es) => { visible = es[0].isIntersecting; }, { rootMargin: '10%' }).observe(host);
+    // The backdrop is fixed, so progress comes from the page's own scroll against the runway
+    // element rather than from the stage's rect, which no longer moves. Read in rAF, not from
+    // a scroll listener: touch momentum stalls listeners and there is nothing to throttle.
+    const runwayEl = document.querySelector('[data-pc-runway]') as HTMLElement | null;
+    let time = 0, oscPhase = 0, prev = 0, ready = false;
+    // The panels rise over this scene, so once the opening is behind us the cloud is spent and
+    // only the grid is doing any work. Keep drawing it, but there is no reason to keep sampling
+    // 5,000 exploded points for a room nobody is looking at through them.
+    const panels = Array.from(document.querySelectorAll('[data-panel]')) as HTMLElement[];
 
     function frame(now: number) {
       requestAnimationFrame(frame);
       const dt = Math.min(0.05, (now - prev) / 1000 || 0);
       prev = now;
-      if (!visible) return;
       if (resize()) relayout();
 
-      const box = host.getBoundingClientRect();
-      const runway = box.height - canvas.clientHeight;
-      const p = runway > 0 ? clamp01(-box.top / runway) : 0;
+      const H = runwayEl ? runwayEl.offsetHeight : innerHeight * 2.6;
+      const p = clamp01(scrollY / Math.max(1, H));
+
+      // Every panel rises, fades and settles as it arrives. One pass over a handful of
+      // elements, in the loop that is already running, so there is no second observer and no
+      // second source of truth about where the page is.
+      for (const el of panels) {
+        const r = el.getBoundingClientRect();
+        el.style.setProperty('--enter', smooth(clamp01((innerHeight - r.top) / (innerHeight * 0.75))).toFixed(3));
+      }
 
       const tCam = smooth(clamp01(p / 0.45));
       const explode = clamp01((p - 0.62) / 0.38);
