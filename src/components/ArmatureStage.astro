@@ -975,7 +975,7 @@ void main() {
     const CAM_END = { yaw: -0.55, pitch: -0.02, dist: 2.05, tx: 0.42, ty: 1.45, tz: 0.95 };
     // ...and the FINAL pull-back (Adrian, 2026-08-19): same angle, same left seat, the
     // camera just retreats until her full body stands in frame for the closing doors.
-    const CAM_OUT = { yaw: -0.55, pitch: -0.02, dist: 3.7, tx: 0.68, ty: 1.12, tz: 0.95 };
+    const CAM_OUT = { yaw: -0.55, pitch: -0.02, dist: 3.7, tx: 0.86, ty: 1.12, tz: 0.95 };
     const CAM_FOV = 42;
     const MAN_M = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 
@@ -1122,8 +1122,8 @@ void main() {
       // THE TAIL: the three walkthrough reels ride up past the right side, pricing fades
       // in where they passed, then the closing doors. She stays screen left, still alive.
       const reel = clamp01((q - 4.6) / 1.9);
-      const price = smooth(clamp01((q - 6.0) / 0.45));
-      const endd = smooth(clamp01((q - 7.15) / 0.4));
+      const price = smooth(clamp01((q - 5.75) / 0.45));
+      const endd = smooth(clamp01((q - 6.8) / 0.4));
       de.setProperty('--reel', reel.toFixed(4));
       de.setProperty('--reelt', (smooth(clamp01(reel * 6)) * (1 - smooth(clamp01((reel - 0.34) / 0.12)))).toFixed(3));
       de.setProperty('--price', price.toFixed(3));
@@ -1161,7 +1161,7 @@ void main() {
       const t1 = smooth(clamp01((q - 0.55) / 0.5));
       const t2 = smooth(clamp01((q - 2.05) / 1.95));
       const t3 = smooth(clamp01((q - 4.35) / 0.6));
-      const t4 = smooth(clamp01((q - 6.95) / 0.6));
+      const t4 = smooth(clamp01((q - 6.6) / 0.6));
       const leg = (a: number, b: number, c2: number, d2: number, e2: number) =>
         lerp(lerp(lerp(lerp(a, b, t1), c2, t2), d2, t3), e2, t4);
       const camDist = leg(CAM_LAND.dist, CAM_FIT.dist, CAM_HER.dist, CAM_END.dist, CAM_OUT.dist);
