@@ -117,7 +117,7 @@ const PROOF = [
       collapses with it. */}
   <PointCloudHero />
 
-  <section id="hero" class="hero-v2">
+  <section id="hero" class="hero-v2" data-panel>
     {/* New Armature cut, 2026-08-03. Dated filenames rather than overwriting: public/ assets
         are served unhashed, so reusing the old names would leave the previous cut in browser
         and CDN caches for days. 2560x1440 (was 2560x1080), which crops less at desktop widths
@@ -128,30 +128,11 @@ const PROOF = [
       aria-hidden="true">
     </video>
     <img class="hero-media hero-poster" src="/demo/fs_hero_poster_2026-08.jpg" alt="" aria-hidden="true" />
-    <div class="hero-scrim" aria-hidden="true"></div>
-    <div class="hero-copy">
-      {/* THE IDENTITY BLOCK MOVED UP (2026-08-19). The wordmark h1, the Artist+AI Toolset
-          line, the divider and the two CTAs now open the page inside the point-cloud
-          section, which is the first thing a visitor meets. Repeating them one screen later
-          would be the page saying the same thing twice, which is the exact fault the July
-          overhaul was run to remove. The section budget holds: the opening REPLACES the
-          identity block rather than adding to it.
-
-          What stays here is the philosophy, which the opening does not carry. */}
-      {/* Adrian's own rewrite, 2026-08-01 evening, shipped as written. The philosophy leads
-          now: Artist Driven AI tools, the dev-to-artist floor-and-ceiling, and the refinement
-          contrast. He knowingly kept the "These are not AI tools" shape against the anti-slop
-          Tier A rule; owner's override, recorded here so nobody "fixes" it back. The
-          available-for-hire line moved out of the hero on the same pass; hiring converts in
-          the closing band, after the proof. */}
-      <p class="hero-sub hero-sub--studio"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="hero-sub__hl">Free for small studios.</b></p>
-      <p class="hero-sub">Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can <b class="hero-sub__ember">drive your asset to production level standards</b>.</b></p>
-      {/* The two doors moved into the opening, where they now travel with the mark and clear
-          with it. The paid door is the one that lost its place on this screen: the opening
-          carries the free toolset and Armature, both free. /store/ is reached from the nav
-          and from the licensing tiers on /tools/. Hiring is still NOT here: different
-          audience, and it converts better after the proof, in the closing band. */}
-    </div>
+    {/* NO SCRIM AND NO COPY (Adrian, 2026-08-19). This panel is the video and nothing else.
+        The scrim existed to make text legible over it; with the text gone it was only
+        dimming the footage. The identity moved into the opening, and the philosophy copy
+        that used to sit here moved out with it rather than being restated over a video
+        nobody is reading. */}
   </section>
 
   {/* THE TOOLSET, moved above Armature 2026-08-19 (Adrian's ruled page order: opening, hero,
@@ -160,7 +141,7 @@ const PROOF = [
       each tool's real interface without leaving the page. The grid is the SAME component
       /tools/ renders; nothing was forked. The single Fabricator UI that used to sit beside
       this copy is gone, because the grid's first card is that same graphic. */}
-  <section id="toolset">
+  <section id="toolset" data-panel>
     <SectionHead eyebrow="FABRICATORSTUDIO" title="THE TOOLSET" />
     <div class="tk-grid tk-grid--solo">
       <div class="tk-body">
@@ -189,7 +170,7 @@ const PROOF = [
       The media is the 86-second voiceover trailer on YouTube, loaded through a facade so
       nothing reaches Google until a visitor actually clicks play. Copy is lifted verbatim from
       the /armature/ hero, so the card and the page it opens cannot drift. */}
-  <section id="armature">
+  <section id="armature" data-panel>
     <SectionHead eyebrow="FABRICATORSTUDIO" title="ARMATURE" />
     <div class="arm-grid">
       <YouTubeFacade
@@ -219,7 +200,7 @@ const PROOF = [
       "Non-destructive workflow" immediately after four blocks that demonstrated exactly
       those things with real UI. Claims placed after proof are worse than useless; they
       weaken the proof. This section shows what the pipeline has MADE instead. */}
-  <section id="proof">
+  <section id="proof" data-panel>
     <SectionHead eyebrow="FABRICATORSTUDIO" title="BUILT WITH IT" />
     <div class="pf-grid">
       {PROOF.map((p) => (
@@ -285,13 +266,15 @@ const PROOF = [
       that names the box and gets out of the way, carrying the Fabricator graphic so the
       homepage keeps a real visual anchor for the product. */}
 
-  <DownloadBand />
+  <div data-panel>
+    <DownloadBand />
+  </div>
 
   {/* WAS: the tutorials grid. It spent a full section telling a visitor that a page in the
       nav exists, using YouTube's thumbnails, which made it the least on-brand block on the
       page. Tutorials keep their nav item, their page, and a footer link. In its place, the
       thing the homepage never had: an ask. */}
-  <section id="hire">
+  <section id="hire" data-panel>
     <div class="hb-card">
       <h2 class="hb-head">Available for engagements.</h2>
       <p class="hb-line">Rig and export setup, custom Maya tools, fractional TA and retainers. Delivered by the technical artist who built Fabricator, documented, and yours to keep.</p>
@@ -312,7 +295,7 @@ const PROOF = [
       still live on /licensing, and the full credential is still on /armature under "Who built
       it", so neither is lost from the site. It IS gone from the homepage. Restoring the
       shipped-titles strip alone is a small edit if that trade turns out to be wrong. */}
-  <section id="about">
+  <section id="about" data-panel>
     <SectionHead eyebrow="FABRICATORSTUDIO" title="ABOUT ME" />
     <WelcomeVideo />
   </section>
@@ -415,51 +398,6 @@ const PROOF = [
     .hero-v2 video.hero-media { display: none; }
     .hero-v2 img.hero-poster { display: block; }
   }
-  .hero-scrim {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    background: linear-gradient(to top, rgba(11, 14, 16, 0.92) 0%, rgba(11, 14, 16, 0.55) 40%, rgba(11, 14, 16, 0) 65%);
-  }
-  /* A full-bleed BAND, not a floating plate. The video is the worst offender for legibility:
-     it MOVES, so a scrim that reads fine on one frame washes the copy out on the next. A
-     plate makes legibility independent of whatever frame is playing behind it. */
-  .hero-copy {
-    position: relative;
-    z-index: 2;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    text-align: center;
-    align-self: stretch;
-    min-height: calc(0.6 * (100vh - var(--header-h)));
-    min-height: calc(0.6 * (100svh - var(--header-h)));
-    padding: 1.75rem 2rem;
-    background: rgba(11, 14, 16, 0.31);
-    /* Unprefixed ONLY: hand-writing the -webkit- twin makes lightningcss drop the standard
-       property and Firefox loses the blur silently. */
-    backdrop-filter: blur(6px) saturate(115%);
-    border: 0;
-    border-top: 1px solid rgba(232, 224, 208, 0.1);
-    border-bottom: 1px solid rgba(232, 224, 208, 0.1);
-    box-shadow: var(--shadow-lg);
-    text-shadow: 0 1px 2px rgba(11, 14, 16, 0.55);
-  }
-  /* Tests the STANDARD property only. ORing in the -webkit- alias would make this false on
-     older Safari (which supports the alias) while the build emits no alias declaration, so
-     Safari would land on a see-through plate with no blur and no fallback. */
-  @supports not (backdrop-filter: blur(1px)) {
-    .hero-copy { background: rgba(11, 14, 16, 0.55); }
-  }
-  .hero-sub { font-family: var(--font-body); font-size: 1.0625rem; line-height: 1.7; color: var(--bone); max-width: 52rem; }
-  /* The posture line reads a step up from the description under it: mono, slightly larger,
-     so the first thing a visitor parses is what this place IS. */
-  .hero-sub--studio { font-family: var(--font-mono); font-size: clamp(1.0625rem, 1.6vw, 1.1875rem); }
-  .hero-sub b { color: var(--bone); }
-  .hero-sub .hero-sub__hl { color: var(--plasma); }
-  .hero-sub .hero-sub__ember { color: var(--ember); }
 
   /* BUILT WITH IT. Reuses the card furniture the key-features grid used, so this cost
      styling work rather than design work, and the section it replaces is not missed. */

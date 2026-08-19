@@ -66,8 +66,18 @@ import NewsletterPop from './NewsletterPop.astro';
     justify-content: space-between;
     gap: 1rem;
     padding: 0 1.5rem;
-    background: var(--carbon);
-    border-bottom: 1px solid var(--iron-2);
+    /* Glass, not solid (Adrian, 2026-08-19). The bar is unchanged in every other respect; it
+       just stops being a lid on the 3D scene it now floats over.
+       Unprefixed ONLY: hand-writing the -webkit- twin makes lightningcss drop the standard
+       property and Firefox loses the blur silently. */
+    background: rgba(11, 14, 16, 0.55);
+    backdrop-filter: blur(14px) saturate(140%);
+    border-bottom: 1px solid rgba(232, 224, 208, 0.08);
+  }
+  /* Tests the STANDARD property only: ORing in the -webkit- alias reads true on an older
+     Safari that supports the alias while the build emits none, leaving a see-through bar. */
+  @supports not (backdrop-filter: blur(1px)) {
+    .navbar { background: rgba(11, 14, 16, 0.92); }
   }
   .navbar__brand {
     display: flex;
