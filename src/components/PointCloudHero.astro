@@ -832,7 +832,10 @@ void main() {
         ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
         const o = 1 - smooth(clamp01(pt / 0.16));
         ctaEl.style.opacity = o.toFixed(3);
-        ctaEl.style.pointerEvents = o < 0.05 ? 'none' : '';
+        // visibility, NOT pointer-events: the anchors inside carry their own explicit
+        // pointer-events auto (the layer is click-through), and none on the parent does not
+        // beat an explicit value on a child, so invisible buttons stayed clickable.
+        ctaEl.style.visibility = o < 0.05 ? 'hidden' : '';
       }
 
       time += dt;
