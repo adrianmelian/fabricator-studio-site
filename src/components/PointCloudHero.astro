@@ -53,6 +53,15 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
       <BracketButton kind="plasma-outline" href="/armature/" label="Download Armature" event="hero-armature" />
     </div>
   </div>
+
+  {/* THE PHILOSOPHY (Adrian, 2026-08-19): fades in when the camera lands at beat B, centred
+      above the download buttons, and STAYS up through the video. This is his own rewrite of
+      2026-08-01, moved from the old video-hero copy block; the emphasis markup is carried
+      over verbatim, owner's override on the "These are not AI tools" shape included. */}
+  <div class="pc__philosophy">
+    <p class="pc__phil-lead"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="pc__phil-hl">Free for small studios.</b></p>
+    <p class="pc__phil-line">Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can <b class="pc__phil-ember">drive your asset to production level standards</b>.</b></p>
+  </div>
 </div>
 
 {/* The scroll the opening is spent on, and nothing else. Nothing scrolls in from below any
@@ -109,6 +118,36 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     pointer-events: none;
   }
   .pc__cta :global(a) { pointer-events: auto; }
+
+  /* Centred above the buttons' landing spot, driven by --phil-in from the loop. Text over
+     moving footage with no scrim, so the shadow is what keeps it legible on a bright frame. */
+  .pc__philosophy {
+    position: absolute;
+    left: 50%;
+    bottom: calc(8% + 6.5rem);
+    transform: translateX(-50%);
+    width: min(52rem, 86vw);
+    text-align: center;
+    opacity: var(--phil-in, 0);
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+  }
+  .pc__phil-lead {
+    font-weight: 300;
+    font-size: clamp(1.0625rem, 1.6vw, 1.1875rem);
+    line-height: 1.7;
+    color: var(--bone);
+  }
+  .pc__phil-line {
+    font-weight: 300;
+    font-size: 1.0625rem;
+    line-height: 1.7;
+    color: var(--bone);
+    margin-top: 0.4rem;
+  }
+  .pc__philosophy b { color: var(--bone); font-weight: 700; }
+  .pc__philosophy .pc__phil-hl { color: var(--plasma); }
+  .pc__philosophy .pc__phil-ember { color: var(--ember); }
 
   /* The fade lives here and not on .pc__copy, because a child cannot be more opaque than its
      parent and the buttons have to outlive the text. */
@@ -171,7 +210,21 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     pointer-events: auto;
     min-height: calc(100svh - var(--header-h));
     display: flex;
-    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__philosophy {
+    position: relative;
+    left: 0;
+    bottom: auto;
+    transform: none;
+    width: auto;
+    max-width: min(44rem, 82vw);
+    margin: 1.5rem 0 0 9vw;
+    text-align: left;
+    opacity: 1;
+    text-shadow: none;
   }
   .pc[data-pc-static] ~ .pc__copylayer .pc__copy {
     position: relative;
@@ -192,7 +245,8 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
        in the lower third, buttons at the bottom) and deferred its camera. Until that framing
        exists this width takes the static fallback rather than an undialled cinematic. */
     .pc { display: none; }
-    .pc__copylayer { position: relative; inset: auto; pointer-events: auto; min-height: calc(100svh - var(--header-h)); display: flex; align-items: center; }
+    .pc__copylayer { position: relative; inset: auto; pointer-events: auto; min-height: calc(100svh - var(--header-h)); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+    .pc__philosophy { position: relative; left: 0; bottom: auto; transform: none; width: auto; margin: 1.25rem 0 0 0; padding: 0 var(--container-px, 20px); text-align: left; opacity: 1; text-shadow: none; }
     .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); pointer-events: auto; }
     .pc__text { opacity: 1; transform: none; }
     .pc__wordmark { top: 0; }
@@ -613,7 +667,7 @@ void main() {
     // ---- the loop. Progress is read in rAF, not from a scroll listener: touch momentum
     // stalls listeners and there is nothing to throttle when the loop is running anyway.
     const runwayEl = document.querySelector('[data-pc-runway]') as HTMLElement | null;
-    let time = 0, oscPhase = 0, prev = 0, ready = false;
+    let time = 0, oscPhase = 0, prev = 0, ready = false, wakeBlend = 0;
 
     // The hero video is promoted from an in-flow section to a fixed layer at z1, between the
     // scene (z0) and the copy (z2). It does not scroll up; it FADES IN in place over the
@@ -644,6 +698,10 @@ void main() {
       // scatter and owns the screen by the end of the runway.
       if (heroSec) heroSec.style.opacity = smooth(clamp01((p - 0.66) / 0.32)).toFixed(3);
 
+      // The philosophy arrives as the camera lands at beat B and never leaves: it stands
+      // through the explosion and the video (Adrian, 2026-08-19).
+      document.documentElement.style.setProperty('--phil-in', smooth(clamp01((p - 0.30) / 0.15)).toFixed(3));
+
       // The buttons travel to centre-bottom on the camera's easing, then STAY, above the
       // video, for as long as the stage is on screen. They never fade (Adrian, 2026-08-19).
       if (ctaRest) {
@@ -654,16 +712,22 @@ void main() {
       }
 
       time += dt;
-      // The pluck does not run at the top of the page: its phase is HELD at zero and the
-      // amplitude sits at rest, so the first thing anyone sees is the logo rather than a
-      // performance. Past wakeAt the clock starts and the attack fires from the beginning.
-      const wake = P.wakeAt > 0 ? clamp01(p / P.wakeAt) : 1;
-      if (wake >= 1) oscPhase += dt * P.oscSpeed * Math.PI * 2; else oscPhase = 0;
+      // The pluck does not run at the top of the page: the amplitude sits at rest so the
+      // first thing anyone sees is the logo rather than a performance. wakeBlend CHASES the
+      // scroll-derived target on a time constant instead of tracking it raw: scrolling back
+      // to the top used to snap the wave to rest in a frame, which read as a pop (Adrian,
+      // 2026-08-19). Now it settles. The phase is reset only once the blend has actually
+      // arrived at rest, so the attack still fires from the start of its cycle every time
+      // the mark wakes, never from mid-swing.
+      const wakeTarget = P.wakeAt > 0 ? clamp01(p / P.wakeAt) : 1;
+      wakeBlend += (wakeTarget - wakeBlend) * Math.min(1, dt * 4);
+      if (wakeBlend > 0.005) oscPhase += dt * P.oscSpeed * Math.PI * 2;
+      else { wakeBlend = 0; oscPhase = 0; }
       const u = (oscPhase / (Math.PI * 2)) % 1;
       const tAmp = u < P.oscAttack
         ? u / P.oscAttack
         : Math.pow(1 - (u - P.oscAttack) / (1 - P.oscAttack), P.oscShape);
-      const amp = lerp(P.restAmp, P.oscLow + (P.oscHigh - P.oscLow) * tAmp, wake) * lerp(1, 1.45, clamp01(p / 0.45));
+      const amp = lerp(P.restAmp, P.oscLow + (P.oscHigh - P.oscLow) * tAmp, wakeBlend) * lerp(1, 1.45, clamp01(p / 0.45));
 
       const c = {
         yaw: lerp(CAM_A.yaw, CAM_B.yaw, tCam), pitch: lerp(CAM_A.pitch, CAM_B.pitch, tCam),
