@@ -28,7 +28,7 @@ import NewsletterPop from './NewsletterPop.astro';
       <a class="navbar__tab" href="/store/">Downloads</a>
       <a class="navbar__tab" href="/docs/">Docs</a>
       <a class="navbar__tab" href="/tutorials/">Tutorials</a>
-      <a class="navbar__tab navbar__tab--serif" href="/services/">Services</a>
+      <a class="navbar__tab" href="/services/">Services</a>
     </div>
   </div>
 </nav>
@@ -120,9 +120,6 @@ import NewsletterPop from './NewsletterPop.astro';
     list-style: none;
   }
   .navbar__tab:hover { color: var(--bone); }
-  /* Services in the display serif (Adrian, 2026-08-19): the hire door stands apart from
-     the product tabs. Slightly larger, because the serif reads smaller at equal size. */
-  .navbar__tab--serif { font-family: var(--font-display); font-size: 0.95rem; }
 
   /* Hamburger: hidden on desktop, shown on narrow screens. */
   .navbar__burger { display: none; }
