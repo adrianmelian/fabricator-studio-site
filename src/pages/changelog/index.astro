@@ -40,6 +40,24 @@ const ARMATURE_RELEASES = [
   // processes/release-publication.md. The site and the What's New card must never tell a user
   // two different stories about the same release.
   {
+    version: '2.2.1',
+    date: '2026-08-19',
+    dateLabel: '2026 \u00b7 08 \u00b7 19',
+    tag: 'Fix release',
+    lede: 'The character fades properly while the skin solves, generated skeletons come with a root at the world origin, and four-legged characters are read correctly.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Your character fades away properly while the skin solves</b>. It was going oddly see-through and staying that way instead of dissolving, in every shading mode except x-ray.',
+          '<b>Generated skeletons arrive with a root joint at the world origin</b>, so the whole character can be moved as one instead of being dragged around by the hips.',
+          '<b>Four-legged characters are read correctly</b>. The spine is followed along the body rather than up it, so the pelvis, the spine and the hind legs are all named. The front legs are deliberately left unnamed rather than called arms.',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.2.0',
     date: '2026-08-19',
     dateLabel: '2026 \u00b7 08 \u00b7 19',
