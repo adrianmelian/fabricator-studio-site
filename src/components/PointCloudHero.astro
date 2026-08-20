@@ -262,10 +262,27 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 
   @media (max-width: 900px) {
     /* Mobile is composed but NOT dialled: Adrian ruled the layout (mark toward the top, copy
-       in the lower third, buttons at the bottom) and deferred its camera. Until that framing
-       exists this width takes the static fallback rather than an undialled cinematic. */
+       in the lower third, buttons at the bottom) and deferred its camera. Rather than dial a
+       second camera, the mark arrives as a STILL OF THE REAL CINEMATIC (Adrian, 2026-08-13,
+       the same call he made for the Armature hero): the 5,000-point cloud captured off the
+       live stage at scroll 0, cropped to the mark's own green bounding box.
+
+       It is a background-image, deliberately. A hidden <img> is still fetched by the browser;
+       a background inside an unmatched media query is not, so no desktop visitor pays for a
+       plate they never see. */
     .pc { display: none; }
-    .pc__copylayer { position: relative; inset: auto; pointer-events: auto; min-height: calc(100svh - var(--header-h)); display: flex; flex-direction: column; justify-content: center; align-items: flex-start; }
+    .pc__copylayer {
+      position: relative; inset: auto; pointer-events: auto;
+      min-height: calc(100svh - var(--header-h));
+      display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
+      background-image: url('../assets/hero/fs-mark-cloud.png');
+      background-repeat: no-repeat;
+      background-position: center max(3rem, 8svh);
+      background-size: min(78vw, 34rem) auto;
+    }
+    /* The copy sits clear of the mark rather than under it: the plate takes the top third and
+       the stanza the lower two, which is the shape Adrian ruled for this width. */
+    .pc__copylayer { padding-top: min(46svh, 26rem); }
     .pc__philosophy { position: relative; left: 0; bottom: auto; transform: none; width: auto; margin: 1.25rem 0 0 0; padding: 0 var(--container-px, 20px); text-align: left; text-shadow: none; display: block; }
     .pc__philosophy > p { opacity: 1 !important; }
     .pc__phil-line { margin-top: 0.9rem; }
