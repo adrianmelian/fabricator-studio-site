@@ -269,13 +269,14 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 
        It is a background-image, deliberately. A hidden <img> is still fetched by the browser;
        a background inside an unmatched media query is not, so no desktop visitor pays for a
-       plate they never see. */
+       plate they never see. The cost of that choice is that the file skips Astro's image
+       pipeline, so it is checked in as webp rather than shipping a 614 KB png to phones. */
     .pc { display: none; }
     .pc__copylayer {
       position: relative; inset: auto; pointer-events: auto;
       min-height: calc(100svh - var(--header-h));
       display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
-      background-image: url('../assets/hero/fs-mark-cloud.png');
+      background-image: url('../assets/hero/fs-mark-cloud.webp');
       background-repeat: no-repeat;
       background-position: center max(3rem, 8svh);
       background-size: min(78vw, 34rem) auto;
