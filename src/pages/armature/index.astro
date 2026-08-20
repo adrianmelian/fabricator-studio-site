@@ -13,16 +13,23 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArmatureStage from '../../components/ArmatureStage.astro';
 import NavBar from '../../components/NavBar.astro';
 import Wordmark from '../../components/Wordmark.astro';
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 
 import fsMark from '../../assets/armature/fs-mark.png';
 import stageFit from '../../assets/armature/stage-fit.png';
 import stageSkeleton from '../../assets/armature/stage-skeleton.png';
 import stageSkin from '../../assets/armature/stage-skin.png';
 import heroProduct from '../../assets/armature/hero-product.png';
+// The phone's backdrop is the DESKTOP LANDING SHOT itself, captured off the live
+// WebGL stage at scroll 0 with every DOM layer hidden (Adrian, 2026-08-13). The
+// marketing plate above carries its own burned-in lockup, which fights the h1 at
+// phone widths; this one is the room the cinematic actually opens in.
+import heroLandingPortrait from '../../assets/armature/hero-landing-portrait.png';
 
 import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../../data/armature';
 import { ARMATURE_TUTORIALS as WALKTHROUGHS } from '../../data/tutorials';
+
+const heroPortraitSrc = (await getImage({ src: heroLandingPortrait, format: 'webp', width: 1170 })).src;
 
 const TITLE = 'Armature, by FabricatorStudio';
 const DESCRIPTION =
@@ -38,14 +45,22 @@ const DESCRIPTION =
     <header class="ast-hero hero--art">
       {/* The static art is the FALLBACK: under 900px, reduced motion, or no WebGL2 the
           stage never goes live and this stays the backdrop. */}
-      <Image
-        class="hero__art"
-        src={heroProduct}
-        alt="Armature: a samurai, a dog and a squid, all rigged in the app"
-        widths={[1280, 1920, 2560]}
-        sizes="100vw"
-        loading="eager"
-      />
+      <picture>
+        <source media="(max-width: 900px)" srcset={heroPortraitSrc} />
+        <Image
+          class="hero__art"
+          src={heroProduct}
+          {/* Decorative, and it has to be: <picture> serves a different image under
+              900px (the landing plate, not the samurai) and alt cannot vary per
+              source, so a description of one would lie about the other. It is a backdrop
+              behind the h1 that says the same thing in text, and on desktop it is
+              hidden outright the moment the live stage takes over. */}
+          alt=""
+          widths={[1280, 1920, 2560]}
+          sizes="100vw"
+          loading="eager"
+        />
+      </picture>
       <div class="hero__scrim" aria-hidden="true"></div>
 
       {/* THE LANDING SHOT: the homepage's post-scan frame, the height man solid in the
@@ -102,7 +117,7 @@ const DESCRIPTION =
       {/* THE STORY'S COPY BEATS -- DRAFT except the stage names (Adrian's, 2026-08-19).
           The app's stages, told on the left flank: Fitting Room / Skeleton / Skinning /
           alive. One cell, crossfading with their scenes. */}
-      <div class="ast-beats" aria-hidden="true">
+      <div class="ast-beats">
         <div class="ast-beat" style="opacity: var(--ab1, 0)">
           <p class="ast-beat__head"><span class="ast-ember">Fitting</span> Room</p>
           <p class="ast-beat__line">Fit your character to size so symmetry and placement behave.</p>
@@ -147,7 +162,7 @@ const DESCRIPTION =
 
       {/* The strip's standing title, BEHIND the cards: the first video wipes it as it
           passes, and the fade below matches that moment. */}
-      <p class="ast-reels__title" aria-hidden="true"><span class="ast-ember">Tutorial</span> Video<br />Series</p>
+      <p class="ast-reels__title"><span class="ast-ember">Tutorial</span> Video<br />Series</p>
 
       <div class="ast-reels" data-ast-reels>
         <div class="ast-reels__strip">
@@ -838,4 +853,164 @@ const DESCRIPTION =
       gap: 26px;
       flex-wrap: wrap;
     }
+  /* ================= UNDER 900px: THE STORY, STACKED =================
+     The stage never goes live here (the canvas is display:none under 900px, and it also
+     stays dark on reduced motion and without WebGL2), so the runway never grows and every
+     beat below the landing sat display:none or visibility:hidden. The page was a hero and
+     a footer.
+
+     This block tells the SAME story in the SAME order rather than inventing a phone
+     version: landing, the four stage beats with their stills, what it costs, the tutorial
+     series, then the doors again. Nothing above this line changes, so the desktop
+     cinematic is untouched; every rule here is scoped to the fallback.
+
+     Desktop's positioning is absolute against a pinned one-screen hero. Mobile undoes
+     exactly that: static flow, full column width, normal document order. */
+  @media (max-width: 900px) {
+    /* The hero stops being the whole stage and becomes the first section of a scrolling
+       page. overflow must open or the flowed beats are clipped by the old stage box. */
+    .ast-hero {
+      min-height: 0;
+      overflow: visible;
+      display: flex;
+      flex-direction: column;
+      gap: 3.5rem;
+      padding: 0 var(--ast-gutter) 3.5rem;
+      --ast-gutter: 1.5rem;
+    }
+    /* The art and its scrim are the one thing that must ignore the gutter. */
+    .ast-hero :global(.hero__art),
+    .hero__scrim {
+      left: 0;
+      right: 0;
+      /* object-fit does the cropping; the box just has to be the full bleed width.
+         `auto` lets the img size to its intrinsic aspect and run off the page. */
+      width: calc(100% + var(--ast-gutter) * 2);
+      margin-inline: calc(var(--ast-gutter) * -1);
+    }
+
+    /* The art is a backdrop for the LANDING only. Left as inset:0 it would stretch behind
+       the whole column and drag its burned-in lockup down the page. Pin it to the first
+       screen instead. */
+    .ast-hero :global(.hero__art),
+    .hero__scrim {
+      height: calc(100svh - var(--header-h));
+      bottom: auto;
+      inset-block-start: 0;
+    }
+    /* The source art carries its own "Artist+AI Rigging / You drive." lockup, which is
+       centred in a 16:9 plate. A cover crop at 390 lands it exactly on the h1, so two
+       headlines fight. Bias the crop up to the samurai's head and weight the scrim
+       vertically (the desktop scrim rakes left to right, for copy on the left flank). */
+    /* No crop surgery needed any more: the phone plate is the cinematic's own landing
+       frame, already portrait and carrying no type of its own. Cover it and centre it. */
+    .ast-hero :global(.hero__art) { object-position: center 38%; }
+    /* Tuned for the landing plate, which is already near-black with a glowing figure: just
+       enough weight under the copy to hold contrast, and almost none over his head and
+       shoulders, which are the whole point of the shot. */
+    .hero__scrim {
+      background:
+        linear-gradient(180deg, rgba(11, 14, 16, 0) 0%, rgba(11, 14, 16, 0) 34%, rgba(11, 14, 16, 0.55) 58%, rgba(11, 14, 16, 0.88) 100%);
+    }
+
+    /* The landing stanza and its doors hold the first screen, over the art. */
+    /* Both were absolutely placed against the pinned stage: the intro on the left flank at
+       8vw, the doors centred on 50% with a translate. Static flow needs every one of those
+       offsets cleared, or `left` keeps applying and shunts the column off the right edge. */
+    .ast-hero__intro,
+    .ast-hero__actions {
+      position: static;
+      left: auto;
+      right: auto;
+      top: auto;
+      bottom: auto;
+      z-index: 1;
+      opacity: 1;
+      transform: none;
+      text-align: left;
+    }
+    .ast-hero__intro {
+      margin-top: calc(100svh - var(--header-h) - 30rem);
+      max-width: none;
+    }
+    .ast-hero__tagline { font-size: clamp(2.1rem, 9vw, 3rem); }
+    .ast-hero__line { font-size: clamp(1.05rem, 4.4vw, 1.3rem); }
+
+    /* THE BEATS: out of the crossfade cell, into the flow, one after another. */
+    .ast-beats {
+      display: block;
+      position: static;
+      left: auto;
+      top: auto;
+      width: auto;
+      pointer-events: auto;
+    }
+    .ast-beat {
+      display: block;
+      opacity: 1 !important;
+      margin-top: 3.5rem;
+    }
+    .ast-beat:first-child { margin-top: 0; }
+    .ast-beat__head { font-size: clamp(1.9rem, 7.6vw, 2.6rem); }
+    .ast-beat__line { font-size: clamp(1.05rem, 4.2vw, 1.25rem); }
+    .ast-beats :global(.ast-beat__img) { width: 100%; }
+
+    /* WHAT IT COSTS and THE CLOSE: same copy, now in the column. */
+    .ast-price,
+    .ast-end {
+      position: static;
+      left: auto;
+      right: auto;
+      top: auto;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+    .ast-price__lede { font-size: clamp(1.05rem, 4.2vw, 1.25rem); }
+    .ast-price__note,
+    .ast-price__contact { font-size: clamp(0.95rem, 3.6vw, 1.05rem); }
+
+    /* THE REELS: desktop rides the three cards vertically past the right flank, so a
+       vertical stack is the honest translation, not a carousel. */
+    .ast-reels__title {
+      display: block;
+      position: static;
+      top: auto;
+      right: auto;
+      text-align: left;
+      opacity: 1;
+      font-size: clamp(1.9rem, 7.6vw, 2.6rem);
+    }
+    .ast-reels {
+      position: static;
+      right: auto;
+      top: auto;
+      bottom: auto;
+      width: auto;
+      overflow: visible;
+      visibility: visible;
+      pointer-events: auto;
+      margin-top: 1.4rem;
+    }
+    .ast-reels__strip { transform: none !important; gap: 1.2rem; }
+    /* The glyph is centred on the card, which works while the strip rides by at a third of
+       the width. At full column width it lands squarely on the thumbnail's own burned-in
+       title, so give it a corner and a disc to sit on. */
+    .ast-reel__play {
+      inset: auto 0.75rem 0.75rem auto;
+      display: grid;
+      place-items: center;
+      width: 3rem;
+      height: 3rem;
+      padding-left: 0.2rem;
+      font-size: 1.15rem;
+      border-radius: 50%;
+      background: rgba(11, 14, 16, 0.72);
+      border: 1px solid var(--iron-2);
+      opacity: 1;
+    }
+
+    /* The closing doors want air above them, not a hairline against the last reel. */
+    .ast-end { margin-top: 1rem; }
+  }
 </style>

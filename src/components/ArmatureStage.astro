@@ -1353,6 +1353,12 @@ void main() {
         hero?.setAttribute('data-stage-live', '');
         // the runway exists only when the cinematic does; the fallback stays one screen
         if (runway) runway.setAttribute('data-live', '');
+        // The beats and the reels title crossfade through one cell up here, so a screen
+        // reader would recite all four at once; hide them from it. They carry NO aria-hidden
+        // in the markup because under 900px they are the page's only prose, stacked and read
+        // in order, and a mobile page whose whole body is aria-hidden reads as empty.
+        hero?.querySelector('.ast-beats')?.setAttribute('aria-hidden', 'true');
+        hero?.querySelector('.ast-reels__title')?.setAttribute('aria-hidden', 'true');
       }
     }
     evalPose(0, 0, 0.016);
