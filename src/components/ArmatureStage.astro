@@ -1372,10 +1372,18 @@ void main() {
     !matchMedia('(prefers-reduced-motion: reduce)').matches
   ) {
     const gl = canvas.getContext('webgl2', { antialias: false });
+    // The inline gate in index.astro hid the fallback before first paint on the assumption
+    // this would start. Every path that gives up has to hand it back, or the hero is empty.
+    const unpend = () => canvas.closest('.ast-hero')?.removeAttribute('data-stage-pending');
     if (gl) {
       run(canvas, gl).catch((err) => {
         console.error('[armature-stage]', err);
+        unpend();
       });
+    } else {
+      // The inline probe got a context on a throwaway canvas and this one did not, which is
+      // rare but real (a context-count ceiling). Give the backdrop back.
+      unpend();
     }
   }
 </script>

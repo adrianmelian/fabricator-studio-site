@@ -63,6 +63,29 @@ const DESCRIPTION =
       </picture>
       <div class="hero__scrim" aria-hidden="true"></div>
 
+      {/* NO FALLBACK FLASH (Adrian saw it, 2026-08-13: "I can see that old image with the
+          samurai in the middle popup for a few frames, then it's the height man"). The art
+          is eager, so it paints at ~4ms, while the stage only takes over around 650ms once
+          its module has been fetched and WebGL has initialised. That window is the flash.
+
+          The gate is knowable before first paint, so decide it there: this runs inline and
+          synchronous, unlike the stage's own module, and marks the hero pending so the CSS
+          hides the fallback from the very first frame. If the stage then fails to start,
+          ArmatureStage clears the attribute and the fallback appears as it always did. The
+          WebGL2 probe is done on a throwaway canvas rather than assumed, so a machine that
+          cannot render is never left staring at a hidden backdrop. */}
+      <script is:inline>
+        (function () {
+          try {
+            if (!matchMedia('(min-width: 901px)').matches) return;
+            if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            var probe = document.createElement('canvas');
+            if (!probe.getContext('webgl2')) return;
+            document.currentScript.closest('.ast-hero').setAttribute('data-stage-pending', '');
+          } catch (e) {}
+        })();
+      </script>
+
       {/* THE LANDING SHOT: the homepage's post-scan frame, the height man solid in the
           x-ray fresnel, standing in the starred room. Elastic orbit on drag. */}
       <ArmatureStage />
@@ -317,6 +340,10 @@ const DESCRIPTION =
      reflows when it goes live. */
   .ast-hero[data-stage-live] :global(.hero__art),
   .ast-hero[data-stage-live] .hero__scrim { visibility: hidden; }
+  /* Hidden from the first frame while the stage is on its way in, not from the moment it
+     arrives. See the inline gate above the scrim. */
+  .ast-hero[data-stage-pending] :global(.hero__art),
+  .ast-hero[data-stage-pending] .hero__scrim { visibility: hidden; }
 
   /* The runway: one screen on the fallback; the story's length when the stage is live.
      The hero rides it sticky, so the room never leaves while the beats play. */
