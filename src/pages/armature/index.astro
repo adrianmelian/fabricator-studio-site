@@ -14,6 +14,7 @@ import ArmatureStage from '../../components/ArmatureStage.astro';
 import NavBar from '../../components/NavBar.astro';
 import ScrollHint from '../../components/ScrollHint.astro';
 import Wordmark from '../../components/Wordmark.astro';
+import YouTubeFacade from '../../components/YouTubeFacade.astro';
 import { Image, getImage } from 'astro:assets';
 
 import fsMark from '../../assets/armature/fs-mark.png';
@@ -26,6 +27,7 @@ import heroProduct from '../../assets/armature/hero-product.png';
 // marketing plate above carries its own burned-in lockup, which fights the h1 at
 // phone widths; this one is the room the cinematic actually opens in.
 import heroLandingPortrait from '../../assets/armature/hero-landing-portrait.png';
+import trailerPoster from '../../assets/armature/armature-card-poster.jpg';
 
 import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../../data/armature';
 import { ARMATURE_TUTORIALS as WALKTHROUGHS, CHANNEL } from '../../data/tutorials';
@@ -105,6 +107,25 @@ const DESCRIPTION =
         <h1 class="ast-hero__tagline">Armature: Rigging <span class="ast-amp">&amp;</span> Skinning Re&#8209;imagined.</h1>
         <p class="ast-hero__line">Generative joint placement and skin binding.</p>
         <p class="ast-hero__line"><span class="ast-hero__plus">+</span> Artist-friendly tools for production quality refinement.</p>
+      </div>
+
+      {/* THE TRAILER ON THE LANDING (Adrian, 2026-08-20): right flank on desktop, centred on
+          a phone. It rides the landing's own fade, so it leaves with the stanza and the doors
+          as the story starts rather than hanging over the fitting room.
+
+          A FACADE, so nothing reaches Google until someone presses play. /armature/ is already
+          named as a YouTube surface in the privacy table and the row already says "nothing at
+          all unless you start a video", so that claim stays true with this here; checked
+          rather than assumed, because YouTubeFacade's own header says adding it to a new
+          surface obliges exactly that check. Same trailer and poster the homepage beat uses. */}
+      <div class="ast-hero__media">
+        <YouTubeFacade
+          id="PhHXmcpcGKk"
+          title="Armature trailer"
+          poster={trailerPoster}
+          posterAlt="The Armature trailer: a character rigged and posed in the standalone app."
+          sizes="(min-width: 901px) 34vw, 88vw"
+        />
       </div>
 
       <div class="ast-hero__actions">
@@ -395,12 +416,24 @@ const DESCRIPTION =
   /* The landing copy leaves as the story starts; visibility follows so the faded doors
      cannot be clicked (pointer-events on a parent loses to a child's explicit value). */
   .ast-hero__intro,
-  .ast-hero__actions {
+  .ast-hero__actions,
+  .ast-hero__media {
     opacity: calc(1 - var(--aland, 0));
     transform: translateY(calc(var(--aland, 0) * -18px));
   }
+  /* visibility, not just opacity: a faded facade is still a button, and an invisible one
+     that takes a click is worse than a visible one that does not. */
   .ast-hero[data-land-gone] .ast-hero__intro,
-  .ast-hero[data-land-gone] .ast-hero__actions { visibility: hidden; }
+  .ast-hero[data-land-gone] .ast-hero__actions,
+  .ast-hero[data-land-gone] .ast-hero__media { visibility: hidden; }
+
+  /* The RIGHT flank, mirroring the intro on the left with the character between them. */
+  .ast-hero__media {
+    position: absolute;
+    right: 8vw;
+    top: 26%;
+    width: min(34rem, 34vw);
+  }
 
   /* The copy beats: CENTRED ON TOP (Adrian, 2026-08-20), the composition the phone already
      had, brought across to desktop. They used to hold the left flank the landing stanza
@@ -1025,23 +1058,36 @@ const DESCRIPTION =
 
        Everything here is scoped to [data-live]. The fallback below keeps the flowed
        column, because with no stage running there is no story to ride. */
-    .ast-scroll[data-live] .ast-hero__intro {
-      left: 0;
-      right: 0;
-      top: calc(var(--header-h) + 3svh);
-      max-width: none;
-      padding: 0 1.25rem;
+    /* THE LANDING IS A REAL FLOW AT THIS WIDTH, not three absolute anchors. Stanza, then
+       the trailer, then the doors, distributed by the box rather than by percentages.
+       Adrian ruled the trailer "right in the middle" here (2026-08-20), and dead centre is
+       what it was: top 50% with a translate. That overlapped the stanza by 73px at 320, 46
+       at 360 and 8 at 390, because the stanza's height is set by how the copy wraps and no
+       fixed anchor can know that. Measured, not guessed at.
+       There is no fixed number left to drift: space-between divides whatever slack the
+       screen has. Every other child of the hero is absolutely positioned (canvas, scrim,
+       art, beats, reels, price, close), so none of them joins the flex box. */
+    .ast-scroll[data-live] .ast-hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: calc(var(--header-h) + 3svh) 1.25rem 7svh;
     }
-    /* The doors take the floor, as they do in the homepage opening. The base rule's
-       landing-fade travel is restored by hand: desktop replaces it with translateX(-50%)
-       to centre, and centring is done with left/right here instead. */
+    .ast-scroll[data-live] .ast-hero__intro,
+    .ast-scroll[data-live] .ast-hero__media,
     .ast-scroll[data-live] .ast-hero__actions {
-      left: 0;
-      right: 0;
-      bottom: 7svh;
-      padding: 0 1.25rem;
+      position: static;
+      left: auto;
+      right: auto;
+      top: auto;
+      bottom: auto;
+      max-width: none;
+      width: auto;
+      /* The landing-fade travel, restored by hand: desktop replaces it with a
+         translateX(-50%) to centre the doors, and centring is the flex box's job here. */
       transform: translateY(calc(var(--aland, 0) * -18px));
     }
+
     /* The beats take the TOP band and the character plays underneath: the same shape the
        pipeline beat has on the homepage. */
     .ast-scroll[data-live] .ast-beats {
@@ -1131,7 +1177,8 @@ const DESCRIPTION =
        doors centred on 50% with a translate. Static flow needs every one of those offsets
        cleared, or left keeps applying and shunts the column off the right edge. */
     .ast-scroll:not([data-live]) .ast-hero__intro,
-    .ast-scroll:not([data-live]) .ast-hero__actions {
+    .ast-scroll:not([data-live]) .ast-hero__actions,
+    .ast-scroll:not([data-live]) .ast-hero__media {
       position: static;
       left: auto;
       right: auto;
