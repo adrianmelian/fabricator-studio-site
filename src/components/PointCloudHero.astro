@@ -1516,11 +1516,33 @@ void main() {
       const A_PULLBACK = 1.26;    // how much further out A stands than B, so B still pushes in
       const fitDist = (halfW: number, fovDeg: number) =>
         halfW / (Math.tan((fovDeg * Math.PI) / 360) * Math.max(aspNow, 0.001));
+
+      // AND THE CAMERA HAS TO STAND ABOVE THE FLOOR (Adrian, 2026-08-20: "we're below the
+      // grid, I can see the grid above me... only on mobile"). It was only on mobile because
+      // the DISTANCE is what broke it, not the angle.
+      //
+      // eye_y = ty + dist * sin(pitch). CAM_B's pitch is -0.116, which seats the eye slightly
+      // BELOW its target and looks gently up at the mark. At the desktop distance of 3.15 that
+      // lands the eye at y 0.43, comfortably above the grid plane at y 0. A portrait frame
+      // needs about 7.7 to fit the mark at all, and 9.7 for A's pull-back, and the same small
+      // angle at that reach swings the eye to y -0.3 and -0.4: under the floor, looking up at
+      // the underside of the grid. The pitch was simply never re-derived when the distance
+      // more than tripled.
+      //
+      // So EYE_Y is the dial and the pitch follows from it, exactly as the distance follows
+      // from the aspect. Both narrow cameras stand at the same height, so the push-in from A
+      // to B travels along one level line instead of rising or sinking through the room.
+      const EYE_Y = 1.05;
+      const pitchForEye = (ty: number, dist: number) =>
+        Math.asin(Math.max(-1, Math.min(1, (EYE_Y - ty) / Math.max(dist, 0.001))));
+
+      const bDist = fitDist(MARK_HALF_W, CAM_B.fov);
+      const aDist = bDist * A_PULLBACK;
       const camB = narrowCam
-        ? { ...CAM_B, dist: fitDist(MARK_HALF_W, CAM_B.fov) }
+        ? { ...CAM_B, dist: bDist, pitch: pitchForEye(CAM_B.ty, bDist) }
         : CAM_B;
       const camA = narrowCam
-        ? { ...CAM_B, tz: 0, dist: camB.dist * A_PULLBACK }
+        ? { ...CAM_B, tz: 0, dist: aDist, pitch: pitchForEye(CAM_B.ty, aDist) }
         : CAM_A;
 
       const leg = (a: number, b: number, pp: number, d: number) => lerp(lerp(lerp(a, b, tCam), pp, videoOut), d, tMan);
