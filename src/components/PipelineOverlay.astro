@@ -39,8 +39,8 @@ const bandStyle = (i: number) =>
 
 <div class="pl" data-pipeline-overlay>
   <div class="pl__head">
-    <p class="pl__title">Studio Pipeline Tools</p>
-    <p class="pl__sub">For Artists<span class="pl__pivot">,</span> By Artists</p>
+    <p class="pl__title">Studio <span class="pl__accent">Pipeline</span> Tools</p>
+    <p class="pl__sub">For Artists, By Artists</p>
   </div>
 
   {/* The four bands, riding the projected pipe. Labels sit under their sections like the
@@ -88,9 +88,9 @@ const bandStyle = (i: number) =>
      sans line under it in bone. This title was ember over dim mono uppercase, which said
      something different in two different registers on the same page.
 
-     "Studio Pipeline Tools" has no connector to carry the green, so it falls to the pivot of
-     the mirrored pair beneath it. That is my read of the rule rather than Adrian's word: the
-     glyph is his to move. */
+     The green sits on PIPELINE (Adrian, 2026-08-20). It had been on the comma pivoting the
+     mirrored pair beneath, on my reading that the accent belongs to a connector; he moved it
+     onto the word. One accent per title, so the comma goes back to bone with the rest. */
   .pl__title {
     font-family: var(--font-display);
     font-weight: 400;
@@ -106,7 +106,7 @@ const bandStyle = (i: number) =>
     line-height: 1.22;
     color: var(--bone);
   }
-  .pl__pivot { color: var(--plasma); }
+  .pl__accent { color: var(--plasma); }
 
   /* The bands: invisible strips glued to the projected pipe; their labels are the visible
      part, hanging under each section. */

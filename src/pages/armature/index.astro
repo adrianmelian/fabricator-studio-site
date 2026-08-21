@@ -515,12 +515,13 @@ const DESCRIPTION =
     color: var(--bone);
   }
   /* Centred under the copy, so title, line and screenshot read as one column with the
-     character large off to the right. Kept rather than dropped: the phone hides these
-     because it has no room beside the character, and this composition has plenty. */
+     character off to the right. Roughly DOUBLE the old min(30rem, 30vw) (Adrian,
+     2026-08-20): these are app screenshots and the UI in them was unreadable at a third of
+     the frame, which is the whole reason they are on the page. */
   .ast-beats :global(.ast-beat__img),
   .ast-beats .ast-beat__vid {
     margin-top: 1.8rem;
-    width: min(30rem, 30vw);
+    width: min(58rem, 56vw);
     height: auto;
     border-radius: var(--radius);
     box-shadow: var(--shadow-lg);
@@ -1097,11 +1098,19 @@ const DESCRIPTION =
       width: auto;
       padding: 0 1.25rem;
     }
-    /* The UI screenshots stay behind on this path. On desktop they sit in the flank; here
-       there is no flank, so they would print over the character the beat is describing,
-       and on this page the character IS the illustration. The fallback column below still
-       carries every one of them. */
-    .ast-scroll[data-live] .ast-beats :global(.ast-beat__img),
+    /* THE SCREENSHOTS COME BACK HERE (Adrian, 2026-08-20: "those images are not showing up
+       on mobile"). I had hidden them during the port, reasoning they would print over the
+       character. They do not: the copy holds the top band and the art stops well short of
+       halfway, so the character still owns the bottom of the frame. That was my call to
+       make and it was the wrong one; the screenshots are the beat's evidence.
+
+       The clip on the fourth beat stays hidden, and that one is not a composition choice:
+       it is 1.6 MB and it is scrubbed by a loop that deliberately never loads it at this
+       width. Showing it here would mean paying for it on a phone. */
+    .ast-scroll[data-live] .ast-beats :global(.ast-beat__img) {
+      width: 100%;
+      margin-top: 1.4rem;
+    }
     .ast-scroll[data-live] .ast-beats .ast-beat__vid { display: none; }
 
     /* The reels keep their ride; only the lane widens to the column. */
