@@ -45,28 +45,39 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
       </h1>
     </div>
     {/* ONE download door now (Adrian, 2026-08-19: every download converges on /store/,
-        the hub). It never fades: it travels to the centre of the screen as the camera
-        centres -- the philosophy line lands just above it -- and holds there, above the
-        video, for as long as the stage is on screen. The ask outlives the whole opening.
-        That is why it sits outside .pc__text, which owns the text fade, and on a layer
-        above the video's z1. */}
+        the hub). It travels to the FLOOR of the screen as the camera centres, with the
+        wordmark landing just above it, and stands there over the video until the video
+        itself leaves. The ask outlives the whole opening. That is why it sits outside
+        .pc__text, which owns the text fade, and on a layer above the video's z1. */}
     <div class="pc__cta" data-pc-cta>
       <BracketButton kind="hard" href="/store/" label="Downloads" event="hero-download" />
       <BracketButton kind="plasma-outline" href="/services/" label="Services" event="hero-services" />
     </div>
   </div>
 
-  {/* THE PHILOSOPHY (Adrian, 2026-08-19): fades in when the camera lands at beat B, centred
-      above the download buttons, and STAYS up through the video. This is his own rewrite of
-      2026-08-01, moved from the old video-hero copy block; the emphasis markup is carried
-      over verbatim, owner's override on the "These are not AI tools" shape included. */}
+  {/* THE PHILOSOPHY (Adrian, 2026-08-19): three beats that hold the CENTRE of the screen,
+      the first arriving with the camera at beat B and the last leaving as the pipeline takes
+      the room. This is his own rewrite of 2026-08-01, moved from the old video-hero copy
+      block; the emphasis markup is carried over verbatim, owner's override on the "These are
+      not AI tools" shape included. */}
   <div class="pc__philosophy">
-    {/* Stepped, not simultaneous (Adrian, 2026-08-19): the studio line stands with the mark
-        at beat B, then hands off to the refinement line as the video fades in. They occupy
-        the same grid cell so the swap happens in place rather than reflowing. */}
+    {/* THREE BEATS, NOT TWO (Adrian, 2026-08-20). The problem and the answer used to share
+        one paragraph, which asked the reader to take both in on one breath. Split at the
+        sentence boundary -- not one word rewritten -- the claim gets its own beat and its own
+        screen. No runway was added for it: the third beat lands in the pause that was already
+        sitting empty between the old second line clearing and the pipeline arriving.
+        All three occupy the same grid cell, so a handoff happens in place, never as a reflow. */}
     <p class="pc__phil-lead" style="opacity: var(--phil1, 0)"><b>FabricatorStudio is a one-person Technical Art studio making Artist Driven AI tools.</b> <b class="pc__phil-hl">Free for small studios.</b></p>
-    <p class="pc__phil-line" style="opacity: var(--phil2, 0)">Most AI tooling is built without refinement in mind. <b>FabricatorStudio tools are built so you can <b class="pc__phil-ember">drive your asset to production level standards</b>.</b></p>
+    <p class="pc__phil-line" style="opacity: var(--phil2, 0)">Most AI tooling is built without refinement in mind.</p>
+    <p class="pc__phil-line" style="opacity: var(--phil3, 0)"><b>FabricatorStudio tools are built so you can <b class="pc__phil-ember">drive your asset to production level standards</b>.</b></p>
   </div>
+
+  {/* THE BRIDGE (Adrian, 2026-08-20): one line in the handover, after the pipeline has left
+      the room and while the man is still coming up out of the point cloud. It sits outside
+      .pc__philosophy on purpose -- that box is the OPENING's copy well and lands on the
+      lower third at burger width, which is the opening's composition and would drop this
+      line onto the feet the reveal starts from. */}
+  <p class="pc__bridge">From ideation <span class="pc__bridge-to">to</span> conceptualization</p>
 </div>
 
 {/* The scroll the whole stage is spent on. Purely a clock: the OPENING owns the first 1.6
@@ -125,21 +136,27 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     max-width: 44vw;
     display: flex;
     flex-direction: column;
+    /* Centred inside the column at every beat. The stanza travels to screen centre at B, and
+       switching alignment mid-travel is the one seam that would read as a glitch. */
+    align-items: center;
+    text-align: center;
     /* The layer is click-through; the buttons are the one thing that takes a click. The
        faded-out text must NOT: pointer-events comes back on the CTA row only. */
     pointer-events: none;
   }
   .pc__cta :global(a) { pointer-events: auto; }
 
-  /* One group with the buttons, riding the LOWER-THIRD line (Adrian, 2026-08-19 second
-     pass: dead centre read too high, the old bottom landing too low -- rule of thirds):
-     the paragraph's baseline just above the line, the buttons just below. Text over moving
-     footage with no scrim, so the shadow is what keeps it legible. */
+  /* DESKTOP: the paragraphs hold the CENTRE of the screen (Adrian, 2026-08-20). Beat B is a
+     four-band stack now -- stanza at the top, the paragraphs mid-screen, the wordmark low, the
+     doors on the floor -- so the copy no longer groups with the buttons, and the old
+     lower-third landing went with that grouping. Burger width KEEPS the lower third and
+     restores it in the media block: only the desktop stack moved. Text over moving footage
+     with no scrim, so the shadow is what keeps it legible. */
   .pc__philosophy {
     position: absolute;
     left: 50%;
-    bottom: calc(33.3% + 1.6rem);
-    transform: translateX(-50%);
+    top: 50%;
+    transform: translate(-50%, -50%);
     width: min(52rem, 86vw);
     text-align: center;
     pointer-events: none;
@@ -147,7 +164,11 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     /* Both paragraphs share one cell: the handoff is a crossfade in place, never a reflow. */
     display: grid;
   }
-  .pc__philosophy > p { grid-area: 1 / 1; align-self: end; }
+  /* Centred in the cell, because the BOX is centred now. `end` belonged to the old
+     bottom-anchored landing, where a shared baseline was the point; here it would hang the
+     short middle beat below the centre it is supposed to hold. Burger width still anchors
+     from the bottom and keeps `end`, in the media block. */
+  .pc__philosophy > p { grid-area: 1 / 1; align-self: center; }
   /* Same register as the opening's "Game Development Re-imagined." line (Adrian,
      2026-08-19): the two beats speak at one size. */
   .pc__phil-lead,
@@ -157,6 +178,32 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     color: var(--bone);
     font-size: clamp(1.3rem, 2.3vw, 2.05rem);
   }
+
+  /* Centred at every width. No burger override follows, deliberately: this beat has no
+     wordmark or doors to sit above, so the centre is the composition at both. */
+  /* THE HOUSE HEADER (Adrian, 2026-08-20). This was set in the philosophy's light sans,
+     because it arrived as another paragraph. It is a title, so it takes the title style:
+     display serif in bone with the connector in plasma. Adrian also struck the trailing
+     comma, so it stands as a line rather than leaning on the picture to finish it. */
+  .pc__bridge {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.4rem, 4.6vw, 4.2rem);
+    line-height: 1.02;
+    letter-spacing: -0.005em;
+    color: var(--bone);
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(52rem, 86vw);
+    text-align: center;
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+    opacity: var(--bridge, 0);
+  }
+
+  .pc__bridge-to { color: var(--plasma); }
 
   .pc__philosophy b { color: var(--bone); font-weight: 700; }
   .pc__philosophy .pc__phil-hl { color: var(--plasma); }
@@ -235,6 +282,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc[data-pc-static] ~ .pc__copylayer .pc__philosophy {
     position: relative;
     left: 0;
+    top: auto;
     bottom: auto;
     transform: none;
     width: auto;
@@ -246,6 +294,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   }
   .pc[data-pc-static] ~ .pc__copylayer .pc__philosophy > p { opacity: 1 !important; }
   .pc[data-pc-static] ~ .pc__copylayer .pc__phil-line { margin-top: 0.9rem; }
+  /* Absolutely positioned at top:50% over a copy layer that is in the FLOW on this path, so
+     it would print across the stanza. There is no transition to bridge here anyway. */
+  .pc[data-pc-static] ~ .pc__copylayer .pc__bridge { display: none; }
   .pc[data-pc-static] ~ .pc__copylayer .pc__copy {
     position: relative;
     top: auto;
@@ -261,6 +312,71 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc[data-pc-static] ~ .pc-runway { display: none; }
 
   @media (max-width: 900px) {
+    /* ================= BURGER MODE, THE LIVE STAGE =================
+       Adrian's composition, 2026-08-20: everything centred. The Artist+AI Toolset stanza on
+       top, the FabricatorStudio wordmark two thirds down, the doors directly under it.
+
+       The desktop copy rides the LEFT flank at 9vw with the mark on the right, which is why
+       none of this existed before: at 390 there is no left flank, the two collide, and the
+       copy reads over the points. Centred, the mark carries the middle and the type stacks
+       through it.
+
+       Scoped to the live path only. The static fallback keeps its own composition below. */
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__copy {
+      left: 0;
+      right: 0;
+      top: var(--header-h);
+      bottom: 0;
+      transform: none;
+      max-width: none;
+      padding: 0 var(--container-px, 20px);
+      align-items: center;
+      text-align: center;
+    }
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__text {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      align-items: center;
+    }
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__display { margin-top: 7svh; }
+    /* Two thirds down, and `top` here deliberately overrides --pc-wm: that variable aligns
+       the wordmark to the mark's projected anchor, which is a desktop composition and pulls
+       it off Adrian's line at this width. */
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__wordmark {
+      position: absolute;
+      top: 68%;
+      left: 0;
+      right: 0;
+      margin: 0;
+    }
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__wordmark :global(img) {
+      width: min(78vw, 420px);
+      margin: 0 auto;
+    }
+    /* Directly under the wordmark. Centred by the row itself rather than a translate, since
+       the frame loop clears the inline transform at this width. */
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__cta {
+      position: absolute;
+      top: calc(68% + 6.4rem);
+      left: 0;
+      right: 0;
+      width: auto;
+      margin: 0;
+      justify-content: center;
+    }
+    /* The paragraphs keep the LOWER THIRD here. This composition is Adrian's own and he
+       approved it on 2026-08-20; the centre landing is a desktop-only ruling from the same
+       day, so the base rule is overridden back rather than the other way round. */
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__philosophy {
+      top: auto;
+      bottom: calc(33.3% + 1.6rem);
+      transform: translateX(-50%);
+    }
+    /* Bottom-anchored here, so the three beats share a baseline on that line rather than
+       floating at three different heights above the wordmark. */
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__philosophy > p { align-self: end; }
+
     /* Mobile is composed but NOT dialled: Adrian ruled the layout (mark toward the top, copy
        in the lower third, buttons at the bottom) and deferred its camera. Rather than dial a
        second camera, the mark arrives as a STILL OF THE REAL CINEMATIC (Adrian, 2026-08-13,
@@ -271,8 +387,13 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
        a background inside an unmatched media query is not, so no desktop visitor pays for a
        plate they never see. The cost of that choice is that the file skips Astro's image
        pipeline, so it is checked in as webp rather than shipping a 614 KB png to phones. */
-    .pc { display: none; }
-    .pc__copylayer {
+    /* THE STAGE RUNS AT THIS WIDTH NOW (Adrian, 2026-08-20): the mobile camera is being
+       framed beat by beat instead of deferred, so the cinematic is no longer width-gated.
+       Everything below is therefore scoped to [data-pc-static], the fallback marker. It is
+       still exactly what a reduced-motion or no-WebGL2 phone gets; it just yields to the
+       live stage rather than competing with it. */
+    .pc[data-pc-static] { display: none; }
+    .pc[data-pc-static] ~ .pc__copylayer {
       position: relative; inset: auto; pointer-events: auto;
       min-height: calc(100svh - var(--header-h));
       display: flex; flex-direction: column; justify-content: flex-end; align-items: flex-start;
@@ -283,15 +404,15 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     }
     /* The copy sits clear of the mark rather than under it: the plate takes the top third and
        the stanza the lower two, which is the shape Adrian ruled for this width. */
-    .pc__copylayer { padding-top: min(46svh, 26rem); }
-    .pc__philosophy { position: relative; left: 0; bottom: auto; transform: none; width: auto; margin: 1.25rem 0 0 0; padding: 0 var(--container-px, 20px); text-align: left; text-shadow: none; display: block; }
-    .pc__philosophy > p { opacity: 1 !important; }
-    .pc__phil-line { margin-top: 0.9rem; }
-    .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); pointer-events: auto; }
-    .pc__text { opacity: 1; transform: none; }
-    .pc__wordmark { top: 0; }
-    .pc__wordmark :global(img) { width: min(86vw, 470px); }
-    .pc-runway { display: none; }
+    .pc[data-pc-static] ~ .pc__copylayer { padding-top: min(46svh, 26rem); }
+    .pc[data-pc-static] ~ .pc__copylayer .pc__philosophy { position: relative; left: 0; top: auto; bottom: auto; transform: none; width: auto; margin: 1.25rem 0 0 0; padding: 0 var(--container-px, 20px); text-align: left; text-shadow: none; display: block; }
+    .pc[data-pc-static] ~ .pc__copylayer .pc__philosophy > p { opacity: 1 !important; }
+    .pc[data-pc-static] ~ .pc__copylayer .pc__phil-line { margin-top: 0.9rem; }
+    .pc[data-pc-static] ~ .pc__copylayer .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); pointer-events: auto; }
+    .pc[data-pc-static] ~ .pc__copylayer .pc__text { opacity: 1; transform: none; }
+    .pc[data-pc-static] ~ .pc__copylayer .pc__wordmark { top: 0; }
+    .pc[data-pc-static] ~ .pc__copylayer .pc__wordmark :global(img) { width: min(86vw, 470px); }
+    .pc[data-pc-static] ~ .pc-runway { display: none; }
   }
 </style>
 
@@ -333,8 +454,10 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 
   async function start(host: HTMLElement) {
     const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // `narrow` no longer gates the cinematic (Adrian, 2026-08-20): the mobile camera is being
+    // framed beat by beat rather than deferred. It stays as the render-scale switch.
     const narrow = matchMedia('(max-width: 900px)').matches;
-    if (reduced || narrow) { fallback(host); return; }
+    if (reduced) { fallback(host); return; }
 
     const canvas = host.querySelector('[data-pc-canvas]') as HTMLCanvasElement;
     const gl = canvas.getContext('webgl2', { antialias: true, alpha: false });
@@ -605,16 +728,38 @@ void main() {
   float rr = 0.05 + 0.2 * aR.y;
   vec3 p;
   float bright;
+  // Points at the source sit slightly larger as well as brighter: at this distance the glow
+  // is carried as much by the footprint as by the value.
+  float srcBoost = 1.0;
   if (uAssembled > 0.5) {
     p = aTgt;
     bright = 0.2 + 0.08 * sin(uTime * 1.7 + aR.x * 6.2831853);
   } else if (t < B_END) {
+    // THE SOURCE (Adrian, 2026-08-20): "put more glow over there, so it seems like that's
+    // where it's all kinda coming from". The intake used to be the DIMMEST live state at
+    // 0.55, darker than the pipe it feeds, which read as the chaos being lit BY the machine
+    // rather than the machine being fed by it. It now carries the arrival's register: the
+    // man flashes to 1.3 as the packet lands, and the ideation lifts toward it before it
+    // leaves. Same beat, opposite end.
+    //
+    // TONED DOWN on his second look, 2026-08-20 ("it's quite hot right now"): the first pass
+    // matched the arrival's 1.3 ceiling outright and read as glare rather than a source.
+    // It now peaks just above the pipe it feeds instead of above the man, which keeps the
+    // read (this is where it comes from) without the heat. Most of the glare was the size
+    // boost rather than the value, so that came down hardest, 1.35 to 1.16.
+    //
+    // It breathes rather than sitting flat, seeded off th0 so no two points pulse together
+    // and the blob churns instead of blinking as one lamp.
     p = blobAt(uTime, th0, aR.y);
-    bright = 0.55;
+    bright = 0.86 + 0.16 * sin(uTime * 1.6 + th0 * 2.0);
+    srcBoost = 1.16;
   } else if (t < S_END) {
     float st = (t - B_END) / (S_END - B_END);
     p = mix(blobAt(uTime, th0, aR.y), pipeAt(0.0, rr, th0), st * st);
-    bright = 0.7;
+    // Falls from the source's glow into the pipe's 1.0 rather than dipping under it, so the
+    // suction reads as the glow being drawn in, not as a gap between two lit things.
+    bright = mix(0.98, 1.0, st);
+    srcBoost = mix(1.16, 1.0, st);
   } else if (t < P_END) {
     p = pipeAt((t - S_END) / (P_END - S_END), rr, th0);
     bright = 1.0;
@@ -630,7 +775,7 @@ void main() {
   if (aR.x < 0.7 && uAssembled < 0.5) bright *= 0.6;
   vec4 mv = uView * vec4(p, 1.0);
   gl_Position = uProj * mv;
-  gl_PointSize = max(uSize * (0.55 + 0.9 * aR.y) * (300.0 / -mv.z), 1.0);
+  gl_PointSize = max(uSize * srcBoost * (0.55 + 0.9 * aR.y) * (300.0 / -mv.z), 1.0);
   vA = bright;
   vMix = aR.y;
 }`;
@@ -998,7 +1143,7 @@ void main() {
     let T: any = null;
     // Capped at 2: a fullscreen five-mip bloom chain at a phone's 3x is three million pixels
     // a frame for a halo nobody can resolve.
-    const DPR = Math.min(devicePixelRatio || 1, 2);
+    const DPR = Math.min(devicePixelRatio || 1, matchMedia('(max-width: 900px)').matches ? 1.5 : 2);
     function resize() {
       const w = Math.max(1, Math.round(canvas.clientWidth * DPR));
       const h = Math.max(1, Math.round(canvas.clientHeight * DPR));
@@ -1029,15 +1174,30 @@ void main() {
     // buttons could sit above the video's z1, so these are no longer the host's descendants.
     const wmEl = document.querySelector('[data-pc-wordmark]') as HTMLElement;
     const ctaEl = document.querySelector('[data-pc-cta]') as HTMLElement;
+    const textEl = document.querySelector('[data-pc-text]') as HTMLElement;
     let ctaRest: DOMRect | null = null;
+    let textRest: DOMRect | null = null;
+    let wmRest: DOMRect | null = null;
     function relayout() {
       const rect = canvas.getBoundingClientRect();
       const view = viewOf(CAM_A), proj = perspective(CAM_A.fov, rect.width / rect.height, 0.01, 100);
       const a = project([(bmn[0] + bmx[0]) / 2, lerp(bmn[1], bmx[1], P.anchorY), (bmn[2] + bmx[2]) / 2],
         view, proj, rect.width, rect.height);
+      // The wordmark carries its OWN travel transform now (it lands low at beat B while the
+      // stanza lands high), so it is cleared for both measurements below. Without this every
+      // resize would measure the last landing and compound it, which is the same trap the
+      // --pc-wm offset above is cleared to avoid.
+      const prevW = wmEl.style.transform;
+      wmEl.style.transform = 'none';
       document.documentElement.style.setProperty('--pc-wm', '0px');
       const wm = wmEl.getBoundingClientRect();
       if (a) document.documentElement.style.setProperty('--pc-wm', (a[1] - ((wm.top + wm.bottom) / 2 - rect.top)).toFixed(1) + 'px');
+      const prevT = textEl.style.transform;
+      textEl.style.transform = 'none';
+      textRest = textEl.getBoundingClientRect();
+      wmRest = wmEl.getBoundingClientRect();
+      textEl.style.transform = prevT;
+      wmEl.style.transform = prevW;
       const prev = ctaEl.style.transform;
       ctaEl.style.transform = 'none';
       ctaRest = ctaEl.getBoundingClientRect();
@@ -1153,21 +1313,50 @@ void main() {
       const explode = clamp01((p - 0.62) / 0.38);
       // documentElement, not host: the text lives on the sibling copy layer now, and a custom
       // property set on the stage does not cascade sideways.
-      document.documentElement.style.setProperty('--pc-out', String(clamp01(p / 0.28)));
+      // THE STANZA AND THE WORDMARK NOW OUTLIVE THE VIDEO (Adrian, 2026-08-20): "leave up
+      // the Artist+AI Toolset / Game Development Re-imagined until we fade out the video,
+      // and leave the FabricatorStudio wordmark and the download and services buttons up
+      // until the video is done."
+      //
+      // They used to clear over p 0 to 0.28, which is the first third of the opening, long
+      // before the video even arrives at p 0.66. Keyed to videoOut instead they hold through
+      // the whole opening and the video, and leave with it over scroll 2.0 to 2.6.
+      document.documentElement.style.setProperty('--pc-out', videoOut.toFixed(3));
 
       // The video fades in through the explosion: it starts becoming visible as the points
       // scatter and owns the screen by the end of the runway.
       if (heroSec) heroSec.style.opacity = (smooth(clamp01((p - 0.66) / 0.32)) * (1 - videoOut)).toFixed(3);
 
-      // The philosophy is STEPPED (Adrian, 2026-08-19): the studio line arrives with the
-      // camera at beat B and stands until the video begins, then hands off to the refinement
-      // line, which fades in with the footage and stays.
+      // THE PHILOSOPHY IS A THREE-BEAT STEP (Adrian, 2026-08-20). The studio line arrives
+      // with the camera at beat B and stands until the video begins; the problem line hands
+      // off from it as the footage fades in; then the problem line CLEARS and leaves the
+      // video alone for a moment before the answer line lands in that gap and holds until
+      // the pipeline takes the room. The stage never says two things at once.
+      //
+      // Beats 1 and 2 CROSSFADE, because they are one thought handing over. Beats 2 and 3
+      // deliberately do NOT: the pause between them is the point. It is the empty space
+      // Adrian saw and asked to fill, and the claim reads harder for arriving into silence
+      // than for arriving over the line it answers.
+      //
+      // Everything past the opening is keyed in SCREENS OF SCROLL rather than p, because p
+      // is clamped at the opening's 1.6 and would pin all three of these to the same frame.
       const phil1 = smooth(clamp01((p - 0.30) / 0.15)) * (1 - smooth(clamp01((p - 0.64) / 0.12)));
-      // ...and hands off again to the toolset beat: the refinement line clears before the
-      // glass arrives, so the stage never says two things at once.
-      const phil2 = smooth(clamp01((p - 0.70) / 0.15)) * (1 - smooth(clamp01((scrollY - innerHeight * 1.6) / (innerHeight * 0.24))));
+      const phil2 = smooth(clamp01((p - 0.70) / 0.15))
+        * (1 - smooth(clamp01((scrollY - innerHeight * 1.52) / (innerHeight * 0.20))));
+      const phil3 = smooth(clamp01((scrollY - innerHeight * 1.82) / (innerHeight * 0.18)))
+        * (1 - smooth(clamp01((scrollY - innerHeight * 2.20) / (innerHeight * 0.20))));
       document.documentElement.style.setProperty('--phil1', phil1.toFixed(3));
       document.documentElement.style.setProperty('--phil2', phil2.toFixed(3));
+      document.documentElement.style.setProperty('--phil3', phil3.toFixed(3));
+
+      // THE BRIDGE (Adrian, 2026-08-20): the room is empty between the pipeline clearing at
+      // 4.8 screens and the man arriving, so the line lands in that hole and holds while he
+      // comes up out of the points (his reveal runs 5.2 to 6.3, feet to head). Gone by 6.15,
+      // which is before Armature's copy rises at 6.4 -- the stage never says two things at
+      // once, same rule the philosophy beats follow.
+      const bridge = smooth(clamp01((scrollY - innerHeight * 4.80) / (innerHeight * 0.20)))
+        * (1 - smooth(clamp01((scrollY - innerHeight * 5.90) / (innerHeight * 0.25))));
+      document.documentElement.style.setProperty('--bridge', bridge.toFixed(3));
 
       // THE JOURNEY (Adrian, 2026-08-19): the packet's trip down the pipe IS the scroll
       // across the beat's hold. The section under the packet's head lights up, lights its
@@ -1198,16 +1387,64 @@ void main() {
         if (arm > 0.01) armEl.setAttribute('data-active', '');
         else armEl.removeAttribute('data-active');
       }
-      // The buttons travel to just below the lower-third line on the camera's easing --
-      // one centred group with the philosophy line above them (Adrian, 2026-08-19 second
-      // pass) -- and stand above the video, then FADE OUT as the toolset beat arrives
-      // (the carousel is that beat's own set of doors).
-      if (ctaRest) {
+      // The buttons travel to the FLOOR on the camera's easing, with the wordmark landing
+      // on them (Adrian, 2026-08-20), and stand over the video, then FADE OUT with the video
+      // as the toolset beat arrives (the carousel is that beat's own set of doors).
+      if (ctaRest && textRest && wmRest) {
         const rect = canvas.getBoundingClientRect();
+        const wide = innerWidth > 900;
+
+        // THE STANZA TRAVELS TO CENTRE-TOP (Adrian, 2026-08-20): "the second position of the
+        // FS logo should pretty much match mobile and the desktop... Artist+AI Toolset, Game
+        // Development Re-imagined moves to the center on the top."
+        //
+        // The desktop copy opens on the LEFT FLANK, which is right for beat A because the
+        // camera targets left of the mark and leaves that side clear. By B the mark is
+        // centred and the flank composition no longer matches the phone's, so the whole
+        // stanza rides tCam across to centre and up to the top, and the wordmark rides with
+        // it (it lives inside .pc__text). The alignment inside the column is centred at all
+        // times rather than switched mid-move, because text-align cannot animate and a snap
+        // would be the one visible seam in an otherwise continuous travel.
+        const tdx = wide ? (rect.left + rect.width / 2) - (textRest.left + textRest.width / 2) : 0;
+        const tdy = wide ? (rect.top + rect.height * 0.09) - textRest.top : 0;
+        const out = clamp01(videoOut);
+        textEl.style.transform = wide
+          ? `translate(${(tdx * tCam).toFixed(1)}px, ${(tdy * tCam - out * 24).toFixed(1)}px)`
+          : '';
+
+        // THE DOORS GO TO THE FLOOR AND THE WORDMARK STANDS ON THEM (Adrian, 2026-08-20):
+        // "move the two buttons down to the bottom, and then the FabricatorStudio logo text
+        // above that." The group is anchored from the canvas BOTTOM upward rather than hung
+        // off the landed stanza, because "at the bottom" has to mean the bottom at any window
+        // height. The wordmark's landing is then derived from the doors', so the two never
+        // drift apart or overlap when the type reflows.
+        const bottomInset = Math.max(rect.height * 0.07, 48);
+        const wmGap = Math.max(rect.height * 0.045, 32);
+        const ctaTargetTop = rect.bottom - bottomInset - ctaRest.height;
+        const wmTargetTop = ctaTargetTop - wmGap - wmRest.height;
         const dx = (rect.left + rect.width / 2) - (ctaRest.left + ctaRest.width / 2);
-        const dy = (rect.top + rect.height * 0.667 + P.ctaDropPx) - ctaRest.top;
-        ctaEl.style.transform = `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`;
-        const o = 1 - smooth(clamp01((scrollY - innerHeight * 1.6) / (innerHeight * 0.19)));
+        const dy = wide
+          ? ctaTargetTop - ctaRest.top
+          : (rect.top + rect.height * 0.667 + P.ctaDropPx) - ctaRest.top;
+        // BURGER MODE: the doors are placed under the wordmark in CSS and stay there, so the
+        // travel is skipped rather than fought. An inline transform beats any stylesheet, so
+        // it has to be cleared here, not overridden there.
+        ctaEl.style.transform = wide
+          ? `translate(${(dx * tCam).toFixed(1)}px, ${(dy * tCam).toFixed(1)}px)`
+          : 'none';
+
+        // THE WORDMARK LEAVES THE STANZA on the way to B. It lives INSIDE .pc__text, so this
+        // transform COMPOSES with the parent's travel and therefore carries only the
+        // DIFFERENCE: where the parent would drop it (centre-top, with the stanza) versus
+        // where it belongs (low, on the doors). Driven by the same tCam, so the split reads as
+        // one group separating rather than two things moving at two speeds.
+        const wmDx = (rect.left + rect.width / 2) - (wmRest.left + wmRest.width / 2) - tdx;
+        const wmDy = wmTargetTop - (wmRest.top + tdy);
+        wmEl.style.transform = wide
+          ? `translate(${(wmDx * tCam).toFixed(1)}px, ${(wmDy * tCam).toFixed(1)}px)`
+          : 'none';
+        // The doors leave with the video too, rather than at 1.6 screens. Same ruling.
+        const o = 1 - videoOut;
         ctaEl.style.opacity = o.toFixed(3);
         // visibility, NOT pointer-events: the anchors inside carry their own explicit
         // pointer-events auto (the layer is click-through), and none on the parent does not
@@ -1261,15 +1498,40 @@ void main() {
         tz: 0,
         dist: 3.5,
       };
+      // ---------------------------------------------------------------- BURGER FRAMING
+      // BEAT ONE ON A PHONE (Adrian, 2026-08-20): "the initial FS logo should be in the
+      // middle, like position B basically, maybe pulled out a little, so pos B pulls in."
+      //
+      // A opens off-centre and low (tx -0.63, tz -0.83) because a 16:9 window has width to
+      // spare on the left. A phone does not: at 390x844 the horizontal field is about a
+      // third of the desktop's, so A's framing puts the mark off the right edge entirely.
+      //
+      // So on narrow widths A takes B's centred target and B's angle, and only its DISTANCE
+      // differs, pulled back far enough that the push-in still reads. The distance is
+      // DERIVED, not typed: a fixed number that frames the mark at 390 crops it at 360 and
+      // strands it at 430. MARK_HALF_W is the only dial here; raise it to sit further back.
+      const aspNow = canvas.width / canvas.height;
+      const narrowCam = innerWidth <= 900;
+      const MARK_HALF_W = 1.45;   // half the mark's span, plus the margin it wants around it
+      const A_PULLBACK = 1.26;    // how much further out A stands than B, so B still pushes in
+      const fitDist = (halfW: number, fovDeg: number) =>
+        halfW / (Math.tan((fovDeg * Math.PI) / 360) * Math.max(aspNow, 0.001));
+      const camB = narrowCam
+        ? { ...CAM_B, dist: fitDist(MARK_HALF_W, CAM_B.fov) }
+        : CAM_B;
+      const camA = narrowCam
+        ? { ...CAM_B, tz: 0, dist: camB.dist * A_PULLBACK }
+        : CAM_A;
+
       const leg = (a: number, b: number, pp: number, d: number) => lerp(lerp(lerp(a, b, tCam), pp, videoOut), d, tMan);
       const c = {
-        yaw: leg(CAM_A.yaw, CAM_B.yaw, CAM_P.yaw, CAM_C.yaw) + oy,
-        pitch: leg(CAM_A.pitch, CAM_B.pitch, CAM_P.pitch, CAM_C.pitch) + op,
-        dist: leg(CAM_A.dist, CAM_B.dist, CAM_P.dist, CAM_C.dist),
-        fov: leg(CAM_A.fov, CAM_B.fov, CAM_P.fov, CAM_C.fov),
-        tx: leg(CAM_A.tx, CAM_B.tx, CAM_P.tx, CAM_C.tx),
-        ty: leg(CAM_A.ty, CAM_B.ty, CAM_P.ty, CAM_C.ty),
-        tz: leg(CAM_A.tz, CAM_B.tz, CAM_P.tz, CAM_C.tz),
+        yaw: leg(camA.yaw, camB.yaw, CAM_P.yaw, CAM_C.yaw) + oy,
+        pitch: leg(camA.pitch, camB.pitch, CAM_P.pitch, CAM_C.pitch) + op,
+        dist: leg(camA.dist, camB.dist, CAM_P.dist, CAM_C.dist),
+        fov: leg(camA.fov, camB.fov, CAM_P.fov, CAM_C.fov),
+        tx: leg(camA.tx, camB.tx, CAM_P.tx, CAM_C.tx),
+        ty: leg(camA.ty, camB.ty, CAM_P.ty, CAM_C.ty),
+        tz: leg(camA.tz, camB.tz, CAM_P.tz, CAM_C.tz),
       };
       const tgt = [c.tx, c.ty, c.tz];
       const eye = [

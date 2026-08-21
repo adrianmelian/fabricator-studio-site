@@ -72,8 +72,18 @@ import wall from '../assets/wall/FS_Tool_Wall.png';
     font-size: 1rem;
   }
 
-  /* The cinematic never runs under 900px or in the static fallback. */
-  @media (max-width: 900px) {
-    .wl { display: none; }
-  }
+  /* BURGER WIDTH: this beat needed the gate lifted and nothing else (Adrian, 2026-08-20).
+     It was display:none here on the reasoning that "the cinematic never runs under 900px",
+     true when written and false since the stage was opened up on 2026-08-20 -- so the phone
+     got the canvas-side dissolve climbing the man, the wipe, with the aperture that explains
+     it and both doors missing.
+
+     No composition rule follows, deliberately. Everything in this beat is already centred or
+     full-bleed: the band spans the screen, the doors are centred in it, and the wall is
+     behind the slit rather than beside anything. The 16:9 wall cover-crops hard into a
+     portrait frame, which here is a gain rather than a cost -- you get a few tool windows at
+     a readable size instead of the full wall shrunk past recognition.
+
+     Nothing hides this for the static fallback either: .wl is visibility:hidden until the
+     loop sets [data-active], and on the fallback path the loop never runs. */
 </style>

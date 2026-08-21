@@ -10,7 +10,7 @@ import WelcomeVideo from './WelcomeVideo.astro';
 ---
 
 <div class="cl" data-close-overlay>
-  <p class="cl__title">About Me</p>
+  <p class="cl__title"><span class="cl__accent">About</span> Me</p>
 
   <div class="cl__media">
     <WelcomeVideo />
@@ -48,7 +48,10 @@ import WelcomeVideo from './WelcomeVideo.astro';
     font-weight: 400;
     font-size: clamp(3rem, 5.6vw, 5.4rem);
     line-height: 1;
-    color: var(--ember);
+    /* Bone with the first word in plasma (Adrian, 2026-08-20: titles are green and white).
+       Two words, so it takes the first-word shape the beat titles use rather than going
+       green entire. */
+    color: var(--bone);
     opacity: var(--close, 0);
     white-space: nowrap;
   }
@@ -107,8 +110,52 @@ import WelcomeVideo from './WelcomeVideo.astro';
   }
   .cl__mail:hover { color: var(--plasma-dim); }
 
-  /* The cinematic never runs under 900px or in the static fallback. */
+  .cl__accent { color: var(--plasma); }
+
+  /* BURGER WIDTH (Adrian, 2026-08-20: "the about doesn't pop up in mobile mode"). This was
+     display:none here on the reasoning that "the cinematic never runs under 900px", true
+     when written and false since the stage was opened up on 2026-08-20 -- so the phone
+     scrolled through the closing beat and arrived at the footer having never been offered
+     the introduction or the ask. Third layer to be found with the same stale gate, after
+     the pipeline and the tool wall.
+
+     The desktop layout is two columns, video left and the ask right. There is no second
+     column here, so the whole beat becomes one centred stack in the flow of the fixed
+     layer: title, the introduction, then the ask under it. */
   @media (max-width: 900px) {
-    .cl { display: none; }
+    .cl {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 1.1rem;
+      padding: var(--header-h) var(--container-px, 20px) 2svh;
+      text-align: center;
+    }
+    .cl__title,
+    .cl__media,
+    .cl__copy {
+      position: static;
+      left: auto;
+      right: auto;
+      top: auto;
+      transform: none;
+      width: 100%;
+      max-width: none;
+    }
+    .cl__title { font-size: clamp(2.2rem, 10.5vw, 3.2rem); }
+    .cl__head { font-size: clamp(1.9rem, 7.6vw, 2.6rem); }
+    /* 44ch is a desktop measure and it is wider than the column, so it does nothing here
+       but has to be cleared for the centring to hold. */
+    .cl__line {
+      margin-top: 0.9rem;
+      font-size: clamp(1.05rem, 4.2vw, 1.25rem);
+      max-width: none;
+    }
+    .cl__ctas {
+      margin-top: 1.4rem;
+      justify-content: center;
+      gap: 1.1rem;
+    }
   }
 </style>

@@ -40,7 +40,7 @@ const bandStyle = (i: number) =>
 <div class="pl" data-pipeline-overlay>
   <div class="pl__head">
     <p class="pl__title">Studio Pipeline Tools</p>
-    <p class="pl__sub">For Artists, By Artists</p>
+    <p class="pl__sub">For Artists<span class="pl__pivot">,</span> By Artists</p>
   </div>
 
   {/* The four bands, riding the projected pipe. Labels sit under their sections like the
@@ -83,21 +83,30 @@ const bandStyle = (i: number) =>
     text-align: center;
     white-space: nowrap;
   }
+  /* THE HOUSE HEADER (Adrian, 2026-08-20): the homepage opening's shape is the title style
+     everywhere now. Display serif in BONE, one small connector glyph in plasma, and a light
+     sans line under it in bone. This title was ember over dim mono uppercase, which said
+     something different in two different registers on the same page.
+
+     "Studio Pipeline Tools" has no connector to carry the green, so it falls to the pivot of
+     the mirrored pair beneath it. That is my read of the rule rather than Adrian's word: the
+     glyph is his to move. */
   .pl__title {
     font-family: var(--font-display);
     font-weight: 400;
     font-size: clamp(3rem, 5.6vw, 5.4rem);
-    line-height: 1;
-    color: var(--ember);
+    line-height: 1.02;
+    letter-spacing: -0.005em;
+    color: var(--bone);
   }
   .pl__sub {
-    margin-top: 0.6rem;
-    font-family: var(--font-mono);
-    font-size: clamp(0.85rem, 1.1vw, 1.05rem);
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--bone-dim);
+    margin-top: 0.35rem;
+    font-weight: 300;
+    font-size: clamp(1.3rem, 2.3vw, 2.05rem);
+    line-height: 1.22;
+    color: var(--bone);
   }
+  .pl__pivot { color: var(--plasma); }
 
   /* The bands: invisible strips glued to the projected pipe; their labels are the visible
      part, hanging under each section. */
@@ -162,8 +171,50 @@ const bandStyle = (i: number) =>
     color: var(--bone);
   }
 
-  /* The cinematic never runs under 900px or in the static fallback. */
+  /* BURGER WIDTH: everything on the centre line (Adrian, 2026-08-20), the same call he made
+     for the opening. This layer used to be display:none here, on the reasoning that "the
+     cinematic never runs under 900px" -- true when it was written, false since the stage was
+     opened up on 2026-08-20, which is why the whole beat arrived on a phone with no words on
+     it. Nothing hides it for the static fallback either: .pl is visibility:hidden until the
+     loop sets [data-active], and on the fallback path the loop never runs.
+
+     The head and the card already sit on the centre line and only needed room. The LABELS are
+     the actual problem: they are glued to the pipe's projected section bounds, and at this
+     aspect the pipe runs far past both edges, so the four of them scatter -- measured at 390,
+     one label sat at x -1561 and another at x 1379, with stretches where none was on screen
+     at all. */
   @media (max-width: 900px) {
-    .pl { display: none; }
+    /* The title is 87% of a 390 screen at its desktop size, and it is nowrap, so it clips
+       outright a little narrower. Sized off the viewport here and allowed to wrap. */
+    /* Anchored BELOW the header, not at a percentage of the viewport: 7% of a short phone is
+       inside the 52px nav, and the title showed through the translucent bar. */
+    .pl__head {
+      top: calc(var(--header-h) + 2.5svh);
+      width: min(92vw, 30rem);
+      white-space: normal;
+    }
+    .pl__title { font-size: clamp(2.2rem, 10.5vw, 3.2rem); }
+
+    /* The band stops carrying horizontal position and spans the screen, so its label centres.
+       !important is the point rather than a shortcut: `left` and `width` are per-section
+       inline styles wearing the projected pipe bounds, and this width deliberately abandons
+       that anchoring model. Vertical stays projected, so the label still hangs off the real
+       pipe as it moves. */
+    .pl__band {
+      left: 0 !important;
+      width: 100% !important;
+    }
+    /* Only the lit one shows. All four centre on the same point now, so the three dim ones
+       would otherwise print on top of each other and on top of it. */
+    .pl__label {
+      opacity: 0;
+      transition: opacity var(--t-fast) var(--ease-out), color var(--t-fast) var(--ease-out);
+    }
+    .pl[data-hover='0'] [data-band='0'] .pl__label,
+    .pl[data-hover='1'] [data-band='1'] .pl__label,
+    .pl[data-hover='2'] [data-band='2'] .pl__label,
+    .pl[data-hover='3'] [data-band='3'] .pl__label { opacity: 1; }
+
+    .pl__cards { width: calc(100% - var(--container-px, 20px) * 2); }
   }
 </style>

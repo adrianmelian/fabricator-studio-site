@@ -1,0 +1,79 @@
+---
+// THE SCROLL HINT (Adrian, 2026-08-20): a quiet "scroll down" at the bottom centre of the
+// first screen on the home and Armature pages. Both open on a full-bleed stage with the
+// story below the fold, so a reader can mistake the opening for the whole page.
+//
+// FIXED, not absolute. Each page's hero is a different beast: Armature's is a sticky layer
+// with everything positioned against it, the homepage's is a stack of fixed layers with a
+// scroll runway. Anchoring to the viewport instead of to either of them keeps this one file
+// true on both, and it is gone by the time anything else needs that space.
+//
+// The rules flanking the label are the dashes Adrian drew round it, set as hairlines rather
+// than typed. That keeps the brand gate's em-dash rule out of the picture entirely.
+---
+
+<div class="scrollhint" data-scroll-hint aria-hidden="true">
+  <span class="scrollhint__rule"></span>
+  <span class="scrollhint__label">Scroll down</span>
+  <span class="scrollhint__rule"></span>
+</div>
+
+<style>
+  .scrollhint {
+    position: fixed;
+    left: 50%;
+    bottom: clamp(1.1rem, 3.2svh, 2.2rem);
+    transform: translateX(-50%);
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    pointer-events: none;
+    opacity: 1;
+    transition: opacity 420ms ease-out;
+  }
+  /* Set by the script the moment the reader takes the hint. */
+  .scrollhint[data-gone] { opacity: 0; }
+
+  .scrollhint__rule {
+    width: clamp(1.4rem, 4vw, 2.6rem);
+    height: 1px;
+    background: var(--iron-3);
+  }
+  .scrollhint__label {
+    font-family: var(--font-body);
+    font-size: 0.78rem;
+    font-weight: 400;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    white-space: nowrap;
+    /* Both heroes are dark, but the Armature plate has a bright figure behind this spot. */
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.75);
+    animation: scrollhint-breathe 2.6s ease-in-out infinite;
+  }
+
+  @keyframes scrollhint-breathe {
+    0%, 100% { opacity: 0.62; transform: translateY(0); }
+    50%      { opacity: 1;    transform: translateY(2px); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scrollhint__label { animation: none; opacity: 0.85; }
+    .scrollhint { transition: none; }
+  }
+</style>
+
+<script>
+  const hint = document.querySelector('[data-scroll-hint]') as HTMLElement | null;
+  if (hint) {
+    // It comes back if the reader returns to the very top, which costs nothing and is
+    // friendlier than a hint that can only ever be spent once.
+    const sync = () => {
+      if (window.scrollY > 40) hint.setAttribute('data-gone', '');
+      else hint.removeAttribute('data-gone');
+    };
+    sync();
+    addEventListener('scroll', sync, { passive: true });
+  }
+</script>
