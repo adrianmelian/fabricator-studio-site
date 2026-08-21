@@ -37,9 +37,9 @@
     transition: opacity 500ms ease-out;
   }
   .ast-canvas[data-ready] { opacity: 1; }
-  @media (max-width: 900px) {
-    .ast-canvas { display: none; }
-  }
+  /* The canvas used to be display:none under 900px with no reason recorded. It runs at every
+     width now; the static path below is reached through reduced motion or a missing WebGL2
+     context, which are real conditions rather than a guess about phones. */
 </style>
 
 <script>
@@ -664,7 +664,18 @@ void main() {
 
     // HER MARK (Adrian, 2026-08-19): in front of the man, who keeps the origin. The
     // camera, not the world, does the tilting.
-    const HER_T = translation(-0.22, 0, 0.95);
+    //
+    // ONE PLACE FOR WHERE SHE STANDS. Her transform, her point cloud's offset and every
+    // camera that frames her all read this. It was written out four times as a literal,
+    // which is how the portrait framing came to centre the ORIGIN and leave her a fifth of
+    // a metre screen-left: nothing tied the camera's idea of her to her actual seat.
+    //
+    // ON THE GRID CENTRE, DIRECTLY IN FRONT OF HIM (Adrian, 2026-08-20). She used to stand
+    // at x -0.22, a fifth of a metre off his axis, which is why centring the camera on her
+    // still left him sitting off to one side. x 0 puts the two of them on one line: same
+    // axis, same grid centre, she is simply nearer the camera by the z below.
+    const HER_POS: [number, number, number] = [0, 0, 0.95];
+    const HER_T = translation(HER_POS[0], HER_POS[1], HER_POS[2]);
     for (let j = 0; j < NJ; j++) if (jParent[j] < 0) jLocal[j] = mmul(HER_T, jLocal[j]);
 
     const jIndexByName: Record<string, number> = {};
@@ -968,7 +979,7 @@ void main() {
     // skeleton onward. All three are his to dial.
     const CAM_LAND = { yaw: 0, pitch: -0.02, dist: 3.7, tx: 0, ty: 1.02, tz: 0 };
     const CAM_FIT = { yaw: 0.52, pitch: -0.02, dist: 4.4, tx: -0.38, ty: 1.0, tz: 0.35 };
-    const CAM_HER = { yaw: 0, pitch: -0.02, dist: 3.5, tx: -0.22, ty: 1.02, tz: 0.95 };
+    const CAM_HER = { yaw: 0, pitch: -0.02, dist: 3.5, tx: HER_POS[0], ty: 1.02, tz: HER_POS[2] };
     // ...and the TAIL (Adrian, 2026-08-19): she slides to screen LEFT, three-quarter
     // turned in toward the content, framed hips to head -- an upper shot she holds to
     // the bottom while reels, pricing and the closing doors ride the right side.
@@ -980,7 +991,10 @@ void main() {
     const MAN_M = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1]);
 
     let T: any = null;
-    const DPR = Math.min(devicePixelRatio || 1, 2);
+    // A phone reports dpr 3, so an uncapped 390px viewport is 1170x2532, about 3M fragments
+    // per pass before the framebuffer passes multiply it. 1.5 quarters that against 3 and
+    // costs nothing visible on a glowing x-ray silhouette.
+    const DPR = Math.min(devicePixelRatio || 1, innerWidth <= 900 ? 1.5 : 2);
     function resize() {
       const w = Math.max(1, Math.round(canvas.clientWidth * DPR));
       const h = Math.max(1, Math.round(canvas.clientHeight * DPR));
@@ -1006,6 +1020,10 @@ void main() {
     const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
     const hero = canvas.closest('.hero--art') as HTMLElement | null;
     const runway = document.querySelector('[data-ast-scroll]') as HTMLElement | null;
+    // The animation-ready beat's clip. Scrubbed by the loop below; see the markup for why it
+    // ships preload="none".
+    const scrubVid = document.querySelector('[data-ast-scrub]') as HTMLVideoElement | null;
+    let scrubAsked = false;
     // last frame's camera, for picking and dragging in screen space
     let lastView: Float32Array | null = null;
     let lastEye: number[] = [0, 0, 0];
@@ -1119,6 +1137,25 @@ void main() {
       de.setProperty('--ab3', (smooth(clamp01((q - 3.0) / 0.3)) * (1 - smooth(clamp01((q - 3.5) / 0.25)))).toFixed(3));
       de.setProperty('--ab4', (smooth(clamp01((q - 3.75) / 0.35)) * (1 - smooth(clamp01((q - 4.35) / 0.35)))).toFixed(3));
 
+      // THE SCROLL IS THE TRANSPORT (Adrian, 2026-08-20). The animation-ready beat carries the
+      // Maya-to-Unreal control rig clip and it is SCRUBBED rather than played: scrolling down
+      // runs it forward, scrolling back up rewinds it. Driven from THIS loop rather than its
+      // own scroll listener, for the same reason every other beat is -- one clock owner.
+      //
+      // Fetched late. The reader has to be heading for the beat before the 1.6 MB starts, and
+      // this width has to be one that shows it: the phone hides the clip, so a phone must
+      // never pay for it. q 2.5 is roughly a screen and a half of warning, which is enough to
+      // buffer and still nothing if they turn back.
+      if (scrubVid && innerWidth > 900) {
+        if (!scrubAsked && q > 2.5) { scrubAsked = true; scrubVid.preload = 'auto'; scrubVid.load(); }
+        if (scrubVid.readyState >= 1 && isFinite(scrubVid.duration) && scrubVid.duration > 0) {
+          const want = clamp01((q - 3.75) / 0.95) * scrubVid.duration;
+          // A seek every frame thrashes the decoder for sub-frame moves it cannot show anyway,
+          // and a scrubbed video that stutters reads as broken rather than as deliberate.
+          if (Math.abs(scrubVid.currentTime - want) > 1 / 30) scrubVid.currentTime = want;
+        }
+      }
+
       // THE TAIL: the three walkthrough reels ride up past the right side, pricing fades
       // in where they passed, then the closing doors. She stays screen left, still alive.
       const reel = clamp01((q - 4.6) / 1.9);
@@ -1166,13 +1203,83 @@ void main() {
       const t4 = smooth(clamp01((q - 6.6) / 0.6));
       const leg = (a: number, b: number, c2: number, d2: number, e2: number) =>
         lerp(lerp(lerp(lerp(a, b, t1), c2, t2), d2, t3), e2, t4);
-      const camDist = leg(CAM_LAND.dist, CAM_FIT.dist, CAM_HER.dist, CAM_END.dist, CAM_OUT.dist);
+      // PORTRAIT CENTRES THE SUBJECT (Adrian, 2026-08-20). On the wide cameras `tx` carries
+      // two different things at once: where the subject actually stands, and a LATERAL FLANK
+      // OFFSET that slides it off centre to open a column of frame for the copy. At burger
+      // width there is no flank -- the copy sits over and under her -- and those offsets push
+      // her out of a 390 frame, CAM_OUT's 1.35 leaving nothing but a hand at the edge.
+      //
+      // Zeroing tx killed the flank but also threw away her seat, centring the ORIGIN and
+      // leaving her visibly screen-left (Adrian: "shes a little screen left"). So the target
+      // rides HER_POS through every beat she is the subject of, and only the landing -- which
+      // is the reference man's shot, and he does keep the origin -- stays at zero.
+      //
+      // Read per frame rather than latched at load, so a rotate or a resize across the
+      // breakpoint recomposes instead of keeping the wrong frame.
+      const narrowCam = innerWidth <= 900;
+
+      // NO THREE-QUARTER AT BURGER WIDTH (Adrian, 2026-08-20): "instead of going to three
+      // quarter view, let's just keep it in the front view, but just pull the camera back,
+      // kind of like we did on the home page just in the reverse."
+      //
+      // CAM_FIT swings to yaw 0.52 so the man turns and opens a left flank with her
+      // materialising beside him. That composition needs width the phone does not have, so
+      // here the fitting room stays FRONT ON and the camera retreats instead: same angle as
+      // the landing, further out, so the pair reads as depth rather than as a turn. The
+      // homepage's beat one does the same trade the other way round -- camera A takes B's
+      // centred angle and sits back from it so B pushes in.
+      //
+      // The pull-back is off CAM_LAND rather than CAM_FIT's own 4.4, because a distance
+      // dialled for a 34 degree horizontal half-angle means something else entirely at the
+      // 11 degrees a 390 frame gives you. FIT_PULLBACK is the one number to dial here.
+      //
+      // 1.64, not 1.5: centring on HER rather than the origin shifts the reference man a
+      // fifth of a metre right, which put his outstretched hand at 1.07 from the target
+      // against a half-width of 1.05 and clipped his fingers. 1.64 buys the half-width back
+      // to 1.15, so the widest thing in the shot clears the frame with room over.
+      const FIT_PULLBACK = 1.64;
+
+      // THE BUILD BEATS SIT RIGHT (Adrian, 2026-08-20, relaying a friend's note): the four
+      // build beats -- fitting room, skeleton, skin, animation ready -- move the whole scene
+      // over to the right of the screen, with the copy centred on top the way the phone does
+      // it. The tail is unchanged and becomes the DESTINATION of that move: at "What it
+      // costs" she flips to the left and comes in close, which is exactly where CAM_END and
+      // CAM_OUT already sat. So only FIT and HER change, and the existing t3 leg (q 4.35 to
+      // 4.95) is the flip. Nothing new had to be authored for it.
+      //
+      // SAME CAMERA, JUST PANNED. This first went in as a 2x push-in as well, and it cost
+      // her: at half the distance she was cropped to an arm and a hip at the frame edge and
+      // Adrian called it ("she's way too off screen... keep the same camera, just move the
+      // camera to the left a bunch"). Distance is therefore untouched. PUSH slides the
+      // camera's TARGET left, which is what throws the subject right; moving the subject
+      // itself would drag her off the grid she stands on.
+      //
+      // 1.2 IS SET BY THE COPY, NOT BY TASTE, because the whole point of the move is the
+      // friend's note: "he wants to be able to see what's written, that's the more important
+      // thing." Dialled by measuring mean luminance of the canvas behind the copy band at
+      // 1512x900: 0.62 left her arm through the title at 36, and it comes down as she moves
+      // right. It also has to clear the two beats that reach furthest into the frame -- SKIN,
+      // where her arms swing through the range-of-motion calisthenics, and ANIMATION READY,
+      // whose sub line is the longest on the page and where her hair was clipping the last
+      // word. 1.5 clears both and still leaves her whole in frame, which is the constraint
+      // that killed the push-in.
+      const WIDE_PUSH = 1.5;
+      const camFit = narrowCam
+        ? { ...CAM_FIT, yaw: CAM_LAND.yaw, pitch: CAM_LAND.pitch, dist: CAM_LAND.dist * FIT_PULLBACK }
+        : { ...CAM_FIT, tx: CAM_FIT.tx - WIDE_PUSH };
+      const camHer = narrowCam
+        ? CAM_HER
+        : { ...CAM_HER, tx: CAM_HER.tx - WIDE_PUSH };
+
+      const camDist = leg(CAM_LAND.dist, camFit.dist, camHer.dist, CAM_END.dist, CAM_OUT.dist);
       const tgt = [
-        leg(CAM_LAND.tx, CAM_FIT.tx, CAM_HER.tx, CAM_END.tx, CAM_OUT.tx),
-        leg(CAM_LAND.ty, CAM_FIT.ty, CAM_HER.ty, CAM_END.ty, CAM_OUT.ty),
-        leg(CAM_LAND.tz, CAM_FIT.tz, CAM_HER.tz, CAM_END.tz, CAM_OUT.tz)];
-      const yaw = leg(CAM_LAND.yaw, CAM_FIT.yaw, CAM_HER.yaw, CAM_END.yaw, CAM_OUT.yaw) + oy;
-      const pitch = leg(CAM_LAND.pitch, CAM_FIT.pitch, CAM_HER.pitch, CAM_END.pitch, CAM_OUT.pitch) + op;
+        narrowCam
+          ? leg(0, HER_POS[0], HER_POS[0], HER_POS[0], HER_POS[0])
+          : leg(CAM_LAND.tx, camFit.tx, camHer.tx, CAM_END.tx, CAM_OUT.tx),
+        leg(CAM_LAND.ty, camFit.ty, camHer.ty, CAM_END.ty, CAM_OUT.ty),
+        leg(CAM_LAND.tz, camFit.tz, camHer.tz, CAM_END.tz, CAM_OUT.tz)];
+      const yaw = leg(CAM_LAND.yaw, camFit.yaw, camHer.yaw, CAM_END.yaw, CAM_OUT.yaw) + oy;
+      const pitch = leg(CAM_LAND.pitch, camFit.pitch, camHer.pitch, CAM_END.pitch, CAM_OUT.pitch) + op;
       const eye = [
         tgt[0] + camDist * Math.cos(pitch) * Math.sin(yaw),
         tgt[1] + camDist * Math.sin(pitch),
@@ -1238,7 +1345,7 @@ void main() {
         gl.uniform1f(P_PT.u.uSize, 1.0);
         gl.uniform1f(P_PT.u.uReveal, herReveal);
         gl.uniform1f(P_PT.u.uFade, ptFade);
-        gl.uniform3f(P_PT.u.uOffset, -0.22, 0, 0.95);
+        gl.uniform3f(P_PT.u.uOffset, HER_POS[0], HER_POS[1], HER_POS[2]);
         gl.uniform3fv(P_PT.u.uPlasma, PLASMA);
         gl.uniform3fv(P_PT.u.uEmber, EMBER);
         gl.uniform3fv(P_PT.u.uBone, BONE);
@@ -1366,9 +1473,14 @@ void main() {
     requestAnimationFrame(frame);
   }
 
+  // THE WIDTH GATE IS GONE (Adrian, 2026-08-20). It was never a capability finding: nothing
+  // this stage does is unsupported on a phone, and the HDR path already degrades itself to
+  // RGBA8 where the float extension is missing. What a phone actually costs is fill rate and
+  // heat, and both are handled above (render scale is capped at 1.5 under 900px, and the
+  // frame loop already returns early when the runway is off screen). Reduced motion and a
+  // missing WebGL2 context remain the only reasons to stay static.
   if (
     canvas &&
-    matchMedia('(min-width: 901px)').matches &&
     !matchMedia('(prefers-reduced-motion: reduce)').matches
   ) {
     const gl = canvas.getContext('webgl2', { antialias: false });
