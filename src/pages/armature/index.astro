@@ -167,17 +167,17 @@ const DESCRIPTION =
         <div class="ast-beat" style="opacity: var(--ab1, 0)">
           <p class="ast-beat__head"><span class="ast-accent">Fitting</span> Room</p>
           <p class="ast-beat__line">Fit your character to size so symmetry and placement behave.</p>
-          <Image class="ast-beat__img" src={stageFit} alt="" widths={[420, 840]} sizes="26vw" />
+          <Image class="ast-beat__img" src={stageFit} alt="" widths={[560, 960, 1600]} sizes="(min-width: 901px) 60vw, 92vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab2, 0)">
           <p class="ast-beat__head"><span class="ast-accent">Generative</span> Skeleton Placement</p>
           <p class="ast-beat__line">Auto fit the joints to your model, automatically named and oriented correctly.</p>
-          <Image class="ast-beat__img" src={stageSkeleton} alt="" widths={[420, 840]} sizes="26vw" />
+          <Image class="ast-beat__img" src={stageSkeleton} alt="" widths={[560, 960, 1600]} sizes="(min-width: 901px) 60vw, 92vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab3, 0)">
           <p class="ast-beat__head"><span class="ast-accent">Generative</span> Skin Binding</p>
           <p class="ast-beat__line">Machine learned skinning binds any type of mesh.</p>
-          <Image class="ast-beat__img" src={stageSkin} alt="" widths={[420, 840]} sizes="26vw" />
+          <Image class="ast-beat__img" src={stageSkin} alt="" widths={[560, 960, 1600]} sizes="(min-width: 901px) 60vw, 92vw" />
         </div>
         <div class="ast-beat" style="opacity: var(--ab4, 0)">
           <p class="ast-beat__head"><span class="ast-accent">Animation</span> Ready in Minutes</p>
@@ -435,19 +435,22 @@ const DESCRIPTION =
     width: min(34rem, 34vw);
   }
 
-  /* The copy beats: CENTRED ON TOP (Adrian, 2026-08-20), the composition the phone already
-     had, brought across to desktop. They used to hold the left flank the landing stanza
-     vacates (2026-08-19); that flank existed because the scene sat centre-right, and the
-     scene has now moved hard right at double size, so the flank went with it. Stage-header
-     over line, one grid cell, crossfading on their vars. */
+  /* The copy beats: TWO THIRDS LEFT, her third on the right (Adrian, 2026-08-20). He named
+     the reference himself -- "what it costs" already puts her on one side and the copy on
+     the other, and this is that framing mirrored. So the column runs from the same 7vw
+     margin .ast-end uses to a third off the right edge, and reads left-aligned like it.
+
+     Centred-on-top came before this and lasted a day: it was the phone's composition carried
+     across, and on a wide frame it left the copy floating over the middle of the room with
+     her crowded into the corner. Stage-header over line over screenshot, one grid cell,
+     crossfading on their vars. */
   .ast-beats {
     position: absolute;
-    left: 0;
-    right: 0;
-    top: 9%;
+    left: 7vw;
+    right: 34%;
+    top: 11%;
     width: auto;
-    padding: 0 8vw;
-    text-align: center;
+    text-align: left;
     display: none;
     pointer-events: none;
     text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
@@ -514,14 +517,23 @@ const DESCRIPTION =
     line-height: 1.35;
     color: var(--bone);
   }
-  /* Centred under the copy, so title, line and screenshot read as one column with the
-     character off to the right. Roughly DOUBLE the old min(30rem, 30vw) (Adrian,
-     2026-08-20): these are app screenshots and the UI in them was unreadable at a third of
-     the frame, which is the whole reason they are on the page. */
+  /* The screenshot fills the copy column rather than carrying its own width: the column IS
+     the two thirds Adrian ruled, so one number governs the band and the art in it. Wider
+     than the min(58rem, 56vw) it replaces, which is the direction he wanted anyway -- these
+     are app screenshots and the UI in them is the reason they are on the page at all. */
   .ast-beats :global(.ast-beat__img),
   .ast-beats .ast-beat__vid {
     margin-top: 1.8rem;
-    width: min(58rem, 56vw);
+    width: 100%;
+    /* NEVER FULLY OPAQUE (Adrian, 2026-08-21): at 1.0 the screenshot is a hole punched in
+       the room, and the character behind it disappears where they overlap. 0.85 keeps her
+       readable through it and keeps the plate feeling like it is IN the scene rather than
+       pasted on top of it.
+
+       This multiplies with the beat's own crossfade rather than fighting it: .ast-beat
+       carries opacity: var(--abN), so the image tops out at 0.85 of whatever the beat is
+       currently at, and still reaches zero cleanly between beats. */
+    opacity: 0.85;
     height: auto;
     border-radius: var(--radius);
     box-shadow: var(--shadow-lg);
@@ -1089,14 +1101,30 @@ const DESCRIPTION =
       transform: translateY(calc(var(--aland, 0) * -18px));
     }
 
-    /* The beats take the TOP band and the character plays underneath: the same shape the
-       pipeline beat has on the homepage. */
+    /* COPY AT THE TOP, SCREENSHOT ON THE FLOOR, HER IN BETWEEN (Adrian, 2026-08-20: the
+       image "is blocking the cool animation we have going on with the girl"). The block used
+       to be a single run of copy-then-image starting below the header, which put the
+       screenshot across her upper body at 242 to 439 of 844: the middle of the frame, which
+       is exactly where she is.
+
+       So the beat spans the whole screen and splits: the copy sits at the top, the
+       screenshot is pushed to the bottom by an auto margin, and the band between them is
+       hers. No fixed offsets, so a beat whose title wraps to two lines takes the room from
+       the gap rather than from the art. */
     .ast-scroll[data-live] .ast-beats {
       left: 0;
       right: 0;
-      top: calc(var(--header-h) + 3svh);
+      top: calc(var(--header-h) + 1.5svh);
+      bottom: 4svh;
       width: auto;
       padding: 0 1.25rem;
+    }
+    /* Fills the crossfade cell rather than sitting at its top, so there is a full screen for
+       the split to divide. */
+    .ast-scroll[data-live] .ast-beat {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
     }
     /* THE SCREENSHOTS COME BACK HERE (Adrian, 2026-08-20: "those images are not showing up
        on mobile"). I had hidden them during the port, reasoning they would print over the
@@ -1109,7 +1137,8 @@ const DESCRIPTION =
        width. Showing it here would mean paying for it on a phone. */
     .ast-scroll[data-live] .ast-beats :global(.ast-beat__img) {
       width: 100%;
-      margin-top: 1.4rem;
+      /* auto, not a fixed gap: this is what pins it to the floor of the beat. */
+      margin-top: auto;
     }
     .ast-scroll[data-live] .ast-beats .ast-beat__vid { display: none; }
 
@@ -1133,8 +1162,25 @@ const DESCRIPTION =
       right: 0;
       padding: 0 1.25rem;
     }
-    .ast-scroll[data-live] .ast-price { top: calc(var(--header-h) + 4svh); }
-    .ast-scroll[data-live] .ast-end { top: 54%; }
+    /* THE CLOSING SCREEN FRAMES THE CENTRE (Adrian, 2026-08-21). Title and price at the top,
+       doors on the floor, and the standalone-app caveat riding just above them, so the middle
+       of the screen is left to her instead of the copy running down it in one block. Desktop
+       already read this way and is left alone.
+
+       .ast-price takes a bottom as well as a top, which turns it into a box with slack in it,
+       and the caveat's auto margin drops to the floor of that box. Nothing is pinned to a
+       fixed offset, so a price line that wraps to an extra row on a narrow phone takes the
+       room out of the gap rather than shoving the caveat into the doors. */
+    .ast-scroll[data-live] .ast-price {
+      top: calc(var(--header-h) + 3svh);
+      bottom: 25svh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Child selector, not a bare class: .ast-price__note sets its own margin-top further down
+       the sheet, and at equal specificity the later rule wins. This has to outrank it. */
+    .ast-scroll[data-live] .ast-price > .ast-price__note { margin-top: auto; }
+    .ast-scroll[data-live] .ast-end { top: auto; bottom: 5svh; }
 
     /* --------------------------------------------------------- THE FALLBACK COLUMN ---
        Reduced motion, no WebGL2, or a failed init: no stage, so no story to ride. The
@@ -1230,6 +1276,7 @@ const DESCRIPTION =
     .ast-scroll:not([data-live]) .ast-price,
     .ast-scroll:not([data-live]) .ast-end {
       position: static;
+      display: block;
       left: auto;
       right: auto;
       top: auto;
