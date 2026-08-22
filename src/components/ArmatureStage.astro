@@ -1064,11 +1064,47 @@ void main() {
       if (lastAliveOn && lastView) {
         const r = canvas.getBoundingClientRect();
         const mx = e.clientX - r.left, my = e.clientY - r.top;
-        let best = -1, bestD = 42;
+
+        // YOU GRAB THE SQUARE, NOT ITS CENTRE (Adrian, 2026-08-20, watching someone try it:
+        // "it's really hard to select the point you need to select... they tried to select
+        // the control edges, not the centre, which makes sense, that's how you select
+        // controls on a rig in Maya or Unreal").
+        //
+        // The hit target was a flat 42px circle around the effector's projected centre while
+        // the control is DRAWN as a billboarded square of fixed WORLD size. Those two only
+        // agree at one camera distance. Once the square projects wider than 42px -- which is
+        // most of this beat, since the camera is close by then -- its edges and corners sit
+        // outside the target, so the reader clicks the thing they can see and nothing
+        // happens. Nobody aims at the empty middle of a control; the shape is the handle.
+        //
+        // So the target is now the square itself, measured the same way it is drawn: project
+        // the centre, project a point one radius along the camera's RIGHT vector, and the gap
+        // between them is the half-width in pixels. Tested as a box rather than a circle, so
+        // the corners count.
+        //
+        // The old 42 stays as a FLOOR. Far from the camera the square can project to a few
+        // pixels, and a target that shrinks with it would trade one unclickable state for
+        // another. This is strictly more forgiving than what it replaces.
+        const camRight = [lastView[0], lastView[4], lastView[8]];
+        const EDGE_PAD = 6;   // the stroke has width; let the reader hit the line itself
+        const MIN_HIT = 42;   // what the old circle gave, kept as the small-on-screen floor
+        let best = -1, bestD = Infinity;
         for (let i = 0; i < effJoint.length; i++) {
-          const sp = screenOf([effPts[i * 3], effPts[i * 3 + 1], effPts[i * 3 + 2]]);
+          const px = effPts[i * 3], py = effPts[i * 3 + 1], pz = effPts[i * 3 + 2];
+          const sp = screenOf([px, py, pz]);
           if (!sp) continue;
-          const d = Math.hypot(sp[0] - mx, sp[1] - my);
+          // Same radius the draw uses, minus the pulse: it breathes 6% and rounding that into
+          // the hit target would make the handle grow and shrink under the cursor.
+          const nm = jNames[effJoint[i]];
+          const rad = nm === 'head' ? 0.13 : nm === 'spine_03' ? 0.18 : 0.12;
+          const ep = screenOf([px + camRight[0] * rad, py + camRight[1] * rad, pz + camRight[2] * rad]);
+          const halfPx = ep ? Math.hypot(ep[0] - sp[0], ep[1] - sp[1]) : 0;
+          const hit = Math.max(halfPx + EDGE_PAD, MIN_HIT);
+          const dx = Math.abs(sp[0] - mx), dy = Math.abs(sp[1] - my);
+          if (Math.max(dx, dy) > hit) continue;
+          // Overlapping controls: the nearest centre still wins, so the one you meant is the
+          // one you get when two boxes cover the cursor.
+          const d = Math.hypot(dx, dy);
           if (d < bestD) { bestD = d; best = i; }
         }
         if (best >= 0) {
@@ -1257,13 +1293,13 @@ void main() {
       // 1.2 IS SET BY THE COPY, NOT BY TASTE, because the whole point of the move is the
       // friend's note: "he wants to be able to see what's written, that's the more important
       // thing." Dialled by measuring mean luminance of the canvas behind the copy band at
-      // 1512x900: 0.62 left her arm through the title at 36, and it comes down as she moves
-      // right. It also has to clear the two beats that reach furthest into the frame -- SKIN,
-      // where her arms swing through the range-of-motion calisthenics, and ANIMATION READY,
-      // whose sub line is the longest on the page and where her hair was clipping the last
-      // word. 1.5 clears both and still leaves her whole in frame, which is the constraint
-      // that killed the push-in.
-      const WIDE_PUSH = 1.5;
+      // 1.15, down from the 1.5 that was set while the copy ran CENTRED across the full
+      // frame and every beat's text had to be dodged. The copy is a left-hand column now and
+      // stops at two thirds, so the clearance it needs is a hard edge rather than a moving
+      // target, and she can come back toward the middle where she reads as part of the room
+      // instead of pinned to the margin (Adrian, 2026-08-21: "shift the camera over to the
+      // right a bunch so she moves a little bit screen left").
+      const WIDE_PUSH = 1.15;
       const camFit = narrowCam
         ? { ...CAM_FIT, yaw: CAM_LAND.yaw, pitch: CAM_LAND.pitch, dist: CAM_LAND.dist * FIT_PULLBACK }
         : { ...CAM_FIT, tx: CAM_FIT.tx - WIDE_PUSH };
