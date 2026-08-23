@@ -1041,6 +1041,7 @@ void main() {
     // display:none because data-stage-live never landed, and the control picking, which
     // listens on this element, never armed either.
     const hero = document.querySelector('.ast-hero.hero--art') as HTMLElement | null;
+    const teaserVid = document.querySelector('[data-ast-teaser]') as HTMLVideoElement | null;
     const runway = document.querySelector('[data-ast-scroll]') as HTMLElement | null;
     // The animation-ready beat's clip. Scrubbed by the loop below; see the markup for why it
     // ships preload="none".
@@ -1183,7 +1184,35 @@ void main() {
       //   landing copy out 0.15-0.55 | THE FITTING ROOM: her points 0.7-1.9, the man
       //   holding three-quarter at the right | the man leaves 2.05-2.55 as the skeleton
       //   grows 2.1-2.9 | solidify 2.9-3.6 | alive (and grabbable) from 3.6 | hold
-      const q = runway ? -rw.top / Math.max(1, innerHeight) : 0;
+      // THE TEASER HOLDS THE STORY STILL (Adrian, 2026-08-22): on the homepage a vertical
+      // Armature reel plays between the title screen and the fitting room. There is only
+      // half a screen between those two beats, so rather than compress the story the CLOCK
+      // FREEZES for the length of the reel: the room holds the landing frame behind the
+      // video and every beat after it resumes exactly where it left off, untouched. The
+      // runway grows by REEL_LEN to pay for the scroll (see .ast-scroll--inline).
+      const REEL_AT = 0.6;    // the title stanza has finished fading by 0.55
+      const REEL_LEN = 1.6;
+      const REEL_EDGE = 0.4;  // the fade in and the fade out
+      const raw = runway ? -rw.top / Math.max(1, innerHeight) : 0;
+      let q = raw;
+      let teaser = 0;
+      if (HOSTED) {
+        if (raw > REEL_AT + REEL_LEN) q = raw - REEL_LEN;
+        else if (raw > REEL_AT) q = REEL_AT;
+        teaser = smooth(clamp01((raw - REEL_AT) / REEL_EDGE))
+          * (1 - smooth(clamp01((raw - (REEL_AT + REEL_LEN - REEL_EDGE)) / REEL_EDGE)));
+      }
+      document.documentElement.style.setProperty('--ateaser', teaser.toFixed(3));
+      if (teaserVid) {
+        // Fetched and played only while it is actually on screen; a 3.2MB clip should not
+        // ride along on every homepage visit that never reaches this far.
+        if (teaser > 0.01) {
+          if (teaserVid.preload !== 'auto') { teaserVid.preload = 'auto'; teaserVid.load(); }
+          if (teaserVid.paused) teaserVid.play().catch(() => {});
+        } else if (!teaserVid.paused) {
+          teaserVid.pause();
+        }
+      }
       const aland = smooth(clamp01((q - 0.15) / 0.4));
       manOut = smooth(clamp01((q - 2.05) / 0.5));
       herReveal = clamp01((q - 1.0) / 1.0) * 1.08;

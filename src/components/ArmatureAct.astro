@@ -121,6 +121,26 @@ const heroPortraitSrc = (await getImage({ src: heroLandingPortrait, format: 'web
         />
       </div>
 
+      {/* THE VERTICAL TEASER (Adrian, 2026-08-22): the title screen, then this, then the
+          fitting room -- played the way the hero video at the top of the page is played.
+          Homepage only: /armature/ carries the trailer facade and does not need a second
+          reel. aria-hidden because it is silent b-roll and every claim in it is already
+          made in text a few lines up. */}
+      {variant === 'inline' && (
+      <div class="ast-teaser" aria-hidden="true">
+        <video
+          class="ast-teaser__vid"
+          data-ast-teaser
+          src="/armature/teaser.mp4"
+          poster="/armature/teaser-poster.jpg"
+          preload="none"
+          muted
+          loop
+          playsinline
+        ></video>
+      </div>
+      )}
+
       {variant === 'page' && (
       <div class="ast-hero__actions">
         <div class="getblock__actions">
@@ -394,6 +414,47 @@ const heroPortraitSrc = (await getImage({ src: heroLandingPortrait, format: 'web
      and fades in over the continuing room; the doors come back at the close, where the act
      already carries its own pair. */
   .ast-scroll[data-live] { height: 880svh; }
+  /* 1040, not 880: the extra 160svh is the scroll the teaser holds the story still for.
+     The story's own clock freezes for exactly that span (see REEL_LEN in ArmatureStage),
+     so no beat after it moves by a single screen. */
+  .ast-scroll--inline[data-live] { height: 1040svh; }
+
+  /* THE TEASER PANEL. Desktop and mobile rules kept together deliberately: they are one
+     decision about one element, and splitting them into the far-away media block is how a
+     pair like this drifts. */
+  .ast-teaser {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    opacity: var(--ateaser, 0);
+    pointer-events: none;
+  }
+  .ast-teaser__vid {
+    /* The clip is 720x1280. On a wide frame it stands as a tall panel with the room
+       showing past it: cover-cropping a portrait clip into 16:9 leaves a narrow
+       horizontal slice of it, which is worse than a letterbox and hides the shot. */
+    display: block;
+    height: min(78svh, calc((100vw - 3rem) * 16 / 9));
+    width: auto;
+    max-width: calc(100vw - 2.5rem);
+    border: 1px solid var(--iron-2);
+    border-radius: 14px;
+    box-shadow: var(--shadow-lg);
+  }
+  @media (max-width: 900px) {
+    /* Already 9:16 here, so it fills the frame the way the hero video at the top does. */
+    .ast-teaser__vid {
+      height: 100%;
+      width: 100%;
+      max-width: none;
+      object-fit: cover;
+      border: 0;
+      border-radius: 0;
+      box-shadow: none;
+    }
+  }
   .ast-scroll[data-live] .ast-hero {
     position: sticky;
     top: var(--header-h);
