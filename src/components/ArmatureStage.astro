@@ -1227,6 +1227,11 @@ void main() {
       const de = document.documentElement.style;
       de.setProperty('--aland', aland.toFixed(3));
       hero?.toggleAttribute('data-land-gone', aland > 0.95);
+      // --aland measures the title stanza LEAVING, so 1 - aland reads as "on screen" from
+      // page load, before the act is anywhere near. This is that beat stated positively and
+      // gated on the act having started, so the scroll rail can treat it like every other
+      // beat var. The loop culls itself off screen, which leaves this at 0 either side.
+      de.setProperty('--atitle', (q > 0 ? 1 - aland : 0).toFixed(3));
       // the copy beats, one cell each, timed to their scenes
       de.setProperty('--ab1', (smooth(clamp01((q - 1.1) / 0.3)) * (1 - smooth(clamp01((q - 1.95) / 0.25)))).toFixed(3));
       de.setProperty('--ab2', (smooth(clamp01((q - 2.2) / 0.3)) * (1 - smooth(clamp01((q - 2.75) / 0.25)))).toFixed(3));

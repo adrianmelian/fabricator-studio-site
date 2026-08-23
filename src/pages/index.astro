@@ -39,6 +39,7 @@ import ArmatureOverlay from '../components/ArmatureOverlay.astro';
 import WallOverlay from '../components/WallOverlay.astro';
 import CloseOverlay from '../components/CloseOverlay.astro';
 import ArmatureAct from '../components/ArmatureAct.astro';
+import ScrollDots from '../components/ScrollDots.astro';
 
 // The product card art rather than a trailer frame (Adrian, 2026-08-04): it carries the
 // lockup and the tagline baked in, so the thumbnail says what the video is before a click.
@@ -115,6 +116,9 @@ const PROOF = [
 >
   <NavBar />
   <ScrollHint />
+  {/* How far in you are, and how much is still there. 21.8 screens do not announce
+      themselves. Reads the beats' own variables; carries no timings. */}
+  <ScrollDots />
 
   {/* THE OPENING (Adrian, 2026-08-19). The FS mark as 5,000 points over the app's own grid,
       scroll-driven through a centring push-in and then an explosion that hands the page to

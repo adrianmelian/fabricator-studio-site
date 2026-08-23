@@ -1,0 +1,184 @@
+---
+// THE SCROLL RAIL (Adrian, 2026-08-22): "dots for every single page... every time they get
+// to the next page, one dot lights up, to kinda show the users how you can keep going."
+//
+// The homepage is 21.8 screens. Nothing on a first screen says that, and a reader who does
+// not scroll never learns the page exists. This is the affordance: how far in you are, and
+// how much is still there.
+//
+// IT CARRIES NO TIMINGS OF ITS OWN. Every beat on this page already publishes a CSS variable
+// that runs 0 to 1 across it -- the point cloud writes --phil1, --pipe, --arm, --scan and
+// --close, and the Armature stage writes --atitle, --ateaser, --ab1..4, --price and --reelt.
+// The rail reads those. Retune a beat and the dot follows it; there is no second copy of the
+// choreography to fall out of step, which is the way this pair of files has already been
+// bitten (see the --close retime in 35b3a7b).
+//
+// Not clickable, and that is the same decision: jumping to a beat needs its scroll POSITION,
+// which the variables do not carry, so a clickable rail would mean writing the timings down
+// a second time. The rail reports; it does not navigate.
+//
+// aria-hidden: it is a progress indicator for a linear scroll and tells a screen reader
+// nothing the document order does not already say.
+const STOPS = [
+  { label: 'The mark' },
+  { label: 'Refinement', v: '--phil1' },
+  { label: 'Production standard', v: '--phil2' },
+  { label: 'Artist and AI', v: '--phil3' },
+  { label: 'Studio pipeline tools', v: '--pipe' },
+  { label: 'Armature', v: '--arm' },
+  { label: 'The tool wall', v: '--scan' },
+  { label: 'Armature: rigging and skinning', v: '--atitle' },
+  { label: 'The teaser', v: '--ateaser' },
+  { label: 'Fitting room', v: '--ab1' },
+  { label: 'Skeleton placement', v: '--ab2' },
+  { label: 'Skin binding', v: '--ab3' },
+  { label: 'Animation ready', v: '--ab4' },
+  { label: 'Tutorial series', v: '--reelt' },
+  { label: 'What it costs', v: '--price' },
+  { label: 'About me', v: '--close' },
+];
+---
+
+<div class="dots" data-scroll-dots aria-hidden="true">
+  {STOPS.map((s) => (
+    <span class="dots__dot" data-var={s.v ?? ''} title={s.label}></span>
+  ))}
+</div>
+
+<style>
+  .dots {
+    position: fixed;
+    left: clamp(0.65rem, 1.6vw, 1.5rem);
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: clamp(0.45rem, 1.1vh, 0.7rem);
+    pointer-events: none;
+    /* Revealed only once the cinematic is actually running: with no WebGL2, or under reduced
+       motion, the beat variables are never written and every dot would sit dark forever,
+       which reads as a broken control rather than as progress. */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.5s ease-out;
+  }
+  .dots[data-on] {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .dots__dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: transparent;
+    border: 1px solid var(--iron-3);
+    transition: background 0.4s var(--ease-out), border-color 0.4s var(--ease-out),
+      transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+  }
+  /* Passed: filled, but quiet. The trail is what shows how far in you are. */
+  .dots__dot[data-passed] {
+    background: rgba(124, 255, 178, 0.42);
+    border-color: rgba(124, 255, 178, 0.42);
+  }
+  /* Here: the one that lights up. */
+  .dots__dot[data-here] {
+    background: var(--plasma);
+    border-color: var(--plasma);
+    transform: scale(1.55);
+    box-shadow: 0 0 10px rgba(124, 255, 178, 0.55);
+  }
+
+  @media (max-width: 900px) {
+    /* Tighter, and off the thumb's edge of the screen. */
+    .dots {
+      left: 0.5rem;
+      gap: 0.4rem;
+    }
+    .dots__dot {
+      width: 5px;
+      height: 5px;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dots,
+    .dots__dot { transition: none; }
+    .dots__dot[data-here] { transform: none; }
+  }
+</style>
+
+<script>
+  const rail = document.querySelector('[data-scroll-dots]') as HTMLElement | null;
+  if (rail) {
+    const dots = Array.from(rail.querySelectorAll<HTMLElement>('.dots__dot'));
+
+    // The point cloud offers its context once it is genuinely going to run. That is the only
+    // honest signal that these variables will ever be written, so the rail rides it rather
+    // than guessing from feature detection it would have to keep in sync.
+    const reveal = () => rail.setAttribute('data-on', '');
+    if ((window as any).__pcRoom) reveal();
+    else window.addEventListener('pc-room-ready', reveal, { once: true });
+
+    let queued = 0;
+    let last = -1;
+    // WHERE EACH BEAT STARTS, learned rather than written down. Reading "the last beat whose
+    // variable is over the threshold" is not enough on its own: some beats HOLD at 1 for the
+    // rest of the page once passed (the wall scan, the price beat), so in the gaps between
+    // pulses that test falls back to one of them. Going down that showed up as eleven
+    // backward jumps; clamping to the scroll direction hid it, but going back UP the rail
+    // then collapsed through four of sixteen dots instead of stepping.
+    //
+    // So each beat's scroll position is remembered the first time it is genuinely on, and
+    // the rail is derived from those positions. They only ever move EARLIER, so a gap that
+    // momentarily reports an old held beat can confirm a position it already has and can
+    // never invent a later one. Monotonic in both directions by construction, and still not
+    // a single timing of its own.
+    const markY = new Array(dots.length).fill(Infinity);
+    markY[0] = 0;
+    let lastY = 0;
+
+    const tick = () => {
+      queued = 0;
+      // ONE style resolve per frame, then plain reads off it. Calling getComputedStyle per
+      // dot would force sixteen recalcs a frame on a page already running a WebGL loop.
+      const cs = getComputedStyle(document.documentElement);
+      const y = scrollY;
+
+      let cand = 0;
+      for (let i = 1; i < dots.length; i++) {
+        const name = dots[i].dataset.var;
+        if (!name) continue;
+        if ((parseFloat(cs.getPropertyValue(name)) || 0) > 0.5) cand = i;
+      }
+      if (cand > 0 && y < markY[cand]) markY[cand] = y;
+
+      let here = 0;
+      for (let i = 0; i < dots.length; i++) if (markY[i] <= y) here = i;
+
+      // A mark can still be refined EARLIER mid-scroll, and crossing a mark that just moved
+      // under you reads as the rail stepping forward while you scroll up. Clamping to the
+      // direction of travel costs nothing now that the marks themselves step properly in
+      // both directions -- this guards a good signal rather than hiding a bad one, which is
+      // what the same clamp was doing when it sat on the raw variable test.
+      const down = y >= lastY;
+      lastY = y;
+      if (last >= 0) here = down ? Math.max(last, here) : Math.min(last, here);
+
+      if (here === last) return;
+      last = here;
+      for (let i = 0; i < dots.length; i++) {
+        dots[i].toggleAttribute('data-passed', i < here);
+        dots[i].toggleAttribute('data-here', i === here);
+      }
+    };
+    const schedule = () => {
+      if (!queued) queued = requestAnimationFrame(tick);
+    };
+    addEventListener('scroll', schedule, { passive: true });
+    addEventListener('resize', schedule, { passive: true });
+    schedule();
+  }
+</script>
