@@ -22,9 +22,19 @@
 //
 // The homepage (PointCloudHero.astro) is the source of truth for the shared shader
 // grammar (room, stars, bloom, fresnel); this stage owns only what the story needs.
+
+interface Props {
+  /* 'page' is /armature/, where this canvas is a box that scrolls into view. 'inline' is
+     the homepage, where it is a fixed room layer cross-fading with the point cloud's own
+     canvas so the two read as ONE continuous scene. See .ast-canvas--room below. */
+  variant?: 'page' | 'inline';
+}
+const { variant = 'page' } = Astro.props;
 ---
 
-<canvas class="ast-canvas" data-armature-stage aria-hidden="true"></canvas>
+{variant === 'page'
+  ? <canvas class="ast-canvas" data-armature-stage aria-hidden="true"></canvas>
+  : <div data-armature-host hidden></div>}
 
 <style>
   .ast-canvas {
@@ -37,6 +47,11 @@
     transition: opacity 500ms ease-out;
   }
   .ast-canvas[data-ready] { opacity: 1; }
+
+  /* No .ast-canvas rule for the inline variant: mounted on the homepage this component
+     renders NO canvas at all. Its story is drawn by the point cloud's renderer, into the
+     point cloud's buffer, through the point cloud's bloom -- one context, one camera, one
+     scene. See stepScene/drawContent below. */
   /* The canvas used to be display:none under 900px with no reason recorded. It runs at every
      width now; the static path below is reached through reduced motion or a missing WebGL2
      context, which are real conditions rather than a guess about phones. */
@@ -123,7 +138,7 @@
       0, 0, 0, 1]);
   }
 
-  async function run(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
+  async function run(canvas: HTMLCanvasElement, gl: WebGL2RenderingContext, HOSTED = false) {
     const HDR = gl.getExtension('EXT_color_buffer_float') ? gl.RGBA16F : gl.RGBA8;
     gl.getExtension('OES_texture_float_linear');
 
@@ -996,6 +1011,9 @@ void main() {
     // costs nothing visible on a glowing x-ray silhouette.
     const DPR = Math.min(devicePixelRatio || 1, innerWidth <= 900 ? 1.5 : 2);
     function resize() {
+      // A GUEST OWNS NOTHING. The host sized this canvas and owns every render target
+      // hanging off it; resizing here would fight it and rebuild its bloom chain each frame.
+      if (HOSTED) return;
       const w = Math.max(1, Math.round(canvas.clientWidth * DPR));
       const h = Math.max(1, Math.round(canvas.clientHeight * DPR));
       if (canvas.width === w && canvas.height === h && T) return;
@@ -1018,7 +1036,11 @@ void main() {
     // elastic orbit, unchanged
     let orbY = 0, orbP = 0, orbVY = 0, orbVP = 0, orbDrag = false, orbLast: number[] | null = null;
     const ORB_LIM_Y = 0.24, ORB_LIM_P = 0.13;
-    const hero = canvas.closest('.hero--art') as HTMLElement | null;
+    // FOUND IN THE DOM, NOT UP FROM THE CANVAS (2026-08-22). As a guest the canvas belongs
+    // to the host and sits nowhere near this hero, so closest() returned null: the beats kept
+    // display:none because data-stage-live never landed, and the control picking, which
+    // listens on this element, never armed either.
+    const hero = document.querySelector('.ast-hero.hero--art') as HTMLElement | null;
     const runway = document.querySelector('[data-ast-scroll]') as HTMLElement | null;
     // The animation-ready beat's clip. Scrubbed by the loop below; see the markup for why it
     // ships preload="none".
@@ -1139,8 +1161,17 @@ void main() {
     });
 
     let time = 0, prev = 0, ready = false;
-    function frame(now: number) {
-      requestAnimationFrame(frame);
+    // ---- THE STORY, SPLIT FROM ITS HOST (Adrian, 2026-08-22: "one seamless scene").
+    // Drawing used to be welded to this component's own canvas, camera and bloom, which is
+    // what made the act a SECOND scene on the homepage no matter how well it was blended.
+    // Split in two -- work out the frame, then draw it with whatever camera you are given --
+    // the same story can be drawn by the homepage's renderer, into the homepage's buffer,
+    // through the homepage's bloom. /armature/ takes the identical path with itself as host.
+    let manOut = 0, herReveal = 0, grow = 0, solid = 0, alive = 0, growEff = 0, ptFade = 0, skelAlpha = 0;
+
+    // Every per-frame job EXCEPT drawing: the clock, the copy beats, the pose, and the
+    // story's own camera. Returns that camera, or null when there is nothing to draw.
+    function stepScene(now: number) {
       const rw = runway ? runway.getBoundingClientRect() : canvas.getBoundingClientRect();
       if (rw.bottom < 0 || rw.top > innerHeight) return;
       const dt = Math.min(0.05, (now - prev) / 1000 || 0);
@@ -1154,11 +1185,11 @@ void main() {
       //   grows 2.1-2.9 | solidify 2.9-3.6 | alive (and grabbable) from 3.6 | hold
       const q = runway ? -rw.top / Math.max(1, innerHeight) : 0;
       const aland = smooth(clamp01((q - 0.15) / 0.4));
-      const manOut = smooth(clamp01((q - 2.05) / 0.5));
-      const herReveal = clamp01((q - 1.0) / 1.0) * 1.08;
-      const grow = clamp01((q - 2.1) / 0.8);
-      const solid = smooth(clamp01((q - 2.9) / 0.7));
-      const alive = smooth(clamp01((q - 3.6) / 0.4));
+      manOut = smooth(clamp01((q - 2.05) / 0.5));
+      herReveal = clamp01((q - 1.0) / 1.0) * 1.08;
+      grow = clamp01((q - 2.1) / 0.8);
+      solid = smooth(clamp01((q - 2.9) / 0.7));
+      alive = smooth(clamp01((q - 3.6) / 0.4));
       // the calisthenics run while the skinning beat holds the stage, then hand off to
       // the stillness the controls pose against
       const romAmp = solid * (1 - alive);
@@ -1196,7 +1227,7 @@ void main() {
       // in where they passed, then the closing doors. She stays screen left, still alive.
       const reel = clamp01((q - 4.6) / 1.9);
       const ungrow = smooth(clamp01((q - 4.75) / 1.2));
-      const growEff = grow - 1.06 * ungrow;
+      growEff = grow - 1.06 * ungrow;
       const price = smooth(clamp01((q - 6.0) / 0.45));
       const endd = smooth(clamp01((q - 6.8) / 0.4));
       de.setProperty('--reel', reel.toFixed(4));
@@ -1220,8 +1251,27 @@ void main() {
       }
 
       // the skeleton stays lit once grown; the points hand off to the solid
-      const ptFade = (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45);
-      const skelAlpha = grow > 0 ? 0.85 : 0;
+      // THE STORY GOES HOME (Adrian, 2026-08-22). On the homepage the act hands the room back
+      // to the About Me beat, and it used to do that by simply stopping -- a cut. So after
+      // the closing doors it RETURNS to the frame it arrived in: she and her rig leave and
+      // the camera settles to the landing, leaving the reference man alone in the room. The
+      // man is not restored here on purpose; he comes back as the host's own, faded in by
+      // the same control, so he is never drawn twice.
+      //
+      // /armature/ does not do this: it ends on its own closing doors and there is nothing
+      // after it to hand the room to.
+      // Timed to the END of the price beat, not its start (Adrian, 2026-08-22). "What it
+      // costs" lands at q 6.45 and the sticky hero holds until 7.8, after which the copy
+      // scrolls away and the room carries on alone; starting the return at 6.9 pulled her
+      // out from under the reader while they were still on the first line of it. 7.2 to 7.8
+      // puts the whole thing in the tail of that beat and lands it exactly as the copy goes.
+      const home = HOSTED ? smooth(clamp01((q - 7.2) / 0.6)) : 0;
+      const away = 1 - home;
+
+      ptFade = (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45) * away;
+      skelAlpha = (grow > 0 ? 0.85 : 0) * away;
+      solid = solid * away;
+      alive = alive * away;
 
       evalPose(time, romAmp, dt);
 
@@ -1316,49 +1366,38 @@ void main() {
         leg(CAM_LAND.tz, camFit.tz, camHer.tz, CAM_END.tz, CAM_OUT.tz)];
       const yaw = leg(CAM_LAND.yaw, camFit.yaw, camHer.yaw, CAM_END.yaw, CAM_OUT.yaw) + oy;
       const pitch = leg(CAM_LAND.pitch, camFit.pitch, camHer.pitch, CAM_END.pitch, CAM_OUT.pitch) + op;
+      // Settle back to the landing camera as she leaves, so the room the About Me beat
+      // inherits is the room the act opened in.
+      const landX = narrowCam ? 0 : CAM_LAND.tx;
+      return {
+        tgt: home > 0
+          ? [lerp(tgt[0], landX, home), lerp(tgt[1], CAM_LAND.ty, home), lerp(tgt[2], CAM_LAND.tz, home)]
+          : tgt,
+        yaw: lerp(yaw, CAM_LAND.yaw, home),
+        pitch: lerp(pitch, CAM_LAND.pitch, home),
+        dist: lerp(camDist, CAM_LAND.dist, home),
+        home,
+      };
+    }
+
+    // The story's camera as an eye/view pair. Kept apart from stepScene so a host can BLEND
+    // its own camera into this one before anything is drawn -- which is what turns the
+    // handoff into a camera move instead of a cut.
+    function viewFor(c: any) {
       const eye = [
-        tgt[0] + camDist * Math.cos(pitch) * Math.sin(yaw),
-        tgt[1] + camDist * Math.sin(pitch),
-        tgt[2] + camDist * Math.cos(pitch) * Math.cos(yaw)];
-      const view = lookAt(eye, tgt, [0, 1, 0]);
-      const proj = perspective(CAM_FOV, canvas.width / canvas.height, 0.01, 100);
+        c.tgt[0] + c.dist * Math.cos(c.pitch) * Math.sin(c.yaw),
+        c.tgt[1] + c.dist * Math.sin(c.pitch),
+        c.tgt[2] + c.dist * Math.cos(c.pitch) * Math.cos(c.yaw)];
+      return { eye, view: lookAt(eye, c.tgt, [0, 1, 0]) };
+    }
+
+    // Her story's content, into WHATEVER buffer is bound with WHATEVER camera is given. No
+    // room and no post: the host has already drawn the room and owns the bloom.
+    function drawContent(view: any, proj: any, eye: any) {
       lastView = view;
       lastEye = eye;
-
-      gl.bindFramebuffer(gl.FRAMEBUFFER, T.scene.f);
-      gl.viewport(0, 0, canvas.width, canvas.height);
-      gl.clearColor(CARBON[0], CARBON[1], CARBON[2], 1);
-      gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.disable(gl.DEPTH_TEST);
       gl.enable(gl.BLEND);
-
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-      gl.useProgram(P_STAR.p);
-      gl.uniformMatrix4fv(P_STAR.u.uProj, false, proj);
-      gl.uniformMatrix4fv(P_STAR.u.uView, false, view);
-      gl.uniform1f(P_STAR.u.uTime, time);
-      gl.uniform1f(P_STAR.u.uSpeed, 0.015);
-      gl.uniform1f(P_STAR.u.uBright, 1.0);
-      gl.uniform3fv(P_STAR.u.uBone, BONE);
-      gl.bindVertexArray(starVao);
-      gl.drawArrays(gl.POINTS, 0, STAR_N);
-
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
-      gl.useProgram(P_GRID.p);
-      gl.uniformMatrix4fv(P_GRID.u.uProj, false, proj);
-      gl.uniformMatrix4fv(P_GRID.u.uView, false, view);
-      gl.uniform3fv(P_GRID.u.uFogColor, CARBON);
-      gl.uniform1f(P_GRID.u.uFogNear, 2.0);
-      gl.uniform1f(P_GRID.u.uFogFar, 14.0);
-      for (const [g, col, opq] of [[gridFine, IRON2, 0.55], [gridSect, IRON3, 1.0]] as const) {
-        gl.uniform3fv(P_GRID.u.uColor, col);
-        gl.uniform1f(P_GRID.u.uOpacity, opq);
-        gl.bindVertexArray(g.vao);
-        gl.drawArrays(gl.LINES, 0, g.count);
-      }
-
-      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
-
       // the man, yielding the stage
       if (manOut < 0.999) {
         gl.useProgram(P_XRAY.p);
@@ -1454,6 +1493,49 @@ void main() {
         }
       }
       gl.disable(gl.BLEND);
+    }
+
+    function frame(now: number) {
+      requestAnimationFrame(frame);
+      const c = stepScene(now);
+      if (!c) return;
+      const { eye, view } = viewFor(c);
+      const proj = perspective(CAM_FOV, canvas.width / canvas.height, 0.01, 100);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, T.scene.f);
+      gl.viewport(0, 0, canvas.width, canvas.height);
+      gl.clearColor(CARBON[0], CARBON[1], CARBON[2], 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.disable(gl.DEPTH_TEST);
+      gl.enable(gl.BLEND);
+
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+      gl.useProgram(P_STAR.p);
+      gl.uniformMatrix4fv(P_STAR.u.uProj, false, proj);
+      gl.uniformMatrix4fv(P_STAR.u.uView, false, view);
+      gl.uniform1f(P_STAR.u.uTime, time);
+      gl.uniform1f(P_STAR.u.uSpeed, 0.015);
+      gl.uniform1f(P_STAR.u.uBright, 1.0);
+      gl.uniform3fv(P_STAR.u.uBone, BONE);
+      gl.bindVertexArray(starVao);
+      gl.drawArrays(gl.POINTS, 0, STAR_N);
+
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+      gl.useProgram(P_GRID.p);
+      gl.uniformMatrix4fv(P_GRID.u.uProj, false, proj);
+      gl.uniformMatrix4fv(P_GRID.u.uView, false, view);
+      gl.uniform3fv(P_GRID.u.uFogColor, CARBON);
+      gl.uniform1f(P_GRID.u.uFogNear, 2.0);
+      gl.uniform1f(P_GRID.u.uFogFar, 14.0);
+      for (const [g, col, opq] of [[gridFine, IRON2, 0.55], [gridSect, IRON3, 1.0]] as const) {
+        gl.uniform3fv(P_GRID.u.uColor, col);
+        gl.uniform1f(P_GRID.u.uOpacity, opq);
+        gl.bindVertexArray(g.vao);
+        gl.drawArrays(gl.LINES, 0, g.count);
+      }
+
+      gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+      drawContent(view, proj, eye);
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, T.bright.f);
       gl.viewport(0, 0, T.bright.w, T.bright.h);
@@ -1490,23 +1572,48 @@ void main() {
         gl.uniform1f(u2.uRadius, 0.34);
       });
 
+      // FIRST FRAME ONLY. This is the backdrop handoff and nothing else: the moment there
+      // is a real GL image to look at, the static plate underneath can go. The LAYOUT went
+      // live back at init -- see goLive() -- because it must not wait for a frame.
       if (!ready) {
         ready = true;
         canvas.setAttribute('data-ready', '');
-        hero?.setAttribute('data-stage-live', '');
-        // the runway exists only when the cinematic does; the fallback stays one screen
-        if (runway) runway.setAttribute('data-live', '');
-        // The beats and the reels title crossfade through one cell up here, so a screen
-        // reader would recite all four at once; hide them from it. They carry NO aria-hidden
-        // in the markup because under 900px they are the page's only prose, stacked and read
-        // in order, and a mobile page whose whole body is aria-hidden reads as empty.
-        hero?.querySelector('.ast-beats')?.setAttribute('aria-hidden', 'true');
-        hero?.querySelector('.ast-reels__title')?.setAttribute('aria-hidden', 'true');
       }
     }
+    // GO LIVE AT INIT, NOT ON THE FIRST FRAME (Adrian, 2026-08-22, mounting the act on the
+    // homepage). These two attributes are what give the runway its 880svh and put the hero
+    // into the cinematic layout, and they used to be set from inside the frame loop. That
+    // works only while the runway starts at scroll 0, as it does on /armature/: the loop
+    // culls itself when the runway is off screen, so an act mounted ten screens down never
+    // drew, never went live, and collapsed to a single screen. Setting it on the first frame
+    // would be worse than that -- the page would grow 880svh under the reader on arrival.
+    //
+    // Capability and visibility are different questions. By here the context exists and the
+    // meshes are in, so the cinematic IS capable; whether it is on screen stays purely the
+    // frame loop's business.
+    const goLive = () => {
+      hero?.setAttribute('data-stage-live', '');
+      if (runway) runway.setAttribute('data-live', '');
+      // The beats and the reels title crossfade through one cell up here, so a screen
+      // reader would recite all four at once; hide them from it. They carry NO aria-hidden
+      // in the markup because under 900px they are the page's only prose, stacked and read
+      // in order, and a mobile page whose whole body is aria-hidden reads as empty.
+      hero?.querySelector('.ast-beats')?.setAttribute('aria-hidden', 'true');
+      hero?.querySelector('.ast-reels__title')?.setAttribute('aria-hidden', 'true');
+    };
+    goLive();
+
     evalPose(0, 0, 0.016);
     resize();
-    requestAnimationFrame(frame);
+    if (HOSTED) {
+      // Hand the story to the host and let IT drive: the host steps the scene, blends its
+      // own camera into the story's, draws the room, then asks for this content. No second
+      // loop, no second canvas, no second bloom.
+      (window as any).__armatureScene = { step: stepScene, view: viewFor, draw: drawContent, fov: CAM_FOV };
+      window.dispatchEvent(new Event('armature-scene-ready'));
+    } else {
+      requestAnimationFrame(frame);
+    }
   }
 
   // THE WIDTH GATE IS GONE (Adrian, 2026-08-20). It was never a capability finding: nothing
@@ -1515,14 +1622,30 @@ void main() {
   // heat, and both are handled above (render scale is capped at 1.5 under 900px, and the
   // frame loop already returns early when the runway is off screen). Reduced motion and a
   // missing WebGL2 context remain the only reasons to stay static.
-  if (
+  // ON THE HOMEPAGE THERE IS NOTHING TO BOOT (Adrian, 2026-08-22, "one seamless scene").
+  // The point cloud already has a room, a camera and a bloom chain running; a second context
+  // beside it is by definition a second scene. So wait for it to offer its context and join
+  // it as a guest.
+  const hostSlot = document.querySelector('[data-armature-host]');
+  if (hostSlot && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    const join = () => {
+      const room = (window as any).__pcRoom;
+      if (!room) return;
+      run(room.canvas, room.gl, true).catch((err) => {
+        console.error('[armature-stage]', err);
+        document.querySelector('.ast-hero')?.removeAttribute('data-stage-pending');
+      });
+    };
+    if ((window as any).__pcRoom) join();
+    else window.addEventListener('pc-room-ready', join, { once: true });
+  } else if (
     canvas &&
     !matchMedia('(prefers-reduced-motion: reduce)').matches
   ) {
     const gl = canvas.getContext('webgl2', { antialias: false });
     // The inline gate in index.astro hid the fallback before first paint on the assumption
     // this would start. Every path that gives up has to hand it back, or the hero is empty.
-    const unpend = () => canvas.closest('.ast-hero')?.removeAttribute('data-stage-pending');
+    const unpend = () => document.querySelector('.ast-hero')?.removeAttribute('data-stage-pending');
     if (gl) {
       run(canvas, gl).catch((err) => {
         console.error('[armature-stage]', err);

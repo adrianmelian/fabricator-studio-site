@@ -103,7 +103,10 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   .pc__stage { position: absolute; inset: 0; overflow: hidden; }
   /* svh, not vh: on mobile vh measures the viewport with the toolbars retracted, so a runway
      in vh is taller than what you can see and the beat timing drifts as the URL bar collapses. */
-  .pc-runway { height: 1060svh; }
+  /* 960svh, not 1060 (2026-08-22). The scan finishes at 8.5 scroll screens and the last
+     100svh used to hold the room for the About Me beat, which has moved to the end of the
+     page. The Armature act follows the wall wipe directly now, so that hold is dead room. */
+  .pc-runway { height: 960svh; }
 
   /* The copy rides its own fixed layer ABOVE the video's z1, because the buttons must stay
      clickable and visible after the video has faded in underneath them. */
@@ -462,6 +465,12 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     const canvas = host.querySelector('[data-pc-canvas]') as HTMLCanvasElement;
     const gl = canvas.getContext('webgl2', { antialias: true, alpha: false });
     if (!gl) { fallback(host); return; }
+
+    // OFFER THE ROOM (Adrian, 2026-08-22, "one seamless scene"). The Armature act joins
+    // this context as a guest rather than standing up a second one beside it; a second
+    // context is a second scene however well it is blended.
+    (window as any).__pcRoom = { canvas, gl };
+    window.dispatchEvent(new Event('pc-room-ready'));
 
     try { await run(host, canvas, gl); }
     catch (err) {
@@ -1301,8 +1310,21 @@ void main() {
 
       // THE CLOSE (Adrian, 2026-08-19): About Me and the engagements ask, one screen,
       // rising over the room once the scan has left.
-      const close = smooth(clamp01((scrollY - innerHeight * 8.6) / (innerHeight * 0.4)));
+      // THE CLOSE, KEYED OFF ITS OWN RUNWAY (2026-08-22). It used to fire at a hardcoded 8.6
+      // screens of absolute scroll, which was only ever correct while this beat was the last
+      // thing on the page. It closes AFTER the Armature act now, so it reads its runway's
+      // rect instead -- the same position-independent trick ArmatureStage uses, which means
+      // nothing above it can retime it again.
+      const crEl = document.querySelector('[data-close-runway]');
+      const close = crEl
+        ? smooth(clamp01(-crEl.getBoundingClientRect().top / (innerHeight * 0.4)))
+        : smooth(clamp01((scrollY - innerHeight * 8.6) / (innerHeight * 0.4)));
       document.documentElement.style.setProperty('--close', close.toFixed(3));
+
+      // THE HANDOFF (Adrian, 2026-08-22): "just one 3D scene". The act's room takes over
+      // from this one rather than arriving as a second scene, so this canvas fades out
+      // across the screen before the act's runway reaches the top, while the act's own
+      // canvas fades in on its first frame. Same room, one continuous shot.
       const closeEl = document.querySelector('[data-close-overlay]');
       if (closeEl) {
         if (close > 0.01) closeEl.setAttribute('data-active', '');
@@ -1555,6 +1577,36 @@ void main() {
         ty: leg(camA.ty, camB.ty, CAM_P.ty, CAM_C.ty),
         tz: leg(camA.tz, camB.tz, CAM_P.tz, CAM_C.tz),
       };
+      // THE HANDOFF IS A CAMERA MOVE, NOT A CUT (Adrian, 2026-08-22). The Armature story
+      // steps itself here -- it owns its clock, its pose and its own camera -- and this
+      // camera is then blended INTO that one across the screen before the act's runway
+      // reaches the top. From the wall wipe the shot simply pulls back and keeps going.
+      const actRunway = document.querySelector('[data-ast-scroll]');
+      const guest = (window as any).__armatureScene;
+      let guestCam: any = null;
+      let guestMix = 0;
+      if (guest && actRunway) {
+        guestCam = guest.step(now);
+        if (guestCam) {
+          const ar = actRunway.getBoundingClientRect();
+          // Symmetric: the act takes the room across a screen on the way in, and hands it
+          // straight back as the story returns home. At the far end guestMix reaches zero,
+          // which stops the guest drawing at all and brings this room's own man back up.
+          guestMix = smooth(clamp01((innerHeight - ar.top) / Math.max(1, innerHeight)))
+            * (1 - (guestCam.home || 0));
+        }
+      }
+      if (guestCam && guestMix > 0.0001) {
+        const m = guestMix;
+        c.yaw = lerp(c.yaw, guestCam.yaw, m);
+        c.pitch = lerp(c.pitch, guestCam.pitch, m);
+        c.dist = lerp(c.dist, guestCam.dist, m);
+        c.fov = lerp(c.fov, guest.fov, m);
+        c.tx = lerp(c.tx, guestCam.tgt[0], m);
+        c.ty = lerp(c.ty, guestCam.tgt[1], m);
+        c.tz = lerp(c.tz, guestCam.tgt[2], m);
+      }
+
       const tgt = [c.tx, c.ty, c.tz];
       const eye = [
         tgt[0] + c.dist * Math.cos(c.pitch) * Math.sin(c.yaw),
@@ -1680,7 +1732,10 @@ void main() {
       const bandBottomFrac = 1.08 - 1.26 * scan + 0.16;
       const splitY = scan > 0.001 ? (1 - Math.min(1.08, bandBottomFrac)) * canvas.height : -1;
 
-      if (man && manReveal > 0) {
+      // The story draws this same height man once it has the room, so fade ours out as it
+      // takes over rather than standing two of him in the same spot.
+      const manHand = 1 - guestMix;
+      if (man && manReveal > 0 && manHand > 0.002) {
         gl.uniform1f(U.uSplitY, splitY);
         // Slow and subtle (Adrian, 2026-08-19): about a quarter of the logo's wave speed
         // and a smaller swell. He should read as breathing, not rippling.
@@ -1688,7 +1743,7 @@ void main() {
         gl.uniform1f(U.uFreq, 0.7);
         gl.uniform1f(U.uFreq2, 0.3);
         gl.uniform1f(U.uExplode, 0);
-        gl.uniform1f(U.uReveal, manReveal * 1.08);
+        gl.uniform1f(U.uReveal, manReveal * 1.08 * manHand);
         gl.uniform1f(U.uFade, 1);
         gl.bindVertexArray(man.vao);
         gl.drawArrays(gl.POINTS, 0, man.count);
@@ -1702,13 +1757,18 @@ void main() {
           gl.uniformMatrix4fv(P_XRAY.u.uView, false, view);
           gl.uniform3fv(P_XRAY.u.uPlasma, PLASMA);
           gl.uniform3fv(P_XRAY.u.uBone, BONE);
-          gl.uniform1f(P_XRAY.u.uAlpha, 0.5);
+          gl.uniform1f(P_XRAY.u.uAlpha, 0.5 * manHand);
           gl.uniform1f(P_XRAY.u.uSplitY, splitY);
           gl.bindVertexArray(man.solid.vao);
           gl.drawElements(gl.TRIANGLES, man.solid.count, gl.UNSIGNED_SHORT, 0);
         }
       }
       gl.disable(gl.BLEND);
+
+      // THE GUEST'S CONTENT, into this same buffer with this same camera, before this same
+      // bloom. One scene: her build happens in the room the reader has been in since the
+      // opening, not in a room that replaced it.
+      if (guestCam && guestMix > 0.0001) guest.draw(view, proj, eye);
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, T.bright.f);
       gl.viewport(0, 0, T.bright.w, T.bright.h);

@@ -38,6 +38,7 @@ import PipelineOverlay from '../components/PipelineOverlay.astro';
 import ArmatureOverlay from '../components/ArmatureOverlay.astro';
 import WallOverlay from '../components/WallOverlay.astro';
 import CloseOverlay from '../components/CloseOverlay.astro';
+import ArmatureAct from '../components/ArmatureAct.astro';
 
 // The product card art rather than a trailer frame (Adrian, 2026-08-04): it carries the
 // lockup and the tagline baked in, so the thumbnail says what the video is before a click.
@@ -155,8 +156,26 @@ const PROOF = [
       band with the download riding it. Choreography in PointCloudHero's loop. */}
   <WallOverlay />
 
-  {/* THE CLOSING BEAT (Adrian, 2026-08-19): About Me and the engagements ask, one
-      fullscreen layout over the room, after the scan has passed. */}
+  {/* THE ARMATURE ACT (Adrian, 2026-08-22): after the tool wall wipe the page goes straight
+      into the Armature story rather than sending the reader to another URL. Same component
+      /armature/ mounts, so there is one implementation and the product keeps its own page.
+
+      The raise is not optional. .hero-v2[data-cine] is position:fixed at z-index 1 for the
+      length of the opening runway, so anything after it that is not lifted gets the video
+      printed over it -- which is exactly why .site-footer-raise below exists. */}
+  <div class="armature-act-raise">
+    <ArmatureAct variant="inline" />
+  </div>
+
+  {/* THE CLOSING BEAT (Adrian, 2026-08-19; moved here 2026-08-22). About Me and the
+      engagements ask, one fullscreen layout over the room. It used to sit between the wall
+      wipe and here, which put the hire-me ask in the MIDDLE of the page and left the page
+      ending on Armature's pricing. It closes now, which is also what stops the act's opaque
+      edge guillotining it mid-sentence.
+
+      It needs a runway because .cl is position:fixed and carries no scroll of its own; the
+      hero's runway used to provide it. Empty and aria-hidden: it is scroll, not content. */}
+  <div class="close-runway" data-close-runway aria-hidden="true"></div>
   <CloseOverlay />
 
   {/* STILL STRIPPED (Adrian, 2026-08-19): one transition at a time. Armature, proof,
@@ -234,6 +253,15 @@ const PROOF = [
 
 <style>
   .site-footer-raise { position: relative; z-index: 3; background: var(--carbon); }
+  /* NO BACKGROUND (Adrian, 2026-08-22). An opaque block here is what made the act read as a
+     second 3D scene: it cut a hard edge across the room and guillotined whatever was under
+     it. The act's own canvas is opaque, so it covers the room by rendering it, not by
+     hiding it -- which is what lets the two scenes cross into one continuous shot. */
+  .armature-act-raise { position: relative; z-index: 3; }
+  /* Transparent on purpose: the close beat plays OVER the room, so the point cloud canvas
+     behind it has to show through. No z-index either -- .cl (z2) paints over this, and the
+     footer (z3) curtains over .cl, which is how the beat has always exited. */
+  .close-runway { height: 150svh; }
 
   .hero-v2 {
     position: relative;

@@ -1,0 +1,1276 @@
+---
+// THE ARMATURE ACT (Adrian, 2026-08-22). Extracted from src/pages/armature/index.astro so the
+// homepage can mount the same act after the tool wall wipe and /armature/ can keep being a real
+// page with its own <head>. ONE implementation, two routes: this is reuse, not a duplicate.
+//
+// It is safe to mount anywhere on a page because ArmatureStage's clock reads its OWN runway's
+// rect rather than scrollY, so the choreography is position-independent. PointCloudHero is not:
+// it reads absolute scrollY, which is fine only while it is first on the page.
+
+import ArmatureStage from './ArmatureStage.astro';
+import YouTubeFacade from './YouTubeFacade.astro';
+import { Image, getImage } from 'astro:assets';
+
+import fsMark from '../assets/armature/fs-mark.png';
+import stageFit from '../assets/armature/stage-fit.png';
+import stageSkeleton from '../assets/armature/stage-skeleton.png';
+import stageSkin from '../assets/armature/stage-skin.png';
+import heroProduct from '../assets/armature/hero-product.png';
+// The phone's backdrop is the DESKTOP LANDING SHOT itself, captured off the live
+// WebGL stage at scroll 0 with every DOM layer hidden (Adrian, 2026-08-13). The
+// marketing plate above carries its own burned-in lockup, which fights the h1 at
+// phone widths; this one is the room the cinematic actually opens in.
+import heroLandingPortrait from '../assets/armature/hero-landing-portrait.png';
+import trailerPoster from '../assets/armature/armature-card-poster.jpg';
+
+interface Props {
+  /* 'page' is /armature/, which has to introduce the product with its own landing doors.
+     'inline' is the homepage, where the act continues a room the reader is already in: the
+     landing is the text and the trailer over that room, and the doors are dropped because
+     the act already closes with an identical pair a few screens later. */
+  variant?: 'page' | 'inline';
+}
+const { variant = 'page' } = Astro.props;
+
+import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../data/armature';
+import { ARMATURE_TUTORIALS as WALKTHROUGHS, CHANNEL } from '../data/tutorials';
+
+const heroPortraitSrc = (await getImage({ src: heroLandingPortrait, format: 'webp', width: 1170 })).src;
+
+---
+    <div class:list={['ast-scroll', variant === 'inline' && 'ast-scroll--inline']} data-ast-scroll>
+    <header class="ast-hero hero--art">
+      {/* The static art is the FALLBACK: under 900px, reduced motion, or no WebGL2 the
+          stage never goes live and this stays the backdrop. */}
+      <picture>
+        <source media="(max-width: 900px)" srcset={heroPortraitSrc} />
+        <Image
+          class="hero__art"
+          src={heroProduct}
+          {/* Decorative, and it has to be: <picture> serves a different image under
+              900px (the landing plate, not the samurai) and alt cannot vary per
+              source, so a description of one would lie about the other. It is a backdrop
+              behind the h1 that says the same thing in text, and on desktop it is
+              hidden outright the moment the live stage takes over. */}
+          alt=""
+          widths={[1280, 1920, 2560]}
+          sizes="100vw"
+          loading="eager"
+        />
+      </picture>
+      <div class="hero__scrim" aria-hidden="true"></div>
+
+      {/* NO FALLBACK FLASH (Adrian saw it, 2026-08-13: "I can see that old image with the
+          samurai in the middle popup for a few frames, then it's the height man"). The art
+          is eager, so it paints at ~4ms, while the stage only takes over around 650ms once
+          its module has been fetched and WebGL has initialised. That window is the flash.
+
+          The gate is knowable before first paint, so decide it there: this runs inline and
+          synchronous, unlike the stage's own module, and marks the hero pending so the CSS
+          hides the fallback from the very first frame. If the stage then fails to start,
+          ArmatureStage clears the attribute and the fallback appears as it always did. The
+          WebGL2 probe is done on a throwaway canvas rather than assumed, so a machine that
+          cannot render is never left staring at a hidden backdrop. */}
+      <script is:inline>
+        (function () {
+          try {
+            if (!matchMedia('(min-width: 901px)').matches) return;
+            if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+            var probe = document.createElement('canvas');
+            if (!probe.getContext('webgl2')) return;
+            document.currentScript.closest('.ast-hero').setAttribute('data-stage-pending', '');
+          } catch (e) {}
+        })();
+      </script>
+
+      {/* THE LANDING SHOT: the homepage's post-scan frame, the height man solid in the
+          x-ray fresnel, standing in the starred room. Elastic orbit on drag. */}
+      <ArmatureStage variant={variant} />
+
+      {/* The left column (Adrian, 2026-08-19): the lockup off to the left with his three
+          ruled lines under it. The man holds the centre. A fourth line is HELD pending his
+          call on its register. */}
+      <div class="ast-hero__intro">
+        {/* The colourful Armature wordmark is retired (Adrian, 2026-08-19: phasing it
+            out); the mark stays and the title carries the name in type. The title is the
+            page's real h1 now that it is visible. */}
+        <div class="ast-hero__lockup" aria-hidden="true">
+          <Image class="ast-hero__lockup-mark" src={fsMark} alt="" widths={[120, 240, 338]} sizes="8vw" />
+        </div>
+        <h1 class="ast-hero__tagline">Armature: Rigging <span class="ast-amp">&amp;</span> Skinning Re&#8209;imagined.</h1>
+        <p class="ast-hero__line">Generative joint placement and skin binding.</p>
+        <p class="ast-hero__line"><span class="ast-hero__plus">+</span> Artist-friendly tools for production quality refinement.</p>
+      </div>
+
+      {/* THE TRAILER ON THE LANDING (Adrian, 2026-08-20): right flank on desktop, centred on
+          a phone. It rides the landing's own fade, so it leaves with the stanza and the doors
+          as the story starts rather than hanging over the fitting room.
+
+          A FACADE, so nothing reaches Google until someone presses play. /armature/ is already
+          named as a YouTube surface in the privacy table and the row already says "nothing at
+          all unless you start a video", so that claim stays true with this here; checked
+          rather than assumed, because YouTubeFacade's own header says adding it to a new
+          surface obliges exactly that check. Same trailer and poster the homepage beat uses. */}
+      <div class="ast-hero__media">
+        <YouTubeFacade
+          id="PhHXmcpcGKk"
+          title="Armature trailer"
+          poster={trailerPoster}
+          posterAlt="The Armature trailer: a character rigged and posed in the standalone app."
+          sizes="(min-width: 901px) 34vw, 88vw"
+        />
+      </div>
+
+      {variant === 'page' && (
+      <div class="ast-hero__actions">
+        <div class="getblock__actions">
+          <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+            Download for Windows
+          </button>
+          <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-hero">
+            Read the docs
+          </a>
+        </div>
+        <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
+        {/* The dialog needs script to open; without it the same rows render as links. */}
+        <noscript>
+          <ul class="picker__rows picker__rows--inline">
+            {PICKER_ROWS.map((row) => (
+              <li class="picker__row">
+                <div class="picker__copy">
+                  <p class="picker__name"><b>{row.name}.</b> <span class="picker__price">{row.price}.</span></p>
+                  <p class="picker__line">{row.line}</p>
+                </div>
+                {row.cta === 'download' ? (
+                  <a class="btn picker__cta" href={ARMATURE.installer} data-goatcounter-click={row.event}>Download</a>
+                ) : ARMATURE.stripeCommercial ? (
+                  <a class="btn picker__cta" href={ARMATURE.stripeCommercial} data-goatcounter-click={row.event}>Continue to checkout</a>
+                ) : (
+                  <button class="btn picker__cta" type="button" disabled>Continue to checkout</button>
+                )}
+              </li>
+            ))}
+          </ul>
+        </noscript>
+      </div>
+      )}
+
+      {/* THE STORY'S COPY BEATS -- DRAFT except the stage names (Adrian's, 2026-08-19).
+          The app's stages, told on the left flank: Fitting Room / Skeleton / Skinning /
+          alive. One cell, crossfading with their scenes. */}
+      <div class="ast-beats">
+        <div class="ast-beat" style="opacity: var(--ab1, 0)">
+          <p class="ast-beat__head"><span class="ast-accent">Fitting</span> Room</p>
+          <p class="ast-beat__line">Fit your character to size so symmetry and placement behave.</p>
+          <Image class="ast-beat__img" src={stageFit} alt="" widths={[560, 960, 1600]} sizes="(min-width: 901px) 60vw, 92vw" />
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab2, 0)">
+          <p class="ast-beat__head"><span class="ast-accent">Generative</span> Skeleton Placement</p>
+          <p class="ast-beat__line">Auto fit the joints to your model, automatically named and oriented correctly.</p>
+          <Image class="ast-beat__img" src={stageSkeleton} alt="" widths={[560, 960, 1600]} sizes="(min-width: 901px) 60vw, 92vw" />
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab3, 0)">
+          <p class="ast-beat__head"><span class="ast-accent">Generative</span> Skin Binding</p>
+          <p class="ast-beat__line">Machine learned skinning binds any type of mesh.</p>
+          <Image class="ast-beat__img" src={stageSkin} alt="" widths={[560, 960, 1600]} sizes="(min-width: 901px) 60vw, 92vw" />
+        </div>
+        <div class="ast-beat" style="opacity: var(--ab4, 0)">
+          <p class="ast-beat__head"><span class="ast-accent">Animation</span> Ready in Minutes</p>
+          <p class="ast-beat__line">Go directly to Unreal or Maya for auto Fabricator Control Rig builds.</p>
+          {/* SCRUBBED, NOT PLAYED (Adrian, 2026-08-20): the scroll IS the transport. Down the
+              page runs the Maya-to-Unreal control rig transition forward, back up rewinds it.
+              It never autoplays, so nothing moves unless the reader is moving.
+
+              preload="none" and NOT auto: this is 1.6 MB, and the stage only calls load() once
+              the reader is actually heading for this beat. Anyone who leaves at the landing,
+              and every phone (the clip is hidden at that width), never pays for it. On the
+              reduced-motion path the loop never runs, so it stays a poster -- which is the
+              crossfade frame with both logos and both rigs in it, and makes the point on its
+              own. aria-hidden to match its sibling images: the line above says the same thing
+              in text, so announcing it twice is noise. */}
+          <video
+            class="ast-beat__vid"
+            data-ast-scrub
+            src="/proof/proof-controlrig.mp4"
+            poster="/proof/proof-controlrig.jpg"
+            preload="none"
+            muted
+            playsinline
+            aria-hidden="true"
+          ></video>
+        </div>
+      </div>
+
+      {/* THE REELS (Adrian, 2026-08-19): the live page's three walkthroughs -- three
+          characters, start to finish -- as a textless strip riding up past the right
+          side. Thumbnails are self-hosted stills and each card is click-to-YouTube: the
+          privacy ruling (nothing reaches Google without a click) forbids autoplaying
+          embeds, and no local files of these videos exist. */}
+      {/* WHAT IT COSTS -- the live page's ruled pricing copy, verbatim. */}
+      <div class="ast-price" data-ast-price>
+        <p class="ast-beat__head"><span class="ast-accent">What</span> it costs.</p>
+        <p class="ast-price__lede">
+          Free for personal, learning, and portfolio work, and free for commercial work under
+          $100k a year. If you qualify for Maya Indie, Armature is free. Above that it is <b>$149 per artist, once</b>, with a year of updates.
+        </p>
+        <p class="ast-price__note">
+          Armature is a new standalone application. It is not the Armature step inside the Maya
+          toolset, and it is not part of that free download.
+        </p>
+        <p class="ast-price__contact">
+          Bringing an existing rig into Armature? <a href="mailto:adrian@fabricator.studio?subject=Armature%3A%20existing%20rig">Talk to us</a>.
+        </p>
+      </div>
+
+      {/* The strip's standing title, BEHIND the cards: the first video wipes it as it
+          passes, and the fade below matches that moment. */}
+      {/* Title and its line are ONE positioned block. They were going to be two absolutely
+          positioned siblings, which needs the sub's `top` to encode the title's height --
+          and that height is set in vw, so any hardcoded offset would drift apart from it at
+          some window size and eventually overlap.
+
+          The line under it (Adrian, 2026-08-20): every claim in it is checkable against
+          src/data/tutorials.ts, which is three Armature walkthroughs, one per character
+          type, each rigging a whole character. Nothing about length, edit or release
+          schedule, because none of that is recorded anywhere I can verify. */}
+      <div class="ast-reels__head">
+        <p class="ast-reels__title"><span class="ast-accent">Tutorial</span> Video<br />Series</p>
+        <p class="ast-reels__sub">
+          The full series is <a href={CHANNEL} target="_blank" rel="noopener">on YouTube</a>: a human, a non-human and a quadruped, each rigged start to finish.
+        </p>
+      </div>
+
+      <div class="ast-reels" data-ast-reels>
+        <div class="ast-reels__strip">
+          {WALKTHROUGHS.map((w) => (
+            <a class="ast-reel" href={w.href} target="_blank" rel="noopener" aria-label={w.title}>
+              <img src={w.thumb} alt="" loading="lazy" />
+              <span class="ast-reel__play" aria-hidden="true">&#9654;</span>
+            </a>
+          ))}
+        </div>
+      </div>
+
+      {/* THE CLOSE: the same doors as the landing. A reader who got this far without
+          downloading is exactly the one who wanted to read first. */}
+      <div class="ast-end" data-ast-end>
+        <div class="getblock__actions">
+          <button class="btn getblock__btn" type="button" data-picker-open data-goatcounter-click="armature-picker-open">
+            Download for Windows
+          </button>
+          <a class="btn btn--quiet" href="/docs/armature/" data-goatcounter-click="armature-docs-from-close">
+            Read the docs
+          </a>
+        </div>
+        <p class="reassure">Free for indies. <a href="/privacy/">Privacy</a> &middot; <a href="/armature/eula/">EULA</a>.</p>
+      </div>
+    </header>
+    </div>
+
+    {/* The licence picker (COPY-LAUNCH.md §2, verbatim; ruling 2026-07-28b). Download opens
+        this rather than downloading. Eligibility leads, price follows: a user reading these
+        cannot pick wrongly by accident. Rows are data-driven from src/data/armature.ts so
+        the education grant lands as a third row without touching this markup. The selection
+        here is a default; the installer's click-through selection is the operative one
+        (EULA §3.4). */}
+    <dialog class="shot-dialog picker" id="picker-dialog" aria-labelledby="picker-title">
+      <div class="picker__inner">
+        <p class="picker__head" id="picker-title">Download Armature {ARMATURE.version}</p>
+        {/* R19: the refund line does its job by reducing hesitation AT the checkout, so it
+            sits inside the picker, above the Commercial button, rather than only on the
+            pricing page a buyer may never revisit. */}
+        <p class="picker__refund">Fourteen days, no questions. If Armature is not what you needed, email us within fourteen days of buying and we will refund you.</p>
+        <ul class="picker__rows">
+          {PICKER_ROWS.map((row) => (
+            <li class="picker__row">
+              <div class="picker__copy">
+                <p class="picker__name">
+                  <b>{row.name}.</b> <span class="picker__price">{row.price}.</span>
+                </p>
+                <p class="picker__line">{row.line}</p>
+              </div>
+              {row.cta === 'download' ? (
+                <a class="btn picker__cta" href={ARMATURE.installer} data-goatcounter-click={row.event}>Download</a>
+              ) : ARMATURE.stripeCommercial ? (
+                <a class="btn picker__cta" href={ARMATURE.stripeCommercial} data-goatcounter-click={row.event}>Continue to checkout</a>
+              ) : (
+                <button class="btn picker__cta" type="button" disabled>Continue to checkout</button>
+              )}
+            </li>
+          ))}
+        </ul>
+        {/* The SmartScreen pre-empt, at the point of download (Adrian, 2026-08-01 evening).
+            The person reading this just pressed Download, so it carries only the two things
+            they need: the click path past the warning, and the hash to verify against. */}
+        <aside class="smartscreen smartscreen--picker" aria-labelledby="smartscreen-title">
+          <h3 class="smartscreen__title" id="smartscreen-title">Windows will warn you the first time you run this</h3>
+          <p>
+            Armature is a new installer from a new publisher, so Windows SmartScreen shows a
+            blue "Windows protected your PC" screen the first time you open it. Click <b>More info</b>, then <b>Run anyway</b>.
+          </p>
+          <pre class="smartscreen__code"><code>Get-FileHash .\{INSTALLER_NAME} -Algorithm SHA256</code></pre>
+          {ARMATURE.sha256 ? (
+            <p class="smartscreen__hash">SHA-256: <code>{ARMATURE.sha256}</code></p>
+          ) : (
+            <p class="smartscreen__hash">SHA-256: <code>published at release</code></p>
+          )}
+        </aside>
+        <button class="shot-dialog__close" type="button" data-shot-close aria-label="Close">
+          <span aria-hidden="true">✕</span>
+        </button>
+      </div>
+    </dialog>
+
+<script is:inline>
+  (function () {
+    // The licence picker. Download opens the picker rather than downloading. With JS
+    // disabled the dialog cannot open, so the hero carries a <noscript> fallback rendering
+    // the same rows as plain links.
+    function wireDialog(dlg) {
+      if (!dlg) return;
+      dlg.addEventListener('click', function (e) {
+        if (e.target === dlg) dlg.close();
+      });
+      dlg.querySelectorAll('[data-shot-close]').forEach(function (b) {
+        b.addEventListener('click', function () {
+          dlg.close();
+        });
+      });
+    }
+    var pickerDialog = document.getElementById('picker-dialog');
+    wireDialog(pickerDialog);
+    document.querySelectorAll('[data-picker-open]').forEach(function (trigger) {
+      trigger.addEventListener('click', function () {
+        if (pickerDialog && pickerDialog.showModal) pickerDialog.showModal();
+      });
+    });
+  })();
+</script>
+
+<style>
+  /* ---- the stripped hero: one fullscreen stage, everything positioned against it ---- */
+  .ast-hero {
+    position: relative;
+    min-height: calc(100svh - var(--header-h));
+    overflow: hidden;
+    border-bottom: 1px solid var(--iron-2);
+  }
+  .ast-hero :global(.hero__art) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(11, 14, 16, 0.82) 0%, rgba(11, 14, 16, 0.45) 22%, rgba(11, 14, 16, 0) 42%),
+      linear-gradient(0deg, rgba(11, 14, 16, 0.8) 0%, rgba(11, 14, 16, 0) 30%);
+  }
+  /* INLINE: NO EDGE. That border is the boundary between /armature/'s hero and the page
+     under it. Mounted mid-scroll on the homepage there is no boundary to draw -- the room
+     carries straight on -- and it showed up as a 1px rule ruled across the scene at the
+     act's bottom edge (measured: luminance 43 against 21 either side). */
+  .ast-scroll--inline .ast-hero { border-bottom: 0; }
+
+  /* The live stage replaces the art as backdrop; visibility, not display, so nothing
+     reflows when it goes live. */
+  .ast-hero[data-stage-live] :global(.hero__art),
+  .ast-hero[data-stage-live] .hero__scrim { visibility: hidden; }
+  /* Hidden from the first frame while the stage is on its way in, not from the moment it
+     arrives. See the inline gate above the scrim. */
+  .ast-hero[data-stage-pending] :global(.hero__art),
+  .ast-hero[data-stage-pending] .hero__scrim { visibility: hidden; }
+
+  /* The runway: one screen on the fallback; the story's length when the stage is live.
+     The hero rides it sticky, so the room never leaves while the beats play. */
+  .ast-scroll { position: relative; }
+  /* INLINE ON THE HOMEPAGE: no second landing. The trailer and the landing doors are how
+     /armature/ INTRODUCES the product; arriving here they would restate an introduction the
+     page already made and, worse, read as the start of a separate page. The tagline stays
+     and fades in over the continuing room; the doors come back at the close, where the act
+     already carries its own pair. */
+  .ast-scroll[data-live] { height: 880svh; }
+  .ast-scroll[data-live] .ast-hero {
+    position: sticky;
+    top: var(--header-h);
+    height: calc(100svh - var(--header-h));
+  }
+
+  /* The landing copy leaves as the story starts; visibility follows so the faded doors
+     cannot be clicked (pointer-events on a parent loses to a child's explicit value). */
+  .ast-hero__intro,
+  .ast-hero__actions,
+  .ast-hero__media {
+    opacity: calc(1 - var(--aland, 0));
+    transform: translateY(calc(var(--aland, 0) * -18px));
+  }
+  /* visibility, not just opacity: a faded facade is still a button, and an invisible one
+     that takes a click is worse than a visible one that does not. */
+  .ast-hero[data-land-gone] .ast-hero__intro,
+  .ast-hero[data-land-gone] .ast-hero__actions,
+  .ast-hero[data-land-gone] .ast-hero__media { visibility: hidden; }
+
+  /* The RIGHT flank, mirroring the intro on the left with the character between them. */
+  .ast-hero__media {
+    position: absolute;
+    right: 8vw;
+    top: 26%;
+    width: min(34rem, 34vw);
+  }
+
+  /* The copy beats: TWO THIRDS LEFT, her third on the right (Adrian, 2026-08-20). He named
+     the reference himself -- "what it costs" already puts her on one side and the copy on
+     the other, and this is that framing mirrored. So the column runs from the same 7vw
+     margin .ast-end uses to a third off the right edge, and reads left-aligned like it.
+
+     Centred-on-top came before this and lasted a day: it was the phone's composition carried
+     across, and on a wide frame it left the copy floating over the middle of the room with
+     her crowded into the corner. Stage-header over line over screenshot, one grid cell,
+     crossfading on their vars. */
+  .ast-beats {
+    position: absolute;
+    left: 7vw;
+    right: 34%;
+    top: 11%;
+    width: auto;
+    text-align: left;
+    display: none;
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+  }
+  .ast-hero[data-stage-live] .ast-beats { display: grid; }
+  .ast-beat {
+    grid-area: 1 / 1;
+    align-self: start;
+  }
+  .ast-beat__head {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.2rem, 3.2vw, 3.4rem);
+    line-height: 1.05;
+    color: var(--bone);
+  }
+  /* THE TITLE PALETTE IS GREEN AND WHITE (Adrian, 2026-08-20): "everywhere that has an
+     orange first word, change that to a green. So the title should only be green and white,
+     or white with a green accent." Titles took their first word in EMBER from 2026-08-19;
+     that ruling is superseded here rather than left beside its replacement.
+
+     Renamed off `ast-ember` deliberately. A class still called ember while painting plasma
+     is a trap for the next reader, and the point of the rename is that nobody has to know
+     this history to get it right. Ember keeps every other job it has on the site: eyebrows,
+     pills, prices, rules, the docs glyph cycle. This is titles only. */
+  .ast-accent,
+  .ast-amp { color: var(--plasma); }
+
+  /* The reels' standing title, over the passing strip. Driven by --reelt from the loop. */
+  .ast-reels__head {
+    position: absolute;
+    top: 9%;
+    right: 8vw;
+    width: min(32rem, 34vw);
+    text-align: right;
+    opacity: var(--reelt, 0);
+    pointer-events: none;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+    display: none;
+  }
+  .ast-hero[data-stage-live] .ast-reels__head { display: block; }
+  .ast-reels__title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    /* Bigger (Adrian, 2026-08-20). It shares the frame with the strip rather than with body
+       copy, so it was reading small against the cards riding past it. */
+    font-size: clamp(3rem, 4.8vw, 5rem);
+    line-height: 1.05;
+    color: var(--bone);
+  }
+  .ast-reels__sub {
+    margin-top: 0.9rem;
+    font-weight: 300;
+    font-size: clamp(1.05rem, 1.35vw, 1.25rem);
+    line-height: 1.45;
+    color: var(--bone);
+  }
+  /* The block is click-through; the one link in it is not. */
+  .ast-reels__sub a { color: var(--plasma); pointer-events: auto; }
+  .ast-beat__line {
+    margin-top: 0.8rem;
+    font-weight: 300;
+    font-size: clamp(1.15rem, 1.7vw, 1.6rem);
+    line-height: 1.35;
+    color: var(--bone);
+  }
+  /* The screenshot fills the copy column rather than carrying its own width: the column IS
+     the two thirds Adrian ruled, so one number governs the band and the art in it. Wider
+     than the min(58rem, 56vw) it replaces, which is the direction he wanted anyway -- these
+     are app screenshots and the UI in them is the reason they are on the page at all. */
+  .ast-beats :global(.ast-beat__img),
+  .ast-beats .ast-beat__vid {
+    margin-top: 1.8rem;
+    width: 100%;
+    /* NEVER FULLY OPAQUE (Adrian, 2026-08-21): at 1.0 the screenshot is a hole punched in
+       the room, and the character behind it disappears where they overlap. 0.85 keeps her
+       readable through it and keeps the plate feeling like it is IN the scene rather than
+       pasted on top of it.
+
+       This multiplies with the beat's own crossfade rather than fighting it: .ast-beat
+       carries opacity: var(--abN), so the image tops out at 0.85 of whatever the beat is
+       currently at, and still reaches zero cleanly between beats. */
+    opacity: 0.85;
+    height: auto;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--iron-2);
+  }
+
+  /* THE REELS: a textless strip in the right column, translated past the viewport by
+     --reel from the loop. Cards take clicks (out to YouTube); the layer does not. */
+  .ast-reels {
+    position: absolute;
+    right: 7vw;
+    top: 0;
+    bottom: 0;
+    width: min(30rem, 34vw);
+    overflow: hidden;
+    pointer-events: none;
+    visibility: hidden;
+  }
+  .ast-reels[data-active] { visibility: visible; }
+  .ast-reels__strip {
+    display: flex;
+    flex-direction: column;
+    gap: 3.5vh;
+    transform: translateY(calc(102vh - var(--reel, 0) * 215vh));
+    will-change: transform;
+  }
+  .ast-reel {
+    position: relative;
+    display: block;
+    pointer-events: auto;
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--iron-2);
+    box-shadow: var(--shadow-lg);
+  }
+  .ast-reel img { display: block; width: 100%; height: auto; }
+  .ast-reel__play {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.2rem;
+    color: var(--bone);
+    text-shadow: 0 2px 10px rgba(11, 14, 16, 0.8);
+    opacity: 0.85;
+  }
+  .ast-reel:hover .ast-reel__play { color: var(--plasma); }
+
+  /* WHAT IT COSTS + THE CLOSE: the right column she faces from screen left. */
+  .ast-price,
+  .ast-end {
+    position: absolute;
+    left: 48%;
+    right: 7vw;
+    pointer-events: none;
+    visibility: hidden;
+    text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
+  }
+  .ast-price { top: 22%; opacity: var(--price, 0); }
+  .ast-end { top: 66%; opacity: var(--endd, 0); }
+  .ast-price[data-active],
+  .ast-end[data-active] { visibility: visible; }
+  .ast-price[data-active] a,
+  .ast-end[data-active] :is(a, button) { pointer-events: auto; }
+  .ast-price__lede {
+    margin-top: 1.2rem;
+    font-weight: 300;
+    font-size: clamp(1.15rem, 1.6vw, 1.5rem);
+    line-height: 1.45;
+    color: var(--bone);
+  }
+  .ast-price__lede b { font-weight: 700; color: var(--bone); }
+  .ast-price__note {
+    margin-top: 1rem;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    line-height: 1.5;
+    color: var(--bone-dim);
+  }
+  .ast-price__contact {
+    margin-top: 1rem;
+    font-weight: 300;
+    font-size: clamp(0.95rem, 1.2vw, 1.1rem);
+    color: var(--bone-dim);
+  }
+  .ast-price__contact a { color: var(--plasma); text-decoration: none; }
+  .ast-price__contact a:hover { color: var(--plasma-dim); }
+
+  /* The left column: lockup, then the three ruled lines. It rides the left flank the old
+     hero's lede lived on, so the fallback art's scrim already guarantees its contrast. */
+  .ast-hero__intro {
+    position: absolute;
+    left: 8vw;
+    top: 24%;
+    max-width: min(44rem, 42vw);
+  }
+  .ast-hero__lockup {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+  .ast-hero__lockup :global(.ast-hero__lockup-mark) {
+    width: clamp(48px, 4vw, 72px);
+    height: auto;
+  }
+  .ast-hero__tagline {
+    margin-top: 1.6rem;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(2.2rem, 3.4vw, 3.6rem);
+    line-height: 1.05;
+    color: var(--bone);
+  }
+  .ast-hero__line {
+    margin-top: 0.4rem;
+    font-weight: 300;
+    font-size: clamp(1.15rem, 1.7vw, 1.6rem);
+    line-height: 1.3;
+    color: var(--bone);
+  }
+  /* The first line clears the title a touch more than the lines clear each other. */
+  .ast-hero__tagline + .ast-hero__line { margin-top: 0.9rem; }
+  .ast-hero__plus { color: var(--plasma); font-weight: 700; }
+
+  .ast-hero__actions {
+    position: absolute;
+    left: 50%;
+    bottom: 9%;
+    transform: translateX(-50%);
+    text-align: center;
+  }
+
+  .shot-dialog {
+    /* base.css sets a global `* { margin: 0 }`, which wipes the UA stylesheet's `margin: auto`
+       on <dialog> and drops every modal into the top left corner. Put it back. */
+    margin: auto;
+    padding: 0;
+    border: 0;
+    background: none;
+    max-width: 96vw;
+    max-height: 95vh;
+    overflow: visible;
+    color: var(--bone);
+  }
+  .shot-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.84);
+  }
+  .shot-dialog__inner {
+    position: relative;
+    border-radius: var(--radius);
+    border: 1px solid var(--iron-3);
+    background: var(--iron);
+    box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    line-height: 0;
+  }
+  .shot-dialog video {
+    display: block;
+    width: auto;
+    height: auto;
+    max-width: 94vw;
+    max-height: 88vh;
+    object-fit: contain;
+  }
+  .shot-dialog--video .shot-dialog__inner {
+    width: min(94vw, 1400px);
+    aspect-ratio: 16 / 9;
+    max-height: 88vh;
+  }
+  .shot-dialog--video :global(.trailer-frame) {
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .shot-dialog__tag {
+    pointer-events: none;
+  }
+  .shot-dialog__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+    color: var(--bone-dim);
+    font-family: var(--font-mono);
+    font-size: 14px;
+    line-height: 1;
+    cursor: pointer;
+    transition:
+      color var(--t-base) var(--ease-out),
+      border-color var(--t-base) var(--ease-out);
+  }
+  .shot-dialog__close:hover {
+    color: var(--plasma);
+    border-color: var(--plasma);
+  }
+  .getblock {
+    max-width: 560px;
+  }
+  .getblock__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: center;
+  }
+  .btn {
+    min-height: 48px;
+    padding: 12px 26px;
+    border: 0;
+    border-radius: var(--radius-pill);
+    background: var(--plasma);
+    color: var(--carbon);
+    font-family: var(--font-mono);
+    font-size: 15px;
+    font-weight: 700;
+    /* The label is the conversion. Let the input give up width before this wraps. */
+    white-space: nowrap;
+    cursor: pointer;
+    transition:
+      transform 220ms var(--ease-spring),
+      box-shadow 220ms var(--ease-out),
+      background 220ms var(--ease-out);
+  }
+  .btn:hover {
+    background: var(--bone);
+    transform: translateY(-1px);
+    box-shadow:
+      0 0 0 6px var(--plasma-glow),
+      var(--shadow-md);
+  }
+  .btn:active {
+    transform: translateY(1px) scale(0.985);
+    background: var(--plasma-dim);
+    box-shadow: none;
+  }
+  .btn--quiet {
+    background: var(--iron);
+    color: var(--bone);
+    border: 1px solid var(--iron-3);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+  }
+  .btn--quiet:hover {
+    background: var(--iron-2);
+    border-color: var(--bone-faint);
+    color: var(--bone);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .btn--quiet:active {
+    transform: translateY(1px) scale(0.985);
+    background: var(--iron-2);
+    box-shadow: none;
+  }
+  .reassure {
+    margin-top: 11px;
+    font-size: 12.5px;
+    color: var(--bone-dim);
+  }
+  .smartscreen {
+    margin-top: 18px;
+    padding: 16px 18px;
+    border-radius: var(--radius);
+    border: 1px solid var(--iron-2);
+    border-left: 3px solid var(--ember);
+    background-color: var(--iron);
+    background-image: var(--shine);
+    box-shadow: var(--shadow-sm);
+  }
+  .smartscreen__title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--ember);
+    margin-bottom: 10px;
+  }
+  .smartscreen p {
+    font-size: 13px;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .smartscreen p + p {
+    margin-top: 8px;
+  }
+  .smartscreen p b {
+    color: var(--bone);
+  }
+  .smartscreen__code {
+    margin-top: 8px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+    overflow-x: auto;
+  }
+  .smartscreen__code code {
+    font-size: 12px;
+    color: var(--bone);
+    white-space: pre;
+  }
+  .smartscreen__hash {
+    margin-top: 8px;
+    font-size: 12px;
+  }
+  .smartscreen__hash code {
+    color: var(--bone);
+    word-break: break-all;
+  }
+  .smartscreen--picker {
+    margin-top: 18px;
+    box-shadow: none;
+  }
+  .picker {
+    width: min(94vw, 560px);
+  }
+  .picker__inner {
+    position: relative;
+    border-radius: var(--radius);
+    border: 1px solid var(--iron-3);
+    background-color: var(--iron);
+    background-image: var(--shine);
+    box-shadow: var(--shadow-lg);
+    padding: 22px;
+  }
+  .picker__head {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--bone);
+    margin-bottom: 16px;
+    padding-right: 40px;
+  }
+  .picker__refund {
+    margin-bottom: 16px;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--bone-dim);
+  }
+  .picker__rows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12px;
+  }
+  .picker__row {
+    display: grid;
+    gap: 12px;
+    align-items: center;
+    padding: 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--iron-3);
+    background: var(--carbon);
+  }
+  .picker__name {
+    font-size: 15px;
+    color: var(--bone);
+  }
+  .picker__name b {
+    font-weight: 700;
+  }
+  .picker__price {
+    color: var(--bone);
+  }
+  .picker__line {
+    margin-top: 4px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .picker__cta {
+    justify-self: start;
+    min-height: 42px;
+    padding: 9px 20px;
+    font-size: 14px;
+  }
+  .picker__cta[disabled] {
+    background: var(--iron-3);
+    color: var(--bone-faint);
+    cursor: not-allowed;
+  }
+  .picker__rows--inline {
+    margin-top: 14px;
+  }
+    .picker__row {
+      grid-template-columns: minmax(0, 1fr) auto;
+    }
+    .picker__cta {
+      justify-self: end;
+    }
+    .btn {
+      min-height: 44px;
+    }
+  /* ================= UNDER 900px: THE STORY, STACKED =================
+     The stage never goes live here (the canvas is display:none under 900px, and it also
+     stays dark on reduced motion and without WebGL2), so the runway never grows and every
+     beat below the landing sat display:none or visibility:hidden. The page was a hero and
+     a footer.
+
+     This block tells the SAME story in the SAME order rather than inventing a phone
+     version: landing, the four stage beats with their stills, what it costs, the tutorial
+     series, then the doors again. Nothing above this line changes, so the desktop
+     cinematic is untouched; every rule here is scoped to the fallback.
+
+     Desktop's positioning is absolute against a pinned one-screen hero. Mobile undoes
+     exactly that: static flow, full column width, normal document order. */
+  @media (max-width: 900px) {
+    /* ------------------------------------------------------------------- shared -----
+       Type sized for a narrow column, and the centred alignment Adrian ruled on
+       2026-08-20. BOTH paths get these: the cinematic and the fallback say the same
+       words at the same size, they only stage them differently. */
+    .ast-hero__tagline { font-size: clamp(2.1rem, 9vw, 3rem); }
+    .ast-hero__line { font-size: clamp(1.05rem, 4.4vw, 1.3rem); }
+    .ast-beat__head { font-size: clamp(1.9rem, 7.6vw, 2.6rem); }
+    .ast-beat__line { font-size: clamp(1.05rem, 4.2vw, 1.25rem); }
+    .ast-price__lede { font-size: clamp(1.05rem, 4.2vw, 1.25rem); }
+    .ast-price__note,
+    .ast-price__contact { font-size: clamp(0.95rem, 3.6vw, 1.05rem); }
+    .ast-reels__title { font-size: clamp(1.9rem, 7.6vw, 2.6rem); }
+
+    /* CENTRE EVERYTHING (Adrian, 2026-08-20), the same call he made for the homepage.
+       The desktop composition is a LEFT FLANK with the character holding the rest of the
+       frame; at this width there is no flank, so the column is the whole screen and a
+       centred stack is what the page becomes. */
+    .ast-hero__intro,
+    .ast-hero__actions,
+    .ast-beat,
+    .ast-price,
+    .ast-end,
+    .ast-reels__head { text-align: center; }
+    /* text-align cannot reach the mark: the lockup is a COLUMN flex, so its horizontal
+       axis is the cross axis and align-items: flex-start from the base rule is what
+       holds it left. justify-content would be the wrong axis here. */
+    .ast-hero__lockup { align-items: center; }
+    /* Same reason. These door rows are flex, so the centring has to be told to them
+       rather than inherited as text. */
+    .ast-hero__actions :global(.getblock__actions),
+    .ast-price :global(.getblock__actions),
+    .ast-end :global(.getblock__actions) {
+      align-items: center;
+      justify-content: center;
+    }
+    /* The glyph is centred on the card, which works while the strip rides by at a third
+       of the width. At full column width it lands squarely on the thumbnail's own
+       burned-in title, so give it a corner and a disc to sit on. */
+    .ast-reel__play {
+      inset: auto 0.75rem 0.75rem auto;
+      display: grid;
+      place-items: center;
+      width: 3rem;
+      height: 3rem;
+      padding-left: 0.2rem;
+      font-size: 1.15rem;
+      border-radius: 50%;
+      background: rgba(11, 14, 16, 0.72);
+      border: 1px solid var(--iron-2);
+      opacity: 1;
+    }
+
+    /* -------------------------------------------------- THE CINEMATIC, ON A PHONE ----
+       Adrian, 2026-08-20: "I'm missing the whole story of building the character." The
+       build IS this page. It lives in the runway (fitting room, the skeleton growing, the
+       skin solidifying, alive) and a flowed column of screenshots is not that story, it
+       is a summary of it. So on this path the runway and the sticky stage STAY, and the
+       copy is recomposed around a centred character.
+
+       Everything here is scoped to [data-live]. The fallback below keeps the flowed
+       column, because with no stage running there is no story to ride. */
+    /* THE LANDING IS A REAL FLOW AT THIS WIDTH, not three absolute anchors. Stanza, then
+       the trailer, then the doors, distributed by the box rather than by percentages.
+       Adrian ruled the trailer "right in the middle" here (2026-08-20), and dead centre is
+       what it was: top 50% with a translate. That overlapped the stanza by 73px at 320, 46
+       at 360 and 8 at 390, because the stanza's height is set by how the copy wraps and no
+       fixed anchor can know that. Measured, not guessed at.
+       There is no fixed number left to drift: space-between divides whatever slack the
+       screen has. Every other child of the hero is absolutely positioned (canvas, scrim,
+       art, beats, reels, price, close), so none of them joins the flex box. */
+    .ast-scroll[data-live] .ast-hero {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: calc(var(--header-h) + 3svh) 1.25rem 7svh;
+    }
+    /* THE MOBILE LANDING, ORDERED (Adrian, 2026-08-22): the mark at the top, the title
+       under it, the two sentences riding the middle, the trailer down near the floor.
+
+       It was not reading that way because space-between was ranging over FOUR children the
+       eye cannot see -- the <picture> fallback and three inline helper nodes, every one of
+       them zero-height. Six children means five gaps, so a fifth of the free space was being
+       spent ABOVE the mark and it started 245px down an 844px screen instead of at 77.
+       Anchoring the stack to the top and placing the movable pieces with auto margins fixes
+       it for good: an auto margin cannot be thrown off by a node that is not there.
+
+       Inline only. /armature/ has the same three-item stack plus its landing doors, and its
+       spacing was dialled with those in it. */
+    .ast-scroll--inline[data-live] .ast-hero {
+      justify-content: flex-start;
+      /* The shared rule pads the top by header-h + 3svh, but this hero is ALREADY offset by
+         the header (it is sticky at top: var(--header-h)), so that header-h is counted twice
+         and the mark started 77px below the bar. 3svh alone puts it at the top. */
+      padding-top: 3svh;
+      /* 12svh, not 7: the trailer was sitting on the very floor of the frame. */
+      padding-bottom: 12svh;
+    }
+    .ast-scroll--inline[data-live] .ast-hero__intro {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+    }
+    /* The two sentences are the only <p> in the stanza -- the title is an h1 and the mark is
+       a div -- so they can be centred in the band under the title without a wrapper. */
+    .ast-scroll--inline[data-live] .ast-hero__line:first-of-type { margin-top: auto; }
+    .ast-scroll--inline[data-live] .ast-hero__line:last-of-type { margin-bottom: auto; }
+
+    .ast-scroll[data-live] .ast-hero__intro,
+    .ast-scroll[data-live] .ast-hero__media,
+    .ast-scroll[data-live] .ast-hero__actions {
+      position: static;
+      left: auto;
+      right: auto;
+      top: auto;
+      bottom: auto;
+      max-width: none;
+      width: auto;
+      /* The landing-fade travel, restored by hand: desktop replaces it with a
+         translateX(-50%) to centre the doors, and centring is the flex box's job here. */
+      transform: translateY(calc(var(--aland, 0) * -18px));
+    }
+
+    /* COPY AT THE TOP, SCREENSHOT ON THE FLOOR, HER IN BETWEEN (Adrian, 2026-08-20: the
+       image "is blocking the cool animation we have going on with the girl"). The block used
+       to be a single run of copy-then-image starting below the header, which put the
+       screenshot across her upper body at 242 to 439 of 844: the middle of the frame, which
+       is exactly where she is.
+
+       So the beat spans the whole screen and splits: the copy sits at the top, the
+       screenshot is pushed to the bottom by an auto margin, and the band between them is
+       hers. No fixed offsets, so a beat whose title wraps to two lines takes the room from
+       the gap rather than from the art. */
+    .ast-scroll[data-live] .ast-beats {
+      left: 0;
+      right: 0;
+      top: calc(var(--header-h) + 1.5svh);
+      bottom: 4svh;
+      width: auto;
+      padding: 0 1.25rem;
+    }
+    /* Fills the crossfade cell rather than sitting at its top, so there is a full screen for
+       the split to divide. */
+    .ast-scroll[data-live] .ast-beat {
+      align-self: stretch;
+      display: flex;
+      flex-direction: column;
+    }
+    /* THE SCREENSHOTS COME BACK HERE (Adrian, 2026-08-20: "those images are not showing up
+       on mobile"). I had hidden them during the port, reasoning they would print over the
+       character. They do not: the copy holds the top band and the art stops well short of
+       halfway, so the character still owns the bottom of the frame. That was my call to
+       make and it was the wrong one; the screenshots are the beat's evidence.
+
+       The clip on the fourth beat stays hidden, and that one is not a composition choice:
+       it is 1.6 MB and it is scrubbed by a loop that deliberately never loads it at this
+       width. Showing it here would mean paying for it on a phone. */
+    .ast-scroll[data-live] .ast-beats :global(.ast-beat__img) {
+      width: 100%;
+      /* auto, not a fixed gap: this is what pins it to the floor of the beat. */
+      margin-top: auto;
+    }
+    .ast-scroll[data-live] .ast-beats .ast-beat__vid { display: none; }
+
+    /* The reels keep their ride; only the lane widens to the column. */
+    .ast-scroll[data-live] .ast-reels {
+      left: 0;
+      right: 0;
+      width: auto;
+      padding: 0 1.25rem;
+    }
+    .ast-scroll[data-live] .ast-reels__head {
+      left: 0;
+      right: 0;
+      top: calc(var(--header-h) + 2svh);
+      width: auto;
+      padding: 0 1.25rem;
+    }
+    .ast-scroll[data-live] .ast-price,
+    .ast-scroll[data-live] .ast-end {
+      left: 0;
+      right: 0;
+      padding: 0 1.25rem;
+    }
+    /* THE CLOSING SCREEN FRAMES THE CENTRE (Adrian, 2026-08-21). Title and price at the top,
+       doors on the floor, and the standalone-app caveat riding just above them, so the middle
+       of the screen is left to her instead of the copy running down it in one block. Desktop
+       already read this way and is left alone.
+
+       .ast-price takes a bottom as well as a top, which turns it into a box with slack in it,
+       and the caveat's auto margin drops to the floor of that box. Nothing is pinned to a
+       fixed offset, so a price line that wraps to an extra row on a narrow phone takes the
+       room out of the gap rather than shoving the caveat into the doors. */
+    .ast-scroll[data-live] .ast-price {
+      top: calc(var(--header-h) + 3svh);
+      bottom: 25svh;
+      display: flex;
+      flex-direction: column;
+    }
+    /* Child selector, not a bare class: .ast-price__note sets its own margin-top further down
+       the sheet, and at equal specificity the later rule wins. This has to outrank it. */
+    .ast-scroll[data-live] .ast-price > .ast-price__note { margin-top: auto; }
+    .ast-scroll[data-live] .ast-end { top: auto; bottom: 5svh; }
+
+    /* --------------------------------------------------------- THE FALLBACK COLUMN ---
+       Reduced motion, no WebGL2, or a failed init: no stage, so no story to ride. The
+       hero stops being the whole stage and becomes the first section of an ordinary
+       scrolling page, which is what Adrian ruled and shipped in 8c975bb. overflow must
+       open or the flowed beats are clipped by the old stage box. */
+    .ast-scroll:not([data-live]) .ast-hero {
+      min-height: 0;
+      overflow: visible;
+      display: flex;
+      flex-direction: column;
+      gap: 3.5rem;
+      padding: 0 var(--ast-gutter) 3.5rem;
+      --ast-gutter: 1.5rem;
+    }
+    /* The art and its scrim are the one thing that must ignore the gutter. object-fit
+       does the cropping; the box just has to be the full bleed width. */
+    .ast-scroll:not([data-live]) .ast-hero :global(.hero__art),
+    .ast-scroll:not([data-live]) .hero__scrim {
+      left: 0;
+      right: 0;
+      width: calc(100% + var(--ast-gutter) * 2);
+      margin-inline: calc(var(--ast-gutter) * -1);
+    }
+    /* The art is a backdrop for the LANDING only. Left as inset:0 it would stretch behind
+       the whole column and drag its burned-in lockup down the page. Pin it to the first
+       screen instead, and pin the canvas with it: on this path the canvas is dark, but it
+       is still laid out and would otherwise size to the whole column. */
+    .ast-scroll:not([data-live]) .ast-hero :global(.hero__art),
+    .ast-scroll:not([data-live]) .hero__scrim,
+    .ast-scroll:not([data-live]) .ast-hero :global(.ast-canvas) {
+      height: calc(100svh - var(--header-h));
+      bottom: auto;
+      inset-block-start: 0;
+    }
+    /* The phone plate is the cinematic's own landing frame, already portrait and carrying
+       no type of its own. Cover it and centre it. */
+    .ast-scroll:not([data-live]) .ast-hero :global(.hero__art) { object-position: center 38%; }
+    /* Tuned for the landing plate, which is already near-black with a glowing figure: just
+       enough weight under the copy to hold contrast, and almost none over his head and
+       shoulders, which are the whole point of the shot. */
+    .ast-scroll:not([data-live]) .hero__scrim {
+      background:
+        linear-gradient(180deg, rgba(11, 14, 16, 0) 0%, rgba(11, 14, 16, 0) 34%, rgba(11, 14, 16, 0.55) 58%, rgba(11, 14, 16, 0.88) 100%);
+    }
+
+    /* The landing stanza and its doors hold the first screen, over the art. Both were
+       absolutely placed against the pinned stage: the intro on the left flank at 8vw, the
+       doors centred on 50% with a translate. Static flow needs every one of those offsets
+       cleared, or left keeps applying and shunts the column off the right edge. */
+    .ast-scroll:not([data-live]) .ast-hero__intro,
+    .ast-scroll:not([data-live]) .ast-hero__actions,
+    .ast-scroll:not([data-live]) .ast-hero__media {
+      position: static;
+      left: auto;
+      right: auto;
+      top: auto;
+      bottom: auto;
+      z-index: 1;
+      opacity: 1;
+      transform: none;
+    }
+    .ast-scroll:not([data-live]) .ast-hero__intro {
+      /* The last 3rem of the first screen belongs to the scroll hint, which is fixed to
+         the viewport and would otherwise sit on the second door. */
+      margin-top: calc(100svh - var(--header-h) - 33.5rem);
+      max-width: none;
+    }
+
+    /* THE BEATS: out of the crossfade cell, into the flow, one after another. The
+       [data-stage-live] selector is carried deliberately, because
+       .ast-hero[data-stage-live] .ast-beats { display: grid } is the desktop crossfade
+       cell and it OUTWEIGHS a bare .ast-beats here. */
+    .ast-scroll:not([data-live]) .ast-hero[data-stage-live] .ast-beats,
+    .ast-scroll:not([data-live]) .ast-beats {
+      display: block;
+      position: static;
+      left: auto;
+      top: auto;
+      width: auto;
+      pointer-events: auto;
+    }
+    .ast-scroll:not([data-live]) .ast-beat {
+      display: block;
+      opacity: 1 !important;
+      margin-top: 3.5rem;
+    }
+    .ast-scroll:not([data-live]) .ast-beat:first-child { margin-top: 0; }
+    .ast-scroll:not([data-live]) .ast-beats :global(.ast-beat__img),
+    .ast-scroll:not([data-live]) .ast-beats .ast-beat__vid { width: 100%; }
+
+    /* WHAT IT COSTS and THE CLOSE: same copy, now in the column. */
+    .ast-scroll:not([data-live]) .ast-price,
+    .ast-scroll:not([data-live]) .ast-end {
+      position: static;
+      display: block;
+      left: auto;
+      right: auto;
+      top: auto;
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    /* THE REELS: desktop rides the three cards vertically past the right flank, so a
+       vertical stack is the honest translation, not a carousel. */
+    .ast-scroll:not([data-live]) .ast-reels__head {
+      display: block;
+      position: static;
+      top: auto;
+      right: auto;
+      width: auto;
+      opacity: 1;
+    }
+    .ast-scroll:not([data-live]) .ast-reels {
+      position: static;
+      right: auto;
+      top: auto;
+      bottom: auto;
+      width: auto;
+      overflow: visible;
+      visibility: visible;
+      pointer-events: auto;
+      margin-top: 1.4rem;
+    }
+    .ast-scroll:not([data-live]) .ast-reels__strip { transform: none !important; gap: 1.2rem; }
+
+    /* The closing doors want air above them, not a hairline against the last reel. */
+    .ast-scroll:not([data-live]) .ast-end { margin-top: 1rem; }
+  }
+</style>
