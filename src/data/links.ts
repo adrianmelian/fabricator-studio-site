@@ -17,6 +17,10 @@ export const LINKS = {
   tutorialsChannel: 'https://www.youtube.com/@fabricator.studio',
   wiki: 'https://github.com/adrianmelian/FabricatorStudio',
   repo: 'https://github.com/adrianmelian/FabricatorStudio',
+  // Buy Me a Coffee, opened 2026-08-29 (Adrian). Ships as a PLAIN LINK and never their
+  // embed widget: the widget is a third-party script that runs on every page view, which is
+  // exactly the contact the YouTube facade and the cookieless analytics exist to avoid.
+  coffee: 'https://buymeacoffee.com/adrianmelian',
   // GitHub is held out of the public nav until the toolset repo is squash-published at v1
   // launch (it is private until then; a live link would 404). Restore it here at launch.
   community: [

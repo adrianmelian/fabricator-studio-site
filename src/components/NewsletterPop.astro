@@ -27,9 +27,14 @@
 // Clicking Discord marks the flag (they answered, never nag again) but deliberately does NOT
 // close the dialog, and the link opens in a new tab, so a visitor can join AND still enter
 // their email in the same visit.
+// COFFEE ADDED 2026-08-29 (Adrian), as a third line in the same bordered style, so the
+// asks read as alternatives of equal legitimacy. It marks the flag and does NOT close, on
+// the same reasoning as Discord: one visitor can tip AND still leave an email in one visit.
+import { LINKS } from '../data/links';
 const MAILERLITE_ACTION = 'https://assets.mailerlite.com/jsonp/2504656/forms/192763576695392191/subscribe';
 const STORAGE_KEY = 'fs-newsletter-pop';
 const DISCORD_HREF = '/discord/';
+const COFFEE_HREF = LINKS.coffee;
 ---
 <dialog id="news-pop" class="news-pop" aria-labelledby="news-pop-title">
   <div class="news-pop__inner">
@@ -52,6 +57,14 @@ const DISCORD_HREF = '/discord/';
           data-news-discord
           data-goatcounter-click="newsletter-pop-discord"
         >Come ask questions in the Discord &rarr;</a>
+        <a
+          class="news-pop__discord"
+          href={COFFEE_HREF}
+          target="_blank"
+          rel="noopener"
+          data-news-coffee
+          data-goatcounter-click="newsletter-pop-coffee"
+        >The toolset is free. If it saved you time, buy me a coffee &rarr;</a>
         <button class="news-pop__decline" type="button" data-news-close>No thanks</button>
         <p class="news-pop__error" id="news-pop-error" hidden>Please enter a valid email.</p>
         {/* The notice belongs at the point of collection, not only in the footer. */}
@@ -108,6 +121,11 @@ const DISCORD_HREF = '/discord/';
     // stays available, so one visitor can do both in one visit.
     dlg.querySelectorAll('[data-news-discord]').forEach(function (a) {
       a.addEventListener('click', function () { mark('discord'); });
+    });
+
+    // Same contract as Discord: an answer, a new tab, and the dialog stays open.
+    dlg.querySelectorAll('[data-news-coffee]').forEach(function (a) {
+      a.addEventListener('click', function () { mark('coffee'); });
     });
 
     if (form) {
@@ -227,6 +245,9 @@ const DISCORD_HREF = '/discord/';
     height: 1px;
     background: var(--iron-3);
   }
+  /* The shared outbound-link style: Discord and the coffee ask both wear it, so the two
+     read as alternatives. The class keeps its Discord name because renaming it would touch
+     every state in this file for no behavioural gain. */
   .news-pop__discord {
     display: block;
     text-align: center;

@@ -21,6 +21,13 @@
 //                   Both are FACADES: no request reaches Google until a visitor presses play,
 //                   so a reader who never starts a video is never exposed to it. Listed anyway,
 //                   because the table describes what CAN happen, not what usually does.
+//   - Buy Me a Coffee  src/components/CoffeeButton.astro, in the nav on every page
+//                   ALSO A FACADE, and built as one deliberately (2026-08-29). Their own
+//                   button image and their widget script were both rejected: each reaches
+//                   their servers on page LOAD, which is the ytimg bug below wearing a
+//                   different logo. The button is self-hosted from public/bmc-button.svg and
+//                   the panel iframe ships with no src, set on the click. So this row
+//                   describes what happens AFTER a click and never before one.
 //
 // THE FACADE CLAIM IS NOW ACTUALLY TRUE (fixed 2026-07-30). It was not: tutorials.ts built
 // its thumbnails from i.ytimg.com, so /tutorials/ and ten docs pages sent every visitor's IP
@@ -53,7 +60,7 @@ const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
-const UPDATED = '3 August 2026';
+const UPDATED = '29 August 2026';
 
 const COLLECTED = [
   {
@@ -101,6 +108,9 @@ const PROCESSORS = [
   { name: 'Web3Forms', does: 'Delivers contact form messages to us', gets: 'Your name, email, and message' },
   { name: 'GoatCounter', does: 'Counts page visits', gets: 'Page and browser information, no personal data' },
   { name: 'YouTube (Google)', does: 'Plays our videos, only if you press play', gets: 'Nothing at all unless you start a video or follow a link to YouTube. If you do, YouTube receives your IP address and device information and may set cookies' },
+  // The two facades sit together on purpose: they are the only rows whose exposure a reader
+  // controls entirely, and the wording is deliberately the same shape so that reads as a rule.
+  { name: 'Buy Me a Coffee', does: 'Takes a tip, only if you open the coffee panel', gets: 'Nothing at all unless you open the panel or follow a link to their site. If you do, Buy Me a Coffee receives your IP address and device information and may set cookies' },
   { name: 'GitHub Pages', does: 'Hosts this website', gets: 'Standard server logs' },
   { name: 'Cloudflare', does: 'Domain routing, file downloads, and our licence service', gets: 'Standard server logs, and the activation data described above' },
 ];

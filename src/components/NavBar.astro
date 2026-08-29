@@ -4,6 +4,7 @@
 // the post-download ask exists wherever installer links do (the store's own download
 // buttons carry data-installer).
 import NewsletterPop from './NewsletterPop.astro';
+import CoffeeButton from './CoffeeButton.astro';
 
 // The current page's tab reads plasma (Adrian, 2026-08-19). Prefix match, so a docs
 // subpage lights Docs and /armature/eula/ lights Armature; the homepage lights none.
@@ -33,6 +34,15 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
       <a class={'navbar__tab' + active('/docs/')} href="/docs/">Docs</a>
       <a class={'navbar__tab' + active('/tutorials/')} href="/tutorials/">Tutorials</a>
       <a class={'navbar__tab navbar__tab--bold' + active('/services/')} href="/services/">Services</a>
+    </div>
+    {/* The coffee door, far right (Adrian, 2026-08-29). A DELIBERATE exception to the
+        2026-08-19 "no side doors" ruling, taken with that ruling in front of him: the tip
+        jar is the one ask that has no page of its own to live on.
+        It wears Buy Me a Coffee's own yellow button, self-hosted, and opens their widget
+        in a panel on the page rather than sending anyone away. The reasoning for both, and
+        the two third-party routes that were rejected, is in CoffeeButton.astro. */}
+    <div class="navbar__coffee">
+      <CoffeeButton />
     </div>
   </div>
 </nav>
@@ -131,6 +141,16 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
   .navbar__tab--active { color: var(--plasma); }
   .navbar__tab--active:hover { color: var(--plasma); }
 
+  .navbar__coffee { display: flex; align-items: center; }
+
+  /* MEASURED, not guessed (2026-08-29): below about 940px the six tabs are already at their
+     minimum width and stop shrinking, so the 160px button hangs off the right edge. It was
+     39px off screen at 900px and 209px at 730px. Above the burger breakpoint it therefore
+     leaves the bar; below it, it comes back inside the dropdown where width is free. */
+  @media (max-width: 979px) and (min-width: 721px) {
+    .navbar__coffee { display: none; }
+  }
+
   /* Hamburger: hidden on desktop, shown on narrow screens. */
   .navbar__burger { display: none; }
 
@@ -175,5 +195,7 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
     .navbar__menu.is-open { display: flex; }
     .navbar__tabs { display: contents; }
     .navbar__menu .navbar__tab { padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
+    /* In the dropdown the button is a row like the tabs, left aligned rather than stretched. */
+    .navbar__menu .navbar__coffee { padding: 0.85rem 0; justify-content: flex-start; }
   }
 </style>

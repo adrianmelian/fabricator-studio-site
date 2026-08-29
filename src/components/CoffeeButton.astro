@@ -1,0 +1,172 @@
+---
+// The Buy Me a Coffee door (Adrian, 2026-08-29).
+//
+// TWO THIRD-PARTY ROUTES WERE REJECTED, and the reasons are the whole design:
+//
+//   1. Their button image (`img.buymeacoffee.com/button-api/?...`) is a remote SVG fetched
+//      on every page render, so every visitor's IP and user agent reaches Buy Me a Coffee
+//      before anyone clicks anything. That is precisely the bug this site shipped once
+//      already and fixed on 2026-07-30, when tutorial thumbnails were coming from
+//      i.ytimg.com while the privacy page claimed no contact without a click.
+//   2. Their widget script (`cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js`, 8,041 bytes)
+//      loads their code on every page, pulls further assets from two more of their hosts,
+//      touches document.cookie in two places, and floats over the Armature scroll cinematic.
+//
+// So: their exact button, SELF-HOSTED, opening their real widget behind a FACADE.
+//
+// `public/bmc-button.svg` is the file their button API served for Adrian's chosen options
+// (yellow FFDD00, black text and outline, Cookie face). Verified self-contained: the Cookie
+// font rides inside it as a base64 woff2, and the only URLs in the file are the two XML
+// namespaces and a link to his own page. Serving it from our own origin is byte-identical
+// to what they would have sent and costs the visitor nothing.
+//
+// The yellow lives INSIDE that SVG and never in our CSS, which is why the brand gate stays
+// clean: G1 requires every hex in shipped CSS to be a DNA palette colour, and FFDD00 is not
+// one. The button is a licensed third-party mark sitting on our page, not our palette
+// drifting.
+//
+// THE FACADE. The dialog's iframe ships with NO src. It is set on first open, from the
+// script below, to their widget's own panel URL — verified 200 and frameable, no
+// X-Frame-Options and no frame-ancestors, on 2026-08-29. Until a visitor clicks, this
+// component makes zero requests to Buy Me a Coffee. After the click they see that visitor
+// and may set cookies inside the frame, exactly as YouTube does after play, which is why
+// they are listed in the privacy table in the same shape.
+//
+// If that panel URL ever stops framing, the fallback is already correct: the dialog carries
+// a plain link out to the page, and the button falls back to a normal link when <dialog> is
+// unsupported.
+import { LINKS } from '../data/links';
+
+// Their widget's own panel, the same document their script frames. `LINKS.coffee` stays the
+// canonical profile URL; this is derived from the slug so there is one place to change.
+const SLUG = LINKS.coffee.split('/').pop();
+const PANEL = `https://www.buymeacoffee.com/widget/page/${SLUG}`;
+---
+<div class="coffee">
+  {/* A real <button>, not a link: it opens the panel in place, which is the whole point of
+      the thing Adrian liked about their widget. The <noscript> link is the honest fallback. */}
+  <button
+    type="button"
+    class="coffee__btn"
+    data-coffee-open
+    aria-haspopup="dialog"
+    data-goatcounter-click="coffee-nav"
+  >
+    <img src="/bmc-button.svg" alt="Buy me a coffee" width="235" height="50" />
+  </button>
+  <noscript>
+    <a class="coffee__btn" href={LINKS.coffee} target="_blank" rel="noopener">
+      <img src="/bmc-button.svg" alt="Buy me a coffee" width="235" height="50" />
+    </a>
+  </noscript>
+</div>
+
+<dialog id="coffee-pop" class="coffee-pop" aria-label="Buy me a coffee">
+  <div class="coffee-pop__inner">
+    <button type="button" class="coffee-pop__close" data-coffee-close aria-label="Close">&#10005;</button>
+    {/* NO src. The facade: this stays empty until the click. */}
+    <iframe
+      id="coffee-frame"
+      class="coffee-pop__frame"
+      title="Buy me a coffee"
+      loading="lazy"
+      referrerpolicy="no-referrer"
+    ></iframe>
+    <a class="coffee-pop__out" href={LINKS.coffee} target="_blank" rel="noopener">Open it on buymeacoffee.com &rarr;</a>
+  </div>
+</dialog>
+
+<script define:vars={{ panel: PANEL, fallback: LINKS.coffee }}>
+  (function () {
+    var dlg = document.getElementById('coffee-pop');
+    var frame = document.getElementById('coffee-frame');
+
+    document.addEventListener('click', function (e) {
+      var trigger = e.target.closest && e.target.closest('[data-coffee-open]');
+      if (!trigger) return;
+      // No <dialog> support: behave like the plain link the noscript path uses.
+      if (!dlg || !dlg.showModal) { window.open(fallback, '_blank', 'noopener'); return; }
+      // Set ONCE, here, on the click. Assigning src on every open would reload their page
+      // and throw away a part-filled form if the visitor closed the panel by accident.
+      if (frame && !frame.src) frame.src = panel;
+      dlg.showModal();
+    });
+
+    if (!dlg) return;
+    dlg.querySelectorAll('[data-coffee-close]').forEach(function (b) {
+      b.addEventListener('click', function () { dlg.close(); });
+    });
+    // Backdrop click. The inner panel stops the event reaching here, so this only fires on
+    // the dialog element itself.
+    dlg.addEventListener('click', function (e) { if (e.target === dlg) dlg.close(); });
+  })();
+</script>
+
+<style>
+  .coffee { display: flex; align-items: center; }
+  .coffee__btn {
+    display: block;
+    padding: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    line-height: 0;
+    border-radius: var(--radius-pill);
+    transition: transform var(--t-fast) var(--ease-spring), opacity var(--t-fast) var(--ease-out);
+  }
+  .coffee__btn:hover { opacity: 0.88; }
+  .coffee__btn:active { transform: scale(0.97); }
+  /* The SVG is 235x50. Height drives it and the width follows, so the mark keeps its
+     proportions at any bar height; 34px sits inside the 52px header with room either side. */
+  .coffee__btn img { display: block; height: 34px; width: auto; }
+
+  .coffee-pop {
+    margin: auto;
+    padding: 0;
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius);
+    background: var(--carbon);
+    box-shadow: var(--shadow-lg);
+    overflow: visible;
+  }
+  .coffee-pop::backdrop { background: rgba(0, 0, 0, 0.7); }
+  .coffee-pop__inner { position: relative; padding: 0; line-height: 0; }
+  .coffee-pop__frame {
+    display: block;
+    width: min(26rem, calc(100vw - 3rem));
+    height: min(36rem, calc(100vh - 8rem));
+    border: 0;
+    border-radius: var(--radius);
+    /* Their panel paints its own white ground; this stops a dark flash before it lands. */
+    background: #fff;
+  }
+  .coffee-pop__close {
+    position: absolute;
+    top: -0.75rem;
+    right: -0.75rem;
+    width: 2rem;
+    height: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--iron);
+    border: 1px solid var(--iron-3);
+    border-radius: var(--radius-pill);
+    color: var(--bone-dim);
+    font-size: 0.8125rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+  .coffee-pop__close:hover { color: var(--bone); border-color: var(--bone-faint); }
+  .coffee-pop__out {
+    display: block;
+    padding: 0.6rem 1rem;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    line-height: normal;
+    text-align: center;
+    text-decoration: none;
+    color: var(--bone-faint);
+  }
+  .coffee-pop__out:hover { color: var(--plasma); }
+</style>
