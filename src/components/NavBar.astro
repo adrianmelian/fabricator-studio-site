@@ -143,18 +143,17 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
 
   .navbar__coffee { display: flex; align-items: center; }
 
-  /* MEASURED, not guessed (2026-08-29): below about 940px the six tabs are already at their
-     minimum width and stop shrinking, so the 160px button hangs off the right edge. It was
-     39px off screen at 900px and 209px at 730px. Above the burger breakpoint it therefore
-     leaves the bar; below it, it comes back inside the dropdown where width is free. */
-  @media (max-width: 979px) and (min-width: 721px) {
-    .navbar__coffee { display: none; }
-  }
-
   /* Hamburger: hidden on desktop, shown on narrow screens. */
   .navbar__burger { display: none; }
 
-  @media (max-width: 720px) {
+  /* THE BURGER COMES IN AT 980px, not the site's usual 720px (Adrian, 2026-08-29). This is
+     a deliberate exception to that convention and the only one in the nav.
+     Measured: below about 940px the six tabs are already at their minimum width and stop
+     shrinking, so the 160px coffee button hung off the right edge, 39px off screen at 900px
+     and 209px at 730px. The bar had been at its own limit since the sixth tab landed; the
+     button is what made it visible. Everything moves into the dropdown here instead, where
+     width is free, so the coffee door stays reachable at every width. */
+  @media (max-width: 979px) {
     .navbar__burger {
       display: flex;
       flex-direction: column;
