@@ -1,0 +1,251 @@
+---
+// Transport for the homepage hero video (Adrian, 2026-08-29).
+//
+// THE PROBLEM IT SOLVES: the opening footage autoplays muted and loops with no chrome at
+// all, so nothing on screen says "this is a video". Adrian asked for a timeline that shows
+// it is playing and will loop, with pause, play and rewind for anyone who wants them.
+//
+// WHAT IT IS NOT: this video is a PASSAGE, not a destination. It fades in as the point
+// cloud explodes (p 0.66 to 0.98 of the opening's 1.6 screens) and clears again between 2.0
+// and 2.6 screens, so a visitor scrolling normally is in front of it for a couple of
+// seconds. He chose this over pinning the scroll, knowing that. So the bar is built to be
+// READ at a glance and used only if someone stops: the line is always there, the buttons
+// come up on hover.
+//
+// POINTER EVENTS ARE THE TRAP. In cinematic mode #hero is a fixed layer with
+// `pointer-events: none`, deliberately, so the doors above it stay clickable. This bar
+// therefore turns them back on for ITSELF ONLY, and only while the video is actually on
+// screen: an opacity-0 element still swallows clicks, so a bar that ignored the fade would
+// eat them for the whole page. PointCloudHero flags the window with `data-v` on #hero.
+//
+// The in-flow fallback (no WebGL2, so the cinematic never promotes the section) has no
+// `data-cine` and no `data-v`, and is handled by the second selector. Reduced motion swaps
+// the video for the poster still, so the bar hides outright: there is nothing to control.
+---
+<div class="hvc" data-hvc>
+  <div class="hvc__ctl">
+    <button type="button" class="hvc__btn" data-hvc-toggle aria-label="Pause video">
+      <svg class="hvc__i hvc__i--pause" viewBox="0 0 12 12" aria-hidden="true"><rect x="2" y="1.5" width="3" height="9" rx="0.6"/><rect x="7" y="1.5" width="3" height="9" rx="0.6"/></svg>
+      <svg class="hvc__i hvc__i--play" viewBox="0 0 12 12" aria-hidden="true"><path d="M3 1.6v8.8l7-4.4z"/></svg>
+    </button>
+    <button type="button" class="hvc__btn" data-hvc-restart aria-label="Restart video">
+      <svg class="hvc__i" viewBox="0 0 12 12" aria-hidden="true">
+        <path d="M6 2.2a3.8 3.8 0 1 1-3.66 4.8" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        <path d="M6 0.4v3.6L3.2 2.2z"/>
+      </svg>
+    </button>
+  </div>
+
+  {/* A real range input rather than a styled div: keyboard seeking, the arrow keys, Home and
+      End and a screen-reader-legible value all come free and correct. Value is per-mille of
+      the duration, so the step is finer than a pixel at any width. */}
+  <input class="hvc__seek" type="range" min="0" max="1000" value="0" step="1"
+    data-hvc-seek aria-label="Seek video" />
+
+  {/* tabular-nums, or the readout jitters the whole bar as the digits change. */}
+  <span class="hvc__time" data-hvc-time aria-hidden="true">0:00 / 0:00</span>
+</div>
+
+<script>
+  (function () {
+    const bar = document.querySelector('[data-hvc]') as HTMLElement | null;
+    const video = document.querySelector('#hero video.hero-media') as HTMLVideoElement | null;
+    if (!bar || !video) return;
+
+    const toggle = bar.querySelector('[data-hvc-toggle]') as HTMLButtonElement;
+    const restart = bar.querySelector('[data-hvc-restart]') as HTMLButtonElement;
+    const seek = bar.querySelector('[data-hvc-seek]') as HTMLInputElement;
+    const time = bar.querySelector('[data-hvc-time]') as HTMLElement;
+
+    const clock = (s: number) => {
+      if (!isFinite(s) || s < 0) s = 0;
+      const m = Math.floor(s / 60);
+      return m + ':' + String(Math.floor(s % 60)).padStart(2, '0');
+    };
+
+    // True only while a drag is in flight. Without it the video's own timeupdate fights the
+    // thumb the visitor is holding and the handle snaps backwards under the finger.
+    let scrubbing = false;
+
+    function paint() {
+      const d = video.duration;
+      if (!isFinite(d) || d <= 0) return;
+      if (!scrubbing) seek.value = String(Math.round((video.currentTime / d) * 1000));
+      time.textContent = clock(video.currentTime) + ' / ' + clock(d);
+      // The fill is painted from a custom property rather than a background-size trick, so
+      // the same number drives it in every browser including the ones that style the track
+      // and the thumb separately.
+      bar.style.setProperty('--hvc-p', ((video.currentTime / d) * 100).toFixed(2) + '%');
+    }
+
+    function syncPlayState() {
+      const playing = !video.paused && !video.ended;
+      bar.toggleAttribute('data-playing', playing);
+      toggle.setAttribute('aria-label', playing ? 'Pause video' : 'Play video');
+    }
+
+    video.addEventListener('loadedmetadata', paint);
+    video.addEventListener('timeupdate', paint);
+    video.addEventListener('play', syncPlayState);
+    video.addEventListener('pause', syncPlayState);
+
+    toggle.addEventListener('click', () => {
+      // play() rejects on a page the browser has not granted playback to. It is muted and
+      // already autoplaying here, so this is a guard against an unhandled rejection in the
+      // console rather than a case anyone will hit.
+      if (video.paused) video.play().catch(() => {});
+      else video.pause();
+    });
+
+    restart.addEventListener('click', () => {
+      video.currentTime = 0;
+      if (video.paused) video.play().catch(() => {});
+      paint();
+    });
+
+    seek.addEventListener('pointerdown', () => { scrubbing = true; });
+    // window, not the input: releasing outside the bar is the normal end of a drag and
+    // would otherwise leave scrubbing latched on forever.
+    window.addEventListener('pointerup', () => { scrubbing = false; });
+    seek.addEventListener('input', () => {
+      const d = video.duration;
+      if (!isFinite(d) || d <= 0) return;
+      video.currentTime = (Number(seek.value) / 1000) * d;
+      paint();
+    });
+
+    // Metadata may already be in before this script runs, in which case loadedmetadata has
+    // been and gone and the readout would sit at 0:00 / 0:00 until the first timeupdate.
+    if (video.readyState >= 1) paint();
+    syncPlayState();
+  })();
+</script>
+
+<style>
+  .hvc {
+    position: absolute;
+    left: 50%;
+    bottom: clamp(1.25rem, 4svh, 2.5rem);
+    transform: translateX(-50%);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: min(30rem, calc(100vw - 3rem));
+    padding: 0.5rem 0.85rem;
+    font-family: var(--font-mono);
+    border: 1px solid rgba(232, 224, 208, 0.1);
+    border-radius: var(--radius-pill);
+    /* Glass, like the nav: the footage has to keep reading through it. */
+    background: rgba(11, 14, 16, 0.42);
+    backdrop-filter: blur(10px) saturate(130%);
+    /* THE DEFAULT STATE IS OFF. The section it sits in has pointer-events: none so the doors
+       above stay clickable, and an opacity-0 layer still takes clicks, so the bar only turns
+       them on for itself inside the window PointCloudHero flags. */
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity var(--t-med, 260ms) var(--ease-out);
+  }
+  @supports not (backdrop-filter: blur(1px)) {
+    .hvc { background: rgba(11, 14, 16, 0.8); }
+  }
+
+  /* The two ways the video is genuinely on screen: the cinematic's own window, and the
+     in-flow fallback where the section was never promoted to a fixed layer. */
+  :global(#hero[data-v]) .hvc,
+  :global(#hero:not([data-cine])) .hvc {
+    opacity: 0.62;
+    pointer-events: auto;
+  }
+  :global(#hero[data-v]) .hvc:hover,
+  :global(#hero[data-v]) .hvc:focus-within,
+  :global(#hero:not([data-cine])) .hvc:hover,
+  :global(#hero:not([data-cine])) .hvc:focus-within { opacity: 1; }
+
+  /* Reduced motion swaps the video for the poster still. Nothing to control. */
+  @media (prefers-reduced-motion: reduce) { .hvc { display: none; } }
+
+  .hvc__ctl { display: flex; align-items: center; gap: 0.25rem; }
+  .hvc__btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.75rem;
+    height: 1.75rem;
+    padding: 0;
+    background: none;
+    border: none;
+    border-radius: var(--radius-pill);
+    color: var(--bone-dim);
+    cursor: pointer;
+  }
+  .hvc__btn:hover { color: var(--bone); }
+  .hvc__btn:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+  .hvc__i { width: 0.75rem; height: 0.75rem; fill: currentColor; }
+  /* One button, two glyphs, swapped by the state flag the script keeps on the bar. */
+  .hvc__i--play { display: block; }
+  .hvc__i--pause { display: none; }
+  .hvc[data-playing] .hvc__i--play { display: none; }
+  .hvc[data-playing] .hvc__i--pause { display: block; }
+
+  .hvc__seek {
+    flex: 1;
+    height: 1rem;
+    margin: 0;
+    background: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+  .hvc__seek:focus-visible { outline: 2px solid var(--plasma); outline-offset: 3px; border-radius: var(--radius-pill); }
+  /* The played portion is painted into the track from --hvc-p, which the script writes.
+     Chromium and Firefox need their own track and thumb rules; sharing the gradient keeps
+     the two identical. */
+  .hvc__seek::-webkit-slider-runnable-track {
+    height: 3px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(to right, var(--plasma) 0 var(--hvc-p, 0%), rgba(232, 224, 208, 0.22) var(--hvc-p, 0%) 100%);
+  }
+  .hvc__seek::-moz-range-track {
+    height: 3px;
+    border-radius: var(--radius-pill);
+    background: linear-gradient(to right, var(--plasma) 0 var(--hvc-p, 0%), rgba(232, 224, 208, 0.22) var(--hvc-p, 0%) 100%);
+  }
+  .hvc__seek::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 9px;
+    height: 9px;
+    margin-top: -3px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--plasma);
+  }
+  .hvc__seek::-moz-range-thumb {
+    width: 9px;
+    height: 9px;
+    border: none;
+    border-radius: var(--radius-pill);
+    background: var(--plasma);
+  }
+
+  .hvc__time {
+    color: var(--bone-faint);
+    font-size: 0.6875rem;
+    letter-spacing: 0.04em;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  /* No hover on a touch screen, so the bar cannot hide its controls behind one. */
+  @media (hover: none) {
+    :global(#hero[data-v]) .hvc,
+    :global(#hero:not([data-cine])) .hvc { opacity: 0.9; }
+  }
+
+  /* Narrow: the readout is the first thing to go. The line and the buttons are the message. */
+  @media (max-width: 520px) {
+    .hvc { gap: 0.5rem; padding: 0.4rem 0.65rem; }
+    .hvc__time { display: none; }
+  }
+</style>

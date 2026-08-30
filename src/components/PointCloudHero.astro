@@ -420,6 +420,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 </style>
 
 <script>
+  import { PIPELINE_SECTIONS } from '../data/pipeline';
   // ---------------------------------------------------------------- the ruled numbers
   // Transcribed from Adrian's harness. Do not tune these here; tune them there and copy back.
   const P = {
@@ -514,6 +515,15 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   async function run(host: HTMLElement, canvas: HTMLCanvasElement, gl: WebGL2RenderingContext) {
     const HDR = gl.getExtension('EXT_color_buffer_float') ? gl.RGBA16F : gl.RGBA8;
     gl.getExtension('OES_texture_float_linear');
+
+    // LIVE, not read once (2026-08-29). Phones keep the DOM labels, because the pipe runs
+    // far past both edges at that aspect and a name standing in the world would sit off
+    // screen for most of the ride. The CSS that hides the DOM copies is a media query and
+    // therefore updates on resize, so a gate read once at load put BOTH on screen the moment
+    // a desktop window was dragged narrow. This one tracks the same breakpoint the CSS uses.
+    const narrowMq = matchMedia('(max-width: 900px)');
+    let NARROW = narrowMq.matches;
+    narrowMq.addEventListener('change', (e2) => { NARROW = e2.matches; });
 
     const sh = (type: number, src: string) => {
       const s = gl.createShader(type)!; gl.shaderSource(s, src); gl.compileShader(s);
@@ -697,6 +707,45 @@ void main() {
   frag = vec4(c * uAlpha, 1.0);
 }`;
 
+    // THE SECTION NAMES, STANDING IN THE ROOM (Adrian, 2026-08-29: "I wanted the text in 3D
+    // space"). The first pass anchored DOM text to a projected point, which tracked the pipe
+    // but stayed flat and upright, and he read it as barely changed -- correctly, because a
+    // label that does not skew is not in the scene, it is over it.
+    //
+    // These are real quads in world space at z = 0, the plane the pipe's axis lies in, so
+    // they take the same perspective the pipe takes: they lean as the camera yaws, and they
+    // shrink with distance. The glyphs come from a 2D canvas baked to a texture, which is
+    // why there is no font atlas here and no glyph geometry.
+    //
+    // The texture carries WHITE and the colour arrives as a uniform, so one bake serves both
+    // states: x-ray bone for the three the packet is not in, solid plasma for the one it is.
+    const LABEL_VS = `#version 300 es
+in vec2 aUv;
+uniform mat4 uProj, uView;
+uniform vec3 uCentre;
+uniform vec2 uHalf;
+out vec2 vUv;
+void main() {
+  vUv = aUv;
+  vec3 p = uCentre + vec3((aUv.x - 0.5) * 2.0 * uHalf.x, (aUv.y - 0.5) * 2.0 * uHalf.y, 0.0);
+  gl_Position = uProj * uView * vec4(p, 1.0);
+}`;
+
+    const LABEL_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uTex;
+uniform vec3 uColor;
+uniform float uAlpha;
+in vec2 vUv;
+out vec4 frag;
+void main() {
+  float a = texture(uTex, vUv).a;
+  // The room blends additively, so a transparent fragment still costs a blend. Dropping the
+  // empty ones is most of the quad on a line of text.
+  if (a < 0.004) discard;
+  frag = vec4(uColor, a * uAlpha);
+}`;
+
     // THE FLOW: one particle system carries the whole journey. Each point's lifecycle is a
     // pure function of time and its seeds -- chaos orbit at the intake, suction to the
     // mouth, a churning helix down the pipe, assembly onto its target point on the man,
@@ -869,6 +918,7 @@ void main() {
     const P_FLOW = prog(FLOW_VS, FLOW_FS);
     const P_STAR = prog(STAR_VS, STAR_FS);
     const P_GRID = prog(GRID_VS, GRID_FS);
+    const P_LABEL = prog(LABEL_VS, LABEL_FS);
     const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
     const P_BLUR = prog(QUAD_VS, BLUR_FS);
     const P_COMP = prog(QUAD_VS, COMP_FS);
@@ -880,6 +930,99 @@ void main() {
     gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
     gl.enableVertexAttribArray(0);
     gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+
+    // The label quad: one unit rectangle in UV, reused by all four names. The vertex shader
+    // turns it into world size, so nothing here changes per section.
+    const labelVao = gl.createVertexArray()!;
+    gl.bindVertexArray(labelVao);
+    const lb = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, lb);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([0, 0, 1, 0, 0, 1, 1, 1]), gl.STATIC_DRAW);
+    gl.enableVertexAttribArray(0);
+    gl.vertexAttribPointer(0, 2, gl.FLOAT, false, 0, 0);
+    gl.bindVertexArray(null);
+
+    // Baked ONCE, and only after the webfont has actually arrived: bake too early and the
+    // texture is a permanent picture of the fallback monospace, which no reflow can fix
+    // because it is pixels by then.
+    let labelTex: { t: WebGLTexture; aspect: number }[] | null = null;
+    let fontsIn = false;
+    document.fonts.ready.then(() => { fontsIn = true; });
+
+    const LABEL_BAKE_PX = 96;   // bake resolution; the quad's world size is what sets scale
+    const LABEL_TRACK = 0.1;    // em, matching the letter-spacing the DOM labels wore
+    // A name may not be wider than this share of its own pipe section (Adrian, 2026-08-29:
+    // "it overlaps its neighbors"). At the first size tried, a fixed world height of 0.13,
+    // "WORKFLOW AUTOMATION" came out 1.25 world units wide against a section length of 1.1,
+    // so it ran into the name beside it. The height is DERIVED from this instead of set.
+    const LABEL_FIT = 0.88;
+    // The two dials Adrian tunes by eye. They are alphas rather than colours on purpose: the
+    // scene is HDR and the bright pass picks up anything over its threshold, so pulling these
+    // down takes the names out of the BLOOM as well as off the top of the range. That is what
+    // was actually making them blaze; the blend mode was only half of it.
+    const LABEL_ALPHA_LIT = 0.62;
+    const LABEL_ALPHA_XRAY = 0.13;
+
+    // THE BODY COPY STAYED IN 2D (Adrian, 2026-08-29). It was briefly baked into the scene
+    // beside the names and he pulled it straight back out: at narrow widths the world-space
+    // text was barely legible, and with the DOM card still under it the beat read as closed
+    // captions. The names are four short lines and survive the perspective; a three-line
+    // paragraph does not. It lives in PipelineOverlay, anchored under the projected pipe.
+    // Filled after the bake: one height for all four, taken from the LONGEST name, so the
+    // four are the same size. Sizing each to its own section would fit them all and leave
+    // four different type sizes on one pipe, which reads as a mistake rather than a system.
+    let labelWorldH = 0.11;
+
+    function bakeLabels() {
+      const out: { t: WebGLTexture; aspect: number }[] = [];
+      for (const sec of PIPELINE_SECTIONS) {
+        const text = sec.label.toUpperCase();
+        const c = document.createElement('canvas');
+        const ctx = c.getContext('2d')!;
+        // Archivo, NOT JetBrains Mono. The DOM labels wore var(--font-mono), and that token
+        // resolves to Archivo on this site -- it is a legacy alias from when the whole page
+        // was monospace. Baking the literal "JetBrains Mono" put a face on the pipe that
+        // appears nowhere else in the design system. Caught 2026-08-29 while wiring the
+        // paragraph, which needed the body face and sent me to the token file.
+        const font = `700 ${LABEL_BAKE_PX}px "Archivo", system-ui, sans-serif`;
+        // Measure first, then size the canvas, then RE-SET the font: resizing a canvas resets
+        // its whole 2D state, and a font set before the resize is silently gone.
+        ctx.font = font;
+        const chars = Array.from(text);
+        const w = chars.map((ch) => ctx.measureText(ch).width);
+        const track = LABEL_BAKE_PX * LABEL_TRACK;
+        const run = w.reduce((a2, b2) => a2 + b2, 0) + track * (chars.length - 1);
+        const pad = LABEL_BAKE_PX * 0.2;
+        c.width = Math.ceil(run + pad * 2);
+        c.height = Math.ceil(LABEL_BAKE_PX * 1.45);
+        ctx.font = font;
+        ctx.textBaseline = 'middle';
+        ctx.fillStyle = '#fff';
+        // Drawn CHARACTER BY CHARACTER rather than with ctx.letterSpacing, which Firefox did
+        // not carry for most of this project's life. The advance is measured, not assumed.
+        let x = pad;
+        for (let i = 0; i < chars.length; i++) { ctx.fillText(chars[i], x, c.height / 2); x += w[i] + track; }
+
+        const t = gl.createTexture()!;
+        gl.bindTexture(gl.TEXTURE_2D, t);
+        // Canvas origin is top-left and GL's is bottom-left. Flipped on upload and restored
+        // immediately: this is global state, and leaving it set would invert the next upload.
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, c);
+        gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+        gl.generateMipmap(gl.TEXTURE_2D);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        out.push({ t, aspect: c.width / c.height });
+      }
+      const widest = out.reduce((m, l) => Math.max(m, l.aspect), 0);
+      labelWorldH = (LABEL_FIT * PIPE_SEGL) / widest;
+      return out;
+    }
+
+
 
     // The Armature viewport's own grid: cell 0.1 on iron-2, section 1.0 on iron-3. WebGL will
     // not draw a line thicker than 1px, so the app's thickness difference is alpha here.
@@ -1068,6 +1211,16 @@ void main() {
     // ---- the pipe scene. Shared constants: the camera leg, the hover-band projection and
     // the flow shader's hardcoded path all speak this layout (x -2.4..2.0 at y 1.25).
     const PIPE_X0 = -2.4, PIPE_SEGL = 1.1, PIPE_Y = 1.25, PIPE_HALFW = 3.95;
+    // How far above the pipe's SURFACE the section labels ride, in world units (Adrian,
+    // 2026-08-29, "can the headers be in 3D so they sit above the pipe"). The pipe's radius
+    // is 0.55, so this is a little under one radius of clear air. It is a world offset and
+    // not a screen offset on purpose: the labels now rise and fall with the camera exactly
+    // as the pipe does, instead of hanging off its projected screen edge.
+    // 0.08, arrived at by measurement rather than taste. 0.45 was the first guess and it
+    // projected to 117px, which threw the labels up under the 52px nav bar; the camera sits
+    // closer to this pipe than a world offset intuitively suggests. The label's bottom edge
+    // rides the projected point, so this number IS the clear air above the pipe.
+    const PIPE_LABEL_LIFT = 0.08;
     const pipe = (() => {
       const RS = 40, R = 0.34, FR = 0.42, FW = 0.05;
       const pos: number[] = [], nor: number[] = [], seg: number[] = [], idx: number[] = [];
@@ -1271,6 +1424,9 @@ void main() {
     // the fallback paths, which never set it, keep the section's normal in-flow life.
     const heroSec = document.getElementById('hero');
     heroSec?.setAttribute('data-cine', '');
+    // Last written value of the hero's on-screen flag, so the loop only touches the DOM when
+    // it actually crosses. See the toggle below.
+    let heroVis = false;
 
     function frame(now: number) {
       requestAnimationFrame(frame);
@@ -1347,7 +1503,18 @@ void main() {
 
       // The video fades in through the explosion: it starts becoming visible as the points
       // scatter and owns the screen by the end of the runway.
-      if (heroSec) heroSec.style.opacity = (smooth(clamp01((p - 0.66) / 0.32)) * (1 - videoOut)).toFixed(3);
+      if (heroSec) {
+        const heroA = smooth(clamp01((p - 0.66) / 0.32)) * (1 - videoOut);
+        heroSec.style.opacity = heroA.toFixed(3);
+        // FLAGS THE WINDOW FOR THE TRANSPORT (2026-08-29). The controls bar has to turn
+        // pointer events back on for itself, because this section switches them off so the
+        // doors above stay clickable -- and an opacity-0 layer still swallows clicks, so
+        // without this flag the bar would eat them across the whole page. Written only on a
+        // CHANGE: this is the hot loop, and an attribute write every frame is a needless
+        // style invalidation.
+        const vis = heroA > 0.35;
+        if (vis !== heroVis) { heroVis = vis; heroSec.toggleAttribute('data-v', vis); }
+      }
 
       // THE PHILOSOPHY IS A THREE-BEAT STEP (Adrian, 2026-08-20). The studio line arrives
       // with the camera at beat B and stands until the video begins; the problem line hands
@@ -1394,6 +1561,13 @@ void main() {
       // THE PIPELINE OVERLAY rides --pipe. Its hover bands are placed later in the frame,
       // once this frame's camera exists to project the pipe's bounds against.
       document.documentElement.style.setProperty('--pipe', pipeF.toFixed(3));
+      // THE HEADER CLEARS FOR THE RIDE (Adrian, 2026-08-29). Once the labels ride above the
+      // pipe in world space they climb as it climbs, so the header and the labels want the
+      // same band of screen. Measured before this: an overlap of up to 78px at 1440x900.
+      // The header has said its piece by the time the packet enters the first section
+      // (journey 0.175), so it leaves just ahead of it.
+      document.documentElement.style.setProperty('--pipe-head',
+        (1 - smooth(clamp01((journey - 0.10) / 0.12))).toFixed(3));
       const plEl = document.querySelector('[data-pipeline-overlay]');
       if (plEl) {
         if (pipeF > 0.01) plEl.setAttribute('data-active', '');
@@ -1627,6 +1801,10 @@ void main() {
         const yb = project([0, PIPE_Y - 0.55, 0], view, proj, canvas.width, canvas.height);
         if (yt) document.documentElement.style.setProperty('--pipe-yt', (yt[1] / canvas.height).toFixed(4));
         if (yb) document.documentElement.style.setProperty('--pipe-yb', (yb[1] / canvas.height).toFixed(4));
+        // The labels' own anchor: a third point on the same axis, PIPE_LABEL_LIFT above the
+        // pipe's top surface. Projected like the other two, so it carries the perspective.
+        const ylab = project([0, PIPE_Y + 0.55 + PIPE_LABEL_LIFT, 0], view, proj, canvas.width, canvas.height);
+        if (ylab) document.documentElement.style.setProperty('--pipe-ylab', (ylab[1] / canvas.height).toFixed(4));
       }
 
       gl.bindFramebuffer(gl.FRAMEBUFFER, T.scene.f);
@@ -1719,6 +1897,40 @@ void main() {
           gl.drawArrays(gl.POINTS, 0, flow.n);
           gl.uniform1f(F.uAssembled, 0);
           gl.drawArrays(gl.POINTS, 0, flow.n);
+        }
+
+        // THE FOUR NAMES, IN THE ROOM. All four are always up (Adrian, 2026-08-29): the
+        // three the packet is not in read as x-ray, the one it is in goes solid plasma. The
+        // ride is legible as a whole that way -- you can see what is coming, not only where
+        // you are. Drawn after the pipe so the glyphs sit over its shell.
+        if (!NARROW) {
+          if (!labelTex && fontsIn) labelTex = bakeLabels();
+          if (labelTex) {
+            gl.useProgram(P_LABEL.p);
+            gl.uniformMatrix4fv(P_LABEL.u.uProj, false, proj);
+            gl.uniformMatrix4fv(P_LABEL.u.uView, false, view);
+            gl.bindVertexArray(labelVao);
+            // Straight alpha for the text, not the room's additive blend (Adrian,
+            // 2026-08-29: "the text is too bright"). Additive stacks the glyphs onto the
+            // bloom behind them, so even the x-ray copies burned. The lit name reads SOLID
+            // this way, which is what he asked for, and the blend is restored immediately
+            // after: the man's beat draws in the same frame and expects additive.
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+            const halfY = labelWorldH / 2;
+            for (let i = 0; i < labelTex.length; i++) {
+              const lit = i === litSeg;
+              gl.uniform3f(P_LABEL.u.uCentre,
+                PIPE_X0 + (i + 0.5) * PIPE_SEGL,
+                PIPE_Y + 0.55 + PIPE_LABEL_LIFT + halfY,
+                0);
+              gl.uniform2f(P_LABEL.u.uHalf, halfY * labelTex[i].aspect, halfY);
+              gl.uniform3fv(P_LABEL.u.uColor, lit ? PLASMA : BONE);
+              gl.uniform1f(P_LABEL.u.uAlpha, (lit ? LABEL_ALPHA_LIT : LABEL_ALPHA_XRAY) * pipeF);
+              bindTex(P_LABEL.u.uTex, labelTex[i].t, 0);
+              gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+            }
+            gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+          }
         }
       }
 

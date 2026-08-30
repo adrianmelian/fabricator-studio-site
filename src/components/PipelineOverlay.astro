@@ -12,26 +12,17 @@
 // the loop writes data-hover with the section under the packet (mouse hover was retired,
 // Adrian 2026-08-19 -- the scroll owns the ride), which lights that label and its card.
 //
-// DRAFT COPY: the four bodies below are placeholders for Adrian's pass; the four section
-// titles are his ruled names.
-const SECTIONS = [
-  {
-    label: 'Workflow Automation',
-    body: 'The chores leave the pipeline: batch exports, naming, scene hygiene and publish steps run themselves, so artists never babysit a process.',
-  },
-  {
-    label: 'Project Integration',
-    body: 'The tools bend to your project, not the other way around: naming conventions, folder structure and engine targets are read and respected.',
-  },
-  {
-    label: 'Rigging & Animation',
-    body: 'Fabricator and Armature carry a model from mesh to animation-ready: generative skeletons, machine-learned skinning, artist-grade controls.',
-  },
-  {
-    label: 'Unhindered Iteration',
-    body: 'Change the design at any point and rebuild in minutes. Nothing is locked and nothing is precious: iteration is the whole point.',
-  },
-];
+// THE LABELS ARE DRAWN IN THE SCENE above 900px (Adrian, 2026-08-29): "I wanted the text in
+// 3D space". PointCloudHero bakes each name to a texture and stands it on a quad in world
+// space above the pipe, so it skews and scales with the camera like everything else in the
+// room. The DOM labels below survive for PHONES ONLY, where the pipe runs far past both edges
+// and a world-anchored label would sit off screen; there they keep centring as before.
+//
+// THE BODY COPY STAYED IN 2D. It went into the scene the same way for one round and came
+// straight back out: at narrow widths the world-space paragraph was barely legible, and
+// stacked over this DOM card it read as closed captions. Four short names survive the
+// perspective; three lines of prose do not.
+import { PIPELINE_SECTIONS as SECTIONS } from '../data/pipeline';
 const bandStyle = (i: number) =>
   `left: calc(var(--pipe-x${i}, ${0.16 + i * 0.16}) * 100%);` +
   `width: calc((var(--pipe-x${i + 1}, ${0.32 + i * 0.16}) - var(--pipe-x${i}, ${0.16 + i * 0.16})) * 100%);`;
@@ -43,8 +34,11 @@ const bandStyle = (i: number) =>
     <p class="pl__sub">For Artists, By Artists</p>
   </div>
 
-  {/* The four bands, riding the projected pipe. Labels sit under their sections like the
-      sketch's brackets; the packet's position picks the lit one. */}
+  {/* The four bands, riding the projected pipe. The labels sit ABOVE their sections
+      (Adrian, 2026-08-29): they used to hang underneath and the card below repeated them in
+      display serif, so the same four words were on screen twice. The label is now the only
+      place a section is named, which is why it is bigger, and the card below it is pure
+      body copy. The packet's position picks the lit one. */}
   {SECTIONS.map((s, i) => (
     <div class="pl__band" data-band={i} style={bandStyle(i)}>
       <p class="pl__label">{s.label}</p>
@@ -55,7 +49,6 @@ const bandStyle = (i: number) =>
   <div class="pl__cards">
     {SECTIONS.map((s, i) => (
       <div class="pl__card" data-card={i}>
-        <p class="pl__card-title">{s.label}</p>
         <p class="pl__card-body">{s.body}</p>
       </div>
     ))}
@@ -75,7 +68,10 @@ const bandStyle = (i: number) =>
   }
   .pl[data-active] { visibility: visible; }
 
+  /* Clears out for the ride: the labels ride above the pipe now and climb into this band.
+     Written per frame by the loop, so it needs no transition of its own. */
   .pl__head {
+    opacity: var(--pipe-head, 1);
     position: absolute;
     left: 50%;
     top: 7%;
@@ -115,14 +111,33 @@ const bandStyle = (i: number) =>
     top: calc(var(--pipe-yt, 0.26) * 100%);
     height: calc((var(--pipe-yb, 0.52) - var(--pipe-yt, 0.26)) * 100%);
   }
+  /* ANCHORED IN 3D (Adrian, 2026-08-29, "can the headers be in 3D so they sit above the
+     pipe"). The label no longer hangs off the pipe's projected screen edge: the loop
+     projects a THIRD world point, PIPE_LABEL_LIFT above the pipe's surface, into
+     `--pipe-ylab`, and the label wears that. So it rides with the camera exactly as the pipe
+     does, keeping its clear air through the whole beat instead of only at one aspect.
+     The arithmetic converts an absolute screen fraction into a band-relative one, because a
+     percentage `top` resolves against the BAND's height rather than the screen's. All three
+     custom properties are unitless numbers, so this is a number divided by a number, which
+     is the one division calc() permits.
+     The header gets out of the way rather than the label ducking under it; that fade is
+     driven from the same loop, on `--pipe-head`. */
+  /* Above 900px the scene draws these instead; see PointCloudHero's label pass. Keeping the
+     DOM copy visible as well would print every name twice, offset by the perspective. */
+  @media (min-width: 901px) { .pl__label { display: none; } }
   .pl__label {
     position: absolute;
-    top: 100%;
+    top: calc((var(--pipe-ylab, 0.14) - var(--pipe-yt, 0.26)) / (var(--pipe-yb, 0.52) - var(--pipe-yt, 0.26)) * 100%);
     left: 50%;
-    transform: translateX(-50%);
-    margin-top: 0.9rem;
+    /* -100% on Y so the label's BOTTOM edge lands on the projected point rather than its
+       top. The world lift then IS the clear air above the pipe, which makes the constant in
+       PointCloudHero mean what it says and scale honestly with the perspective. */
+    transform: translate(-50%, -100%);
     font-family: var(--font-mono);
-    font-size: clamp(0.7rem, 0.85vw, 0.85rem);
+    /* Bigger, because it is now the section's only name: the card below stopped repeating
+       it. Mono uppercase is kept deliberately -- the display serif belongs to the beat's own
+       header, and two serif titles in one frame read as two headings. */
+    font-size: clamp(0.95rem, 1.35vw, 1.4rem);
     letter-spacing: 0.1em;
     text-transform: uppercase;
     white-space: nowrap;
@@ -135,20 +150,27 @@ const bandStyle = (i: number) =>
   .pl[data-hover='2'] [data-band='2'] .pl__label,
   .pl[data-hover='3'] [data-band='3'] .pl__label { color: var(--plasma); }
 
-  /* One cell, crossfading cards; the hint holds the cell while nothing is hovered. */
+  /* One cell, crossfading cards; the hint holds the cell while nothing is hovered.
+     UNDER THE PIPE, not at the foot of the screen (Adrian, 2026-08-29). It used to sit at
+     bottom 6%, which left the room's whole lower half between the pipe and the words that
+     explain it. It now hangs off the pipe's own projected underside, `--pipe-yb`, so it
+     rides with it and reads as part of the section rather than as a caption. */
   .pl__cards {
     position: absolute;
     left: 50%;
-    bottom: 6%;
+    top: calc(var(--pipe-yb, 0.52) * 100% + 2.25rem);
     transform: translateX(-50%);
-    width: min(46rem, 80vw);
+    /* Narrower than the old 46rem (Adrian, 2026-08-29): with the title gone the paragraph
+       is the whole card, and a shorter measure reads faster over moving footage. */
+    width: min(34rem, 84vw);
     display: grid;
     text-align: center;
     text-shadow: 0 1px 3px rgba(11, 14, 16, 0.65);
   }
   .pl__cards > * {
     grid-area: 1 / 1;
-    align-self: end;
+    /* Top-aligned now that the cell hangs from the pipe rather than standing on the floor. */
+    align-self: start;
     opacity: 0;
     transition: opacity 0.25s var(--ease-out);
   }
@@ -157,16 +179,11 @@ const bandStyle = (i: number) =>
   .pl[data-hover='2'] [data-card='2'],
   .pl[data-hover='3'] [data-card='3'] { opacity: 1; }
 
-  .pl__card-title {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: clamp(1.6rem, 2.4vw, 2.3rem);
-    color: var(--bone);
-  }
+
+  /* .pl__card-title is gone with the markup that carried it (2026-08-29). */
   .pl__card-body {
-    margin-top: 0.7rem;
     font-weight: 300;
-    font-size: clamp(1.05rem, 1.4vw, 1.3rem);
+    font-size: clamp(1.2rem, 1.75vw, 1.6rem);
     line-height: 1.45;
     color: var(--bone);
   }

@@ -34,6 +34,7 @@ import YouTubeFacade from '../components/YouTubeFacade.astro';
 import DownloadBand from '../components/DownloadBand.astro';
 import ToolsSection from '../components/ToolsSection.astro';
 import PointCloudHero from '../components/PointCloudHero.astro';
+import HeroVideoControls from '../components/HeroVideoControls.astro';
 import PipelineOverlay from '../components/PipelineOverlay.astro';
 import ArmatureOverlay from '../components/ArmatureOverlay.astro';
 import WallOverlay from '../components/WallOverlay.astro';
@@ -133,10 +134,12 @@ const PROOF = [
         are served unhashed, so reusing the old names would leave the previous cut in browser
         and CDN caches for days. 2560x1440 (was 2560x1080), which crops less at desktop widths
         under object-fit: cover. */}
+    {/* aria-hidden is GONE from the video (2026-08-29): it now carries a transport, so it
+        is a control target rather than decoration, and a labelled button pointing at a
+        hidden element is a contradiction. The poster still below it stays decorative. */}
     <video class="hero-media" autoplay muted loop playsinline
       poster="/demo/fs_hero_poster_2026-08.jpg"
-      src="/demo/fs_hero_2026-08.mp4"
-      aria-hidden="true">
+      src="/demo/fs_hero_2026-08.mp4">
     </video>
     <img class="hero-media hero-poster" src="/demo/fs_hero_poster_2026-08.jpg" alt="" aria-hidden="true" />
     {/* NO SCRIM AND NO COPY (Adrian, 2026-08-19). This panel is the video and nothing else.
@@ -144,6 +147,11 @@ const PROOF = [
         dimming the footage. The identity moved into the opening, and the philosophy copy
         that used to sit here moved out with it rather than being restated over a video
         nobody is reading. */}
+
+    {/* THE TRANSPORT (Adrian, 2026-08-29): nothing on screen said the opening footage was a
+        video. A line that reads at a glance, with play, pause and rewind on hover. He chose
+        this over pinning the scroll for it; the reasoning is in the component. */}
+    <HeroVideoControls />
   </section>
 
   {/* THE PIPELINE BEAT (Adrian, 2026-08-19 second pass): the x-ray pipe in the room --
