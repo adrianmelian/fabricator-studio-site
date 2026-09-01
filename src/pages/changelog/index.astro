@@ -387,6 +387,46 @@ const RELEASES = [
   // Copy source: the toolset's own CHANGELOG.md in the FabricatorStudio repo, which is the
   // authored layer over its git history. Ported rather than reworded so the site, that file
   // and the GitHub release all say the same thing.
+  // Copy source: the 1.4.3 release, CHANGELOG.md and the in-Maya What's New card.
+  // One authored source, ported, never independently reworded.
+  {
+    version: '1.4.3',
+    date: '2026-08-31',
+    dateLabel: '2026 · 08 · 31',
+    tag: 'Fix release',
+    lede: 'Five fixes, a What’s New window inside Maya, and a first ask for support.',
+    groups: [
+      {
+        label: 'SUPPORT',
+        tone: 'plasma',
+        items: [
+          '<b>FabricatorStudio has been free since launch</b>. If the tools have helped you in any way, there is a Buy Me a Coffee link in the new What’s New window. No obligation, and nothing is gated on it.',
+        ],
+      },
+      {
+        label: 'COMING SOON',
+        tone: 'cobalt',
+        items: [
+          '<b>FS Unreal Control Rig Builder is released!</b> Build a character rig in Unreal in one click, using FS Control Rig Modules. Packed with the latest UE 5.8 features. The rig features auto IK/FK match on the switch, an IK/FK spine, twist joints integration, and much more.',
+          '<b>Auto skeleton placement</b>. It builds a skeleton and fits it to your character automatically. The final step in full FS rig automation.',
+          '<b>Mesh editing in Armature</b>. Manage and organize your accessory meshes, and copy weights straight from the base mesh for fast accessory skinning.',
+        ],
+      },
+      {
+        label: 'IN THIS RELEASE',
+        tone: 'plasma',
+        items: [
+          '<b>A What’s New window</b>. It opens once per Maya session and shows what changed, with a page per release.',
+          '<b>A character with no clavicle keeps both IK arms</b>.',
+          '<b>The thigh twist no longer cancels its own rest pose</b> (Advanced Ribbon Pack 1.0.2).',
+          '<b>The proximal twist joint no longer flips past 90 degrees</b> (Advanced Ribbon Pack 1.0.2).',
+          '<b>The ribbon spine’s mid controls lead instead of follow</b> (Advanced Ribbon Pack 1.0.2).',
+          '<b>Anim export runs again, and its clips bind to the skeleton</b>.',
+          'Three of these fixes live in the Advanced Ribbon Modules, so they arrive with Ribbon Pack 1.0.2 rather than with the free toolset.',
+        ],
+      },
+    ],
+  },
   // Copy source: the tools lane's approved draft (workspace/2026-08-08_fs-1.4.2-release/
   // CHANGELOG-DRAFTS-SITE.md), which matches the GitHub release note for v1.4.2. One authored
   // source, ported, never independently reworded.
