@@ -10,12 +10,9 @@ import '../../../styles/designed-doc.css';
 import '../../../styles/armature-docs.css';
 import stageSkin from '../../../assets/armature/stage-skin.png';
 
-const PASSES = [
-  ['Create new pass', 'adds a fresh version alongside the others. Nothing is overwritten.'],
-  ['Overwrite current', 're-solves into the active pass and keeps its name. One undo brings the old weights back.'],
-  ['Compare', 'shows two passes side by side on the same exercise, so "which skin is better" is something you see, not something you remember.'],
-];
-
+// THE PASS LIBRARY IS GONE (2026-09-01). `PASSES` listed Create new pass, Overwrite current and
+// Compare; the saved-version library and the two-up compare were both retired with the
+// multi-mesh work, so a character is skinned or it is not. The page said otherwise for a fortnight.
 const REFINE = [
   ['Painting', 'with Add and Replace that mean what they say: the influence you paint reaches exactly the value you asked for, locked influences never move, and the remainder is taken proportionally from unlocked ones.'],
   ['Flood', 'applies the same operation to a whole selection. Grow and shrink the selection ring by ring with Shift + > and Shift + <.'],
@@ -26,7 +23,7 @@ const REFINE = [
 <DocsLayout
   section="armature"
   title="Skinning | Armature Docs"
-  description="Skinning in Armature: Geodesic Voxel solves on any machine, SkinTokens runs the AI weights on your GPU, and every result is a versioned pass you can compare and refine."
+  description="Skinning in Armature: Geodesic Voxel solves on any machine, SkinTokens runs the AI weights on your GPU, and painting, smoothing and typed weights refine the result."
 >
   <article class="dd am">
     <a class="dd-breadcrumb" href="/docs/armature/">Armature docs</a>
@@ -34,7 +31,7 @@ const REFINE = [
     <ArmatureDocHeader
       eyebrow="ARMATURE &middot; STATION 3"
       title="SKINNING"
-      summary="Two local engines generate your weights, every result is a version you can keep and compare, and painting and smoothing refine whichever pass is active."
+      summary="Two local engines generate your weights, generating again is cheap, and painting and smoothing take the result to production level."
     />
 
     <section class="am-section">
@@ -54,10 +51,11 @@ const REFINE = [
             <li><b>Geodesic Voxel</b> solves in seconds on any machine. Distances travel through the character's body instead of straight lines, so fingers resting near a leg never steal leg weights, and rigid parts (armor plates, props) bind hard to their bone. Deterministic: the same character always gets the same weights. It is a working starting point on any hardware, not a rival to the AI tier.</li>
             <li><b>SkinTokens</b> is the AI engine, running on your own GPU, and the best weights Armature can produce.</li>
           </ul>
-          <p class="am-p">Results from either land in the pass library:</p>
-          <ul class="am-list">
-            {PASSES.map(([k, v]) => <li><b>{k}</b> {v}</li>)}
-          </ul>
+          <p class="am-p">
+            Each solve replaces the current skin, and one undo brings the previous weights back.
+            Trying the other engine, or re-solving after you have moved a joint, costs you the
+            wait and nothing else.
+          </p>
         </div>
       </div>
     </section>
@@ -66,14 +64,15 @@ const REFINE = [
       <h2 class="dd-label">Refinement tools</h2>
       <p class="am-p">
         Then your move. When a character deserves production-level weights, the hand tools
-        take over, on whichever pass is active.
+        take over.
       </p>
       <ul class="am-list">
         {REFINE.map(([k, v]) => <li><b>{k}</b> {v}</li>)}
       </ul>
       <p class="am-p">
-        The loop is the moat: move joints, re-skin, compare, keep. Because passes are versioned,
-        fixing a joint placement never costs you a skin you liked.
+        Much of the craft here is knowing when to stop painting and go fix the skeleton. A
+        shoulder that deforms badly is usually a shoulder in the wrong place, and a fresh solve
+        is quick enough that finding out costs you a minute.
       </p>
     </section>
 

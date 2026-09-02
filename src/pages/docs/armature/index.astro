@@ -30,7 +30,7 @@ const QUICK_START = [
   '<b>Fit it.</b> One press of Auto fit centers the character and scales it to a 180 cm reference. Nudge height, depth and facing on the same bar. Scale is baked into the geometry at export, so the size you set is the size that lands in engine.',
   '<b>Drop a template.</b> Biped or Quadruped from the library, or build from modules (arms, legs, hind legs, spine, neck, hands, single pivots).',
   '<b>Place joints.</b> Drag them into your character. Symmetry is automatic: the left arm you place is the right arm you get. Hold V to snap to the mesh, X to line up with other joints, C to extrude new children.',
-  '<b>Generate a skin.</b> Two engines, one menu. Geodesic Voxel solves on any machine in seconds, no download, no GPU requirement. SkinTokens computes AI weights on your GPU as a one-time optional download, and is where the quality lives. Every result lands as a versioned pass you can keep and compare, including against each other.',
+  '<b>Generate a skin.</b> Two engines, one menu. Geodesic Voxel solves on any machine in seconds, no download, no GPU requirement. SkinTokens computes AI weights on your GPU as a one-time optional download, and is where the quality lives. Generate as often as you like: each result replaces the last, and undo brings the previous weights back.',
   '<b>Test it.</b> Scrub the built-in range-of-motion exercises, grab any joint and wiggle it to see the deformation, then let it snap back. Paint and smooth where you want more control.',
   '<b>Export.</b> A USD with skeleton, weights and textures, verified into Unreal and Maya. Your rig blueprint travels inside the file.',
 ];
@@ -57,7 +57,7 @@ const HOTKEYS = [
 const STATIONS = [
   { href: '/docs/armature/fitting-room/', name: 'Fitting Room', line: 'Load a mesh and set its size, position and facing.' },
   { href: '/docs/armature/skeleton/', name: 'Skeleton', line: 'Templates, modules, and the joint placement tools.' },
-  { href: '/docs/armature/skinning/', name: 'Skinning', line: 'AutoSkin, the versioned pass library, painting and smoothing.' },
+  { href: '/docs/armature/skinning/', name: 'Skinning', line: 'AutoSkin, painting, smoothing and typed weights.' },
   { href: '/docs/armature/export/', name: 'Export', line: 'USD out, and what travels inside the file.' },
 ];
 
@@ -85,15 +85,22 @@ const WALKTHROUGH_COPY: Record<string, string> = {
     <p class="am-crumb"><a href="/armature/">Product page</a> &middot; version {ARMATURE.version}</p>
 
     {/* The thesis (DOCS-SITE-ARMATURE.md intro, Adrian's framing pass 2026-08-01), then the
-        versioned loop as the bridge between the two halves. Every station below is an
-        instance of one or the other. */}
+        loop as the bridge between the two halves. Every station below is an instance of one or
+        the other.
+
+        THE LOOP IS NO LONGER CALLED "VERSIONED" (2026-09-01). It was, until the skin version
+        library and the weight layer stack were both retired with the multi-mesh work: a
+        character is skinned or it is not, and the safety is undo rather than a shelf of saved
+        passes. The loop itself is unchanged and is still the argument; only the claim about
+        keeping and comparing passes was removed, because it described features the app no
+        longer has. */}
     <section class="am-thesis" aria-label="What Armature is">
       <p>
         <b>Armature is an Artist + AI rigging tool.</b> The AI half gets a character rigged
         fast: drop a template, let it propose joints, generate skin weights with one press.
         The artist half is a full set of professional rigging tools: a purpose-built joint
-        manipulator, weight painting with locks and layers, range-of-motion proof, versioned
-        skin passes you compare side by side.
+        manipulator, weight painting with locked influences, an auto-generated range-of-motion
+        animation, and a component editor for the weights you would rather type than paint.
       </p>
       <p>
         Which half you lean on is up to you. A hobbyist or a game developer can take a mesh
@@ -102,11 +109,11 @@ const WALKTHROUGH_COPY: Record<string, string> = {
         joint and weight by weight, with tools that respect the craft.
       </p>
       <p>
-        The bridge between the two halves is <b>the safe, versioned loop.</b> Move joints,
-        re-generate weights, keep the version you like, and compare passes side by side.
-        Nothing the AI does is final until you say it is, and one undo always brings back
-        what you had. Most auto-riggers treat their first guess as the answer. Armature
-        treats it as the starting point of a conversation between you and the machine.
+        The bridge between the two halves is <b>the loop.</b> Move joints, re-generate weights,
+        watch the result move, and go again. Nothing the AI does is final until you say it is,
+        and one undo always brings back what you had. Most
+        auto-riggers treat their first guess as the answer. Armature treats it as the starting
+        point of a conversation between you and the machine.
       </p>
     </section>
 
