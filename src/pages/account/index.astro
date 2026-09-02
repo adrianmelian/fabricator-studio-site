@@ -335,12 +335,17 @@ import { PRICE_SWITCH_THROWN } from '../../data/launch';
       });
     }
 
+    // The date means a DIFFERENT THING per status, so the label owns the wording for
+    // it rather than every line ending in "Next charge". A cancelling subscription has
+    // no next charge - Stripe's own portal says "No charges scheduled" - and telling
+    // someone who just cancelled that they will be charged again is the one wrong
+    // sentence on this page that would actually cost a support email.
     var STATUS_LABEL = {
-      active: 'Active',
-      past_due: 'Past due',
-      cancelling: 'Cancelling at period end',
-      lapsed: 'Lapsed',
-      none: '',
+      active: { label: 'Active', date: 'Next charge ' },
+      past_due: { label: 'Past due', date: 'Retrying until ' },
+      cancelling: { label: 'Cancelled', date: 'Access ends ' },
+      lapsed: { label: 'Lapsed', date: '' },
+      none: { label: '', date: '' },
     };
 
     // ---------- the one call that drives everything ----------
@@ -385,9 +390,9 @@ import { PRICE_SWITCH_THROWN } from '../../data/launch';
 
         var statusEl = document.getElementById('acct-status-line');
         if (statusEl) {
-          var label = STATUS_LABEL[account.status] || account.status || '';
-          var renews = account.renewsAt ? 'Next charge ' + fmtDate(account.renewsAt) : '';
-          statusEl.textContent = [label, renews].filter(Boolean).join(' · ');
+          var s = STATUS_LABEL[account.status] || { label: account.status || '', date: '' };
+          var when = s.date && account.renewsAt ? s.date + fmtDate(account.renewsAt) : '';
+          statusEl.textContent = [s.label, when].filter(Boolean).join(' · ');
         }
 
         var manageWrap = document.getElementById('acct-manage');
