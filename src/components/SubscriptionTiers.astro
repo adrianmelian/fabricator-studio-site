@@ -26,7 +26,9 @@
 //   - Support: "priority" email is THE ONLY wording allowed. NEVER a response time,
 //     in hours or days, anywhere on any surface.
 //   - Enterprise seats carry Pro support at every band.
-//   - The weekly meter is prepaid weeks (1, 4 or 12, flat multiples, no discount).
+//   - The weekly band BILLS WEEKLY, recurring (Adrian, 2026-09-02: "Let's do weekly
+//     payments for the weekly people"). It replaced the prepaid 1/4/12-week blocks; a
+//     weekly seat renews itself and cancels in the same portal as every other tier.
 // Refund windows are ruled but the attorney reviews wording before it reaches a page,
 // so this page carries NO refund copy.
 //
@@ -50,10 +52,10 @@ const TIERS = [
     price: '$5',
     per: '/ week',
     alt: 'or $8 / week with Animation: all tools',
-    body: 'The tech art tools, on a weekly meter.',
-    checks: ['The tech art tools', 'Exporter: MODEL and RIG tabs', 'Prepaid weeks: 1, 4 or 12'],
-    plans: [plan('freelancer_w1'), plan('freelancer_w4'), plan('freelancer_w12')],
-    animPlans: [plan('freelancer_anim_w1'), plan('freelancer_anim_w4'), plan('freelancer_anim_w12')],
+    body: 'The tech art tools, billed weekly.',
+    checks: ['The tech art tools', 'Exporter: MODEL and RIG tabs', 'Billed weekly, cancel any time'],
+    plans: [plan('freelancer_w')],
+    animPlans: [plan('freelancer_anim_w')],
   },
   {
     key: 'premium',
