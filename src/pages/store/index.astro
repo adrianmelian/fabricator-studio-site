@@ -83,7 +83,7 @@ const FAQ = [
 ---
 <BaseLayout
   title="Store | FabricatorStudio"
-  description="Every FabricatorStudio download in one place: the free Maya Toolset, the Armature app, and the Advanced Ribbon Modules. Most of it is free."
+  description="Every FabricatorStudio download in one place: the Maya Toolset, the Armature app, and the Advanced Ribbon Modules."
 >
   <NavBar />
 
@@ -94,15 +94,24 @@ const FAQ = [
     <SectionHead
       eyebrow="STORE"
       title="DOWNLOADS"
-      sub="Everything the studio ships, in one place. Most of it is free."
+      sub="Everything the studio ships, in one place."
     />
     <div class="hub">
+      {/* THE FREE DOWNLOAD IS GONE (Adrian, 2026-09-02): "remove the free download from the
+          FS website. We'll make a freebie after we ship the paid version." The 1.x installer
+          zip still exists on R2 and LINKS.installer still points at it - nothing on the site
+          links it any more, which is the removal. 1.x copies already downloaded keep their
+          BSL grant permanently; that is why the door closing is a real act and not cosmetic.
+
+          BADGE AND BUTTON LABEL ARE PLACEHOLDERS, ADRIAN'S TO RULE. A card with no door
+          reads as broken, so it points at the tiers rather than at nothing. These are not
+          his words. */}
       <div class="hub__card">
-        <p class="hub__badge hub__badge--free">Free</p>
+        <p class="hub__badge">Subscription</p>
         <p class="hub__name">Maya Toolset</p>
-        <p class="hub__line">The free Maya suite: modular rigging, control shapes, skinning and export, in one installer.</p>
+        <p class="hub__line">The Maya suite: modular rigging, control shapes, skinning and export, in one installer.</p>
         <div class="hub__cta">
-          <BracketButton kind="hard" installer label="Download" event="store-toolset" />
+          <BracketButton kind="hard" href="/tools/#tiers-20" label="See the plans" event="store-toolset" />
           <a class="hub__more" href="/tools/">About the toolset</a>
         </div>
       </div>

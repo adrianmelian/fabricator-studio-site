@@ -16,7 +16,6 @@ import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import SectionHead from '../../components/SectionHead.astro';
 import ToolsSection from '../../components/ToolsSection.astro';
-import DownloadBand from '../../components/DownloadBand.astro';
 import LicensingTiers from '../../components/LicensingTiers.astro';
 import SubscriptionTiers from '../../components/SubscriptionTiers.astro';
 import { PRICE_SWITCH_THROWN } from '../../data/launch';
@@ -24,7 +23,7 @@ import BracketButton from '../../components/BracketButton.astro';
 ---
 <BaseLayout
   title="The Toolset | FabricatorStudio"
-  description="Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an Unreal-ready contract. Free, open Python, nothing compiled."
+  description="Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an Unreal-ready contract."
 >
   <NavBar />
 
@@ -32,17 +31,20 @@ import BracketButton from '../../components/BracketButton.astro';
     <SectionHead
       eyebrow="FABRICATORSTUDIO"
       title="THE TOOLSET"
-      sub="A complete Maya to Unreal character pipeline. Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an engine-ready contract. Pure Python, source available, nothing to compile, nothing hidden."
+      sub="A complete Maya to Unreal character pipeline. Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an engine-ready contract."
     />
+    {/* THE FREE DOWNLOAD IS GONE (Adrian, 2026-09-02): "remove the free download from the
+        FS website. We'll make a freebie after we ship the paid version." The door that used
+        to sit here handed out a 1.x zip whose BSL grant is PERPETUAL, so every download
+        taken between now and the switch is a free seat we can never take back. It points at
+        the tiers on this same page instead. LABEL IS A PLACEHOLDER, ADRIAN'S TO RULE. */}
     <div class="ts-ctas">
-      <BracketButton kind="hard" installer label="Get the free toolset" />
+      <BracketButton kind="hard" href="#tiers-20" label="See the plans" />
       <BracketButton kind="soft" href="/docs/" label="Read the docs" />
     </div>
   </section>
 
   <ToolsSection />
-
-  <DownloadBand />
 
   <section id="modules">
     <SectionHead
