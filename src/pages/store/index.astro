@@ -13,7 +13,13 @@
 // and the pack artifact exists (built from the v1.1.0 tag, field-proven). The link is a
 // Stripe payment link; after payment it redirects to /store/thank-you/, which IS the
 // delivery (unlisted R2 key lives there and nowhere else).
-const BUY_HREF: string | null = 'https://buy.stripe.com/6oUcN42AZaqG1Tc0uA4Rq00';
+// DELISTED AT THE 2.0 SWITCH. The Advanced Ribbon Modules are part of the subscription
+// now, not a separate $199 purchase, so the buy door closes and the pitch below stays as
+// the description of what a subscription includes. Copies bought at $199 stay owned.
+// Base Freelancer does NOT carry them; every tier from Freelancer + Animation up does.
+//
+// null renders the CTA absent rather than dead, which the page already handles.
+const BUY_HREF: string | null = null;
 
 import { Image } from 'astro:assets';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -24,7 +30,10 @@ import BracketButton from '../../components/BracketButton.astro';
 import ribbonHero from '../../assets/store/ribbonpack-hero.jpg';
 import { ARMATURE } from '../../data/armature';
 
-const PRICE = '$199';
+// PLACEHOLDER COPY, ADRIAN'S TO RULE. The page had a number in three places and a
+// number with no way to pay it is worse than either state, so it reads as inclusion.
+// These are not his words.
+const PRICE = 'Included';
 
 const PARTS = [
   {

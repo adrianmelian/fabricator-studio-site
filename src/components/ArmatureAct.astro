@@ -33,6 +33,7 @@ interface Props {
 const { variant = 'page' } = Astro.props;
 
 import { ARMATURE, PICKER_ROWS, INSTALLER_NAME } from '../data/armature';
+import { PRICE_SWITCH_THROWN } from '../data/launch';
 import { ARMATURE_TUTORIALS as WALKTHROUGHS, CHANNEL } from '../data/tutorials';
 
 const heroPortraitSrc = (await getImage({ src: heroLandingPortrait, format: 'webp', width: 1170 })).src;
@@ -229,10 +230,22 @@ const heroPortraitSrc = (await getImage({ src: heroLandingPortrait, format: 'web
       {/* WHAT IT COSTS -- the live page's ruled pricing copy, verbatim. */}
       <div class="ast-price" data-ast-price>
         <p class="ast-beat__head"><span class="ast-accent">What</span> it costs.</p>
-        <p class="ast-price__lede">
-          Free for personal, learning, and portfolio work, and free for commercial work under
-          $100k a year. If you qualify for Maya Indie, Armature is free. Above that it is <b>$149 per artist, once</b>, with a year of updates.
-        </p>
+        {/* THIS SENTENCE IS ADRIAN'S AND ONLY ADRIAN'S. The $149 paragraph below is
+            his ruled pricing copy, verbatim, and it stays exactly as written for as
+            long as $149 is what the store charges. At the 2.0 switch Armature becomes
+            free to everyone and the paragraph becomes false, so it is gated rather
+            than rewritten: the replacement is a placeholder that states the fact and
+            makes no attempt at his voice. He writes the real one. */}
+        {PRICE_SWITCH_THROWN ? (
+          <p class="ast-price__lede">
+            Armature is <b>free</b>. For everyone, for any work, at any studio size.
+          </p>
+        ) : (
+          <p class="ast-price__lede">
+            Free for personal, learning, and portfolio work, and free for commercial work under
+            $100k a year. If you qualify for Maya Indie, Armature is free. Above that it is <b>$149 per artist, once</b>, with a year of updates.
+          </p>
+        )}
         <p class="ast-price__note">
           Armature is a new standalone application. It is not the Armature step inside the Maya
           toolset, and it is not part of that free download.

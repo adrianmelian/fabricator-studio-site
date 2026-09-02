@@ -25,4 +25,4 @@
  *
  * Flipping it before those hold does not half-work. It sells nothing at all.
  */
-export const PRICE_SWITCH_THROWN = false;
+export const PRICE_SWITCH_THROWN = true;

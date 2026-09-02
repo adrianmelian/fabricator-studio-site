@@ -78,21 +78,24 @@ export interface PickerRow {
   event: string;
 }
 
+// ARMATURE IS FREE TO EVERYONE FROM 2.0. It is the funnel, not a tier: no revenue
+// threshold, no seat to buy, nothing to check at download. Its advanced tier unlocks
+// with ANY paid Studio Pipeline tier, base Freelancer included, and that unlock lives
+// in the licensing service rather than on this page.
+//
+// Copies bought at $149 stay owned. Nothing is clawed back.
+//
+// COPY IS ADRIAN'S. These two lines are placeholders sized to the row, not approved
+// wording, and the second one in particular is a factual restatement rather than his
+// voice. `stripeCommercial` above is deliberately LEFT IN PLACE: the link keeps
+// working for anyone who has it, it just is not offered here any more.
 export const PICKER_ROWS: PickerRow[] = [
   {
-    key: 'indie',
-    name: 'Indie',
+    key: 'free',
+    name: 'Armature',
     price: 'Free',
-    line: 'For personal work, and for studios under $100k a year.',
+    line: 'For everyone. Personal work, client work, any studio, any size.',
     cta: 'download',
-    event: 'armature-download-indie',
-  },
-  {
-    key: 'commercial',
-    name: 'Commercial',
-    price: '$149 per seat',
-    line: 'For studios at or above $100k a year.',
-    cta: 'checkout',
-    event: 'armature-checkout-commercial',
+    event: 'armature-download-free',
   },
 ];
