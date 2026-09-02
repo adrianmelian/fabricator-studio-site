@@ -19,11 +19,16 @@ export interface Plan {
   url: string | null;
 }
 
+// RENAMED 2026-09-02 by Adrian: Freelancer became Freelance Tech Art, Premium became
+// Pro, and the old Pro became Enterprise. The plan ids follow the names, so `pro_m` now
+// means $25 where it used to mean $45. That reuse is only safe because nothing was live
+// when it happened: no Stripe price had ever been mapped and there were zero
+// subscriptions. It would have been a data migration a week later.
 export const PLANS: Plan[] = [
-  { id: 'freelancer_w', label: 'Weekly', price: '$5', per: '/ week', url: null },
-  { id: 'freelancer_anim_w', label: 'Weekly', price: '$8', per: '/ week', url: null },
-  { id: 'premium_m', label: 'Monthly', price: '$25', per: '/ month', url: null },
-  { id: 'premium_y', label: 'Yearly', price: '$250', per: '/ year', url: null },
-  { id: 'pro_m', label: 'Monthly', price: '$45', per: '/ month', url: null },
-  { id: 'pro_y', label: 'Yearly', price: '$450', per: '/ year', url: null },
+  { id: 'techart_w', label: 'Weekly', price: '$6', per: '/ week', url: null },
+  { id: 'techart_anim_w', label: 'Weekly', price: '$9', per: '/ week', url: null },
+  { id: 'pro_m', label: 'Monthly', price: '$25', per: '/ month', url: null },
+  { id: 'pro_y', label: 'Yearly', price: '$250', per: '/ year', url: null },
+  { id: 'enterprise_m', label: 'Monthly', price: '$45', per: '/ month', url: null },
+  { id: 'enterprise_y', label: 'Yearly', price: '$450', per: '/ year', url: null },
 ];

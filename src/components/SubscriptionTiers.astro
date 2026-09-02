@@ -18,10 +18,10 @@
 //
 // THE MODEL IS FINAL (Adrian, 2026-08-31: "this should be the final pricing model").
 // Every former open line is ruled in commercial-model.md:
-//   - Freelancer has ONE add-on: Animation, $8/week, which makes it all tools
+//   - Freelance Tech Art has ONE add-on: Animation, $9/week, which makes it all tools
 //     (ANIM tab, Export All Animation Clips, FS ControlRig, Ribbon Modules).
 //     It is an add-on on one tier, never rendered as a fifth tier.
-//   - Base Freelancer carries neither the Ribbon Modules nor FS ControlRig.
+//   - Base Freelance Tech Art carries neither the Ribbon Modules nor FS ControlRig.
 //   - Pro has a yearly price: $450, same two-months-free shape as Premium.
 //   - Support: "priority" email is THE ONLY wording allowed. NEVER a response time,
 //     in hours or days, anywhere on any surface.
@@ -47,40 +47,52 @@ const plan = (id: string) => PLANS.find((p) => p.id === id)!;
 
 const TIERS = [
   {
-    key: 'freelancer',
-    name: 'FREELANCER',
-    price: '$5',
+    key: 'techart',
+    name: 'FREELANCE TECH ART',
+    price: '$6',
     per: '/ week',
-    alt: 'or $8 / week with Animation: all tools',
+    alt: 'or $9 / week with Animation: all tools',
     body: 'The tech art tools, billed weekly.',
     checks: ['The tech art tools', 'Exporter: MODEL and RIG tabs', 'Billed weekly, cancel any time'],
-    plans: [plan('freelancer_w')],
-    animPlans: [plan('freelancer_anim_w')],
+    plans: [plan('techart_w')],
+    animPlans: [plan('techart_anim_w')],
   },
   {
-    key: 'premium',
-    name: 'PREMIUM',
+    key: 'pro',
+    name: 'PRO',
     price: '$25',
     per: '/ month',
     alt: 'or $250 / year, two months free',
     body: 'Every tool in the studio.',
     checks: ['Maya rigging and animation tools', 'Unreal Control Rig builder', 'Advanced Ribbon Modules', 'Monthly or yearly'],
     featured: true,
-    plans: [plan('premium_m'), plan('premium_y')],
+    plans: [plan('pro_m'), plan('pro_y')],
   },
   {
-    key: 'pro',
-    name: 'PRO',
+    key: 'enterprise',
+    name: 'ENTERPRISE',
     price: '$45',
     per: '/ month',
     alt: 'or $450 / year, two months free',
-    body: 'Premium plus support.',
-    checks: ['Everything in Premium', 'Priority email support'],
-    plans: [plan('pro_m'), plan('pro_y')],
+    body: 'Pro plus support.',
+    checks: ['Everything in Pro', 'Priority email support'],
+    plans: [plan('enterprise_m'), plan('enterprise_y')],
   },
 ];
 
-// The Enterprise ladder is marginal: each band prices only the seats inside it.
+// THE PER-SEAT LADDER IS NOT RENDERED, and it is not deleted either.
+//
+// It was the Enterprise tier's pricing until 2026-09-02, when Adrian renamed Premium to
+// Pro and Pro to Enterprise. "Enterprise" is now the $45 tier above, and Stripe carries
+// four products with no fifth, so a banded per-seat table under the same word would tell
+// a visitor two different prices for one name.
+//
+// Kept in the file, unrendered, because retiring the volume ladder is a commercial
+// decision and nobody has made it out loud. Flip SHOW_SEAT_LADDER to bring it back, or
+// delete both once it is ruled.
+const SHOW_SEAT_LADDER = false;
+
+// The ladder is marginal: each band prices only the seats inside it.
 const BANDS = [
   { seats: '1 to 5', fee: '$50' },
   { seats: '6 to 50', fee: '$25' },
@@ -142,6 +154,7 @@ const BANDS = [
     ))}
   </div>
 
+  {SHOW_SEAT_LADDER && (
   <div class="st-ent">
     <div class="st-ent__head">
       <span class="st-pill st-pill--ember"><span class="st-pill__dot" aria-hidden="true"></span>ENTERPRISE</span>
@@ -166,6 +179,7 @@ const BANDS = [
     {/* Enterprise is never a buy button: it is a "talk to us" mail link, always. */}
     <a class="st-ent__cta" href="mailto:adrian@fabricator.studio?subject=Enterprise%20pricing">Talk to us &rarr;</a>
   </div>
+  )}
 
 </section>
 
