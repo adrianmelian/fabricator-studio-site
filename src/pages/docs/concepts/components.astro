@@ -122,10 +122,10 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .cp-eq__tile--comp {
     background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
     border: 1px solid rgba(124, 255, 178, 0.5);
-    color: var(--plasma);
+    color: var(--bone);
     box-shadow: 0 0 26px -10px rgba(124, 255, 178, 0.4);
   }
-  .cp-eq__tile--script { border: 1px solid rgba(255, 59, 59, 0.4); color: var(--magma); }
+  .cp-eq__tile--script { border: 1px solid rgba(255, 59, 59, 0.4); color: var(--bone); }
   .cp-eq__op { flex: none; font-size: 1.25rem; font-weight: 800; color: var(--bone-faint); }
 
   .cp-why { margin: 0; max-width: 56rem; font-size: 1.0625rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
@@ -146,7 +146,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     font-weight: 800;
     font-size: 1.25rem;
   }
-  .cp-node__tile--comp { border-color: rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .cp-node__tile--comp { border-color: rgba(124, 255, 178, 0.4); color: var(--bone); }
   /* Plasma-at-alpha wash over carbon (palette-legal gradient stops), plus the halo. */
   .cp-node__tile--lit {
     background: linear-gradient(160deg, rgba(124, 255, 178, 0.1), rgba(124, 255, 178, 0)), var(--carbon);
@@ -157,7 +157,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .cp-node__ctrl { width: 2.375rem; height: 2.375rem; border: 3px solid var(--plasma); border-radius: 50%; }
   .cp-node__name { font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; color: var(--bone); }
   .cp-diagram__op { font-size: 1.75rem; font-weight: 800; color: var(--bone-faint); padding-bottom: 1.75rem; }
-  .cp-diagram__op--arrow { color: var(--plasma); }
+  .cp-diagram__op--arrow { color: var(--bone); }
 
   .cp-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
   .cp-card {
@@ -171,7 +171,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   }
   .cp-card--ember { border-color: rgba(255, 122, 61, 0.22); }
   .cp-card__head { display: flex; align-items: center; gap: 0.6rem; }
-  .cp-card__mark { color: var(--ember); font-size: 1.125rem; font-weight: 800; }
+  .cp-card__mark { color: var(--bone); font-size: 1.125rem; font-weight: 800; }
   .cp-card__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); }
   .cp-card__line { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--bone-dim); }
 

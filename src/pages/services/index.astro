@@ -177,8 +177,8 @@ const help = [
     font-size: clamp(1.25rem, 2.6vw, 1.625rem);
     letter-spacing: 0.04em;
   }
-  .svc-rule__label--plasma { color: var(--plasma); }
-  .svc-rule__label--ember { color: var(--ember); }
+  .svc-rule__label--plasma { color: var(--bone); }
+  .svc-rule__label--ember { color: var(--bone); }
   .svc-rule::after { content: ''; flex: 1; height: 1px; }
   .svc-rule--plasma::after { background: linear-gradient(90deg, rgba(124, 255, 178, 0.4), rgba(124, 255, 178, 0)); }
   .svc-rule--ember::after { background: linear-gradient(90deg, rgba(255, 122, 61, 0.4), rgba(255, 122, 61, 0)); }
@@ -197,8 +197,8 @@ const help = [
   .svc-card--ember { border-color: rgba(255, 122, 61, 0.16); }
   .svc-card--wide { grid-column: span 2; }
   .svc-card__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
-  .svc-card__name--plasma { color: var(--plasma); }
-  .svc-card__name--ember { color: var(--ember); }
+  .svc-card__name--plasma { color: var(--bone); }
+  .svc-card__name--ember { color: var(--bone); }
   .svc-card__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
 
   .svc-intro { margin: -0.25rem 0 0; max-width: 52rem; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
@@ -226,9 +226,9 @@ const help = [
     letter-spacing: 0.14em;
   }
   .svc-audit__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.375rem; color: var(--bone); }
-  .svc-audit__meta { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--plasma-dim); }
+  .svc-audit__meta { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--bone-dim); }
   .svc-audit__body { margin: 0; max-width: 62rem; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
-  .svc-audit__body :global(.b-plasma) { color: var(--plasma); }
+  .svc-audit__body :global(.b-plasma) { color: var(--bone); }
 
   .svc-steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
   .svc-step {
@@ -242,8 +242,8 @@ const help = [
   }
   .svc-step--ember { border-color: rgba(255, 122, 61, 0.16); }
   .svc-step__num { font-family: var(--font-mono); font-weight: 800; font-size: 2.5rem; line-height: 1; }
-  .svc-step__num--plasma { color: var(--plasma); -webkit-text-stroke: 1px rgba(124, 255, 178, 0.4); }
-  .svc-step__num--ember { color: var(--ember); -webkit-text-stroke: 1px rgba(255, 122, 61, 0.4); }
+  .svc-step__num--plasma { color: var(--bone); -webkit-text-stroke: 1px rgba(124, 255, 178, 0.4); }
+  .svc-step__num--ember { color: var(--bone); -webkit-text-stroke: 1px rgba(255, 122, 61, 0.4); }
   .svc-step__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
   .svc-step__body b { color: var(--bone); }
 
@@ -272,11 +272,11 @@ const help = [
   }
   .svc-contact__dot { flex: none; width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--plasma); }
   .svc-contact__alt p { margin: 0; font-size: 0.9375rem; color: var(--bone-dim); }
-  .svc-contact__alt a { font-weight: 700; color: var(--plasma); text-decoration: none; }
-  .svc-contact__alt a:hover { color: var(--plasma-dim); }
+  .svc-contact__alt a { font-weight: 700; color: var(--bone); text-decoration: none; }
+  .svc-contact__alt a:hover { color: var(--bone-dim); }
   .svc-contact__lic { margin: 0.25rem 0 0; font-size: 0.8125rem; color: var(--bone-faint); }
-  .svc-contact__lic a { color: var(--plasma); text-decoration: none; }
-  .svc-contact__lic a:hover { color: var(--plasma-dim); }
+  .svc-contact__lic a { color: var(--bone); text-decoration: none; }
+  .svc-contact__lic a:hover { color: var(--bone-dim); }
 
   /* The real form, restyled to the drop's language (solid plasma Send). */
   .svc-contact__form :global(.contact-form) { margin: 0; max-width: none; }

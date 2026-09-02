@@ -12,15 +12,15 @@
   align-self: flex-start;
   font-family: var(--font-mono);
   font-weight: 700;
-  color: var(--ember);
+  color: var(--bone);
   text-decoration: none;
   letter-spacing: 0.08em;
 }
-.dd-breadcrumb:hover { color: var(--ember-dim); }
+.dd-breadcrumb:hover { color: var(--bone-dim); }
 
 /* ── header ── */
 .dd-header { display: flex; flex-direction: column; gap: 0.9rem; }
-.dd-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
+.dd-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--bone); }
 /* The outlined tri-color treatment (brand signature): carbon ink stroke under the fill. */
 .dd-title {
   margin: 0;
@@ -34,8 +34,8 @@
   white-space: nowrap;
 }
 .dd-title .t-bone { color: var(--bone); }
-.dd-title .t-plasma { color: var(--plasma); }
-.dd-title .t-ember { color: var(--ember); }
+.dd-title .t-plasma { color: var(--bone); }
+.dd-title .t-ember { color: var(--bone); }
 .dd-title .t-gap { display: inline-block; width: 0.4em; }
 .dd-summary { margin: 0; max-width: 44rem; font-size: 1.0625rem; line-height: 1.55; color: var(--bone-dim); text-wrap: pretty; }
 
@@ -57,14 +57,14 @@
 .dd-panel__head--bare { padding-left: 0.25rem; }
 /* Sentence case since 2026-08-18; the +0.03em tracking was for the all-caps era. */
 .dd-label { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.375rem; letter-spacing: 0; }
-.dd-label--plasma { color: var(--plasma); }
-.dd-label--ember { color: var(--ember); }
+.dd-label--plasma { color: var(--bone); }
+.dd-label--ember { color: var(--bone); }
 .dd-lede { margin: 0; font-size: 0.9375rem; color: var(--bone-dim); }
 .dd-prose { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
 .dd-prose b { color: var(--bone); font-weight: 700; }
 
-.b-ember { color: var(--ember) !important; }
-.b-plasma { color: var(--plasma) !important; }
+.b-ember { color: var(--bone) !important; }
+.b-plasma { color: var(--bone) !important; }
 
 /* ── framed screenshots ── */
 .dd-shot {
@@ -118,8 +118,8 @@
   font-size: 1.25rem;
   font-weight: 800;
 }
-.dd-card__icon--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
-.dd-card__icon--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+.dd-card__icon--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--bone); }
+.dd-card__icon--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--bone); }
 .dd-card__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
 .dd-card__line { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
 
@@ -189,7 +189,7 @@
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.25em;
-  color: var(--plasma-dim);
+  color: var(--bone-dim);
 }
 
 /* ── "You get" deliverable list ── */
@@ -231,8 +231,8 @@
   font-weight: 800;
   font-size: 0.9375rem;
 }
-.dd-fact--ember .dd-fact__num { background: rgba(255, 122, 61, 0.14); color: var(--ember); }
-.dd-fact--plasma .dd-fact__num { background: rgba(124, 255, 178, 0.12); color: var(--plasma); }
+.dd-fact--ember .dd-fact__num { background: rgba(255, 122, 61, 0.14); color: var(--bone); }
+.dd-fact--plasma .dd-fact__num { background: rgba(124, 255, 178, 0.12); color: var(--bone); }
 .dd-fact__name { margin: 0 0 0.25rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone); }
 .dd-fact__line { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--bone-dim); }
 .dd-fact__line b { color: var(--bone); }
@@ -250,8 +250,8 @@
 .dd-step--plasma { border-left: 3px solid var(--plasma); }
 .dd-step--ember { border-left: 3px solid var(--ember); }
 .dd-step__num { flex: none; width: 1.75rem; font-family: var(--font-mono); font-weight: 800; font-size: 1.25rem; }
-.dd-step--plasma .dd-step__num { color: var(--plasma); }
-.dd-step--ember .dd-step__num { color: var(--ember); }
+.dd-step--plasma .dd-step__num { color: var(--bone); }
+.dd-step--ember .dd-step__num { color: var(--bone); }
 .dd-step p { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--bone); }
 .dd-step b { color: var(--bone); }
 

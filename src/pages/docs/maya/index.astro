@@ -153,7 +153,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .gs-intro { max-width: 52rem; }
   .gs-intro b { color: var(--bone); }
   .gs-crumb { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
-  .gs-crumb a { color: var(--plasma); }
+  .gs-crumb a { color: var(--bone); }
 
   /* MEET REGGIE panel (2026-07-18 amendment): ember card with a plasma tint sweeping in
      from the right; the portrait asset carries its own ember ring. */
@@ -171,10 +171,10 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   }
   .gs-reggie__portrait { width: 8.25rem; height: auto; filter: drop-shadow(0 12px 24px rgba(11, 14, 16, 0.6)); }
   .gs-reggie__copy { display: flex; flex-direction: column; gap: 0.6rem; }
-  .gs-reggie__eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--ember); }
+  .gs-reggie__eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.25em; color: var(--bone); }
   .gs-reggie__title { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem; color: var(--bone); }
   .gs-reggie__line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
-  .gs-reggie__line b { color: var(--ember); }
+  .gs-reggie__line b { color: var(--bone); }
   .gs-reggie__cta {
     justify-self: end;
     display: inline-flex;
@@ -224,8 +224,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .gs-step__heading { margin: 0; position: relative; font-family: var(--font-mono); font-weight: 800; font-size: 1.375rem; color: var(--bone); }
   .gs-step__para { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
   .gs-step__para :global(b) { color: var(--bone); }
-  .gs-step__para :global(.gs-b-plasma) { color: var(--plasma); }
-  .gs-step__para :global(.gs-b-ember) { color: var(--ember); }
+  .gs-step__para :global(.gs-b-plasma) { color: var(--bone); }
+  .gs-step__para :global(.gs-b-ember) { color: var(--bone); }
   .gs-step__chip {
     justify-self: end;
     display: inline-flex;
@@ -239,9 +239,9 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     text-decoration: none;
     white-space: nowrap;
   }
-  .gs-step__chip--plasma { background: rgba(124, 255, 178, 0.1); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
+  .gs-step__chip--plasma { background: rgba(124, 255, 178, 0.1); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--bone); }
   .gs-step__chip--plasma:hover { background: var(--plasma); color: #06120B; }
-  .gs-step__chip--ember { background: rgba(255, 122, 61, 0.1); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+  .gs-step__chip--ember { background: rgba(255, 122, 61, 0.1); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--bone); }
   .gs-step__chip--ember:hover { background: var(--ember); color: #1A0A02; }
 
   .gs-outro { display: flex; align-items: center; justify-content: center; gap: 1rem; padding-top: 0.25rem; }

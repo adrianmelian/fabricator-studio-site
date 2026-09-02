@@ -145,7 +145,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .fj-scene { display: flex; align-items: center; width: 100%; gap: 0.5rem; }
   .fj-node { display: flex; flex-direction: column; align-items: center; gap: 0.6rem; }
   .fj-node__cap { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-faint); white-space: nowrap; }
-  .fj-node__cap--plasma { color: var(--plasma-dim); }
+  .fj-node__cap--plasma { color: var(--bone-dim); }
   .fj-src { width: 1.625rem; height: 1.625rem; border-radius: 50%; background: var(--bone); box-shadow: 0 0 0 0.5rem rgba(232, 224, 208, 0.12); }
   .fj-follower { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--carbon); border: 3px solid var(--plasma); }
   /* Dashed beams: palette hue at full and zero alpha, never the transparent keyword. */
@@ -153,7 +153,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .fj-beam { height: 4px; }
   .fj-beam--plasma { background: repeating-linear-gradient(90deg, #7CFFB2 0 10px, rgba(124, 255, 178, 0) 10px 20px); }
   .fj-beam--ember { background: repeating-linear-gradient(90deg, #FF7A3D 0 10px, rgba(255, 122, 61, 0) 10px 20px); }
-  .fj-beams__cap { text-align: center; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--plasma-dim); }
+  .fj-beams__cap { text-align: center; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-dim); }
 
   .fj-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
   .fj-card {
@@ -168,8 +168,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .fj-card--plasma { border-color: rgba(124, 255, 178, 0.2); }
   .fj-card--ember { border-color: rgba(255, 122, 61, 0.22); }
   .fj-card__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1rem; color: var(--bone); }
-  .fj-card__name--plasma { color: var(--plasma); }
-  .fj-card__name--ember { color: var(--ember); }
+  .fj-card__name--plasma { color: var(--bone); }
+  .fj-card__name--ember { color: var(--bone); }
   .fj-card__line { margin: 0; font-size: 0.875rem; line-height: 1.55; color: var(--bone-dim); }
   .fj-card__line b { color: var(--bone); }
 

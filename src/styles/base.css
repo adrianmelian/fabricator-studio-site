@@ -160,8 +160,8 @@ body {
 }
 .wordmark i { font-style: normal; }
 .wordmark i:nth-child(even) { color: var(--bone); }
-.wordmark i:nth-child(4n + 1) { color: var(--plasma); }
-.wordmark i:nth-child(4n + 3) { color: var(--ember); }
+.wordmark i:nth-child(4n + 1) { color: var(--bone); }
+.wordmark i:nth-child(4n + 3) { color: var(--bone); }
 
 .subhead {                     /* ~20-24px step */
   font-family: var(--font-mono);
@@ -173,8 +173,8 @@ body {
 
 section { padding: 2.5rem 1.5rem; max-width: 72rem; margin: 0 auto; }
 
-a { color: var(--plasma); }
-a:hover { color: var(--plasma-dim); }
+a { color: var(--bone); }
+a:hover { color: var(--bone-dim); }
 
 /* ===== MINDMELD 2.0 DEPTH (DNA principle 6) =====
    1.0 was flat by rule (no shadows, no gradients). 2.0 layers: panels lift off the carbon

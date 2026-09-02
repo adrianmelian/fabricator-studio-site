@@ -180,8 +180,8 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     font-size: 0.8125rem;
     letter-spacing: 0.06em;
   }
-  .fb-trait--plasma { background: rgba(124, 255, 178, 0.1); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
-  .fb-trait--ember { background: rgba(255, 122, 61, 0.1); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+  .fb-trait--plasma { background: rgba(124, 255, 178, 0.1); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--bone); }
+  .fb-trait--ember { background: rgba(255, 122, 61, 0.1); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--bone); }
 
   .fb-comps { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.25rem; }
   .fb-comp {
@@ -216,15 +216,15 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .fb-states { display: grid; grid-template-columns: minmax(0, 1fr) 5.5rem minmax(0, 1fr); align-items: center; }
   .fb-state { display: flex; flex-direction: column; gap: 0.75rem; min-width: 0; }
   .fb-states__toggle { display: flex; flex-direction: column; align-items: center; gap: 0.5rem; padding-bottom: 4.5rem; }
-  .fb-states__arrows { color: var(--plasma); font-size: 1.375rem; font-weight: 800; }
+  .fb-states__arrows { color: var(--bone); font-size: 1.375rem; font-weight: 800; }
   .fb-states__label { text-align: center; font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.18em; color: var(--bone-faint); line-height: 1.5; }
   .fb-state__title { display: flex; align-items: center; gap: 0.7rem; flex-wrap: wrap; }
   .fb-state__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.0625rem; }
-  .fb-state__name--ember { color: var(--ember); }
-  .fb-state__name--plasma { color: var(--plasma); }
+  .fb-state__name--ember { color: var(--bone); }
+  .fb-state__name--plasma { color: var(--bone); }
   .fb-state__pill { padding: 0.2rem 0.6rem; border-radius: 6px; font-family: var(--font-mono); font-weight: 700; font-size: 0.6875rem; letter-spacing: 0.08em; }
-  .fb-state__pill--ember { background: rgba(255, 122, 61, 0.14); color: var(--ember); }
-  .fb-state__pill--plasma { background: rgba(124, 255, 178, 0.14); color: var(--plasma); }
+  .fb-state__pill--ember { background: rgba(255, 122, 61, 0.14); color: var(--bone); }
+  .fb-state__pill--plasma { background: rgba(124, 255, 178, 0.14); color: var(--bone); }
   .fb-state__cap { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
 
   .fb-window { max-width: 47.5rem; margin: 0 auto; width: 100%; }

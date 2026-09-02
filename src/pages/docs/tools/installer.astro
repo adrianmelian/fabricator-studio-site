@@ -267,7 +267,7 @@ const UNINSTALL = [
     border-radius: 7px;
     background: rgba(124, 255, 178, 0.12);
     border: 1px solid rgba(124, 255, 178, 0.45);
-    color: var(--plasma);
+    color: var(--bone);
     font-family: var(--font-mono);
     font-weight: 700;
     font-size: 0.75rem;
@@ -277,7 +277,7 @@ const UNINSTALL = [
   .in-prose b { color: var(--bone); }
   .in-prose code, .in-mode__body :global(code), .in-callout code, .in-steps :global(code) {
     font-family: var(--font-mono);
-    color: var(--plasma);
+    color: var(--bone);
     font-size: 0.95em;
   }
 
@@ -310,7 +310,7 @@ const UNINSTALL = [
     border-radius: 12px;
     padding: 1.125rem 1.35rem;
   }
-  .in-row__num { flex: none; font-family: var(--font-mono); font-weight: 800; font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--plasma); padding-top: 0.15rem; }
+  .in-row__num { flex: none; font-family: var(--font-mono); font-weight: 800; font-size: 0.8125rem; letter-spacing: 0.06em; color: var(--bone); padding-top: 0.15rem; }
   .in-row__name { margin: 0 0 0.2rem; font-family: var(--font-mono); font-weight: 700; font-size: 1rem; color: var(--bone); }
   .in-row__body { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--bone-dim); }
 
@@ -338,8 +338,8 @@ const UNINSTALL = [
     justify-content: center;
     font-size: 1.35rem;
   }
-  .in-mode__glyph--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
-  .in-mode__glyph--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+  .in-mode__glyph--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--bone); }
+  .in-mode__glyph--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--bone); }
   .in-mode__tag {
     padding: 0.3rem 0.75rem;
     border-radius: 7px;
@@ -348,8 +348,8 @@ const UNINSTALL = [
     font-weight: 700;
     letter-spacing: 0.1em;
   }
-  .in-mode__tag--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--plasma); }
-  .in-mode__tag--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--ember); }
+  .in-mode__tag--plasma { background: rgba(124, 255, 178, 0.12); border: 1px solid rgba(124, 255, 178, 0.4); color: var(--bone); }
+  .in-mode__tag--ember { background: rgba(255, 122, 61, 0.12); border: 1px solid rgba(255, 122, 61, 0.4); color: var(--bone); }
   .in-mode__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.25rem; color: var(--bone); }
   .in-mode__body { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
   .in-mode__body :global(b) { color: var(--bone); }
@@ -365,8 +365,8 @@ const UNINSTALL = [
   .in-unin--plasma { border: 1px solid rgba(124, 255, 178, 0.22); }
   .in-unin--ember { border: 1px solid rgba(255, 122, 61, 0.22); }
   .in-unin__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.05rem; }
-  .in-unin__name--plasma { color: var(--plasma); }
-  .in-unin__name--ember { color: var(--ember); }
+  .in-unin__name--plasma { color: var(--bone); }
+  .in-unin__name--ember { color: var(--bone); }
 
   /* Quick-start rows: accent left rule, oversized numeral */
   .in-steps { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.15rem; }
@@ -381,11 +381,11 @@ const UNINSTALL = [
   .in-step--plasma { border-left: 3px solid var(--plasma); }
   .in-step--ember { border-left: 3px solid var(--ember); background: var(--carbon); }
   .in-step__num { flex: none; font-family: var(--font-mono); font-weight: 800; font-size: 1.5rem; width: 2rem; }
-  .in-step__num--plasma { color: var(--plasma); }
-  .in-step__num--ember { color: var(--ember); }
+  .in-step__num--plasma { color: var(--bone); }
+  .in-step__num--ember { color: var(--bone); }
   .in-step p { margin: 0; font-size: 1rem; line-height: 1.5; color: var(--bone); }
   .in-step :global(b) { color: var(--bone); }
-  .in-step :global(.b-plasma) { color: var(--plasma); }
+  .in-step :global(.b-plasma) { color: var(--bone); }
 
   /* Info callouts */
   .in-callout {
@@ -400,8 +400,8 @@ const UNINSTALL = [
   .in-callout--plasma { border: 1px solid rgba(124, 255, 178, 0.18); }
   .in-callout--ember { border: 1px solid rgba(255, 122, 61, 0.18); }
   .in-callout--quiet { border: 1px solid rgba(255, 255, 255, 0.08); }
-  .in-callout__mark { flex: none; font-size: 1.15rem; color: var(--plasma); }
-  .in-callout__mark--ember { color: var(--ember); }
+  .in-callout__mark { flex: none; font-size: 1.15rem; color: var(--bone); }
+  .in-callout__mark--ember { color: var(--bone); }
   .in-callout p { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); text-wrap: pretty; }
   .in-callout b { color: var(--bone); }
 
@@ -423,7 +423,7 @@ const UNINSTALL = [
     height: 2.25rem;
     border-radius: 10px;
     background: rgba(124, 255, 178, 0.12);
-    color: var(--plasma);
+    color: var(--bone);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -433,8 +433,8 @@ const UNINSTALL = [
   }
   .in-fact__name { margin: 0 0 0.35rem; font-family: var(--font-mono); font-weight: 700; font-size: 1.05rem; color: var(--bone); }
   .in-fact__line { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); text-wrap: pretty; }
-  .in-fact__line :global(a) { color: var(--plasma); text-decoration: underline; }
-  .in-fact__line :global(.b-plasma) { color: var(--plasma); }
+  .in-fact__line :global(a) { color: var(--bone); text-decoration: underline; }
+  .in-fact__line :global(.b-plasma) { color: var(--bone); }
 
   @media (max-width: 900px) {
     .in-gui { grid-template-columns: 1fr; }

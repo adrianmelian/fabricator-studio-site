@@ -4,7 +4,7 @@
    everything here is am-namespaced. */
 
 .am-crumb { margin: 0; font-size: 0.875rem; color: var(--bone-faint); }
-.am-crumb a { color: var(--plasma); }
+.am-crumb a { color: var(--bone); }
 
 .am-thesis {
   border-left: 2px solid var(--plasma);
@@ -17,7 +17,7 @@
 
 .am-section { scroll-margin-top: 5rem; }
 .am-p { margin: 0 0 1rem; color: var(--bone-dim); line-height: 1.7; text-wrap: pretty; }
-.am-p a { color: var(--plasma); }
+.am-p a { color: var(--bone); }
 .am-p b { color: var(--bone); }
 .am-sub {
   margin: 1.25rem 0 0.5rem;
@@ -26,10 +26,10 @@
   font-size: 0.8125rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--ember);
+  color: var(--bone);
 }
 .am-note { margin: 0.75rem 0 0; font-size: 0.875rem; color: var(--bone-faint); line-height: 1.6; }
-.am-note a { color: var(--plasma); }
+.am-note a { color: var(--bone); }
 
 .am-steps, .am-list { color: var(--bone-dim); line-height: 1.7; padding-left: 1.25rem; margin: 0 0 1rem; }
 .am-steps li, .am-list li { margin-bottom: 0.6rem; }
@@ -56,7 +56,7 @@
 .am-card:hover { border-color: var(--plasma); }
 .am-card__name { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
 .am-card__line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
-.am-card__cta { margin-top: 0.35rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; color: var(--plasma); }
+.am-card__cta { margin-top: 0.35rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; color: var(--bone); }
 
 /* Station pages: a shot beside its copy, stacking on a phone. */
 .am-split { display: grid; gap: 1.5rem; align-items: start; }
@@ -88,12 +88,12 @@
 }
 .am-table__row { border-top: 1px solid var(--iron-2); color: var(--bone-dim); font-size: 0.9375rem; line-height: 1.6; }
 .am-table__k { color: var(--bone); }
-.am-table__k code { font-family: var(--font-code); color: var(--plasma); }
+.am-table__k code { font-family: var(--font-code); color: var(--bone); }
 
 /* Previous / next, so the five pages read as a path rather than a pile. */
 .am-pager { display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap; padding-top: 1.5rem; border-top: 1px solid var(--iron-2); }
-.am-pager a { font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--plasma); text-decoration: none; }
-.am-pager a:hover { color: var(--plasma-dim); }
+.am-pager a { font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone); text-decoration: none; }
+.am-pager a:hover { color: var(--bone-dim); }
 
 @media (max-width: 40rem) {
   .am-table__head { display: none; }

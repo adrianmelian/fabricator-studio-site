@@ -45,12 +45,12 @@ const categoryLabel = DOC_CATEGORY_LABELS[entry.data.category] ?? entry.data.cat
     display: inline-block;
     font-family: var(--font-mono);
     font-weight: 700;
-    color: var(--ember);
+    color: var(--bone);
     text-decoration: none;
     letter-spacing: 0.08em;
     margin-bottom: 1.25rem;
   }
-  .doc-breadcrumb:hover { color: var(--ember-dim); }
+  .doc-breadcrumb:hover { color: var(--bone-dim); }
   .doc-article__header { margin-bottom: 1.5rem; }
   .doc-article__meta { display: flex; gap: 0.75rem; margin: 0.75rem 0; flex-wrap: wrap; }
   .doc-article__summary { color: var(--bone-dim); }
@@ -64,7 +64,7 @@ const categoryLabel = DOC_CATEGORY_LABELS[entry.data.category] ?? entry.data.cat
     font-family: var(--font-mono);
     font-weight: 700;
     font-size: 1.125rem;
-    color: var(--ember);
+    color: var(--bone);
     margin-top: 1rem;
     text-transform: none;
     letter-spacing: 0.04em;
@@ -111,9 +111,9 @@ const categoryLabel = DOC_CATEGORY_LABELS[entry.data.category] ?? entry.data.cat
     text-align: left;
     white-space: nowrap;
   }
-  .doc-body :global(th) { color: var(--ember); background: var(--iron); }
+  .doc-body :global(th) { color: var(--bone); background: var(--iron); }
   .doc-body :global(td) { color: var(--bone); }
-  .doc-body :global(a) { color: var(--plasma); }
+  .doc-body :global(a) { color: var(--bone); }
   .doc-body :global(blockquote) {
     border-left: 2px solid var(--iron-3);
     padding-left: 1rem;

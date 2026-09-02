@@ -100,7 +100,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
 
   .tut-rail { margin-top: 3rem; display: flex; flex-direction: column; gap: 1.5rem; }
   .tut-rail__head { display: flex; align-items: center; gap: 1rem; }
-  .tut-rail__label { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.5rem; letter-spacing: 0.08em; color: var(--plasma); }
+  .tut-rail__label { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.5rem; letter-spacing: 0.08em; color: var(--bone); }
   .tut-rail__rule { flex: 1; height: 1px; background: linear-gradient(90deg, rgba(124, 255, 178, 0.4), rgba(124, 255, 178, 0)); }
 
   .tut-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.125rem; }
@@ -130,7 +130,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
     background: rgba(11, 14, 16, 0.75);
   }
   .tut-card__tag--plasma,
-  .tut-card__tag--ember { color: var(--magma); }
+  .tut-card__tag--ember { color: var(--bone); }
   .tut-card__play {
     position: absolute;
     inset: 0;
@@ -167,10 +167,10 @@ const pad = (n: number) => String(n).padStart(2, '0');
     border-color: rgba(124, 255, 178, 0.4);
     padding: 1.75rem 1.5rem;
   }
-  .tut-card__playlist-eyebrow { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.2em; color: var(--plasma); }
+  .tut-card__playlist-eyebrow { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.2em; color: var(--bone); }
   .tut-card__playlist-title { font-family: var(--font-mono); font-weight: 800; font-size: 1.25rem; line-height: 1.15; color: var(--bone); }
   .tut-card__playlist-sub { font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
-  .tut-card__playlist-cta { margin-top: 0.25rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--plasma); }
+  .tut-card__playlist-cta { margin-top: 0.25rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone); }
 
   @media (max-width: 900px) {
     .tut-grid { grid-template-columns: repeat(2, 1fr); }

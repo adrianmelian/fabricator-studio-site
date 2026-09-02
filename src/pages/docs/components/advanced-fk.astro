@@ -136,12 +136,12 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
   .af-scene { display: flex; align-items: center; gap: 1.5rem; }
   .af-ctrl-col { display: flex; flex-direction: column; align-items: center; gap: 0.7rem; }
   .af-ctrl { width: 4.25rem; height: 4.25rem; border: 4px solid var(--plasma); border-radius: 50%; box-shadow: 0 0 24px rgba(124, 255, 178, 0.5); }
-  .af-ctrl__cap { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--plasma-dim); }
+  .af-ctrl__cap { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-dim); }
   .af-targets { display: flex; flex-direction: column; gap: 0.5rem; }
   .af-target { display: flex; align-items: center; gap: 0.5rem; }
   .af-target__arrow { color: var(--bone-faint); font-size: 1rem; font-weight: 800; }
-  .af-target__arrow--plasma { color: var(--plasma); }
-  .af-target__arrow--ember { color: var(--ember); }
+  .af-target__arrow--plasma { color: var(--bone); }
+  .af-target__arrow--ember { color: var(--bone); }
   .af-target__chip {
     padding: 0.4rem 0.8rem;
     border-radius: 8px;
@@ -184,7 +184,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
     box-shadow: 0 0 30px -14px rgba(124, 255, 178, 0.4);
   }
   .af-pick__tag { font-family: var(--font-mono); font-size: 0.6875rem; letter-spacing: 0.15em; color: var(--bone-faint); }
-  .af-pick__tag--plasma { color: var(--plasma); }
+  .af-pick__tag--plasma { color: var(--bone); }
   .af-pick__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
   .af-pick__line { margin: 0; font-size: 0.875rem; line-height: 1.5; color: var(--bone-dim); }
 

@@ -27,7 +27,7 @@ const glyphs = title.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'sh-gap' : T
 </div>
 <style>
   .sh-head { display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 2rem; }
-  .sh-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--ember); }
+  .sh-eyebrow { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.45em; color: var(--bone); }
   .sh-title {
     margin: 0;
     font-family: var(--font-display);
@@ -39,8 +39,8 @@ const glyphs = title.split('').map((ch) => ({ ch, cls: ch === ' ' ? 'sh-gap' : T
     paint-order: stroke fill;
   }
   .sh-title .sh-bone { color: var(--bone); }
-  .sh-title .sh-plasma { color: var(--plasma); }
-  .sh-title .sh-ember { color: var(--ember); }
+  .sh-title .sh-plasma { color: var(--bone); }
+  .sh-title .sh-ember { color: var(--bone); }
   .sh-title .sh-gap { display: inline-block; width: 0.4em; }
   .sh-sub { margin: 0; font-size: 1.0625rem; line-height: 1.6; color: var(--bone-dim); max-width: 52rem; text-wrap: pretty; }
 </style>

@@ -828,7 +828,7 @@ const RELEASES = [
      than part of the page's promise. */
   .cl-note { font-size: 0.875rem; color: var(--bone-faint); }
   .cl-note b { color: var(--bone-dim); }
-  .cl-note a { color: var(--plasma); }
+  .cl-note a { color: var(--bone); }
 
   /* Product bands. Two version lines share this page, so each list gets a labelled rule and a
      reader can never mistake Armature 2.0.0 for the toolset jumping four majors. */
@@ -839,9 +839,9 @@ const RELEASES = [
     font-weight: 700;
     font-size: 0.75rem;
     letter-spacing: 0.18em;
-    color: var(--ember);
+    color: var(--bone);
   }
-  .cl-note a { color: var(--plasma); }
+  .cl-note a { color: var(--bone); }
 
   .cl-rel { display: grid; grid-template-columns: 16rem 1fr; gap: 3rem; align-items: start; margin: 0 0 4rem; }
 
@@ -864,7 +864,7 @@ const RELEASES = [
     background: var(--plasma);
     box-shadow: 0 0 10px rgba(124, 255, 178, 0.7);
   }
-  .cl-ver__num { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 800; color: var(--plasma); margin: 0; }
+  .cl-ver__num { font-family: var(--font-mono); font-size: 1.35rem; font-weight: 800; color: var(--bone); margin: 0; }
   .cl-rail__tag { font-family: var(--font-mono); font-size: 1.5rem; font-weight: 800; color: var(--bone); margin: 0; letter-spacing: -0.01em; }
   .cl-rail__date { font-family: var(--font-mono); font-size: 0.85rem; font-weight: 500; letter-spacing: 0.14em; color: var(--bone-faint); }
 
@@ -887,15 +887,15 @@ const RELEASES = [
   .cl-group__bar--plasma { background: var(--plasma); }
   .cl-group__bar--ember { background: var(--ember); }
   .cl-group__label { font-family: var(--font-mono); font-size: 1.15rem; font-weight: 800; letter-spacing: 0.06em; margin: 0; }
-  .cl-group__label--plasma { color: var(--plasma); }
-  .cl-group__label--ember { color: var(--ember); }
+  .cl-group__label--plasma { color: var(--bone); }
+  .cl-group__label--ember { color: var(--bone); }
 
   .cl-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.85rem; }
   .cl-item { display: flex; gap: 0.9rem; color: var(--bone-dim); line-height: 1.55; font-size: 0.95rem; text-wrap: pretty; }
   .cl-item :global(b) { color: var(--bone); }
   .cl-item__mark { flex: none; }
-  .cl-item__mark--plasma { color: var(--plasma); }
-  .cl-item__mark--ember { color: var(--ember); }
+  .cl-item__mark--plasma { color: var(--bone); }
+  .cl-item__mark--ember { color: var(--bone); }
 
   @media (max-width: 60rem) {
     .cl-rel { grid-template-columns: 1fr; gap: 1.5rem; }

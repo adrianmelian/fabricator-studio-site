@@ -118,7 +118,7 @@ const FAQ = [
   .lc .dd-title { justify-content: center; }
   .lc-lede { max-width: 52rem; margin-inline: auto; font-size: 1.125rem; }
   .lc-scope { max-width: 52rem; margin-inline: auto; margin-top: 0.75rem; font-size: 0.9375rem; }
-  .lc-scope a { color: var(--plasma); }
+  .lc-scope a { color: var(--bone); }
 
   .lc-section, .lc-why, .lc-license { display: flex; flex-direction: column; gap: 1.5rem; }
 
@@ -129,20 +129,20 @@ const FAQ = [
 
   .lc-head { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
   .lc-head__label { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.25rem, 2.6vw, 1.625rem); letter-spacing: 0.04em; }
-  .lc-head__label--plasma { color: var(--plasma); }
-  .lc-head__label--ember { color: var(--ember); }
+  .lc-head__label--plasma { color: var(--bone); }
+  .lc-head__label--ember { color: var(--bone); }
   .lc-head__sub { margin: 0; font-size: 1rem; color: var(--bone-dim); }
 
   .lc-prose { margin: 0; max-width: 62rem; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
   .lc-prose--lg { font-size: 1.0625rem; }
   .lc-prose--dim { color: var(--bone-faint); }
   .lc-prose b { color: var(--bone); }
-  .lc-prose :global(.b-plasma) { color: var(--plasma); }
+  .lc-prose :global(.b-plasma) { color: var(--bone); }
   /* The WHY copy is shared with the homepage quote box, which emphasises the promise
      line in cobalt; style it here too or the phrase renders unemphasised on this page. */
-  .lc-prose :global(.b-cobalt) { color: var(--cobalt); }
-  .lc-prose a { color: var(--plasma); font-weight: 700; text-decoration: none; }
-  .lc-prose a:hover { color: var(--plasma-dim); }
+  .lc-prose :global(.b-cobalt) { color: var(--bone); }
+  .lc-prose a { color: var(--bone); font-weight: 700; text-decoration: none; }
+  .lc-prose a:hover { color: var(--bone-dim); }
 
   /* The free grant: iron sliding into a plasma-tinted dark (the drop's 120deg card). */
   .lc-free {
@@ -170,7 +170,7 @@ const FAQ = [
     font-weight: 700;
     font-size: 0.8125rem;
     letter-spacing: 0.12em;
-    color: var(--plasma);
+    color: var(--bone);
     white-space: nowrap;
   }
   .lc-pill__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--plasma); box-shadow: 0 0 10px rgba(124, 255, 178, 0.7); }
@@ -186,7 +186,7 @@ const FAQ = [
   }
   .lc-callout p { margin: 0; font-size: 1rem; line-height: 1.55; color: var(--bone-dim); text-wrap: pretty; }
   .lc-callout p b { color: var(--bone); }
-  .lc-callout :global(.b-plasma) { color: var(--plasma); }
+  .lc-callout :global(.b-plasma) { color: var(--bone); }
   .lc-callout svg { flex: none; }
   .lc-callout--plasma { border: 1px solid rgba(124, 255, 178, 0.25); }
   .lc-callout--ember { align-items: flex-start; border: 1px solid rgba(255, 122, 61, 0.25); }
@@ -197,7 +197,7 @@ const FAQ = [
     height: 2.75rem;
     border-radius: 10px;
     background: rgba(255, 122, 61, 0.14);
-    color: var(--ember);
+    color: var(--bone);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -223,8 +223,8 @@ const FAQ = [
   .lc-row--free { background: rgba(124, 255, 178, 0.05); color: var(--bone); }
   .lc-row--top { background: rgba(255, 122, 61, 0.06); color: var(--bone); }
   .lc-row__fee { font-weight: 700; color: var(--bone); }
-  .lc-row__fee--free { font-weight: 800; color: var(--plasma); }
-  .lc-row__fee--top { font-weight: 800; color: var(--ember); }
+  .lc-row__fee--free { font-weight: 800; color: var(--bone); }
+  .lc-row__fee--top { font-weight: 800; color: var(--bone); }
 
   /* The three-axis strip: same furniture as the band table, one card per product. */
   .lc-axes { display: grid; gap: 0.875rem; }
@@ -253,11 +253,11 @@ const FAQ = [
     font-size: 0.75rem;
     letter-spacing: 0.1em;
     text-transform: uppercase;
-    color: var(--ember);
+    color: var(--bone);
   }
   .lc-axis__terms { margin: 0.25rem 0 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
-  .lc-axis__link { margin-top: auto; padding-top: 0.5rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; color: var(--plasma); text-decoration: none; }
-  .lc-axis__link:hover { color: var(--plasma-dim); }
+  .lc-axis__link { margin-top: auto; padding-top: 0.5rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.875rem; color: var(--bone); text-decoration: none; }
+  .lc-axis__link:hover { color: var(--bone-dim); }
 
   .lc-why {
     box-sizing: border-box;
@@ -287,7 +287,7 @@ const FAQ = [
     border-radius: 11px;
     background: rgba(124, 255, 178, 0);
     border: 1px solid rgba(124, 255, 178, 0.4);
-    color: var(--plasma);
+    color: var(--bone);
     font-family: var(--font-mono);
     font-weight: 700;
     font-size: 0.9375rem;
