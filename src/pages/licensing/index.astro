@@ -15,32 +15,97 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
-import SubscriptionTiers from '../../components/SubscriptionTiers.astro';
 import '../../styles/designed-doc.css';
+import { WHY_PARAS } from '../../data/licensing';
 
 const TITLE = 'LICENSING';
-// All bone, no tri-color cycle: Adrian's call, 2026-08-31.
-const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : 't-bone' }));
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
-// The 1.x FAQ block (the $2M threshold questions, the GPL conversion, the source-available
-// answer) was cut 2026-08-31 with the rest of the 1.x material. What remains is 2.0-only.
+const BANDS = [
+  { rev: 'Under $2 million', fee: 'Free', tone: 'free' },
+  { rev: '$2 to $5 million', fee: '$1,000' },
+  { rev: '$5 to $15 million', fee: '$5,000' },
+  { rev: '$15 to $50 million', fee: '$15,000' },
+  { rev: '$50 to $250 million', fee: '$50,000' },
+  { rev: '$250 million to $1 billion', fee: '$150,000' },
+  { rev: 'Over $1 billion', fee: "From $300,000, let's talk", tone: 'top' },
+];
+
+// The three paid axes on one page (R10 item 6, Armature launch 2026-08-03). Two thresholds
+// coexist on this site ($2M toolset, $100k Armature) and a reader can walk away with the
+// wrong one. The line that keeps it readable: studio line versus artist line.
+const AXES = [
+  {
+    name: 'The Maya toolset',
+    line: 'Studio licence',
+    terms: 'Free under $2 million a year. One flat licence for the whole studio above it.',
+    href: '#pricing',
+    label: 'The bands below',
+  },
+  {
+    name: 'Armature',
+    line: 'Per artist',
+    terms: 'Free under $100k a year. $149 per seat, once, at or above it.',
+    href: '/armature/',
+    label: 'See Armature',
+  },
+  {
+    name: 'Advanced Ribbon Modules',
+    line: 'Per purchase',
+    terms: '$199 once, for everyone, at any studio size.',
+    href: '/store/',
+    label: 'See the store',
+  },
+];
+
 const FAQ = [
+  {
+    q: "We're a small studio owned by a large publisher.",
+    a: "The threshold counts your parent and sibling companies. If a large company controls your studio, you're over the line.",
+  },
+  {
+    q: "We spun out of a big company and we're independent now.",
+    a: "Then you're independent, and only your own revenue counts. The test is who controls you today, not who used to.",
+  },
+  {
+    q: "I'm an individual contractor working at a large studio.",
+    a: 'Your own learning, portfolio, and personal work is free, always. Work you do for the large studio is use for their benefit, so <b>they</b> need the license, not you. Point them here.',
+  },
+  {
+    tone: 'plasma',
+    q: 'What if I buy Armature and it is not what I needed?',
+    // Lives on the page and not in the EULA on purpose: here it stays a page edit, in a
+    // contract it becomes an amendment. Same reasoning that keeps the price out (R19).
+    // Matches the Advanced Modules policy already on /store/.
+    a: 'Fourteen days, no questions. If Armature is not what you needed, email us within fourteen days of buying and we will refund you. The same policy covers the Advanced Ribbon Modules.',
+  },
   {
     tone: 'ember',
     q: 'What about Armature, the standalone app?',
-    a: 'Armature is free for everyone. Any paid subscription unlocks its advanced tier. <a href="/armature/">See Armature</a>.',
+    a: 'Separate product, separate terms. Armature is free for personal, learning and portfolio work, and free for commercial work under $100k a year. Above that it is $149 per artist. Nothing on this page applies to it: the $2 million threshold and the flat studio license are about the Maya toolset. <a href="/armature/">See Armature</a>.',
   },
   {
     tone: 'ember',
     q: 'What about the Advanced Ribbon Modules?',
-    // Ruled 2026-08-31: base Freelancer does not carry them; every tier above does.
-    a: 'They are included with every tier above base Freelancer. If you bought them for 1.x, they stay yours.',
+    a: "Those are a separate paid product for everyone, at any size. A commercial license covers the free toolset for a large organization; it doesn't include the Ribbon Modules, and buying the Ribbon Modules doesn't remove the need for a commercial license if you're over the threshold.",
+  },
+  {
+    tone: 'plasma',
+    q: 'What happens to old versions?',
+    a: "Every release becomes open source under the GPL four years after it ships. That's built into the license and cannot be revoked.",
+  },
+  {
+    tone: 'plasma',
+    q: 'Is this open source?',
+    a: "No, and we won't call it that. You can read and modify every line, but it's not an OSI approved license, because those licenses can't ask a large company to pay.",
   },
 ];
 ---
 <BaseLayout
   title="Licensing | FabricatorStudio"
-  description="Armature is free. The Studio Pipeline is a subscription: Freelancer, Premium, Pro and Enterprise."
+  description="Free for solo developers, indies, and small teams. Above 2 million USD in annual revenue, one flat license covers your whole studio."
 >
   <NavBar />
 
@@ -55,40 +120,107 @@ const FAQ = [
       {/* Names the PRODUCT, not the studio (Adrian, 2026-07-30). With Armature shipping as a
           second product on its own threshold, "FabricatorStudio is free" stopped being true:
           the studio is not free, one of its two products is. */}
-      {/* Lede rewritten 2026-08-31 on Adrian's ruling: the Maya tools stop being free, the
-          1.x line is phased out, and Armature becomes the free offering. The old lede sold
-          the toolset as free, which is exactly the story this page now exists to end. */}
-      {/* NAMING, IN CONCRETE (Adrian, 2026-08-31): it is not a Maya toolset, it is the
-          Studio Pipeline. 2.0 copy never says "Maya toolset". */}
-      <p class="dd-summary lc-lede"><b>Armature is free.</b> The Studio Pipeline is a subscription.</p>
+      <p class="dd-summary lc-lede">The FabricatorStudio Maya Toolset is free for solo developers, indies, and small teams.</p>
+      {/* Scoping line added 2026-07-28. Armature is a separate product on a different threshold
+          ($100k) and a different model (per seat), and this page reads as the definitive answer
+          for the whole studio. Without this a reader leaves with a confident wrong number. */}
+      <p class="lc-prose lc-prose--dim lc-scope">This page covers <b>the Maya toolset</b>. <a href="/armature/">Armature</a>, the standalone app, is a separate product with its own pricing, and the <a href="/store/">Advanced Ribbon Modules</a> are a separate paid add-on.</p>
     </header>
 
-    <!-- FABRICATOR 2.0: the subscription tiers (2026-08-31). The final free 1.x release's
-         What's New card links here with a button labelled "What's coming in 2.0", so this
-         section is what that button promises. Static by design: no accounts or checkout
-         until the 2.0 campaign builds them. Prices single-sourced from the Bridge's
-         PRICING.md; see the component header for the four deliberately open lines. -->
-    <SubscriptionTiers />
+    <!-- FREE TIER -->
+    <section class="lc-free" aria-labelledby="lc-free-t">
+      <span class="lc-pill"><span class="lc-pill__dot" aria-hidden="true"></span>UNDER $2M / YEAR &middot; FREE</span>
+      <h2 id="lc-free-t" class="lc-free__title">Under $2M a year? It's yours.</h2>
+      <p class="lc-prose lc-prose--lg">If your organization made less than <b>$2 million USD in gross revenue</b> last tax year, you don't need a license and you don't need to contact anyone. Use it in production, ship games with it, use it on client work. It's yours, and it stays yours.</p>
+      <div class="lc-callout lc-callout--plasma">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M6 13l4.5 4.5L20 8" stroke="#7CFFB2" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <p>Personal use, learning, and portfolio work are <b class="b-plasma">always free</b>, whatever you do for a day job.</p>
+      </div>
+    </section>
 
-    {/* THE ENTIRE 1.X BLOCK WAS CUT 2026-08-31 on Adrian's ruling, his words: "fuck the
-        1.x people." Gone: the legacy divider, the under-$2M holder card, the commercial
-        revenue bands, the BSL license section, and every 1.x FAQ. The 1.x terms travel
-        with the software itself (its LICENSE and EULA); this page sells the subscription. */}
+    <!-- THE THREE PAID AXES (added at Armature launch) -->
+    <section id="axes" class="lc-section" aria-labelledby="lc-axes-t">
+      <div class="lc-head">
+        <h2 id="lc-axes-t" class="lc-head__label lc-head__label--ember">WHAT COSTS MONEY HERE</h2>
+        <p class="lc-head__sub">Two lines, three products, separate thresholds</p>
+      </div>
+      <p class="lc-prose lc-prose--lg">
+        Three things cost money, on two lines. The <b>studio line</b> is the toolset's
+        commercial licence: one flat fee covering your whole studio above $2 million a year.
+        The <b>artist line</b> is a tool purchase: Armature at $149 per seat above $100k a
+        year, and the Ribbon Modules at $199 for everyone. The thresholds are separate on
+        purpose. $2 million is about the toolset, $100k is about Armature, and neither affects
+        the other.
+      </p>
+      <div class="lc-axes">
+        {AXES.map((a) => (
+          <div class="lc-axis">
+            <p class="lc-axis__name">{a.name}</p>
+            <p class="lc-axis__line">{a.line}</p>
+            <p class="lc-axis__terms">{a.terms}</p>
+            <a class="lc-axis__link" href={a.href}>{a.label} &rarr;</a>
+          </div>
+        ))}
+      </div>
+    </section>
 
-    {/* The WHY section was cut from this page by Adrian, 2026-08-31: the story explained
-        a free toolset and the flat $2M license, both gone. His verbatim text stays
-        canonical in src/data/licensing.ts (the homepage still renders it; that surface
-        is the overhaul's). */}
+    <!-- PRICING -->
+    <section id="pricing" class="lc-section" aria-labelledby="lc-pricing-t">
+      <div class="lc-head">
+        <h2 id="lc-pricing-t" class="lc-head__label lc-head__label--ember">PRICING</h2>
+        <p class="lc-head__sub">One flat license per studio, per year</p>
+      </div>
+      <p class="lc-prose lc-prose--lg">Above $2 million USD in annual revenue, a commercial license is required. <b>One flat license for your whole studio, per year.</b> Not per seat, and never a percentage of what you make.</p>
 
-    <!-- CONTACT (the 1.x BSL section that stood here was cut 2026-08-31; the door stays) -->
+      <div class="lc-table" role="table" aria-label="Annual license by company revenue">
+        <div class="lc-row lc-row--head" role="row">
+          <span role="columnheader">YOUR ANNUAL REVENUE</span>
+          <span role="columnheader">PER YEAR</span>
+        </div>
+        {BANDS.map((b) => (
+          <div class={`lc-row${b.tone ? ` lc-row--${b.tone}` : ''}`} role="row">
+            <span role="cell">{b.rev}</span>
+            <span class={`lc-row__fee${b.tone ? ` lc-row__fee--${b.tone}` : ''}`} role="cell">{b.fee}</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="lc-callout lc-callout--wash">
+        <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M13 3v20M7 9l6-6 6 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+        <p>Crossing $2 million costs you <b class="b-plasma">$1,000 a year</b>, less than a single Maya seat. That's on purpose. You shouldn't get punished for a good year.</p>
+      </div>
+      {/* "no license server" was cut 2026-07-28: Armature ships with activation and a licence
+          server, and the claim read sitewide rather than as a fact about the toolset licence.
+          "No per-seat counting" is kept, scoped, because it is the Epic comparison. */}
+      <p class="lc-prose lc-prose--dim">No percentages. No per-seat counting for the toolset. No reporting and no audits. You look at one row, you know your number, and you can budget it a year ahead.</p>
+    </section>
+
+    <!-- WHY IT WORKS THIS WAY -->
+    <section class="lc-why" aria-labelledby="lc-why-t">
+      <h2 id="lc-why-t" class="lc-head__label lc-head__label--ember">WHY IT WORKS THIS WAY</h2>
+      <!-- Adrian's own story, his words VERBATIM. Single source: src/data/licensing.ts,
+           shared with the homepage block so the two can never drift apart. -->
+      <div class="lc-why__body">
+        {WHY_PARAS.map((p) => <p class="lc-prose lc-prose--lg" set:html={p} />)}
+      </div>
+      <div class="lc-callout lc-callout--ember">
+        <span class="lc-callout__badge" aria-hidden="true">&asymp;</span>
+        <p>For comparison: Epic charges non-game companies over $1M in revenue <b>$1,850 per seat per year</b> for Unreal Engine. Our line is twice that, and above it you pay once for the <b>entire studio</b>, instead of once per person.</p>
+      </div>
+    </section>
+
+    <!-- THE LICENSE -->
     <section id="license" class="lc-license" aria-labelledby="lc-license-t">
-      <h2 id="lc-license-t" class="lc-head__label lc-head__label--plasma">TALK TO US</h2>
+      <h2 id="lc-license-t" class="lc-head__label lc-head__label--plasma">THE LICENSE</h2>
+      <p class="lc-prose lc-prose--lg">The toolset ships under the <b>Business Source License 1.1</b>, with one added grant: free use for organizations under $2 million USD in annual gross revenue. Every version becomes fully open source four years after it ships, automatically. That conversion is written into the license and <b class="b-plasma">cannot be revoked</b>.</p>
+      <a class="lc-chip" href="https://mariadb.com/bsl11/" target="_blank" rel="noopener">Read the standard BSL 1.1 text &rarr;</a>
+      <div class="lc-license__rule" aria-hidden="true"></div>
       <div class="lc-get">
         <div class="lc-get__copy">
-          <h3 class="lc-get__title">Enterprise and questions</h3>
-          <p class="lc-prose">Email us. No sales call required unless you want one. If you need hands as well as seats, see <a href="/services/">Services</a>.</p>
+          <h3 class="lc-get__title">Getting a license</h3>
+          <p class="lc-prose">Email us your company name and revenue band. No sales call required unless you want one. Need hands, not just a license? See <a href="/services/">Services</a>.</p>
         </div>
-        <a class="lc-cta" href="mailto:licensing@fabricator.studio?subject=Licensing">licensing@fabricator.studio</a>
+        <a class="lc-cta" href="mailto:licensing@fabricator.studio?subject=Commercial%20license">licensing@fabricator.studio</a>
       </div>
     </section>
 
@@ -121,11 +253,6 @@ const FAQ = [
   .lc-scope a { color: var(--bone); }
 
   .lc-section, .lc-why, .lc-license { display: flex; flex-direction: column; gap: 1.5rem; }
-
-  /* The 1.x legacy divider: a full-width rule, then the banner. Ember on purpose: it marks
-     a boundary, not a warning. */
-  .lc-legacy { display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem; }
-  .lc-legacy__rule { height: 1px; background: linear-gradient(90deg, rgba(255, 122, 61, 0.5), rgba(255, 122, 61, 0)); }
 
   .lc-head { display: flex; align-items: baseline; gap: 1.25rem; flex-wrap: wrap; }
   .lc-head__label { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.25rem, 2.6vw, 1.625rem); letter-spacing: 0.04em; }
