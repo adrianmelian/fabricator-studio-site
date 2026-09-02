@@ -29,11 +29,9 @@ export const PLANS: Plan[] = [
   { id: 'techart_anim_w', label: 'Weekly', price: '$9', per: '/ week', url: 'https://buy.stripe.com/14A4gyfnL7eu41k5OU4Rq02' },
   { id: 'pro_m', label: 'Monthly', price: '$25', per: '/ month', url: 'https://buy.stripe.com/5kQ28qa3reGW8hAa5a4Rq07' },
   { id: 'pro_y', label: 'Yearly', price: '$250', per: '/ year', url: 'https://buy.stripe.com/fZu5kC1wVaqGapI1yE4Rq06' },
-  // HELD, NOT MISSING. The Payment Link Adrian made for this one charges $40.00 a
-  // month, and every surface here says $45.00. Loading the link is what caught it
-  // (scripts/verify-payment-links.mjs in the Website lane). Wiring it up would have
-  // shown a buyer $45 and charged them $40, so it stays null and reads Coming soon
-  // until he says which number is right.
-  { id: 'enterprise_m', label: 'Monthly', price: '$45', per: '/ month', url: null },
+  // The FIRST link for this plan charged $40.00 a month where every surface said
+  // $45.00; Adrian replaced it the same day and the replacement verifies at $45.00.
+  // The old one (...4Rq04) should be archived at Stripe so nobody reaches it.
+  { id: 'enterprise_m', label: 'Monthly', price: '$45', per: '/ month', url: 'https://buy.stripe.com/dRm4gya3rcyOapI4KQ4Rq08' },
   { id: 'enterprise_y', label: 'Yearly', price: '$450', per: '/ year', url: 'https://buy.stripe.com/8x200i5Nb42i1Tc7X24Rq05' },
 ];
