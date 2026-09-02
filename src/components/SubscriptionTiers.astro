@@ -32,6 +32,16 @@
 //
 // Copy voice: Adrian rules every word. Drafted for his ruling, not shipped as final.
 // No em-dashes anywhere in this file's rendered text.
+//
+// BUY BUTTONS wired 2026-09-02. Every plan id and price lives in ONE place, src/data/plans.ts
+// (the single spot a real Stripe payment link URL gets pasted later); this file only reads
+// it. A visitor with no fs_session in localStorage can never reach checkout directly: a
+// purchase made without a signed-in account cannot be attached to a seat, so every buy
+// control sends a signed-out visitor to /account/ first instead. See the client script at
+// the bottom of this file for the session check and the client_reference_id / prefilled_email
+// query-string handoff, both built from GET /v1/account.
+import { PLANS } from '../data/plans';
+const plan = (id: string) => PLANS.find((p) => p.id === id)!;
 
 const TIERS = [
   {
@@ -42,6 +52,8 @@ const TIERS = [
     alt: 'or $8 / week with Animation: all tools',
     body: 'The tech art tools, on a weekly meter.',
     checks: ['The tech art tools', 'Exporter: MODEL and RIG tabs', 'Prepaid weeks: 1, 4 or 12'],
+    plans: [plan('freelancer_w1'), plan('freelancer_w4'), plan('freelancer_w12')],
+    animPlans: [plan('freelancer_anim_w1'), plan('freelancer_anim_w4'), plan('freelancer_anim_w12')],
   },
   {
     key: 'premium',
@@ -52,6 +64,7 @@ const TIERS = [
     body: 'Every tool in the studio.',
     checks: ['Maya rigging and animation tools', 'Unreal Control Rig builder', 'Advanced Ribbon Modules', 'Monthly or yearly'],
     featured: true,
+    plans: [plan('premium_m'), plan('premium_y')],
   },
   {
     key: 'pro',
@@ -61,6 +74,7 @@ const TIERS = [
     alt: 'or $450 / year, two months free',
     body: 'Premium plus support.',
     checks: ['Everything in Premium', 'Priority email support'],
+    plans: [plan('pro_m'), plan('pro_y')],
   },
 ];
 
@@ -99,6 +113,29 @@ const BANDS = [
             </li>
           ))}
         </ul>
+        <div class="st-buy">
+          <div class="st-buy__row">
+            {t.plans.map((p) => (
+              <button type="button" class="st-plan" data-plan-id={p.id} data-plan-url={p.url ?? ''} disabled={!p.url}>
+                <span class="st-plan__dur">{p.label}</span>
+                <span class="st-plan__price">{p.url ? (<>{p.price}<small>{p.per}</small></>) : 'Coming soon'}</span>
+              </button>
+            ))}
+          </div>
+          {t.animPlans && (
+            <div class="st-buy__anim">
+              <p class="st-buy__animLabel">+ Animation add-on</p>
+              <div class="st-buy__row">
+                {t.animPlans.map((p) => (
+                  <button type="button" class="st-plan" data-plan-id={p.id} data-plan-url={p.url ?? ''} disabled={!p.url}>
+                    <span class="st-plan__dur">{p.label}</span>
+                    <span class="st-plan__price">{p.url ? (<>{p.price}<small>{p.per}</small></>) : 'Coming soon'}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
       </div>
     ))}
   </div>
@@ -124,9 +161,62 @@ const BANDS = [
       <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M4 13h18M13 4v18" stroke="#FF7A3D" stroke-width="2.4" stroke-linecap="round" /></svg>
       <p>Past 250 seats, every seat is free. The whole studio tops out at <b>$3,125 a month</b>.</p>
     </div>
+    {/* Enterprise is never a buy button: it is a "talk to us" mail link, always. */}
+    <a class="st-ent__cta" href="mailto:adrian@fabricator.studio?subject=Enterprise%20pricing">Talk to us &rarr;</a>
   </div>
 
 </section>
+
+<script>
+  // Wires every .st-plan button to the right destination, built at click time (not at
+  // render time) so a stale href never survives a sign-in that happens later on the same
+  // page load. A visitor with no fs_session in localStorage always lands on /account/ first:
+  // a purchase made without a signed-in account cannot be attached to a seat, so the
+  // sign-in-first path is mandatory here, not a nicety, per the brief.
+  (function () {
+    var API = 'https://api.fabricator.studio';
+    var SESSION_KEY = 'fs_session';
+
+    function getSession() {
+      try { return localStorage.getItem(SESSION_KEY); } catch (e) { return null; }
+    }
+
+    var live = Array.prototype.slice
+      .call(document.querySelectorAll('.st-plan[data-plan-url]'))
+      .filter(function (b) { return b.getAttribute('data-plan-url'); });
+    if (!live.length) return;
+
+    function wireSignInFirst() {
+      live.forEach(function (b) {
+        b.addEventListener('click', function () { window.location.href = '/account/'; });
+      });
+    }
+
+    var session = getSession();
+    if (!session) { wireSignInFirst(); return; }
+
+    fetch(API + '/v1/account', { headers: { Authorization: 'Bearer ' + session } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        if (!data || !data.ok) { wireSignInFirst(); return; }
+        var email = data.value.email || '';
+        // NOTE: the documented /v1/account response carries no `accountId` field (only
+        // email, tier, opens, status, renewsAt, manageUrl, downloads, devices, deviceLimit).
+        // This falls back to `id` if the live API ever adds one under that name, and drops
+        // client_reference_id entirely rather than send a wrong value. Flagged in the report.
+        var accountId = data.value.accountId || data.value.id || '';
+        live.forEach(function (b) {
+          var url = b.getAttribute('data-plan-url');
+          var params = [];
+          if (accountId) params.push('client_reference_id=' + encodeURIComponent(accountId));
+          if (email) params.push('prefilled_email=' + encodeURIComponent(email));
+          var full = url + (params.length ? (url.indexOf('?') === -1 ? '?' : '&') + params.join('&') : '');
+          b.addEventListener('click', function () { window.location.href = full; });
+        });
+      })
+      .catch(function () { wireSignInFirst(); });
+  })();
+</script>
 
 <style>
   .st { display: flex; flex-direction: column; gap: 1.75rem; }
@@ -206,6 +296,43 @@ const BANDS = [
   .st-callout svg { flex: none; }
   .st-callout p { margin: 0; }
   .st-callout b { color: var(--bone); }
+
+  .st-ent__cta {
+    align-self: flex-start;
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--bone);
+    text-decoration: none;
+    border-bottom: 1px solid var(--iron-3);
+  }
+  .st-ent__cta:hover { border-color: var(--ember); }
+
+  /* Buy widget: one small pill per plan id, price sourced from src/data/plans.ts only. */
+  .st-buy { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.25rem; }
+  .st-buy__animLabel { margin: 0 0 0.4rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.08em; color: var(--bone-faint); }
+  .st-buy__row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  .st-plan {
+    box-sizing: border-box;
+    flex: 1 1 5.5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.6rem 0.4rem;
+    border-radius: var(--radius-sm);
+    background: var(--iron);
+    border: 1px solid var(--iron-3);
+    color: var(--bone);
+    font-family: var(--font-mono);
+    cursor: pointer;
+    transition: border-color var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out);
+  }
+  .st-plan:hover:not(:disabled) { border-color: var(--plasma-dim); background: var(--iron-2); }
+  .st-plan:disabled { cursor: default; opacity: 0.55; }
+  .st-plan__dur { font-size: 0.75rem; letter-spacing: 0.04em; color: var(--bone-dim); }
+  .st-plan__price { font-size: 0.8125rem; font-weight: 700; color: var(--bone); }
+  .st-plan__price small { font-weight: 500; color: var(--bone-dim); margin-left: 0.2em; }
 
   @media (max-width: 900px) {
     .st-tiers { grid-template-columns: 1fr; }
