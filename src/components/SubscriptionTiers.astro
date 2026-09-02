@@ -1,0 +1,213 @@
+---
+// The 2.0 subscription tiers. Built 2026-08-31; the 1.x What's New card links to
+// /licensing, so this page carries the 2.0 story. Static: no accounts or checkout wired yet.
+//
+// TENSE IS PRESENT, AS-SHIPPED, by Adrian's order (2026-08-31): the page reads as if 2.0
+// and subscriptions are live, so the deploy needs no second copy pass. No "arrives with",
+// no "coming", no "opens with 2.0" anywhere in rendered text.
+//
+// NAMING, IN CONCRETE (Adrian, 2026-08-31): the product is the STUDIO PIPELINE, never
+// "the Maya toolset" - it includes the Unreal Control Rig builder now. Product pages
+// split three ways: Armature, Pipeline, Control Rig.
+//
+// EVERY PRICE traces to ONE file and nowhere else:
+// _TheBridge/StandingOrders/Knowledge/commercial-model.md (current truth for the
+// commercial model; it supersedes the seat-subscription PRICING.md and carries the
+// 2026-08-31 rulings: modules in the subscription, 1.x phased out, Armature free,
+// Studio Pipeline naming).
+//
+// THE MODEL IS FINAL (Adrian, 2026-08-31: "this should be the final pricing model").
+// Every former open line is ruled in commercial-model.md:
+//   - Freelancer has ONE add-on: Animation, $8/week, which makes it all tools
+//     (ANIM tab, Export All Animation Clips, FS ControlRig, Ribbon Modules).
+//     It is an add-on on one tier, never rendered as a fifth tier.
+//   - Base Freelancer carries neither the Ribbon Modules nor FS ControlRig.
+//   - Pro has a yearly price: $450, same two-months-free shape as Premium.
+//   - Support: "priority" email is THE ONLY wording allowed. NEVER a response time,
+//     in hours or days, anywhere on any surface.
+//   - Enterprise seats carry Pro support at every band.
+//   - The weekly meter is prepaid weeks (1, 4 or 12, flat multiples, no discount).
+// Refund windows are ruled but the attorney reviews wording before it reaches a page,
+// so this page carries NO refund copy.
+//
+// Copy voice: Adrian rules every word. Drafted for his ruling, not shipped as final.
+// No em-dashes anywhere in this file's rendered text.
+
+const TIERS = [
+  {
+    key: 'freelancer',
+    name: 'FREELANCER',
+    price: '$5',
+    per: '/ week',
+    alt: 'or $8 / week with Animation: all tools',
+    body: 'The tech art tools, on a weekly meter.',
+    checks: ['The tech art tools', 'Exporter: MODEL and RIG tabs', 'Prepaid weeks: 1, 4 or 12'],
+  },
+  {
+    key: 'premium',
+    name: 'PREMIUM',
+    price: '$25',
+    per: '/ month',
+    alt: 'or $250 / year, two months free',
+    body: 'Every tool in the studio.',
+    checks: ['Maya rigging and animation tools', 'Unreal Control Rig builder', 'Advanced Ribbon Modules', 'Monthly or yearly'],
+    featured: true,
+  },
+  {
+    key: 'pro',
+    name: 'PRO',
+    price: '$45',
+    per: '/ month',
+    alt: 'or $450 / year, two months free',
+    body: 'Premium plus support.',
+    checks: ['Everything in Premium', 'Priority email support'],
+  },
+];
+
+// The Enterprise ladder is marginal: each band prices only the seats inside it.
+const BANDS = [
+  { seats: '1 to 5', fee: '$50' },
+  { seats: '6 to 50', fee: '$25' },
+  { seats: '51 to 100', fee: '$15' },
+  { seats: '101 to 200', fee: '$8' },
+  { seats: '201 to 250', fee: '$4' },
+  { seats: '251 and up', fee: 'Free', tone: 'free' },
+];
+---
+{/* The section head (eyebrow, title, lede) and the Armature strip were cut by Adrian,
+    2026-08-31: the page lede carries the whole message and the cards speak for
+    themselves. */}
+<section id="tiers-20" class="st" aria-label="Subscription tiers">
+  <div class="st-tiers">
+    {TIERS.map((t) => (
+      <div class={`st-tier${t.featured ? ' st-tier--featured' : ''}`}>
+        <div class="st-tier__top">
+          <span class={`st-pill${t.featured ? ' st-pill--plasma' : ''}`}><span class="st-pill__dot" aria-hidden="true"></span>{t.name}</span>
+        </div>
+        <div class="st-price">
+          <span class={`st-price__num${t.featured ? ' st-price__num--plasma' : ''}`}>{t.price}</span>
+          <span class="st-price__per">{t.per}</span>
+        </div>
+        {t.alt && <p class="st-price__alt">{t.alt}</p>}
+        <p class="st-tier__body">{t.body}</p>
+        <div class={`st-tier__rule${t.featured ? ' st-tier__rule--plasma' : ''}`} aria-hidden="true"></div>
+        <ul class="st-checks">
+          {t.checks.map((c) => (
+            <li class="st-check">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10l3.5 3.5L15 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
+              {c}
+            </li>
+          ))}
+        </ul>
+      </div>
+    ))}
+  </div>
+
+  <div class="st-ent">
+    <div class="st-ent__head">
+      <span class="st-pill st-pill--ember"><span class="st-pill__dot" aria-hidden="true"></span>ENTERPRISE</span>
+      <p class="st-ent__line">All tools and priority email support, per named seat. Each band prices only the seats inside it.</p>
+    </div>
+    <div class="st-table" role="table" aria-label="Enterprise per-seat price by seat count">
+      <div class="st-row st-row--head" role="row">
+        <span role="columnheader">SEATS</span>
+        <span role="columnheader">PER SEAT / MONTH</span>
+      </div>
+      {BANDS.map((b) => (
+        <div class={`st-row${b.tone ? ` st-row--${b.tone}` : ''}`} role="row">
+          <span role="cell">{b.seats}</span>
+          <span class={`st-row__fee${b.tone ? ` st-row__fee--${b.tone}` : ''}`} role="cell">{b.fee}</span>
+        </div>
+      ))}
+    </div>
+    <div class="st-callout">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-hidden="true"><path d="M4 13h18M13 4v18" stroke="#FF7A3D" stroke-width="2.4" stroke-linecap="round" /></svg>
+      <p>Past 250 seats, every seat is free. The whole studio tops out at <b>$3,125 a month</b>.</p>
+    </div>
+  </div>
+
+</section>
+
+<style>
+  .st { display: flex; flex-direction: column; gap: 1.75rem; }
+
+  .st-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  .st-tier {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    border-radius: 22px;
+    padding: 1.875rem 2rem 2.125rem;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid var(--iron-3);
+    box-shadow: var(--shadow-lg);
+  }
+  .st-tier--featured {
+    background: linear-gradient(180deg, rgba(124, 255, 178, 0) 30%, rgba(124, 255, 178, 0.07)), linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(124, 255, 178, 0.4);
+    box-shadow: var(--shadow-lg), 0 0 40px -24px rgba(124, 255, 178, 0.3);
+  }
+  .st-tier__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
+  .st-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.4rem 0.9rem;
+    border-radius: 9px;
+    background: rgba(232, 224, 208, 0.06);
+    border: 1px solid rgba(232, 224, 208, 0.25);
+    color: var(--bone);
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+  }
+  .st-pill__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--bone-dim); }
+  .st-pill--plasma { background: rgba(124, 255, 178, 0.13); border-color: rgba(124, 255, 178, 0.45); color: var(--plasma); }
+  .st-pill--plasma .st-pill__dot { background: var(--plasma); box-shadow: 0 0 10px rgba(124, 255, 178, 0.7); }
+  .st-pill--ember { background: rgba(255, 122, 61, 0.13); border-color: rgba(255, 122, 61, 0.45); color: var(--ember); }
+  .st-pill--ember .st-pill__dot { background: var(--ember); box-shadow: 0 0 10px rgba(255, 122, 61, 0.7); }
+
+  .st-price { display: flex; align-items: baseline; gap: 0.5rem; }
+  .st-price__num { font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.75rem, 3vw, 2.25rem); letter-spacing: -0.02em; color: var(--bone); }
+  .st-price__num--plasma { color: var(--plasma); }
+  .st-price__per { font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone-dim); }
+  .st-price__alt { margin: -0.5rem 0 0; font-size: 0.875rem; color: var(--bone-dim); }
+  .st-tier__body { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
+  .st-tier__rule { height: 1px; background: linear-gradient(90deg, rgba(232, 224, 208, 0.2), rgba(232, 224, 208, 0)); }
+  .st-tier__rule--plasma { background: linear-gradient(90deg, rgba(124, 255, 178, 0.3), rgba(124, 255, 178, 0)); }
+  .st-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
+  .st-check { display: flex; align-items: center; gap: 0.7rem; font-size: 0.9375rem; color: var(--bone-dim); }
+  .st-check svg { flex: none; }
+
+  .st-ent {
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    border-radius: 22px;
+    padding: 2rem 2.125rem 2.25rem;
+    background: linear-gradient(180deg, var(--iron), var(--carbon));
+    border: 1px solid rgba(255, 122, 61, 0.35);
+    box-shadow: var(--shadow-lg);
+  }
+  .st-ent__head { display: flex; flex-direction: column; gap: 0.9rem; align-items: flex-start; }
+  .st-ent__line { margin: 0; max-width: 52rem; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); }
+
+  .st-table { display: flex; flex-direction: column; border: 1px solid var(--iron-3); border-radius: 14px; overflow: hidden; }
+  .st-row { display: grid; grid-template-columns: 1fr auto; gap: 1rem; padding: 0.8rem 1.25rem; font-size: 0.9375rem; color: var(--bone-dim); border-top: 1px solid var(--iron-2); }
+  .st-row--head { border-top: none; background: var(--iron); font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.12em; color: var(--bone-faint); }
+  .st-row__fee { font-family: var(--font-mono); font-weight: 700; color: var(--bone); }
+  .st-row--free { background: linear-gradient(90deg, rgba(124, 255, 178, 0) 60%, rgba(124, 255, 178, 0.06)); }
+  .st-row__fee--free { color: var(--plasma); }
+
+  .st-callout { display: flex; align-items: center; gap: 0.85rem; font-size: 0.9375rem; color: var(--bone-dim); line-height: 1.5; }
+  .st-callout svg { flex: none; }
+  .st-callout p { margin: 0; }
+  .st-callout b { color: var(--bone); }
+
+  @media (max-width: 900px) {
+    .st-tiers { grid-template-columns: 1fr; }
+  }
+</style>
