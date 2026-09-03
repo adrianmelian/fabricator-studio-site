@@ -46,6 +46,23 @@ import { PLANS } from '../data/plans';
 const plan = (id: string) => PLANS.find((p) => p.id === id)!;
 
 const TIERS = [
+  // FREELANCE ANIMATOR (Adrian, 2026-09-03, hours after Control Rig shipped): "for those
+  // who just want the unreal control rig builder". It leads the row because it is the
+  // cheapest band and the widest door - Armature is free, so this buyer authors a skeleton
+  // for nothing and rigs in Unreal without ever opening Maya.
+  //
+  // It is the only band sold in all three shapes. Its checks say what it does NOT carry,
+  // because the one thing a buyer must not misread here is that $4 buys the Maya pipeline.
+  {
+    key: 'animator',
+    name: 'FREELANCE ANIMATOR',
+    price: '$4',
+    per: '/ week',
+    alt: 'or $15 / month, or $150 / year',
+    body: 'The Unreal Control Rig builder, on its own.',
+    checks: ['Unreal Control Rig builder', 'Armature advanced', 'No Maya tools', 'Weekly, monthly or yearly'],
+    plans: [plan('animator_w'), plan('animator_m'), plan('animator_y')],
+  },
   {
     key: 'techart',
     name: 'FREELANCE TECH ART',
@@ -267,7 +284,15 @@ const BANDS = [
 
   .st { display: flex; flex-direction: column; gap: 1.75rem; }
 
-  .st-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  /* FOUR TIERS SINCE 2026-09-03, not three: Freelance Animator joined the row and the
+     three-column grid left Enterprise orphaned on a line of its own. Four across on a wide
+     screen, two-by-two in the middle band, one column on a phone (that last rule is further
+     down and unchanged). PROVISIONAL LAYOUT, Adrian's to rule: two-by-two at every desktop
+     width is the obvious alternative and is one line here. */
+  .st-tiers { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 1.25rem; }
+  @media (max-width: 1180px) {
+    .st-tiers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
   .st-tier {
     box-sizing: border-box;
     display: flex;

@@ -25,6 +25,14 @@ export interface Plan {
 // when it happened: no Stripe price had ever been mapped and there were zero
 // subscriptions. It would have been a data migration a week later.
 export const PLANS: Plan[] = [
+  // FREELANCE ANIMATOR, the Unreal-only band (Adrian, 2026-09-03). One Stripe product,
+  // prod_VC5YnU3UImIlVm, carrying all three prices. Each url was LOADED and read before
+  // being pasted here: he created them weekly, yearly, monthly, so taking them in the
+  // order they arrived would have put the $150 yearly behind the monthly button.
+  { id: 'animator_w', label: 'Weekly', price: '$4', per: '/ week', url: 'https://buy.stripe.com/bJedR84J7eGWcxQ1yE4Rq09' },
+  { id: 'animator_m', label: 'Monthly', price: '$15', per: '/ month', url: 'https://buy.stripe.com/bJe8wO3F32YefK21yE4Rq0b' },
+  { id: 'animator_y', label: 'Yearly', price: '$150', per: '/ year', url: 'https://buy.stripe.com/aFabJ0ejH7eu55oa5a4Rq0a' },
+
   { id: 'techart_w', label: 'Weekly', price: '$6', per: '/ week', url: 'https://buy.stripe.com/9B614m0sR9mC8hA7X24Rq03' },
   { id: 'techart_anim_w', label: 'Weekly', price: '$9', per: '/ week', url: 'https://buy.stripe.com/14A4gyfnL7eu41k5OU4Rq02' },
   { id: 'pro_m', label: 'Monthly', price: '$25', per: '/ month', url: 'https://buy.stripe.com/5kQ28qa3reGW8hAa5a4Rq07' },
