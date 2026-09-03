@@ -75,6 +75,7 @@ import { PRICE_SWITCH_THROWN } from '../../data/launch';
         </div>
 
         <div class="acct-section">
+          <p class="acct-settling" id="acct-settling" hidden>Your purchase is going through. This page will fill in on its own, usually within a few seconds.</p>
           <h3 class="acct-section__head">Downloads</h3>
           <div class="acct-downloads" id="acct-downloads"></div>
         </div>
@@ -349,6 +350,29 @@ import { PRICE_SWITCH_THROWN } from '../../data/launch';
     };
 
     // ---------- the one call that drives everything ----------
+    // JUST PAID? Stripe's Payment Links redirect here with ?purchase=<checkout session id>,
+    // and THE SEAT MAY NOT EXIST YET when the buyer arrives. The seat is created by a
+    // webhook, not by the redirect, and Stripe does not order its events: the first live
+    // purchase saw customer.subscription.created arrive BEFORE the checkout.session.completed
+    // that says whose subscription it is (2026-09-02, four bugs, all in the licensing
+    // RESULTS.md). Without this, someone who has just handed over money is told "no downloads
+    // on this seat yet", which is the single worst sentence this page can show.
+    //
+    // So on that one marker, and only then, poll for the seat instead of believing the first
+    // answer. Backs off, gives up after ~20s and renders the normal page rather than spinning
+    // forever, and drops the parameter from the URL as soon as the seat appears so a refresh
+    // or a shared link never re-enters this path.
+    var justPaid = /[?&]purchase=/.test(location.search);
+    var waitedMs = 0;
+    var WAIT_STEPS = [800, 1200, 2000, 3000, 4000, 4000, 5000];
+
+    function clearPurchaseFlag() {
+      justPaid = false;
+      if (window.history && history.replaceState) {
+        history.replaceState(null, '', location.pathname + location.hash);
+      }
+    }
+
     function loadAccount() {
       var session = getSession();
       if (!session) { showState('signedout'); return; }
@@ -361,9 +385,27 @@ import { PRICE_SWITCH_THROWN } from '../../data/launch';
         .then(function (data) {
           if (!data) return; // already handled (401)
           if (!data.ok) { clearSession(); showState('signedout'); return; }
+          var seated = !!(data.value && data.value.tier && data.value.tier.length);
+          if (justPaid && !seated && WAIT_STEPS.length) {
+            var wait = WAIT_STEPS.shift();
+            waitedMs += wait;
+            showSettling(true);
+            setTimeout(loadAccount, wait);
+            return;
+          }
+          if (justPaid) clearPurchaseFlag();
+          showSettling(false);
           renderSignedIn(data.value, session);
         })
         .catch(function () { showOffline(true); });
+    }
+
+    // One line, only ever seen in the seconds after a purchase. It says what is happening
+    // rather than showing an empty account, and it never appears on an ordinary visit.
+    function showSettling(on) {
+      var el = document.getElementById('acct-settling');
+      if (!el) return;
+      el.hidden = !on;
     }
 
     function renderSignedIn(account, session) {
@@ -520,6 +562,15 @@ import { PRICE_SWITCH_THROWN } from '../../data/launch';
   .acct-section { display: flex; flex-direction: column; gap: 0.9rem; }
   .acct-section__head { margin: 0; font-family: var(--font-mono); font-weight: 700; font-size: 1.0625rem; color: var(--bone); }
 
+  .acct-settling {
+    margin: 0 0 1rem;
+    padding: 0.75rem 1rem;
+    border-radius: 10px;
+    font-size: 0.9375rem;
+    color: var(--bone);
+    background: var(--plasma-glow);
+    border: 1px solid var(--plasma-dim);
+  }
   .acct-downloads { display: flex; flex-direction: column; gap: 0.75rem; }
   .acct-download {
     display: flex;
