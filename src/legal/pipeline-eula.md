@@ -183,8 +183,9 @@ up takes effect immediately**, with the price difference charged at the time. **
 takes effect at the end of your current Billing Period**, so you keep the Tier you paid for
 until it runs out. Tier changes are not offered on yearly Billing Periods.
 
-**4.7 Refunds.** Our refund policy, which is in addition to any statutory right you have under
-section 24:
+**4.7 Refunds.** Ask by replying to your receipt, or by emailing
+licensing@fabricator.studio. Our refund policy, which is in addition to any statutory right
+you have under section 24:
 
 - **Monthly Seats: fourteen days.** Ask within fourteen days of your first charge and we will
   refund it.
@@ -296,7 +297,7 @@ will not build one. When a Seat ends, section 5 describes the entire effect, and
 effect by a licence token not being renewed rather than by anything reaching your machine.
 
 **9.5 Restricted networks.** If you need to run the Studio Pipeline on a machine that cannot
-reach the internet at all, contact us before purchasing. We do not currently issue offline
+reach the internet at all, email licensing@fabricator.studio before purchasing. We do not currently issue offline
 licence files, and we would rather tell you that before you pay than after.
 
 ### 10. The AI panel
@@ -348,7 +349,7 @@ g. represent that you created the Studio Pipeline, or use it in a way that sugge
 by agreement**, including, for users in the European Union and the United Kingdom, the right to
 decompile for interoperability purposes on the statutory conditions. It also does not apply to
 third-party components governed by their own licenses under section 16, or to Prior Versions,
-whose source remains public under section 6.
+which were published as readable source under the licence section 6 preserves.
 
 Nothing in this section restricts what you do with Your Output.
 
@@ -367,14 +368,20 @@ you used the Studio Pipeline.
 ### 16. Third-party components and host applications
 
 The Studio Pipeline includes and works alongside third-party components, each governed by its
-own license rather than by this Agreement. Those licenses are listed in the notices file
-supplied with the Studio Pipeline, and they include permissive licenses such as MIT and Apache
-2.0. **Where a term of this Agreement conflicts with the license of a third-party component,
-that component's license governs that component.**
+own license rather than by this Agreement. **Where a term of this Agreement conflicts with the
+license of a third-party component, that component's license governs that component.**
 
-Optional functionality you choose to install may download third-party software and model
-weights from their original sources at the time of installation, under their respective
-licenses.
+**What we distribute.** The third-party library we ship inside the package carries its own
+licence text beside it in the install tree: PyYAML, under the MIT licence, at
+`maya_tools/_vendor/yaml/LICENSE`.
+
+**What you obtain yourself.** The machine-learning skinning tools need solver packages that we
+do not ship. You install them on your own machine, from their own publishers, at the moment
+you first use one of those tools, and they arrive under their own licences. `DEPENDENCIES.md`
+in the package names them and says exactly what the install runs. Because we do not distribute
+them, we do not license them to you and we do not provide their source; it is available from
+their publishers under their own terms. **Nothing in this Agreement limits, restricts, or adds
+any condition to any right you have under those licences.**
 
 **Host applications are your own.** The Studio Pipeline runs inside Autodesk Maya, and FS
 ControlRig runs inside Unreal Engine. Your licences for Maya and for Unreal Engine are between
@@ -494,4 +501,4 @@ If any part of this Agreement is found unenforceable, the rest stays in force. O
 enforce a term is not a waiver of it. You may not assign this Agreement without our written
 consent, except to a successor of your entire business.
 
-Contact: fabricator.studio
+Contact: licensing@fabricator.studio, or fabricator.studio
