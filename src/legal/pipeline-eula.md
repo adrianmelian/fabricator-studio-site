@@ -33,11 +33,13 @@ period runs out. Section 4 is the whole of it, including refunds.
 Yours, with no attribution required, permanently. Section 7 survives everything else in this
 document.
 
-**Nothing is taken away when a subscription ends.** No file is deleted, nothing is disabled
-remotely, and rigs you have already built keep opening and animating, because a Fabricator rig
-is ordinary Maya nodes and does not need us. What stops is the ability to build new work with
-the paid tools. A set of tools called the Substrate stays free and working in every state,
-subscribed or not, and section 3.6 names every one of them.
+**Nothing you have made is taken away when a subscription ends.** No file is deleted, nothing
+is disabled remotely, and rigs you have already built keep opening and animating, because a
+Fabricator rig is ordinary Maya nodes and does not need us or the Studio Pipeline to work.
+
+**What does stop is the Studio Pipeline itself.** Without a current Seat it does not load: no
+toolbar, no tool menu, no shelves, no hotkeys. What is left is the screen you sign in on.
+Section 3.6 says it exactly and section 5 says what it does and does not touch.
 
 The Studio Pipeline contacts our servers to check licensing. **It does not send us your
 scenes, your rigs, your meshes, or your work.** It keeps working for thirty days when it
@@ -64,9 +66,6 @@ Tier.
 
 **"Tier"** means one of the named subscription levels published at fabricator.studio. A Tier
 determines which parts of the Studio Pipeline your Seat unlocks.
-
-**"Substrate"** means the tools listed in section 3.6, which are free to use in every state
-and are not gated by a Seat.
 
 **"Account"** means the FabricatorStudio account through which Seats are held and licensing is
 verified.
@@ -117,15 +116,20 @@ we move a capability out of the Tier you hold, you keep it for the remainder of 
 Period you have already paid for, and we will tell you before the renewal that changes it.**
 You may cancel before that renewal under section 4.3 and owe nothing further.
 
-**3.6 The Substrate is free, in every state.** The following tools are free to use whether or
-not you hold a Seat, whether or not a Seat has lapsed, and with no Account required:
+**3.6 What runs without a Seat, stated plainly.** Almost nothing, and we would rather you
+read that here than discover it after paying.
 
-the installer and uninstaller; the Bridge toolbar; Project Setup; Settings; Scene Tools;
-Clipboard; Name Tools; Selection Helpers; Create Objects; Snap; Symmetry; Axis; Scene Cleanup;
-Batch Runner; and the pipeline reload commands.
+**Without a current Seat the Studio Pipeline does not load.** No toolbar, no tool menu, no
+shelves, no hotkeys, no marking menu, and no project configuration applied to your Maya
+session. What remains is the licence screen, and one menu row that reopens it if you close it.
+That row is the door you sign in at; it is not a tool and it opens nothing else.
 
-We may add to this list. **We will not remove from it**, and a tool named here does not stop
-being free because a subscription ended.
+The installer and the uninstaller work without a Seat, because you need the first to install
+the software and the second to remove it cleanly. Nothing else does.
+
+**This is a change from Prior Versions and it is deliberate.** Under the Business Source
+License the whole toolset ran for free below a revenue threshold. From 2.0 there is no such
+threshold and no unpaid mode. Section 6 is what makes that honest: it does not reach back.
 
 **3.7 Organizations.** Where you subscribe on behalf of an organization, you confirm you are
 authorised to bind it, and this Agreement binds it. An organization needs one Seat for each
@@ -213,11 +217,11 @@ ordinary Maya nodes. It opens, it animates, it exports through Maya, and it does
 permission. Scenes, rigs, and files you have already produced are unaffected by a lapse,
 permanently.
 
-**5.3 The Substrate keeps working.** Every tool listed in section 3.6 remains available and
-free.
+**5.3 What stops.** The Studio Pipeline stops loading, as section 3.6 describes. The licence
+screen remains, so you can subscribe again at any time and everything comes straight back;
+nothing has to be reinstalled and nothing has to be recovered.
 
-**5.4 What stops.** The tools your Tier unlocked stop building and editing new work. That is
-the whole of the effect.
+**5.4 Nothing else stops.** The effect is on the software running, and on nothing you own.
 
 **5.5 Your project configurations stay put.** They live outside the install tree and are not
 removed by a lapse, an update, or an uninstall.
@@ -253,8 +257,8 @@ paying.
 
 ### 8. Accounts
 
-**8.1 When an Account is required.** An Account is required to hold a Seat and to unlock the
-Tiers. The Substrate in section 3.6 requires no Account.
+**8.1 When an Account is required.** An Account is required to hold a Seat, and a Seat is
+required for the Studio Pipeline to load at all. Installing and uninstalling need no Account.
 
 **8.2 Signing in.** We do not use passwords. You sign in with a one-time code sent to your
 email address. You are responsible for the security of that email account and for activity
