@@ -46,21 +46,22 @@ import { PLANS } from '../data/plans';
 const plan = (id: string) => PLANS.find((p) => p.id === id)!;
 
 const TIERS = [
-  // FREELANCE ANIMATOR (Adrian, 2026-09-03, hours after Control Rig shipped): "for those
-  // who just want the unreal control rig builder". It leads the row because it is the
-  // cheapest band and the widest door - Armature is free, so this buyer authors a skeleton
-  // for nothing and rigs in Unreal without ever opening Maya.
+  // FREELANCE ANIMATOR (Adrian, 2026-09-03): "It's the Tech Art + Animator package minus
+  // the Tech Art." The animation half - Anim Studio, the ANIM tab, Export All Animation
+  // Clips - plus the Unreal builder, and no rigging or skinning at all.
   //
-  // It is the only band sold in all three shapes. Its checks say what it does NOT carry,
-  // because the one thing a buyer must not misread here is that $4 buys the Maya pipeline.
+  // It leads the row because it is the cheapest band. Its checks END on what it does NOT
+  // carry, because the one thing a buyer must not misread at $4 is that it rigs.
+  // The weekly ladder is now a clean split: $4 the animation half, $6 the tech art half,
+  // $9 both, and the bundle undercuts the two halves bought together.
   {
     key: 'animator',
     name: 'FREELANCE ANIMATOR',
     price: '$4',
     per: '/ week',
     alt: 'or $15 / month, or $150 / year',
-    body: 'The Unreal Control Rig builder, on its own.',
-    checks: ['Unreal Control Rig builder', 'Armature advanced', 'No Maya tools', 'Weekly, monthly or yearly'],
+    body: 'The animation tools and the Unreal builder.',
+    checks: ['Anim Studio, and the exporter ANIM tab', 'Unreal Control Rig builder', 'Armature advanced', 'No rigging or skinning tools'],
     plans: [plan('animator_w'), plan('animator_m'), plan('animator_y')],
   },
   {
