@@ -6,7 +6,7 @@ import DocsLayout from '../../../layouts/DocsLayout.astro';
 import '../../../styles/designed-doc.css';
 
 const SUMMARY =
-  'A three-joint IK/FK arm with a full hand, a one-slider fist curl, and forearm twist. The free-core arm.';
+  'A three-joint IK/FK arm with a full hand, a one-slider fist curl, and forearm twist. The base arm.';
 
 const TITLE = 'IK ARM';
 const TRI = ['t-bone', 't-plasma', 't-ember'];
@@ -34,7 +34,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         <h2 id="ia-what" class="dd-label dd-label--plasma">What it does</h2>
         <p class="dd-lede">The standard arm, with a real hand</p>
       </div>
-      <p class="dd-prose ia-lede">IK Arm is the standard arm you drop onto a shoulder, elbow, and wrist. It gives you everything the basic IK arm does, plus a real hand and a little forearm twist, all in the <b class="b-plasma">free core</b>.</p>
+      <p class="dd-prose ia-lede">IK Arm is the standard arm you drop onto a shoulder, elbow, and wrist. It gives you everything the basic IK arm does, plus a real hand and a little forearm twist, all in the <b class="b-plasma">base</b>.</p>
       <div class="ia-you-get">
         <p class="ia-you-get__lede">You get:</p>
         <div class="dd-gets">
@@ -57,7 +57,7 @@ const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap'
         <li class="dd-step dd-step--plasma"><span class="dd-step__num">1</span><p>Drop IK Arm on a three-joint <b>shoulder to wrist chain</b> and build the rig.</p></li>
         <li class="dd-step dd-step--plasma"><span class="dd-step__num">2</span><p>Place the hand with the IK control, pose the arm with the FK controls, and blend between them with the switch (use <b class="b-plasma">Match</b> so the pose holds when you flip).</p></li>
         <li class="dd-step dd-step--plasma"><span class="dd-step__num">3</span><p>Curl the whole hand with the <b>fist control</b> by the wrist, then fine-tune any single finger with its own control on top.</p></li>
-        <li class="dd-step dd-step--ember"><span class="dd-step__num">4</span><p>Reach for IK Arm when the free rig is all you need. Step up to <b class="b-ember">Ribbon Arm</b> when you want premium twist on the upper arm and forearm.</p></li>
+        <li class="dd-step dd-step--ember"><span class="dd-step__num">4</span><p>Reach for IK Arm when the base rig is all you need. Step up to <b class="b-ember">Ribbon Arm</b> when you want premium twist on the upper arm and forearm.</p></li>
       </ol>
     </section>
 
