@@ -3,7 +3,7 @@
 // one download page). NewsletterPop still rides here because the nav is on every page, so
 // the post-download ask exists wherever installer links do (the store's own download
 // buttons carry data-installer).
-import NewsletterPop from './NewsletterPop.astro';
+// import NewsletterPop from './NewsletterPop.astro';  // unmounted, see below
 import CoffeeButton from './CoffeeButton.astro';
 
 // The current page's tab reads plasma (Adrian, 2026-08-19). Prefix match, so a docs
@@ -47,7 +47,17 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
     </div>
   </div>
 </nav>
-<NewsletterPop />
+{/* UNMOUNTED 2026-09-02, at the 2.0 switch. Two reasons, and the first one alone is
+    enough: this popup only ever fired on a [data-installer] click, and the free download
+    that produced those is gone from every page, so it can no longer be triggered at all.
+    The second is why it could not just be left sitting there: its markup ships on EVERY
+    page and says "The toolset is free", which after the switch is a false price claim on
+    all 54 of them.
+
+    THE COMPONENT FILE IS DELIBERATELY NOT DELETED. Adrian: "We'll make a freebie after we
+    ship the paid version." When that exists this is one line to put back, and his copy is
+    untouched inside it rather than rewritten by me. */}
+{/* <NewsletterPop /> */}
 <script is:inline>
   (function () {
     var burger = document.querySelector('.navbar__burger');
