@@ -33,7 +33,20 @@ const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
-const TRACKER = 'https://github.com/adrianmelian/FabricatorStudio/issues';
+// THE PUBLIC TRACKER IS GONE, 2026-09-02. Adrian took the toolset repository private at
+// the 2.0 switch, so every github.com/adrianmelian/FabricatorStudio URL is a 404 for
+// everyone but him. This page was built ON that tracker: a CTA into it, a deep link per
+// issue number, and a paragraph explaining that it is public on purpose.
+//
+// EVERYTHING BELOW IS A STAND-IN AND HIS TO RULE. The right fix is almost certainly a
+// separate public issues-only repository, which restores all three at the cost of one
+// line here and keeps Reggie's report_bug working. That is a new public repo under his
+// name, so it is his call and not mine to make.
+//
+// Until then: the CTA is an email, the issue numbers render as plain references instead
+// of dead links, and the "public on purpose" paragraph says what is actually true.
+const TRACKER: string | null = null;
+const BUG_MAIL = 'mailto:contact@fabricator.studio?subject=Bug%20report';
 
 // #10 (canvas rename ping-pong, S2-major) FIXED before v1 shipped, confirmed by Adrian
 // 2026-07-20. Deliberately NOT added to the changelog: no public release ever carried the
@@ -172,7 +185,7 @@ const LIMITS = [
       <h2 id="ki-honest-t" class="ki-honest__title">Where this actually is</h2>
       <p class="ki-prose">The FabricatorStudio Maya Toolset v1 is production tested. It has rigged real characters and shipped them into Unreal. But it has been tested by <b>one person, on one machine, on one version of Maya</b>. You are among the first people running it anywhere else, which is exactly why some of this list exists and why the rest of it will grow.</p>
       <p class="ki-prose">That is not a disclaimer, it is the reason your bug reports matter more right now than they ever will again. <b class="b-plasma">If something breaks, please say so.</b></p>
-      <a class="ki-cta" href={TRACKER} target="_blank" rel="noopener">Report an issue &rarr;</a>
+      <a class="ki-cta" href={TRACKER ?? BUG_MAIL} target={TRACKER ? '_blank' : undefined} rel={TRACKER ? 'noopener' : undefined}>Report an issue &rarr;</a>
     </section>
 
     {/* Armature first and visually banded, because it is the newest product and the one a
@@ -209,7 +222,9 @@ const LIMITS = [
         <div class="ki-card">
           <div class="ki-card__top">
             <span class={`ki-chip ki-chip--${it.sev === 'Major' ? 'ember' : 'plasma'}`}>{it.sev.toUpperCase()}</span>
-            <a class="ki-card__num" href={`${TRACKER}/${it.id}`} target="_blank" rel="noopener">#{it.id}</a>
+            {TRACKER
+              ? <a class="ki-card__num" href={`${TRACKER}/${it.id}`} target="_blank" rel="noopener">#{it.id}</a>
+              : <span class="ki-card__num">#{it.id}</span>}
             <span class={`ki-chip ${it.status.startsWith('Fix') ? 'ki-chip--fixed' : 'ki-chip--quiet'}`}>{it.status.toUpperCase()}</span>
           </div>
           <h3 class="ki-card__title">{it.title}</h3>
@@ -250,7 +265,13 @@ const LIMITS = [
         <span class="ki-rule" aria-hidden="true"></span>
         <p class="ki-prose ki-prose--card">We support the <b>latest two releases of Maya</b>. Older versions may work and are not tested.</p>
         <span class="ki-rule" aria-hidden="true"></span>
-        <p class="ki-prose ki-prose--card">Bugs go in the <a href={TRACKER} target="_blank" rel="noopener">issue tracker</a>, not email. It is public on purpose: a bug someone else already hit is a bug you can read the answer to. <b>Reggie</b>, the AI TA built into the toolset, can file one for you with the details already filled in.</p>
+        {/* HIS COPY, MINIMALLY CHANGED AND HIS TO RESTORE. The original read "Bugs go in
+            the issue tracker, not email. It is public on purpose: a bug someone else
+            already hit is a bug you can read the answer to." Both halves stopped being
+            true when the repository went private. The sentence about Reggie is untouched
+            and still true - it files with the details filled in, it just has nowhere
+            public to file to until he rules on a tracker. */}
+        <p class="ki-prose ki-prose--card">Bugs come to <a href={BUG_MAIL}>contact@fabricator.studio</a>, with the version of Maya and what you were doing when it happened. <b>Reggie</b>, the AI TA built into the toolset, can put a report together for you with the details already filled in.</p>
         <span class="ki-rule" aria-hidden="true"></span>
         <p class="ki-prose ki-prose--card">Fixed issues move to the <a href="/changelog/">changelog</a>.</p>
       </div>

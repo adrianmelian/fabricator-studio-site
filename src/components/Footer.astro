@@ -24,8 +24,15 @@ import { LINKS } from '../data/links';
     <a href="/licensing/">Licensing</a>
     <a href="/changelog/">Changelog</a>
     <a href="/known-issues/">Known issues</a>
-    <a href="https://github.com/adrianmelian/FabricatorStudio" target="_blank" rel="noopener">Source</a>
-    <a href="https://github.com/adrianmelian/FabricatorStudio/issues/new/choose" target="_blank" rel="noopener">Report a bug</a>
+    {/* THE SOURCE LINK IS GONE, 2026-09-02. Adrian took the toolset repository private
+        at the 2.0 switch - "naw let's go private" - so the URL that stood here is a 404
+        for everyone who is not him. Removed rather than repointed: there is no public
+        source to link, and a footer link to nothing is worse than no link.
+
+        THE BUG LINK IS A STAND-IN AND NEEDS HIS RULING. The tracker went private with
+        the repo. This mailto keeps the door open; it is not a replacement for a public
+        tracker, and /known-issues/ still explains a model that assumed one. */}
+    <a href={'mailto:contact@fabricator.studio?subject=Bug%20report'}>Report a bug</a>
     <a href="/privacy/">Privacy</a>
     <a href="mailto:adrian@fabricator.studio">Contact</a>
     {LINKS.community.map((c) => (

@@ -15,6 +15,9 @@ export const LINKS = {
   // (Adrian 2026-07-23): the email gate is retired, Download buttons link here directly.
   installer: 'https://downloads.fabricator.studio/dl/7766c9bad233637b/Fabricator.zip',
   tutorialsChannel: 'https://www.youtube.com/@fabricator.studio',
+  // DEAD SINCE 2026-09-02: the toolset repository is private. Nothing renders these
+  // today (verified by grep), so they are kept as a record of where they pointed rather
+  // than silently deleted. Do not put either back on a page without a live URL.
   wiki: 'https://github.com/adrianmelian/FabricatorStudio',
   repo: 'https://github.com/adrianmelian/FabricatorStudio',
   // Buy Me a Coffee, opened 2026-08-29 (Adrian). Ships as a PLAIN LINK and never their
