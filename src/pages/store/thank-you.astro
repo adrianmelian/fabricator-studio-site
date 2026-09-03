@@ -1,18 +1,24 @@
 ---
 // Post-purchase delivery page for the Advanced Ribbon Modules (2026-07-23).
 //
-// This page IS the fulfillment step: Stripe Managed Payments' payment link redirects here
-// after a successful checkout (MP payment links don't support custom confirmation text, so
-// the download can't ride the receipt). The download URL below is the UNLISTED sales key on
-// R2 — same obscurity model as every delivery key: unguessable, linked only from this page,
-// rotate it if it ever leaks (one edit here, one upload). noindex: this page must never be
-// reachable through search, only through the checkout redirect.
+// RETIRED 2026-09-03. The delivery keys are deleted from R2 and the pack is no longer
+// sold standalone: from 2.0 the ribbon modules are part of the subscription (EULA
+// section 6). The standalone buy link went null at the switch, so nothing redirects here
+// any more and the page has no audience.
+//
+// KEPT RATHER THAN DELETED for one reason: a pre-switch Stripe receipt could still send
+// somebody here, and a page that explains where the modules went is worth more than a
+// 404. Adrian confirmed nobody bought the pack ("nobody paid for the ribbons anyway"),
+// which is why the R2 objects could go at all - a $199 perpetual licence with a purchaser
+// behind it could not have been stranded.
+//
+// Do NOT re-add a download button. There is no object to point it at, and the modules
+// arrive with a subscription now.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import BracketButton from '../../components/BracketButton.astro';
 
-const RIBBON_ZIP = 'https://downloads.fabricator.studio/dl/fa58cfdce06d6757/FabricatorRibbonPack.zip';
 ---
 <BaseLayout
   title="Thank you | FabricatorStudio"
@@ -24,21 +30,16 @@ const RIBBON_ZIP = 'https://downloads.fabricator.studio/dl/fa58cfdce06d6757/Fabr
   <section id="thanks">
     <p class="ty-eyebrow">ADVANCED RIBBON MODULES</p>
     <h1 class="ty-head">Thank you. They're yours.</h1>
-    <p class="ty-sub">One payment, permanent license, no renewal. Your receipt arrives by email from Stripe.</p>
+    <p class="ty-sub">If you bought the pack before FabricatorStudio 2.0, it stays yours on the terms you bought it under. Your receipt arrives by email from Stripe.</p>
 
     <div class="ty-card">
-      <BracketButton kind="hard" href={RIBBON_ZIP} label="Download the modules" event="thankyou-download" />
-      <p class="ty-keep">Keep this link: it always serves the current build of the pack, so an update is just a re-download.</p>
+      <BracketButton kind="hard" href="/account/" label="Go to your account" event="thankyou-account" />
+      <p class="ty-keep">The ribbon modules are part of the Studio Pipeline subscription now, and arrive with it. They are no longer a separate download. If you bought the standalone pack and need it, email <a href="mailto:contact@fabricator.studio">contact@fabricator.studio</a>.</p>
     </div>
 
     <div class="ty-steps">
-      <h2 class="ty-steps__head">Install (about a minute)</h2>
-      <ol class="ty-steps__list">
-        <li>Unzip the download anywhere.</li>
-        <li>With Maya open (Fabricator already installed), drag <code>RibbonPack_Install.py</code> into the viewport.</li>
-        <li>Click <b>Install</b>. The ribbon Spine, Arm, and Leg appear in the Build Modules picker right away.</li>
-      </ol>
-      <p class="ty-note">Needs the FabricatorStudio toolset v1.1.0 or newer. Anything misbehaving? <a href="mailto:contact@fabricator.studio">contact@fabricator.studio</a> is the fastest way to reach me.</p>
+      <h2 class="ty-steps__head">Where the modules are now</h2>
+      <p class="ty-note">Ribbon Spine, Arm and Leg ship inside the Studio Pipeline from 2.0 and appear in the Build Modules picker with no separate install. Every tier from Freelance Tech Art + Animation up carries them. Anything misbehaving? <a href="mailto:contact@fabricator.studio">contact@fabricator.studio</a> is the fastest way to reach me.</p>
     </div>
   </section>
 
