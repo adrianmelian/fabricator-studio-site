@@ -1,6 +1,6 @@
 # ARMATURE END USER LICENSE AGREEMENT
 
-**Version 1.0. Effective 2026-08-01. FabricatorStudio LLC, Westminster, Colorado.**
+**Version 1.1. Effective 2026-09-02. FabricatorStudio LLC, Westminster, Colorado.**
 
 This Agreement is between you and FabricatorStudio LLC ("FabricatorStudio", "we", "us"). It
 covers Armature, the desktop application, including updates we provide to you.
@@ -288,9 +288,15 @@ you.
 
 Your Seat is perpetual, and we will not let our own infrastructure take that away from you.
 
-If we permanently cease to operate the licensing service, we will make available an update or a
-means of unlocking Armature that removes the Activation requirement for Seats already
-purchased, so that the software you paid for continues to work.
+If we permanently cease to operate the licensing service, we will use commercially reasonable
+efforts to make available an update or a means of unlocking Armature that removes the
+Activation requirement for Seats already purchased, so that the software you paid for
+continues to work.
+
+We say commercially reasonable efforts rather than a flat promise for one reason, and it is
+not a hedge. The circumstance that triggers this section may be the one in which
+FabricatorStudio no longer exists to act, and a promise nobody is left to keep is worth less
+than an honest one. Nothing here reduces what we will do if we are able to.
 
 ### 17. Changes to this Agreement
 
