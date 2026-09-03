@@ -1,0 +1,92 @@
+---
+// The Studio Pipeline EULA page. Same shape as /armature/eula/ on purpose: two agreements
+// from one studio should read as one house style, and the reader who has seen one knows
+// where to look in the other.
+//
+// SOURCE OF TRUTH IS src/legal/pipeline-eula.md, RENDERED RATHER THAN RETYPED. The same
+// rule the Armature page carries applies here and for the same reason: the numbered
+// sections cross-reference each other by number and by clause letter (13(c), 13(d), 13(e)
+// in section 17; sections 3.6, 4.3, 4.7, 5, 6, 7, 24 throughout), so reflowing or
+// renumbering in this file would silently break the contract. Never edit licence text here.
+//
+// Written 2026-09-02 for 2.0. BSL 1.1 cannot express a subscription, which is the whole
+// reason this document exists; section 6 is the part that keeps every 1.x holder's grant
+// intact, and it is the section to check first if anyone ever proposes an edit.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import NavBar from '../../../components/NavBar.astro';
+import Footer from '../../../components/Footer.astro';
+import '../../../styles/designed-doc.css';
+import { Content as Eula } from '../../../legal/pipeline-eula.md';
+
+const TITLE = 'EULA';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+const UPDATED = 'Version 2.0, effective on the release of Studio Pipeline 2.0';
+---
+<BaseLayout
+  title="Studio Pipeline EULA | FabricatorStudio"
+  description="The Studio Pipeline end user licence agreement: a per-artist subscription, what a lapse does and does not do, and the grant every version published before 2.0 keeps permanently."
+>
+  <NavBar />
+
+  <article class="dd eu">
+    <header class="dd-header">
+      <div class="dd-eyebrow">STUDIO PIPELINE &middot; END USER LICENCE AGREEMENT</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) => <span class={g.cls}>{g.ch}</span>)}
+      </h1>
+      <p class="dd-summary">A subscription, one Seat per artist. {UPDATED}.</p>
+      <p class="eu-crumb">
+        Prices and Tiers are on the <a href="/tools/">toolset page</a>, and what activation sends
+        is in the <a href="/privacy/">privacy policy</a>. Neither lives in the licence on purpose:
+        on a page they stay a page edit, in a contract they become an amendment. Every version
+        published before 2.0 keeps its <a href="/licensing/">Business Source License</a> grant
+        permanently &mdash; section 6.
+      </p>
+    </header>
+
+    <div class="eu-body">
+      <Eula />
+    </div>
+  </article>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .eu { padding-bottom: 2rem; }
+  .eu .dd-header { align-items: center; text-align: center; }
+  .eu .dd-title { justify-content: center; }
+  .eu .dd-summary { margin-inline: auto; }
+  .eu-crumb { margin: 0 auto; max-width: 44rem; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); }
+  .eu-crumb a { color: var(--bone); }
+
+  .eu-body {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    color: var(--bone-dim);
+  }
+
+  /* The source markdown opens with its own H1. The page already carries one in the designed
+     header, so this is hidden rather than deleted: the file is the contract of record. */
+  .eu-body :global(h1) { display: none; }
+
+  .eu-body :global(h3) {
+    margin: 2.25rem 0 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.125rem;
+    color: var(--bone);
+    scroll-margin-top: 5rem;
+  }
+  .eu-body :global(p) { margin: 0 0 1rem; line-height: 1.75; text-wrap: pretty; }
+  .eu-body :global(strong) { color: var(--bone); }
+  .eu-body :global(a) { color: var(--bone); }
+  .eu-body :global(ul), .eu-body :global(ol) { margin: 0 0 1rem; padding-left: 1.5rem; line-height: 1.75; }
+  .eu-body :global(li) { margin-bottom: 0.5rem; }
+  .eu-body :global(hr) { border: 0; border-top: 1px solid var(--iron-2); margin: 2rem 0; }
+  .eu-body :global(code) { font-family: var(--font-mono); color: var(--bone); }
+</style>
