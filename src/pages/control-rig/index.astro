@@ -1,0 +1,218 @@
+---
+// /control-rig/ — the FS Control Rig product page.
+//
+// IT IS TWO WORDS (Adrian, 2026-09-03: "It's called Control Rig not ControlRig btw").
+// Everywhere a reader can see it. The exceptions are not names of ours and do not move:
+// ControlRigDynamics is Epic's own plugin, `controlrig.plugin` is the licence capability
+// key, and /control-rig/ is the URL.
+//
+// NEW 2026-09-03 on Adrian's instruction ("Start a new page called Control Rig"), the third
+// of the three product pages the 2026-08-31 naming ruling calls for: Armature, Pipeline,
+// Control Rig (StandingOrders/Knowledge/product-state.md, Naming).
+//
+// THREE CARDS, EACH WITH ITS OWN VIDEO (Adrian, 2026-09-03). His card titles and his one
+// line under each, verbatim; card 1's title is his correction the same day, "Procedurally
+// built" over "Procedural Control Rigs". All three clips are in as of that afternoon — he
+// shot 2 and 3 himself. The unfinished-plate branch below stays anyway: a fourth card, or a
+// clip pulled for a re-shoot, must hold the row's shape rather than collapse it.
+//
+// CARD 1 IS THE PAGE'S OLD TOP VIDEO, PING-PONGED (his ask). proof-controlrig-pingpong.mp4
+// is the 7.007s original followed by its own reverse with the duplicate seam frame dropped,
+// so it runs 13.972s and loops with no jump at either end. Built with ffmpeg from
+// proof-controlrig.mp4, which stays in place because the homepage still uses it.
+//
+// EVERY VIDEO AUTOPLAYS (his ask), through the site's own LazyVideos component: muted,
+// looping, inline, nothing downloads or plays until it nears the viewport, and
+// prefers-reduced-motion gets the poster still and no motion at all. That component is the
+// one place a playback fix lands, so this page must not hand-roll its own player.
+//
+// NO DOWNLOAD DOOR YET. The 1.0.5 artifact is cut but the account page's download row is
+// held until the site pass is done (Website lane, Web/2026-09-03_controlrig-download-row/
+// PREPARED.md). When it goes live, the door is the account page, not a public link.
+//
+// No Control Rig docs exist on the site, so there is no "Read the docs" door either. The
+// tiers on /tools/ are the one door this page has.
+//
+// "PREFLIGHT" IS AN ILLEGAL TERM (Adrian, 2026-09-03: "Preflight is an illegal term to use
+// in Fabricator Studio. It's called Pre build"). The check step is PRE BUILD on every
+// customer-facing surface. Do not reintroduce it from the plugin's README or its Python,
+// which still carry the old word internally.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import NavBar from '../../components/NavBar.astro';
+import Footer from '../../components/Footer.astro';
+import SectionHead from '../../components/SectionHead.astro';
+import BracketButton from '../../components/BracketButton.astro';
+import LazyVideos from '../../components/LazyVideos.astro';
+
+const TITLE = 'Control Rig | FabricatorStudio';
+const DESCRIPTION =
+  'FS Control Rig for Unreal Engine 5.8. An Animator-Friendly Modular Control Rig, built in one click from the same export that rigs your character in Maya.';
+
+// Adrian's three cards. Title and line are HIS WORDS, verbatim; nothing here is a rewrite.
+// Rewritten by him 2026-09-03 in the afternoon, replacing his own morning one-liners. ONE
+// character was changed and he was told: he typed "Prodecurally Built." and the word is
+// Procedurally, which he had ruled himself hours earlier. Everything else stands exactly as
+// he wrote it, punctuation and all, including the trailing full stops on the titles.
+// A card carries EITHER a clip or a still, and `video: null, image: null` renders the
+// unfinished plate. Cards 2 and 3 are the Captain's own captures, supplied 2026-09-03 from
+// D:/Videos/FabricatorStudio/ControlRig/ (Prebuild.mov, Dynamics.mov) and encoded for the
+// web: audio stripped, since an autoplaying video is always muted, which also took Prebuild
+// from 13.6 MB to 1.1 MB and Dynamics from 28.4 MB to 2.7 MB with no change to the picture.
+// NEITHER IS PING-PONGED, unlike card 1: card 2 runs a check list through to a finished rig,
+// and backwards it would show the checks un-checking themselves. Each poster is that clip's
+// own last frame, so a card shows its payoff before it plays and to anyone on reduced
+// motion.
+const CARDS = [
+  {
+    title: 'Procedurally Built.',
+    accent: 'cobalt',
+    line: 'All FS exports now carry rig build data, application agnostic. Build FabricatorStudio Modular rigs, procedurally and automatically when using Armature to build your skeleton, both in Maya and Unreal.',
+    video: '/proof/proof-controlrig-pingpong.mp4',
+    poster: '/proof/proof-controlrig.jpg',
+    image: null,
+    alt: 'The same character and control rig shown in Maya and then in Unreal.',
+  },
+  {
+    title: 'Quick and Friendly.',
+    accent: 'plasma',
+    line: 'Pre build inspection checks before it builds and will help you fix your skeleton. Animator-Friendly Rigs built by a AAA veteran.',
+    video: '/proof/controlrig-prebuild.mp4',
+    poster: '/proof/controlrig-prebuild.jpg',
+    image: null,
+    alt: 'The FS Control Rig builder checking a character, then the built rig in the Unreal Control Rig editor.',
+  },
+  {
+    title: 'Auto Dynamics.',
+    accent: 'ember',
+    line: 'Using the Dynamic Chain in Armature will automatically apply dynamic physics on your chain, with fully customizable presets.',
+    video: '/proof/controlrig-dynamics.mp4',
+    poster: '/proof/controlrig-dynamics.jpg',
+    image: null,
+    alt: 'A cape simulating on the Archangel character in the Unreal Control Rig editor.',
+  },
+];
+---
+<BaseLayout title={TITLE} description={DESCRIPTION}>
+  <NavBar />
+
+  <section id="cr-intro">
+    <SectionHead
+      eyebrow="FABRICATORSTUDIO"
+      title="UNREAL PROCEDURAL CONTROL RIG"
+      sub="An Animator-Friendly Modular Control Rig in Unreal Engine 5.8, built in one click from the same export that rigs your character in Maya. No manual rigging."
+    />
+    <div class="cr-ctas">
+      <BracketButton kind="hard" href="/tools/#tiers-20" label="See the plans" event="controlrig-plans" />
+    </div>
+  </section>
+
+  <section id="cr-cards">
+    <div class="cr-grid">
+      {CARDS.map((c) => (
+        <article class="cr-card">
+          <h3 class={'cr-card__title cr-card__title--' + c.accent}>{c.title}</h3>
+          <div class="cr-card__media">
+            {c.video ? (
+              <video
+                class="cr-card__video"
+                data-lazyvid
+                src={c.video}
+                poster={c.poster}
+                muted
+                loop
+                playsinline
+                preload="none"
+                aria-label={c.alt}
+              ></video>
+            ) : c.image ? (
+              <img class="cr-card__still" src={c.image} alt={c.alt} loading="lazy" decoding="async" width="1145" height="728" />
+            ) : (
+              /* Visibly unfinished, never a silent gap: the card holds its shape and says
+                 what belongs here, so a missing clip reads as pending rather than broken. */
+              <div class="cr-card__plate" aria-hidden="true"><span>CLIP PENDING</span></div>
+            )}
+          </div>
+          <p class="cr-card__line">{c.line}</p>
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <section id="cr-facts">
+    <dl class="cr-facts">
+      <div class="cr-fact">
+        <dt>Engine</dt>
+        <dd>Unreal Engine 5.8. Dynamic chains need the engine's ControlRigDynamics plugin enabled.</dd>
+      </div>
+      <div class="cr-fact">
+        <dt>Reads</dt>
+        <dd>An Armature 2.1.8 or newer export, or the Studio Pipeline's Maya exporter. Older exports are refused by name and asked to re-export.</dd>
+      </div>
+      <div class="cr-fact">
+        <dt>Included in</dt>
+        {/* commercial-model.md: the Animation band, Pro and Enterprise carry it; base
+            Freelance Tech Art does not. Tier names as renamed 2026-09-02. */}
+        <dd>Freelance Tech Art + Animation, Pro and Enterprise. Not in base Freelance Tech Art.</dd>
+      </div>
+    </dl>
+  </section>
+
+  <Footer />
+  {/* After the videos, per the component's own contract. */}
+  <LazyVideos />
+</BaseLayout>
+
+<style>
+  .cr-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.75rem; }
+
+  .cr-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
+  @media (max-width: 860px) { .cr-grid { grid-template-columns: 1fr; } }
+
+  .cr-card { display: flex; flex-direction: column; gap: 0.9rem; }
+  /* The frame owns the aspect, so all three cards line up whether their clip has landed
+     yet or not. 4:3 matches the clip we have. */
+  .cr-card__media {
+    aspect-ratio: 4 / 3;
+    border-radius: 18px;
+    overflow: hidden;
+    background: var(--carbon);
+    border: 1px solid var(--iron-2);
+    box-shadow: var(--shadow-lg);
+  }
+  .cr-card__video { display: block; width: 100%; height: 100%; object-fit: cover; }
+  /* CONTAIN, not cover: this one is a screenshot of a window, and cropping it to fill a
+     4:3 frame would cut the checks off the side. It sits on the frame's own ground. */
+  .cr-card__still { display: block; width: 100%; height: 100%; object-fit: contain; }
+  .cr-card__plate {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: repeating-linear-gradient(135deg, var(--carbon) 0 12px, var(--iron) 12px 24px);
+  }
+  .cr-card__plate span {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.3em;
+    color: var(--bone-faint);
+  }
+  /* ONE ACCENT PER CARD (Adrian, 2026-09-03: "give each title of the cards a distinct
+     color"). Each is the token whose own stated meaning fits the card: COBALT is the
+     structural accent, the skeleton and the rig data this card is about; PLASMA is the
+     functional green the passing checks are already drawn in; EMBER carries the dynamics.
+     One line each to swap if he wants them ordered differently. */
+  .cr-card__title { margin: 0; font-size: 1.25rem; line-height: 1.3; text-wrap: pretty; }
+  .cr-card__title--cobalt { color: var(--cobalt); }
+  .cr-card__title--plasma { color: var(--plasma); }
+  .cr-card__title--ember  { color: var(--ember); }
+  /* Bone, not bone-dim: his call, and it makes the card copy read as body text rather than
+     as a caption under a picture. */
+  .cr-card__line { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone); text-wrap: pretty; }
+
+  .cr-facts { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
+  @media (max-width: 860px) { .cr-facts { grid-template-columns: 1fr; } }
+  .cr-fact { display: flex; flex-direction: column; gap: 0.4rem; }
+  .cr-fact dt { font-family: var(--font-mono); font-weight: 700; font-size: 0.8125rem; letter-spacing: 0.3em; color: var(--bone); }
+  .cr-fact dd { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
+</style>

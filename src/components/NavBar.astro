@@ -10,6 +10,8 @@ import CoffeeButton from './CoffeeButton.astro';
 // subpage lights Docs and /armature/eula/ lights Armature; the homepage lights none.
 const path = Astro.url.pathname;
 const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active' : '');
+// The Toolset entry lights when any of its three pages is the current one.
+const groupActive = ['/armature/', '/tools/', '/control-rig/'].some((h) => path.startsWith(h)) ? ' navbar__tab--active' : '';
 ---
 <nav class="navbar">
   <a class="navbar__brand" href="/">
@@ -27,9 +29,27 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
         the two doors hold the right. On narrower desktops the group falls back into the
         row, and on mobile the wrapper dissolves into the dropdown. */}
     <div class="navbar__tabs">
-      {/* Armature leads the row (Adrian, 2026-08-19). */}
-      <a class={'navbar__tab' + active('/armature/')} href="/armature/">Armature</a>
-      <a class={'navbar__tab' + active('/tools/')} href="/tools/">Toolset</a>
+      {/* ONE TOOLSET ENTRY WITH A DROPDOWN (Adrian, 2026-09-03: "its super crowded now up
+          there! Can we make a Toolset entry, which has a drop down to choose Armature, Maya
+          Pipeline, Unreal Control Rig?"). It replaced three product tabs in a row: Armature had
+          led the row since 2026-08-19, and the Pipeline and Control Rig tabs landed earlier the
+          same day and crowded the bar. The three product pages are the 2026-08-31 split in
+          product-state.md; the dropdown is how they share one tab.
+          CLOSED UNTIL PRESSED, AT EVERY WIDTH (Adrian, 2026-09-03, after the first cut left the
+          three pages sitting open under the heading in the narrow menu: "they're not behind a
+          menu. It's not really a drop down"). Desktop: hover or click opens the panel, Escape
+          and an outside click close it. Narrow: pressing Toolset unfolds the three pages
+          indented beneath it inside the burger menu; nothing shows until it is pressed. */}
+      <div class={'navbar__group' + groupActive}>
+        <button class={'navbar__tab navbar__tab--group' + groupActive} type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-toolset">
+          Toolset<span class="navbar__caret" aria-hidden="true"></span>
+        </button>
+        <div class="navbar__drop" id="nav-toolset">
+          <a class={'navbar__tab navbar__drop__item' + active('/armature/')} href="/armature/">Armature</a>
+          <a class={'navbar__tab navbar__drop__item' + active('/tools/')} href="/tools/">Maya Pipeline</a>
+          <a class={'navbar__tab navbar__drop__item' + active('/control-rig/')} href="/control-rig/">Unreal Control Rig</a>
+        </div>
+      </div>
       <a class={'navbar__tab' + active('/store/')} href="/store/">Downloads</a>
       <a class={'navbar__tab' + active('/docs/')} href="/docs/">Docs</a>
       <a class={'navbar__tab' + active('/tutorials/')} href="/tutorials/">Tutorials</a>
@@ -74,6 +94,31 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
       if (e.target.closest && e.target.closest('a, .nav-download')) setOpen(false);
     });
     document.addEventListener('keydown', function (e) { if (e.key === 'Escape') setOpen(false); });
+
+    // The Toolset dropdown. Hover opens it on desktop through CSS alone; the click path is
+    // for touch and keyboard, and for pinning it open. One group today, written for any.
+    var groups = document.querySelectorAll('.navbar__group');
+    function setGroup(group, open) {
+      group.classList.toggle('is-open', open);
+      var btn = group.querySelector('.navbar__tab--group');
+      if (btn) btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    }
+    Array.prototype.forEach.call(groups, function (group) {
+      var btn = group.querySelector('.navbar__tab--group');
+      if (!btn) return;
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        setGroup(group, !group.classList.contains('is-open'));
+      });
+    });
+    document.addEventListener('click', function (e) {
+      Array.prototype.forEach.call(groups, function (group) {
+        if (!group.contains(e.target)) setGroup(group, false);
+      });
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') Array.prototype.forEach.call(groups, function (g) { setGroup(g, false); });
+    });
   })();
 </script>
 <style>
@@ -154,6 +199,66 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
 
   .navbar__coffee { display: flex; align-items: center; }
 
+  /* The Toolset dropdown. The button is a tab in every respect (same type, same colours) so
+     the row reads as one voice; the caret is the only tell that it opens. */
+  .navbar__group { position: relative; display: flex; align-items: center; }
+  .navbar__tab--group {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 0;
+    background: none;
+    border: none;
+    font: inherit;
+    font-size: 0.8125rem;
+    letter-spacing: 0.06em;
+  }
+  .navbar__caret {
+    width: 0.4rem;
+    height: 0.4rem;
+    border-right: 1.5px solid currentColor;
+    border-bottom: 1.5px solid currentColor;
+    transform: translateY(-2px) rotate(45deg);
+    transition: transform 0.15s ease;
+  }
+  .navbar__group.is-open .navbar__caret,
+  .navbar__group:hover .navbar__caret { transform: translateY(1px) rotate(225deg); }
+  .navbar__drop {
+    display: none;
+    position: absolute;
+    top: calc(100% + 0.9rem);
+    left: 50%;
+    transform: translateX(-50%);
+    min-width: 13.5rem;
+    padding: 0.5rem 0;
+    flex-direction: column;
+    /* SOLID, not the bar's glass. The panel floats over page content rather than over the
+       scene the bar sits on, and at 0.92 the outlined section heading read straight through
+       the three links. A menu you can see the page through is not a menu. */
+    background: var(--carbon);
+    border: 1px solid var(--iron-2);
+    border-radius: 12px;
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.45);
+  }
+  /* A hover gap between the tab and the panel would close it on the way down: the
+     pseudo-element bridges the 0.9rem the panel floats below the bar. */
+  .navbar__drop::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: -1rem;
+    height: 1rem;
+  }
+  .navbar__group:hover .navbar__drop,
+  .navbar__group.is-open .navbar__drop { display: flex; }
+  .navbar__drop__item {
+    display: block;
+    padding: 0.6rem 1.25rem;
+    white-space: nowrap;
+  }
+  .navbar__drop__item:hover { background: rgba(232, 224, 208, 0.06); }
+
   /* Hamburger: hidden on desktop, shown on narrow screens. */
   .navbar__burger { display: none; }
 
@@ -205,6 +310,28 @@ const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active'
     .navbar__menu.is-open { display: flex; }
     .navbar__tabs { display: contents; }
     .navbar__menu .navbar__tab { padding: 0.85rem 0; border-bottom: 1px solid var(--iron); }
+    /* In the burger menu the dropdown is a collapsible row: Toolset with its caret, and the
+       three pages unfold indented beneath it ONLY when it is pressed. Hover does not open
+       it here, because on a touch screen a tap is also a hover and the list would never
+       close. Same specificity as the hover rule, so order decides: is-open is written last. */
+    .navbar__group { display: contents; }
+    .navbar__menu .navbar__tab--group { width: 100%; justify-content: space-between; }
+    .navbar__menu .navbar__drop {
+      position: static;
+      transform: none;
+      min-width: 0;
+      padding: 0;
+      background: none;
+      backdrop-filter: none;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+    }
+    .navbar__menu .navbar__drop::before { display: none; }
+    .navbar__menu .navbar__group:hover .navbar__drop { display: none; }
+    .navbar__menu .navbar__group.is-open .navbar__drop { display: flex; }
+    .navbar__menu .navbar__drop__item { padding-left: 1.25rem; }
+    .navbar__menu .navbar__drop__item:hover { background: none; }
     /* In the dropdown the button is a row like the tabs, left aligned rather than stretched. */
     .navbar__menu .navbar__coffee { padding: 0.85rem 0; justify-content: flex-start; }
   }

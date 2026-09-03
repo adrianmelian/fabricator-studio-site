@@ -1,5 +1,7 @@
 ---
-// /tools/ — the product page.
+// /tools/ — the Studio Pipeline product page. RENAMED from "The Toolset" 2026-09-03 on
+// Adrian's instruction; the URL stays /tools/ so every inbound link, the EULA at
+// /tools/eula/ and the docs tree keep resolving.
 //
 // New 2026-07-22 (website overhaul, two-door architecture). The homepage used to carry the
 // whole product story, which meant it could not grow: four tools today, AutoSkin next, more
@@ -22,7 +24,7 @@ import { PRICE_SWITCH_THROWN } from '../../data/launch';
 import BracketButton from '../../components/BracketButton.astro';
 ---
 <BaseLayout
-  title="The Toolset | FabricatorStudio"
+  title="Studio Pipeline | FabricatorStudio"
   description="Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an Unreal-ready contract."
 >
   <NavBar />
@@ -30,7 +32,7 @@ import BracketButton from '../../components/BracketButton.astro';
   <section id="toolset-intro">
     <SectionHead
       eyebrow="FABRICATORSTUDIO"
-      title="THE TOOLSET"
+      title="STUDIO PIPELINE"
       sub="A complete Maya to Unreal character pipeline. Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an engine-ready contract."
     />
     {/* THE FREE DOWNLOAD IS GONE (Adrian, 2026-09-02): "remove the free download from the
