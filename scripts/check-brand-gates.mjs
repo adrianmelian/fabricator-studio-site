@@ -95,8 +95,17 @@ for (const f of htmlFiles) {
 //      all. The exemption is deliberately the PAGE, not the string: a stray "open source"
 //      claim about our own products still fails everywhere else, verified against a planted
 //      violation when this was added.
+//   4. /tools/eula, added 2026-09-02, is the Studio Pipeline EULA and is exempt for the
+//      identical reason: its section 16 names third-party component licenses, Apache 2.0
+//      among them, and a contract has to state those accurately.
+//
+//      NOTE WHAT DID NOT GET AN EXEMPTION. Section 6 of that document could have leaned on
+//      this to say "open source" about our own BSL conversion. It says "the Change License
+//      named in that file" instead, which is both more accurate and needs no exemption at
+//      all. This page is exempt so a contract can state facts about OTHER people's
+//      licences. It is not a place to make a loose claim about ours.
 const LIC = /open[\s-]+source|apache/i;
-const LIC_EXEMPT_PAGE = /[\\/](licensing|armature[\\/]eula)[\\/]index\.html$/;
+const LIC_EXEMPT_PAGE = /[\\/](licensing|armature[\\/]eula|tools[\\/]eula)[\\/]index\.html$/;
 const FOUR_YEAR = 'Every version becomes fully open source four years after it ships, automatically.';
 for (const f of htmlFiles) {
   if (LIC_EXEMPT_PAGE.test(f)) continue;

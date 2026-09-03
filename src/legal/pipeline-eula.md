@@ -231,8 +231,8 @@ removed by a lapse, an update, or an uninstall.
 **Every version of the FabricatorStudio toolset published before Studio Pipeline 2.0 was
 published under the Business Source License 1.1, and it stays under that licence permanently.**
 Your rights in those versions are the rights that licence gave you, including its Additional
-Use Grant and including its conversion to an open source licence on the change date stated in
-it. **Nothing is clawed back, and this Agreement does not reach them.**
+Use Grant and including its conversion to the Change License named in that file, on the change
+date stated in it. **Nothing is clawed back, and this Agreement does not reach them.**
 
 If you hold a Prior Version, you may keep using it under its own terms for as long as you like.
 You do not need a Seat to do so. You need a Seat to use Studio Pipeline 2.0 or later.
