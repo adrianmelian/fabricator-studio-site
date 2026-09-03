@@ -427,10 +427,17 @@ parts of this section may not apply to you.
 
 **We will not let our own infrastructure be the thing that stops your work.**
 
-If we permanently cease to operate the licensing service, we will make available an update, a
-licence file, or another means of removing the Activation requirement, so that the Studio
-Pipeline you are subscribed to at that time continues to run on the machines you already have
-it on. We will also stop charging for Seats.
+**If we permanently cease to operate the licensing service, we will stop charging for Seats.**
+That part is unconditional.
+
+We will also use commercially reasonable efforts to make available an update, a licence file,
+or another means of removing the Activation requirement, so that the Studio Pipeline you are
+subscribed to at that time continues to run on the machines you already have it on.
+
+We say commercially reasonable efforts rather than a flat promise for one reason, and it is
+not a hedge. The circumstance that triggers this section may be the one in which
+FabricatorStudio no longer exists to act, and a promise nobody is left to keep is worth less
+than an honest one. Nothing here reduces what we will do if we are able to.
 
 This is a commitment about our shutting down. It is not a right to demand an unlock while the
 service is running.

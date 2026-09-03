@@ -9,6 +9,18 @@
 // To update: replace src/legal/armature-eula.md from the EULA seat's delivery. Never edit
 // the licence text in this file.
 //
+// THE UNMODIFIED-DELIVERY CHAIN WAS BROKEN ONCE, DELIBERATELY, 2026-09-02, on Adrian's
+// ruling. Section 16 was softened from an unconditional "we will unlock it if we shut down"
+// to commercially reasonable efforts, because the circumstance that triggers it may be the
+// one where the LLC no longer exists to act, and a promise nobody is left to keep is a
+// written commitment that cannot be met. The Studio Pipeline EULA section 20 carries the
+// identical wording; the two documents make the same promise on purpose and should be
+// edited together or not at all.
+//
+// That is an amendment to a LIVE agreement, so the file is Version 1.1 rather than a quiet
+// edit to 1.0. Section 17 means Armature 1.0 holders keep the unconditional promise they
+// accepted.
+//
 // Verified against the delivery independently: 20 numbered sections, section 7 runs a to f,
 // zero em-dashes, no draft or 0.x markers, no Early Access, no PyInstaller.
 import BaseLayout from '../../../layouts/BaseLayout.astro';
@@ -22,7 +34,7 @@ const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
-const UPDATED = 'Version 1.0, effective 1 August 2026';
+const UPDATED = 'Version 1.1, effective 2 September 2026';
 ---
 <BaseLayout
   title="Armature EULA | FabricatorStudio"
