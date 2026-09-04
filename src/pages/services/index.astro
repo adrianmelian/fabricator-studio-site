@@ -24,7 +24,46 @@ import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import ContactForm from '../../components/ContactForm.astro';
 import Masthead from '../../components/Masthead.astro';
+import { Image } from 'astro:assets';
 import '../../styles/designed-doc.css';
+
+// THE SERVICE CARD THUMBNAILS (Adrian, 2026-09-04). His renders, cut from one 1024x1024
+// contact sheet he made: ConceptArt/FabricatorStudio/2026-09-01_services-cards/cards_page_v1.png,
+// two columns by three rows, and he supplied the card-to-cell map himself. The sheet is
+// UNTOUCHED where it sits; these are new files cut from a read of it.
+//
+// The sheet's rows are not equal thirds -- the gutters measure at y=396 and y=682, so the
+// cells are 512x396, 512x285 and 512x342. Each was framed to a common 16:9 and resampled to
+// 512x288, so six cards cannot render at six different heights.
+//
+// ONE CROP IS NOT THE FULL CELL, and it is his to overrule: the clay figure is a nude base
+// mesh, and the full-height 16:9 window landed the bottom edge on its groin. It is cut
+// waist-up instead, which still carries the wireframe arm that makes the render mean
+// something. Say the word and it goes back to the full figure.
+import thumbRigging from '../../assets/services/rigging-on-demand.png';
+import thumbSupport from '../../assets/services/tools-support.png';
+import thumbConsulting from '../../assets/services/production-consulting.png';
+import thumbCustomTools from '../../assets/services/custom-tools-and-software.png';
+import thumbRigDev from '../../assets/services/custom-rig-development.png';
+import thumbTraining from '../../assets/services/team-training.png';
+
+// THE SECOND SHEET (Adrian, 2026-09-04): cards_page2_v1.png in the same ConceptArt run, and
+// again his own card-to-cell map. Three infographics for CUSTOM TOOLS and three for the
+// HOW IT WORKS steps.
+//
+// Cut differently from the first sheet, for two measured reasons. The rows here are even
+// thirds but the GUTTERS are wide (y 296-372 and 633-685, x 475-561), and splitting at the
+// even boundary pulled a green speck of step three's checkmark into step one's tile; the
+// bands are taken inside the gutters instead. And these are hard-edged objects rather than
+// figures, so each is FIT into the 512x288 frame rather than cropped to fill it -- a cover
+// crop sliced the top off the checkmark and the side off the app window. The plate is pure
+// black, so the letterbox is invisible against it.
+import thumbPipelines from '../../assets/services/pipelines.png';
+import thumbCustomSoftware from '../../assets/services/custom-software.png';
+import thumbOngoingHelp from '../../assets/services/ongoing-help.png';
+import thumbStep1 from '../../assets/services/step-1-meeting.png';
+import thumbStep2 from '../../assets/services/step-2-scope.png';
+import thumbStep3 from '../../assets/services/step-3-delivery.png';
 
 
 // CUT TO THE BONE, 2026-09-03. Adrian: "it's wayyyyyyy too long, and all over the place.
@@ -68,31 +107,37 @@ const services = [
   {
     accent: 'plasma',
     name: 'Rigging on demand',
+    thumb: thumbRigging,
     body: 'Production rigs built to your skeleton and your standards, from one hero character to a full cast.',
   },
   {
     accent: 'cobalt',
     name: 'Tools support',
+    thumb: thumbSupport,
     body: 'Priority support for studios running Fabricator, Armature or FS Control Rig in production, direct to the person who wrote them.',
   },
   {
     accent: 'ember',
     name: 'Production consulting',
+    thumb: thumbConsulting,
     body: 'An audit of the pipeline you already have: tools, rigs, export, and where the time is actually going. You get a written report and an order to fix things in.',
   },
   {
     accent: 'magma',
     name: 'Custom tools and software',
+    thumb: thumbCustomTools,
     body: 'Authoring tools, validators and standalone apps, built around how your team already works. Armature, on this site, is one of mine start to finish.',
   },
   {
     accent: 'plasma-dim',
     name: 'Custom rig development',
+    thumb: thumbRigDev,
     body: 'Face and body rigs designed for the production rather than adapted from a template, with the reusable components your team builds on afterwards.',
   },
   {
     accent: 'cobalt-dim',
     name: 'Team training',
+    thumb: thumbTraining,
     body: 'Sessions for your riggers, TDs and animators on your tools and your workflow, not a generic curriculum. Documentation and follow-up questions included.',
   },
 ];
@@ -104,10 +149,12 @@ const servicesCreed = 'One idea runs through all of it: you own what I build. Th
 const build = [
   {
     name: 'Pipelines',
+    thumb: thumbPipelines,
     body: 'Rigging, skinning and export, wired end to end from Maya into your engine.',
   },
   {
     name: 'Custom software',
+    thumb: thumbCustomSoftware,
     body: 'Standalone tools, when a script inside Maya is not the right shape for the job. Armature, the rigging app on this site, is one of mine.',
   },
   {
@@ -116,6 +163,7 @@ const build = [
     // name no longer describes the body, and fractional tech art was the only place on the
     // page that offer appeared.
     name: 'Ongoing help',
+    thumb: thumbOngoingHelp,
     body: 'Every tool comes with full documentation and training built in.',
   },
 ];
@@ -147,6 +195,11 @@ const build = [
         {services.map((v) => (
           <div class={`svc-card svc-card--${v.accent}`}>
             <h3 class="svc-card__name">{v.name}</h3>
+            {/* BETWEEN THE TITLE AND THE PARAGRAPH (Adrian, 2026-09-04). Decorative on
+                purpose: the h3 directly above already names the service, so an alt here
+                would make a screen reader read every card's subject twice. */}
+            <Image class="svc-card__thumb" src={v.thumb} alt="" widths={[320, 512]}
+              sizes="(max-width: 700px) 88vw, (max-width: 1000px) 42vw, 300px" loading="lazy" />
             <p class="svc-card__body">{v.body}</p>
           </div>
         ))}
@@ -162,6 +215,8 @@ const build = [
         {build.map((b) => (
           <div class="svc-card">
             <h3 class="svc-card__name">{b.name}</h3>
+            <Image class="svc-card__thumb" src={b.thumb} alt="" widths={[320, 512]}
+              sizes="(max-width: 700px) 88vw, (max-width: 1000px) 42vw, 300px" loading="lazy" />
             <p class="svc-card__body">{b.body}</p>
           </div>
         ))}
@@ -175,7 +230,14 @@ const build = [
       </div>
       <ol class="svc-steps svc-steps--ember">
         <li class="svc-step">
-          <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">1</span>
+          <div class="svc-step__head">
+            <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">1</span>
+            <h3 class="svc-step__name">Mindmeld</h3>
+          </div>
+          {/* SAME PLACE AS THE CARDS (Adrian, 2026-09-04): under the heading element,
+              above the paragraph. Here the heading element is the numeral. */}
+          <Image class="svc-step__thumb" src={thumbStep1} alt="" widths={[320, 512]}
+            sizes="(max-width: 700px) 88vw, (max-width: 1000px) 42vw, 300px" loading="lazy" />
           {/* HIS LINE, 2026-09-03. MEETING carries the bold, holding the pattern that each
               step bolds the thing the client gets.
               TWO CHARACTERS CHANGED AND HE WAS TOLD. He wrote "and establish partnership".
@@ -184,14 +246,24 @@ const build = [
           <p class="svc-step__body">Starts with a <b>meeting</b> about your current bottlenecks, and establishes a partnership.</p>
         </li>
         <li class="svc-step">
-          <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">2</span>
+          <div class="svc-step__head">
+            <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">2</span>
+            <h3 class="svc-step__name">Blueprint</h3>
+          </div>
+<Image class="svc-step__thumb" src={thumbStep2} alt="" widths={[320, 512]}
+            sizes="(max-width: 700px) 88vw, (max-width: 1000px) 42vw, 300px" loading="lazy" />
           {/* HIS LINE, 2026-09-03, replacing "A written scope with deliverables and a price.
               Nothing starts until you have it." One character changed and he was told:
               he typed "your teams needs" and it is your TEAM'S needs, a possessive. */}
           <p class="svc-step__body">A <b>written scope</b> with deliverables. Adapted to your team&rsquo;s needs.</p>
         </li>
         <li class="svc-step svc-step--ember">
-          <span class="svc-step__num svc-step__num--ember" aria-hidden="true">3</span>
+          <div class="svc-step__head">
+            <span class="svc-step__num svc-step__num--ember" aria-hidden="true">3</span>
+            <h3 class="svc-step__name">Delivery</h3>
+          </div>
+<Image class="svc-step__thumb" src={thumbStep3} alt="" widths={[320, 512]}
+            sizes="(max-width: 700px) 88vw, (max-width: 1000px) 42vw, 300px" loading="lazy" />
           {/* HIS LINE, 2026-09-03, replacing "Delivery in one focused burst, documented and
               handed over." The old one bolded a manner of working where steps 1 and 2 bold
               the thing the client receives, and "burst" read as rushed on a page selling
@@ -282,7 +354,26 @@ const build = [
   .svc-card__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
   .svc-card__name--plasma { color: var(--bone); }
   .svc-card__name--ember { color: var(--bone); }
+  /* THE THUMBNAIL (Adrian, 2026-09-04), between the name and the body. Inset rather than
+     bled to the card edge: every one of these renders sits on a pure black plate, and a
+     full-bleed black band against the card's iron-to-carbon gradient reads as a hole in the
+     card rather than as a picture in it. The hairline gives it an edge to sit on.
+     Aspect is fixed here as well as in the file, so a slow image cannot reflow the card. */
+  .svc-card__thumb,
+  .svc-step__thumb {
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    margin: 0.15rem 0 0.25rem;
+  }
   .svc-card__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
+  /* The numeral is 2.5rem of type and the card gap is 0.75rem; under a picture that reads
+     as a gap twice over, so this one is pulled back up against its number. */
+  .svc-step__thumb { margin-top: -0.15rem; }
 
   /* .svc-intro, .svc-audit* and the toned/wide card variants below are UNUSED as of
      2026-09-03: their markup came out in the copy cut. Kept, not deleted, because the
@@ -343,7 +434,12 @@ const build = [
   .svc-card--cobalt-dim { border-color: rgba(79, 132, 190, 0.45) !important; }
   .svc-grid--cobalt .svc-card { border-color: rgba(124, 184, 255, 0.3); }
   .svc-steps--ember .svc-step { border-color: rgba(255, 122, 61, 0.3); }
+  /* THE NUMERAL AND THE NAME SHARE A ROW (Adrian, 2026-09-04). Baseline-aligned, not
+     centred: the numeral is 2.5rem against the name's 1.125rem, and centring them makes the
+     name float in the middle of the digit rather than stand on the same line. */
+  .svc-step__head { display: flex; align-items: baseline; gap: 0.7rem; }
   .svc-step__num { font-family: var(--font-mono); font-weight: 800; font-size: 2.5rem; line-height: 1; }
+  .svc-step__name { margin: 0; font-family: var(--font-mono); font-weight: 800; font-size: 1.125rem; color: var(--bone); }
   .svc-step__num--plasma { color: var(--bone); -webkit-text-stroke: 1px rgba(124, 255, 178, 0.4); }
   .svc-step__num--ember { color: var(--bone); -webkit-text-stroke: 1px rgba(255, 122, 61, 0.4); }
   .svc-step__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
