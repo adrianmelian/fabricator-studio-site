@@ -18,9 +18,6 @@ import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import SectionHead from '../../components/SectionHead.astro';
 import ToolsSection from '../../components/ToolsSection.astro';
-import LicensingTiers from '../../components/LicensingTiers.astro';
-import SubscriptionTiers from '../../components/SubscriptionTiers.astro';
-import { PRICE_SWITCH_THROWN } from '../../data/launch';
 import BracketButton from '../../components/BracketButton.astro';
 ---
 <BaseLayout
@@ -39,9 +36,10 @@ import BracketButton from '../../components/BracketButton.astro';
         FS website. We'll make a freebie after we ship the paid version." The door that used
         to sit here handed out a 1.x zip whose BSL grant is PERPETUAL, so every download
         taken between now and the switch is a free seat we can never take back. It points at
-        the tiers on this same page instead. LABEL IS A PLACEHOLDER, ADRIAN'S TO RULE. */}
+        the tiers instead, which moved to /pricing/ on 2026-09-03 and took the #tiers-20
+        anchor with them. LABEL IS A PLACEHOLDER, ADRIAN'S TO RULE. */}
     <div class="ts-ctas">
-      <BracketButton kind="hard" href="#tiers-20" label="See the plans" />
+      <BracketButton kind="hard" href="/pricing/" label="See the plans" />
       <BracketButton kind="soft" href="/docs/" label="Read the docs" />
     </div>
   </section>
@@ -52,34 +50,32 @@ import BracketButton from '../../components/BracketButton.astro';
     <SectionHead
       eyebrow="ADVANCED MODULES"
       title="RIBBON MODULES"
-      sub="The one paid part of the toolset, and it is a feature, not a tier."
+      sub="Included with the subscription from the Animation band up."
     />
     <div class="mod-card">
       <div class="mod-card__top">
-        <span class="mod-pill"><span class="mod-pill__dot" aria-hidden="true"></span>PAID MODULES</span>
-        <span class="mod-price">$199</span>
+        <span class="mod-pill"><span class="mod-pill__dot" aria-hidden="true"></span>ADVANCED MODULES</span>
+        <span class="mod-price">Included</span>
       </div>
       <p class="mod-lead">Ribbon-tech spine, arm, and leg. The deformation upgrade that sits on top of the base limbs, for the shoulders, hips, and spines that have to hold up in close-up.</p>
       <div class="mod-rule" aria-hidden="true"></div>
       <p class="mod-note"><b>Ribbon rigs animate for everyone.</b> If someone hands your animators a character built with these modules, it works, with nothing installed and nothing to buy. The deformation is baked Maya nodes. You need the modules to build and edit ribbon components, not to use a rig that has them.</p>
-      <p class="mod-axis">Paid for everyone, at any studio size. This is a feature you add, not a corporate tier. The revenue threshold below is a separate thing and it covers the whole toolset.</p>
+      <p class="mod-axis">Included with every tier from the Animation band up. The base Freelance Tech Art band does not carry them, and modules bought on 1.x stay yours.</p>
       <div class="mod-ctas">
         <BracketButton kind="hard" href="/store/" label="See the modules" />
       </div>
     </div>
   </section>
 
-  <section id="license-lead">
-    <p class="lic-lead">And the other axis, which has nothing to do with the modules above: whether your <b>organization</b> owes anything for the toolset at all. That is decided by revenue, and for most people reading this the answer is no.</p>
+  {/* THE TIER ROW CAME OFF THIS PAGE 2026-09-03 (Adrian: pricing gets its own page).
+      What stood here was the 2.0 subscription cards, and before the switch a 1.x block
+      promising "Yours forever" and "Source available" to an under-$2M reader. Both are
+      gone; /pricing/ is the one surface that carries a price, and this is the door to it. */}
+  <section id="tools-pricing">
+    <div class="ts-ctas">
+      <BracketButton kind="hard" href="/pricing/" label="See pricing" />
+    </div>
   </section>
-
-  {/* The 1.x block promises "Yours forever", "No trial" and "Source available" to the
-      under-$2M reader. All true of 1.x; none of it the 2.0 story, and the acceptance
-      criteria for the switch are explicit that no page may still tell a FIRST-TIME
-      reader the toolset is free under $2M. Both blocks are Adrian's own, so this is a
-      swap rather than a rewrite. 1.x holders keep their grant either way, permanently,
-      and the licensing page is where that is said. */}
-  {PRICE_SWITCH_THROWN ? <SubscriptionTiers /> : <LicensingTiers />}
 
   <Footer />
 </BaseLayout>

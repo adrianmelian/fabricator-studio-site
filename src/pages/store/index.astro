@@ -53,15 +53,11 @@ const PARTS = [
 const FAQ = [
   {
     q: 'Can I use these on client work?',
-    a: 'Yes. Same as the rest of the toolset. If your organization is under the revenue threshold, use it on anything you like, including paid client work, and keep it.',
+    a: 'Yes. Same as the rest of the toolset. Use it on anything you like, including paid client work.',
   },
   {
     q: 'Do my animators need to buy this?',
     a: 'No. Ribbon rigs animate for everyone with nothing installed. You need the modules to build and edit ribbon components, not to animate a rig that already has them.',
-  },
-  {
-    q: 'What if my studio is over $2 million a year?',
-    a: 'That is a separate question from this page. The modules are the same price for everyone. The revenue threshold is about the toolset as a whole, and it is explained on the licensing page.',
   },
   {
     q: 'Does it expire?',
@@ -111,7 +107,7 @@ const FAQ = [
         <p class="hub__name">Studio Pipeline</p>
         <p class="hub__line">The Maya suite: modular rigging, control shapes, skinning and export, in one installer.</p>
         <div class="hub__cta">
-          <BracketButton kind="hard" href="/tools/#tiers-20" label="See the plans" event="store-toolset" />
+          <BracketButton kind="hard" href="/pricing/" label="See the plans" event="store-toolset" />
           <a class="hub__more" href="/tools/">About the pipeline</a>
         </div>
       </div>
@@ -171,8 +167,10 @@ const FAQ = [
       (MrMiata: workspace/2026-07-18_licensing-decision/DECISION.md.) */}
   <section id="store-axes">
     <div class="st-axes">
-      <p>The Advanced Modules are paid for everyone, at any studio size. They are not a corporate tier and they are not a subscription.</p>
-      <p>If your organization makes over $2 million a year, that is a separate thing, it covers the whole toolset, and it lives on the <a href="/licensing/">licensing page</a>.</p>
+      {/* REWRITTEN 2026-09-03. Both lines were the 1.x two-axis story: a $199 purchase on
+          one axis and a $2M revenue threshold on the other. 2.0 has neither. */}
+      <p>The Advanced Modules come with the subscription, from the Animation band up. The base Freelance Tech Art band does not carry them.</p>
+      <p>Modules bought on 1.x stay yours, at any studio size, with nothing to renew. Prices for 2.0 are on the <a href="/pricing/">pricing page</a>.</p>
     </div>
   </section>
 
