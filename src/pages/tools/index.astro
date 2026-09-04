@@ -219,7 +219,10 @@ const slug = (s: string) => 'f-' + s.replace(/\W+/g, '-').toLowerCase().replace(
 <style>
   .tp { max-width: 85rem; margin: 0 auto; padding: 0 1.5rem 6rem; display: flex; flex-direction: column; gap: 2.5rem; }
   .tp-promise {
-    margin: -1rem auto 0.5rem;
+    /* CLOSER TO THE TITLE (Adrian, 2026-09-04): it sat 72px below it, further than the
+       wordmark sits above it. The masthead already owns the space beneath itself, so this
+       pulls back up to sit 24px under the title and lets the page gap carry the rest. */
+    margin: -2.5rem auto 0;
     max-width: 24ch;
     text-align: center;
     font-family: var(--font-display);

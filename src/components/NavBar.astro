@@ -5,7 +5,8 @@
 // and is reached from the footer, the hero button and the scan overlay.
 // import NewsletterPop from './NewsletterPop.astro';  // unmounted, see below
 import CoffeeButton from './CoffeeButton.astro';
-import Wordmark from './Wordmark.astro';
+import { Image } from 'astro:assets';
+import fsLogo from '../assets/fs-logo.png';
 
 // The current page's tab reads plasma (Adrian, 2026-08-19). Prefix match, so a docs
 // subpage lights Docs and /armature/eula/ lights Armature; the homepage lights none.
@@ -17,11 +18,14 @@ const groupActive = ['/armature/', '/tools/', '/control-rig/'].some((h) => path.
 const helpActive = ['/docs/', '/tutorials/'].some((h) => path.startsWith(h)) ? ' navbar__tab--active' : '';
 ---
 <nav class="navbar">
-  {/* THE BRAND IS THE WORDMARK (Adrian, 2026-09-04). It was the 28px nav mark beside the
-      name set in the body face, which meant the studio's name appeared in two different
-      letterforms depending on which page furniture you were looking at. */}
+  {/* THE BRAND IS THE fS MONOGRAM (Adrian, 2026-09-04: "wordmark on top left, replace with
+      just the FS logo"). It carried the name set in the body face beside a flat bone
+      silhouette, then the full wordmark for an hour. This is brand/fabricatorstudio's own
+      fs_logo.png: the same drawing as the wordmark's leading glyphs, outlined, with the
+      ember pencil tip and the two plasma squares the old silhouette had lost.
+      The full wordmark still opens every page masthead. */}
   <a class="navbar__brand" href="/" aria-label="FabricatorStudio, home">
-    <Wordmark class="navbar__mark" decorative height="1.5rem" />
+    <Image class="navbar__mark" src={fsLogo} alt="" width={56} height={56} loading="eager" />
   </a>
   <button class="navbar__burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
     <span></span><span></span><span></span>
@@ -172,6 +176,7 @@ const helpActive = ['/docs/', '/tutorials/'].some((h) => path.startsWith(h)) ? '
   @supports not (backdrop-filter: blur(1px)) {
     .navbar { background: rgba(11, 14, 16, 0.92); }
   }
+  .navbar__mark { display: block; height: 1.75rem; width: auto; }
   .navbar__brand {
     display: flex;
     align-items: center;

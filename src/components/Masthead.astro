@@ -52,18 +52,25 @@ const { title } = Astro.props;
     flex-direction: column;
     align-items: center;
     text-align: center;
-    padding-top: 3rem;
-    margin-bottom: 3rem;
+    /* Halved on his instruction 2026-09-04: measured 48px to the bar, now 24. */
+    padding-top: 1.5rem;
+    margin-bottom: 2.5rem;
   }
   /* .dd's flex gap lands after this block; take it back off. */
-  :global(.dd) > .mh { margin-bottom: calc(3rem - 2.75rem); }
+  /* A FLEX HOST'S OWN GAP GOVERNS, and the masthead adds nothing to it. Subtracting a
+     fixed number here assumed one gap value and there are three: .dd is 2.75rem, .lc
+     overrides it to 3.5rem on Pricing, and a bare <section> has none. That guess is what
+     put Pricing's first gap at 52px while every other gap on that page was 56, which is
+     the "all over the place" he saw. Now each page's rhythm is its own and even. */
+  :global(.dd) > .mh { margin-bottom: 0; }
   /* base.css: `section { padding: 2.5rem 1.5rem }`. Cancel the top half only. */
   :global(section) > .mh { margin-top: -2.5rem; }
   /* Targeted through :global BECAUSE THE CLASS DOES NOT REACH IT. Astro stamps the child
      component's own id on its root element, not this one's, so a bare `.mh__mark` rule
      here matches nothing and the mark sat flush against the title: measured gap 0px. The
      parent selector keeps the escape hatch scoped to this masthead. */
-  .mh > :global(.fs-wordmark) { margin-bottom: 1.25rem; }
+  /* Doubled on his instruction: measured 20px to the title, now 40. */
+  .mh > :global(.fs-wordmark) { margin-bottom: 2.5rem; }
   .mh__title {
     margin: 0;
     font-family: var(--font-display);
