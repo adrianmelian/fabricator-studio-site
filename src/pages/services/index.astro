@@ -127,7 +127,7 @@ const build = [
         <h2 id="svc-services" class="svc-rule__label svc-rule__label--plasma">SERVICES</h2>
       </div>
       <p class="svc-creed">{servicesCreed}</p>
-      <div class="svc-grid">
+      <div class="svc-grid svc-grid--plasma">
         {services.map((v) => (
           <div class="svc-card">
             <h3 class="svc-card__name">{v.name}</h3>
@@ -142,7 +142,7 @@ const build = [
       <div class="svc-rule svc-rule--cobalt">
         <h2 id="svc-build" class="svc-rule__label svc-rule__label--plasma">CUSTOM TOOLS</h2>
       </div>
-      <div class="svc-grid">
+      <div class="svc-grid svc-grid--cobalt">
         {build.map((b) => (
           <div class="svc-card">
             <h3 class="svc-card__name">{b.name}</h3>
@@ -157,7 +157,7 @@ const build = [
       <div class="svc-rule svc-rule--ember">
         <h2 id="svc-how" class="svc-rule__label svc-rule__label--plasma">HOW IT WORKS</h2>
       </div>
-      <ol class="svc-steps">
+      <ol class="svc-steps svc-steps--ember">
         <li class="svc-step">
           <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">1</span>
           {/* HIS LINE, 2026-09-03. MEETING carries the bold, holding the pattern that each
@@ -308,6 +308,15 @@ const build = [
     padding: 1.625rem 1.5rem;
   }
   .svc-step--ember { border-color: rgba(255, 122, 61, 0.16); }
+
+  /* A COLOURED EDGE PER SECTION (Adrian, 2026-09-03), following the section rules: plasma
+     on Services, cobalt on Custom Tools, ember on How it works. Held at 0.3 alpha, which
+     is the weight his pricing drop used for the featured card's border. Any harder and six
+     outlined boxes stop reading as cards and start reading as warnings. Every hue is in the
+     set scripts/check-brand-gates.mjs enforces. */
+  .svc-grid--plasma .svc-card { border-color: rgba(124, 255, 178, 0.3); }
+  .svc-grid--cobalt .svc-card { border-color: rgba(124, 184, 255, 0.3); }
+  .svc-steps--ember .svc-step { border-color: rgba(255, 122, 61, 0.3); }
   .svc-step__num { font-family: var(--font-mono); font-weight: 800; font-size: 2.5rem; line-height: 1; }
   .svc-step__num--plasma { color: var(--bone); -webkit-text-stroke: 1px rgba(124, 255, 178, 0.4); }
   .svc-step__num--ember { color: var(--bone); -webkit-text-stroke: 1px rgba(255, 122, 61, 0.4); }
