@@ -5,6 +5,7 @@
 // and is reached from the footer, the hero button and the scan overlay.
 // import NewsletterPop from './NewsletterPop.astro';  // unmounted, see below
 import CoffeeButton from './CoffeeButton.astro';
+import Wordmark from './Wordmark.astro';
 
 // The current page's tab reads plasma (Adrian, 2026-08-19). Prefix match, so a docs
 // subpage lights Docs and /armature/eula/ lights Armature; the homepage lights none.
@@ -16,9 +17,11 @@ const groupActive = ['/armature/', '/tools/', '/control-rig/'].some((h) => path.
 const helpActive = ['/docs/', '/tutorials/'].some((h) => path.startsWith(h)) ? ' navbar__tab--active' : '';
 ---
 <nav class="navbar">
-  <a class="navbar__brand" href="/">
-    <img src="/nav-mark.png" width="28" height="28" alt="" />
-    <span>FabricatorStudio</span>
+  {/* THE BRAND IS THE WORDMARK (Adrian, 2026-09-04). It was the 28px nav mark beside the
+      name set in the body face, which meant the studio's name appeared in two different
+      letterforms depending on which page furniture you were looking at. */}
+  <a class="navbar__brand" href="/" aria-label="FabricatorStudio, home">
+    <Wordmark class="navbar__mark" decorative height="1.5rem" />
   </a>
   <button class="navbar__burger" type="button" aria-label="Menu" aria-expanded="false" aria-controls="nav-menu">
     <span></span><span></span><span></span>
@@ -178,7 +181,6 @@ const helpActive = ['/docs/', '/tutorials/'].some((h) => path.startsWith(h)) ? '
     font-weight: 700;
     white-space: nowrap;
   }
-  .navbar__brand img { display: block; }
   .navbar__menu {
     display: flex;
     align-items: center;
