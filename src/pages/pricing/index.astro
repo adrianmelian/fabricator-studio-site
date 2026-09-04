@@ -112,13 +112,23 @@ const FAQ = [
 <style>
   /* The drop's header: centred, 18px gaps, a small letterspaced eyebrow over a serif
      headline, with the standfirst held to about 52 characters so it breaks in two lines. */
-  .pr-header { align-items: center; text-align: center; gap: 18px; }
+  /* Room above it (Adrian, 2026-09-03). The eyebrow sat hard under the navigation bar
+     with nothing between them, so the page opened cramped before the headline arrived. */
+  .pr-header { align-items: center; text-align: center; gap: 18px; padding-top: 2.5rem; }
+  /* THE EYEBROW IS SET IN THE DISPLAY FACE, to pair with the serif headline under it
+     (Adrian, 2026-09-03: "Pricing at the top of the page should look nice with the script
+     text"). It was 11px semibold sans in bone-faint, which read as a form label rather
+     than as part of the same masthead. Same family as the headline, tracked out, and one
+     step brighter so it holds its own without competing. */
   .pr-eyebrow {
-    font-size: 11px;
-    letter-spacing: 0.16em;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.0625rem, 1.6vw, 1.3125rem);
+    letter-spacing: 0.34em;
+    text-indent: 0.34em; /* the tracking is trailing, so nudge back to true centre */
     text-transform: uppercase;
-    color: var(--bone-faint);
-    font-weight: 600;
+    color: var(--bone-dim);
+    line-height: 1;
   }
   .pr-title {
     margin: 0;
