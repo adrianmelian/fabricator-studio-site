@@ -531,6 +531,15 @@ import heroWordmark from '../assets/fabricatorstudio-wordmark.png';
     gridOpacity: 1, fogNear: 2.0, fogFar: 14.0,
     exDist: 1.5, exCurl: 2.16, exCam: 1.06,
     restAmp: 0.012, wakeAt: 0.04,
+    // THE HOLOGRAM'S FIVE, transcribed verbatim from the Armature app's HOLOGRAM_PRESET
+    // (app/src/three/pointCloudMaterial.ts). They are fractions of the mark's own vertical
+    // span, which is why they carry across from a mark in the app to a mark in a browser
+    // without being re-dialled. holoSweepRise and holoWidth already carry Adrian's
+    // 2026-08-29 pass: "the ripple that goes through the FS logo... can we increase that
+    // ripple?" -- four times the rise it was born with, through a band half again as wide.
+    // THE RATE IS THE ONE NOT TO TOUCH: what makes the pass an event is the quiet either
+    // side of it, and a bigger ripple arriving more often is just weather.
+    holo: 1, holoJit: 0.004, holoRate: 0.14, holoWidth: 0.075, holoRise: 0.08, holoFlash: 0.9,
     anchorY: 0.415, ctaDropPx: 34,
     // The star shell (Adrian, 2026-08-19): environment, indifferent to the beats. Dim enough
     // that only the brightest twinkle just past the bloom threshold.
@@ -666,6 +675,14 @@ uniform float uCFreq, uCSpread, uFadeDepth;
 uniform float uExplode, uExDist, uExCurl, uExCam;
 uniform float uReveal, uFade;
 uniform vec3 uCamDir;
+// THE HOLOGRAM (Adrian, 2026-09-04: "we made a really cool new effect, like almost like a
+// scanline effect with the particles... incorporate that as the animation on the FS logo
+// particles"). Ported from the Armature app, three/pointCloudMaterial.ts, HOLOGRAM_PRESET --
+// the same mark, the same motion, the same five numbers. That file is the source of truth;
+// if the app's dial moves, it moves here by transcription, never by re-taste.
+uniform float uHolo, uHoloJit, uHoloRate, uHoloWidth, uHoloRise, uHoloFlash;
+uniform vec3 uCenter;
+uniform float uSpan;
 out float vFade; out float vWave; out float vAlive; out float vEdge;
 void main() {
   // Two crossing waves MIXED rather than summed, so the blend changes the character of the
@@ -674,6 +691,46 @@ void main() {
   float w2 = sin(uTime * uFreq2 + aPhase2 * uRip2);
   float w = mix(w1, w2, uMix2);
   vec3 p = aPos + aNor * (w * uAmp);
+
+  // THE HOLOGRAM, two things at two timescales, and the gap between them is the effect.
+  //
+  // THE TREMBLE never stops. Three incommensurate sines per point, seeded off this point's own
+  // two phases so no two neighbours agree and no wavefront can form. Deliberately far too small
+  // to move the silhouette: it reads as the image failing to hold perfectly still, which is what
+  // a projection does, rather than as the mark animating.
+  //
+  // THE BAND is the event. A narrow gaussian climbs the mark, then the room is quiet for the
+  // rest of the cycle. The quiet matters more than the pass -- a band that never stops is a
+  // barber's pole. Eased in at the floor and gone by 0.78 of the cycle, so a fifth of every
+  // period is a perfectly still hologram.
+  //
+  // IT RIDES ON TOP OF THE RIPPLE rather than replacing it. In the app the hologram is the whole
+  // motion, because that mark hangs on a wall and does nothing else. This one has a scroll-driven
+  // swell and an explosion to perform, and both are Adrian's own beats. Set uHolo to 0 for the
+  // old cloud exactly, or take the ripple to rest for the app's look.
+  float hband = 0.0;
+  float hbright = 0.0;
+  if (uHolo > 0.0) {
+    vec3 jit = vec3(
+      sin(uTime * 1.7 + aPhase * 12.0),
+      sin(uTime * 2.3 + aPhase2 * 9.0),
+      sin(uTime * 1.3 + aPhase * 7.0 + aPhase2 * 5.0));
+    p += jit * (uSpan * uHoloJit * uHolo);
+
+    float cyc = fract(uTime * uHoloRate);
+    float y0 = uCenter.y - 0.6 * uSpan;
+    float sweep = y0 + cyc * uSpan * 1.2;
+    float d = (aPos.y - sweep) / max(uSpan * uHoloWidth, 1e-4);
+    float live = smoothstep(0.0, 0.06, cyc) * (1.0 - smoothstep(0.60, 0.78, cyc));
+    hband = exp(-d * d) * live * uHolo;
+    p += aNor * (hband * uSpan * uHoloRise);
+    // The flash rides the band, with a faint per-point twinkle underneath so the surface
+    // glitters between passes instead of going dead. Damped as the cloud blows apart: a
+    // scan band sweeping through an explosion is two events arguing.
+    hbright = (hband * uHoloFlash + 0.06 * sin(uTime * 3.1 + aPhase * 20.0) * uHolo)
+              * (1.0 - uExplode);
+  }
+
   // The explosion is a pluck that never comes back: same snap, but the point keeps its
   // velocity. Direction is seeded per point, never radial, because radial reads as fireworks.
   if (uExplode > 0.0) {
@@ -686,7 +743,7 @@ void main() {
   gl_Position = uProj * mv;
   // Point size is a PIXEL size, not a world size, against this exact scaling.
   gl_PointSize = uSize * (300.0 / -mv.z);
-  vFade = 1.0 - uFadeDepth * 0.9 * (0.5 - 0.5 * w);
+  vFade = 1.0 - uFadeDepth * 0.9 * (0.5 - 0.5 * w) + hbright;
   vWave = sin(uTime * uCFreq + aPhase * uRip * uCSpread);
   // THE REVEAL (Adrian, 2026-08-19): points materialise floor-to-head as uReveal climbs.
   // aYN is the point's normalised height; a soft band at the frontier and a brightness
@@ -1295,6 +1352,18 @@ void main() {
 
     const logo = await makeCloud('/mesh/fs_logo.mesh', P.count, P.seed);
     const cloudVao = logo.vao, bmn = logo.bmn, bmx = logo.bmx, N = logo.count;
+    // THE MARK'S FRAME for the hologram's band, computed exactly as the app's
+    // frameCloudMaterial does it: the centre is the MEAN of the sampled points, not the
+    // midpoint of the bounding box, and the span is the vertical extent. The two differ
+    // whenever a shape is denser at one end than the other, which a wordmark is, and the
+    // band's start and end are derived from the centre -- so the cheap substitution would
+    // have walked the sweep off the top or bottom of the logo.
+    const holoCentre = (() => {
+      let sx = 0, sy = 0, sz = 0;
+      for (let i = 0; i < N; i++) { sx += logo.pts[i * 3]; sy += logo.pts[i * 3 + 1]; sz += logo.pts[i * 3 + 2]; }
+      return new Float32Array([sx / N, sy / N, sz / N]);
+    })();
+    const holoSpan = Math.max(bmx[1] - bmn[1], 1e-3);
 
     // THE MAN (Adrian, 2026-08-19): height_man, centred in the room after the toolset, his
     // points materialising floor-to-head as the visitor scrolls. Fetched lazily once the
@@ -1953,6 +2022,14 @@ void main() {
       gl.uniform1f(U.uSize, P.size);
       gl.uniform1f(U.uCFreq, P.cFreq); gl.uniform1f(U.uCSpread, P.cSpread);
       gl.uniform1f(U.uFadeDepth, P.fadeDepth);
+      // The hologram. uCenter and uSpan are the mark's own frame, measured once from the
+      // sampled points (see holoCentre/holoSpan); without them the band sweeps through the
+      // world origin instead of up the logo.
+      gl.uniform1f(U.uHolo, P.holo);
+      gl.uniform1f(U.uHoloJit, P.holoJit); gl.uniform1f(U.uHoloRate, P.holoRate);
+      gl.uniform1f(U.uHoloWidth, P.holoWidth); gl.uniform1f(U.uHoloRise, P.holoRise);
+      gl.uniform1f(U.uHoloFlash, P.holoFlash);
+      gl.uniform3fv(U.uCenter, holoCentre); gl.uniform1f(U.uSpan, holoSpan);
       gl.uniform1f(U.uExplode, explode);
       gl.uniform1f(U.uExDist, P.exDist); gl.uniform1f(U.uExCurl, P.exCurl); gl.uniform1f(U.uExCam, P.exCam);
       gl.uniform3fv(U.uCamDir, camDir);
