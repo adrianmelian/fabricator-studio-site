@@ -139,7 +139,7 @@ const build = [
 
     <!-- WHAT I BUILD -->
     <section class="svc-section" aria-labelledby="svc-build">
-      <div class="svc-rule svc-rule--plasma">
+      <div class="svc-rule svc-rule--cobalt">
         <h2 id="svc-build" class="svc-rule__label svc-rule__label--plasma">CUSTOM TOOLS</h2>
       </div>
       <div class="svc-grid">
@@ -154,7 +154,7 @@ const build = [
 
     <!-- HOW IT WORKS -->
     <section class="svc-section" aria-labelledby="svc-how">
-      <div class="svc-rule svc-rule--plasma">
+      <div class="svc-rule svc-rule--ember">
         <h2 id="svc-how" class="svc-rule__label svc-rule__label--plasma">HOW IT WORKS</h2>
       </div>
       <ol class="svc-steps">
@@ -239,6 +239,13 @@ const build = [
   .svc-rule::after { content: ''; flex: 1; height: 1px; }
   .svc-rule--plasma::after { background: linear-gradient(90deg, rgba(124, 255, 178, 0.4), rgba(124, 255, 178, 0)); }
   .svc-rule--ember::after { background: linear-gradient(90deg, rgba(255, 122, 61, 0.4), rgba(255, 122, 61, 0)); }
+  /* A COLOUR PER SECTION (Adrian, 2026-09-03), so the three rules read as three places on
+     the page rather than as one repeated ornament. Plasma and ember are the two functional
+     accents; cobalt is the palette's structural tertiary and is what his own pricing design
+     drop used for the non-featured card rails the same evening. Every hex here is in the
+     set scripts/check-brand-gates.mjs enforces. THE LABELS ARE UNTOUCHED and stay bone:
+     he asked for the line, not the heading. */
+  .svc-rule--cobalt::after { background: linear-gradient(90deg, rgba(124, 184, 255, 0.4), rgba(124, 184, 255, 0)); }
 
   .svc-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.25rem; }
   .svc-card {

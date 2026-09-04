@@ -525,9 +525,12 @@ const BANDS = [
     box-shadow: 0 18px 44px rgba(11, 14, 16, 0.6), 0 0 0 4px rgba(124, 255, 178, 0.06);
   }
 
-  /* The rail: 3px of colour across the top edge. Cobalt #33547E is the drop's own literal,
-     darker than --cobalt-dim, and it is deliberately not a CTA colour. */
-  .pt__rail { height: 3px; background: #33547E; }
+  /* The rail: 3px of colour across the top edge, in the palette's structural tertiary.
+     HIS DROP SPECIFIED #33547E, which is a shade darker than --cobalt-dim and is NOT in the
+     DNA palette; scripts/check-brand-gates.mjs rejected it as an off-palette third accent.
+     Snapped to the token, which is the same hue two steps brighter. If he wants the drop's
+     exact darker rail it is a palette addition, which is his to make, not a CSS edit. */
+  .pt__rail { height: 3px; background: var(--cobalt-dim); }
   .pt--hot .pt__rail { background: linear-gradient(to right, var(--plasma), var(--plasma-dim)); }
 
   .pt__body { padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
@@ -584,7 +587,7 @@ const BANDS = [
     border-radius: 999px;
     background: transparent;
     color: var(--bone-dim);
-    font-family: inherit;
+    font-family: var(--font-body);
     font-size: 11px;
     font-weight: 500;
     cursor: pointer;
@@ -631,7 +634,7 @@ const BANDS = [
     background: transparent;
     border: 1px solid var(--iron-3);
     color: var(--bone);
-    font-family: inherit;
+    font-family: var(--font-body);
     font-size: 13px;
     font-weight: 700;
     text-align: center;
