@@ -4,8 +4,8 @@
 Pipeline 2.0 and every later version. FabricatorStudio LLC, Westminster, Colorado.**
 
 This Agreement is between you and FabricatorStudio LLC ("FabricatorStudio", "we", "us"). It
-covers the Studio Pipeline: the FabricatorStudio tools for Autodesk Maya, the FS ControlRig
-plugin for Unreal Engine, and the updates and documentation we provide with them.
+covers the Studio Pipeline: the FabricatorStudio tools for Autodesk Maya, FS Control Rig -
+Unreal, and the updates and documentation we provide with them.
 
 By installing or using the Studio Pipeline you agree to it. If you do not agree, do not
 install or use it.
@@ -47,8 +47,8 @@ cannot reach us, so an outage on our side does not stop yours.
 
 ### 2. Definitions
 
-**"Studio Pipeline"** means the FabricatorStudio tools for Autodesk Maya, the FS ControlRig
-plugin for Unreal Engine, the Advanced Ribbon Modules, and any updates, components or
+**"Studio Pipeline"** means the FabricatorStudio tools for Autodesk Maya, FS Control Rig -
+Unreal, the Advanced Ribbon Modules, and any updates, components or
 documentation we supply with them. It does not mean Armature, which is a separate application
 under its own agreement.
 
@@ -362,7 +362,7 @@ except those stated in section 3.
 ### 15. Trademarks
 
 This Agreement grants no rights to use the FabricatorStudio, Fabricator, Studio Pipeline,
-Armature, Bridge, or FS ControlRig names, logos, or trade dress. You may state truthfully that
+Armature, Bridge, or FS Control Rig names, logos, or trade dress. You may state truthfully that
 you used the Studio Pipeline.
 
 ### 16. Third-party components and host applications
