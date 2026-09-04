@@ -7,5 +7,9 @@ export default defineConfig({
   // becoming a 404.
   redirects: {
     '/licensing': '/pricing',
+    // The store page was deleted 2026-09-03 ("delete the store page - the pricing page
+    // replaces it"). /store/thank-you/ is still a real page and is deliberately not
+    // redirected: a pre-switch Stripe receipt can still send somebody to it.
+    '/store': '/pricing',
   },
 });
