@@ -11,57 +11,44 @@ import Footer from '../../components/Footer.astro';
 import ContactForm from '../../components/ContactForm.astro';
 import '../../styles/designed-doc.css';
 
-const TITLE = 'Custom pipelines you own.';
+const TITLE = 'Pipelines and software, built to order.';
 const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
-const values = [
+// CUT TO THE BONE, 2026-09-03. Adrian: "it's wayyyyyyy too long, and all over the place.
+// Let's redo it to be very simple to understand. And it's not only pipelines but also
+// custom software like Armature."
+//
+// What went: the four HOW I WORK value cards (transparency, agile, knowledge transfer,
+// production quality), the Pipeline Health Audit block with its thirty-day credit, and the
+// scope-and-pricing intro paragraph. Three sections became two. The promises worth keeping
+// out of those cards - documented, readable, yours - are one clause in the lede now
+// instead of four cards saying it four ways.
+//
+// CUSTOM SOFTWARE IS ITS OWN LINE, and Armature is the proof of it: a standalone app,
+// built and shipped, sitting on this same site. That was the gap he named.
+//
+// The audit is not deleted from the record, only from the page: it was a real offer with a
+// real credit against fix work, and putting it back is this array plus its markup from git.
+const build = [
   {
-    tone: 'plasma',
-    name: 'Transparency',
-    body: 'Every engagement starts as a written proposal. You see the plan, the code, and the reasoning before anything touches your pipeline. No black boxes.',
-  },
-  // "NO LOCK-IN - the toolset is source available, pure Python, no DRM... you're never
-  // renting access to something you can't open" WAS REMOVED 2026-09-03 on Adrian's word.
-  // Both halves stopped being true at the 2.0 switch: it is a subscription, and the
-  // shipped payload is compiled in full. Removed rather than rewritten, at his word.
-  {
-    tone: 'ember',
-    name: 'Agile and versatile',
-    body: 'No two productions are the same, so Fabricator is built to be extended and customized. It bends to your pipeline instead of making you bend to it.',
-  },
-  {
-    tone: 'plasma',
-    name: 'Knowledge transfer',
-    body: "I document what I build and leave your team able to run it without me. The point is your independence, not a retainer you can't get out of.",
-  },
-  {
-    tone: 'ember',
-    wide: true,
-    name: 'Production quality',
-    body: 'Industry-standard tools that come with 14 years of experience building pipelines for AAA games.',
-  },
-];
-
-const help = [
-  {
-    name: 'Rig & export setup',
-    body: 'Characters rigged with Fabricator and wired clean into your Maya-to-Unreal export contract. Scoped to your roster.',
+    name: 'Pipelines',
+    body: 'Rigging, skinning and export, wired end to end from Maya into your engine.',
   },
   {
-    name: 'Custom tools',
-    body: "A Maya tool built to spec, documented, and handed over readable, so your team owns it long after I'm gone.",
+    name: 'Custom software',
+    body: 'Standalone tools, when a script inside Maya is not the right shape for the job. Armature, the rigging app on this site, is one of mine.',
   },
   {
-    name: 'Ongoing support',
-    body: 'Retainers and fractional TA work, from a couple of days a month to owning a slice of your pipeline, at whatever cadence the production needs.',
+    name: 'Ongoing help',
+    body: 'Fractional tech art, from a few days a month to owning a slice of your pipeline.',
   },
 ];
 ---
 <BaseLayout
   title="Services | FabricatorStudio"
-  description="Rigging and pipeline help from the technical artist behind Fabricator. Readable, documented, and yours to keep. No black boxes, no lock-in."
+  description="Character pipelines and custom software, built to order by the technical artist behind Fabricator and Armature. Documented, and yours to keep."
 >
   <NavBar />
 
@@ -73,45 +60,19 @@ const help = [
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
         )}
       </h1>
-      <p class="dd-summary svc-lede">The tools are production tested: they have rigged real characters and shipped them into Unreal. The work I take on for hire runs the same way: <b>agile, readable, documented, and yours to keep</b>. Every engagement is delivered by the technical artist who built Fabricator, not a team you've never met, and you're never dependent on me to keep moving.</p>
+      <p class="dd-summary svc-lede">I am a technical artist with 14 years in AAA games. I build character pipelines and the software that runs them, then document the lot and hand it over, so it is <b>yours to keep and your team can run it without me</b>.</p>
     </header>
 
-    <!-- HOW I WORK -->
-    <section class="svc-section" aria-labelledby="svc-work">
+    <!-- WHAT I BUILD -->
+    <section class="svc-section" aria-labelledby="svc-build">
       <div class="svc-rule svc-rule--plasma">
-        <h2 id="svc-work" class="svc-rule__label svc-rule__label--plasma">HOW I WORK</h2>
+        <h2 id="svc-build" class="svc-rule__label svc-rule__label--plasma">WHAT I BUILD</h2>
       </div>
       <div class="svc-grid">
-        {values.map((v) => (
-          <div class={`svc-card svc-card--${v.tone}${v.wide ? ' svc-card--wide' : ''}`}>
-            <h3 class={`svc-card__name svc-card__name--${v.tone}`}>{v.name}</h3>
-            <p class="svc-card__body">{v.body}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <!-- WAYS I CAN HELP -->
-    <section class="svc-section" aria-labelledby="svc-help">
-      <div class="svc-rule svc-rule--ember">
-        <h2 id="svc-help" class="svc-rule__label svc-rule__label--ember">WAYS I CAN HELP</h2>
-      </div>
-      <p class="svc-intro">Scope and pricing depend on your team, your characters, and your deadline, so everything is quoted after a short call. The usual starting point is an audit.</p>
-
-      <div class="svc-audit">
-        <div class="svc-audit__head">
-          <span class="svc-audit__badge">START HERE</span>
-          <h3 class="svc-audit__name">Pipeline Health Audit</h3>
-          <span class="svc-audit__meta">~ one week</span>
-        </div>
-        <p class="svc-audit__body">I go through your rigs, skinning, export path, naming, and versioning, then hand you a findings document, a prioritized fix list, and a quote for the fixes. Sign a fix package within thirty days and the audit fee <b class="b-plasma">credits toward it in full</b>, so the first step costs you almost nothing to try.</p>
-      </div>
-
-      <div class="svc-grid">
-        {help.map((h) => (
+        {build.map((b) => (
           <div class="svc-card">
-            <h3 class="svc-card__name">{h.name}</h3>
-            <p class="svc-card__body">{h.body}</p>
+            <h3 class="svc-card__name">{b.name}</h3>
+            <p class="svc-card__body">{b.body}</p>
           </div>
         ))}
       </div>
@@ -125,15 +86,15 @@ const help = [
       <ol class="svc-steps">
         <li class="svc-step">
           <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">1</span>
-          <p class="svc-step__body">A short <b>discovery call</b>: your team, your characters, your pain points.</p>
+          <p class="svc-step__body">A short <b>call</b> about your team, your characters, and what is slowing you down.</p>
         </li>
         <li class="svc-step">
           <span class="svc-step__num svc-step__num--plasma" aria-hidden="true">2</span>
-          <p class="svc-step__body">A <b>written scope</b> with clear deliverables and a quote. Nothing starts until you have it in hand.</p>
+          <p class="svc-step__body">A <b>written scope</b> with deliverables and a price. Nothing starts until you have it.</p>
         </li>
         <li class="svc-step svc-step--ember">
           <span class="svc-step__num svc-step__num--ember" aria-hidden="true">3</span>
-          <p class="svc-step__body">Delivery in a <b>focused burst</b>, everything documented, readable, and handed over as yours.</p>
+          <p class="svc-step__body">Delivery in one <b>focused burst</b>, documented and handed over.</p>
         </li>
       </ol>
     </section>
@@ -202,6 +163,9 @@ const help = [
   .svc-card__name--ember { color: var(--bone); }
   .svc-card__body { margin: 0; font-size: 0.9375rem; line-height: 1.55; color: var(--bone-dim); }
 
+  /* .svc-intro, .svc-audit* and the toned/wide card variants below are UNUSED as of
+     2026-09-03: their markup came out in the copy cut. Kept, not deleted, because the
+     audit was a real offer and restoring it is markup only while these rules stand. */
   .svc-intro { margin: -0.25rem 0 0; max-width: 52rem; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
 
   /* The featured audit: plasma-at-alpha wash over carbon (the guarantee card). */
