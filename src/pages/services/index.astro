@@ -120,22 +120,8 @@ const build = [
         says it in three cards. */}
     <Masthead title="Services" />
 
-    <!-- WHAT I BUILD -->
-    <section class="svc-section" aria-labelledby="svc-build">
-      <div class="svc-rule svc-rule--plasma">
-        <h2 id="svc-build" class="svc-rule__label svc-rule__label--plasma">CUSTOM TOOLS</h2>
-      </div>
-      <div class="svc-grid">
-        {build.map((b) => (
-          <div class="svc-card">
-            <h3 class="svc-card__name">{b.name}</h3>
-            <p class="svc-card__body">{b.body}</p>
-          </div>
-        ))}
-      </div>
-    </section>
-
-    <!-- OUR SERVICES -->
+    <!-- SERVICES: the menu of engagements. MOVED ABOVE CUSTOM TOOLS 2026-09-03 on his
+         instruction, so the page opens on what can be bought rather than on what exists. -->
     <section class="svc-section" aria-labelledby="svc-services">
       <div class="svc-rule svc-rule--plasma">
         <h2 id="svc-services" class="svc-rule__label svc-rule__label--plasma">SERVICES</h2>
@@ -146,6 +132,21 @@ const build = [
           <div class="svc-card">
             <h3 class="svc-card__name">{v.name}</h3>
             <p class="svc-card__body">{v.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- WHAT I BUILD -->
+    <section class="svc-section" aria-labelledby="svc-build">
+      <div class="svc-rule svc-rule--plasma">
+        <h2 id="svc-build" class="svc-rule__label svc-rule__label--plasma">CUSTOM TOOLS</h2>
+      </div>
+      <div class="svc-grid">
+        {build.map((b) => (
+          <div class="svc-card">
+            <h3 class="svc-card__name">{b.name}</h3>
+            <p class="svc-card__body">{b.body}</p>
           </div>
         ))}
       </div>
