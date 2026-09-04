@@ -60,10 +60,6 @@ const FAQ = [
     a: 'No. Ribbon rigs animate for everyone with nothing installed. You need the modules to build and edit ribbon components, not to animate a rig that already has them.',
   },
   {
-    q: 'Does it expire?',
-    a: 'No. One payment, perpetual, no renewal. Every version becomes fully open source four years after it ships, automatically.',
-  },
-  {
     q: 'Which Maya versions are supported?',
     a: 'The latest two Maya releases, best effort, no SLA. The same support promise the rest of the toolset carries.',
   },
@@ -128,7 +124,8 @@ const FAQ = [
         <div class="hub__cta">
           <BracketButton kind="plasma-outline" href="#store-head" label="See the modules" event="store-ribbon" />
         </div>
-        <p class="hub__meta">one payment, perpetual</p>
+        {/* "one payment, perpetual" removed 2026-09-03 on his word. The modules are
+            part of the subscription now, not a purchase. Removed, not reworded. */}
       </div>
       <div class="hub__card hub__card--soon">
         <p class="hub__badge">Coming soon</p>
@@ -146,7 +143,8 @@ const FAQ = [
     />
     <div class="st-price">
       <span class="st-price__num">{PRICE}</span>
-      <span class="st-price__terms">one payment, perpetual, no renewal</span>
+      {/* The "one payment, perpetual, no renewal" terms line went with the $199, on his
+          word. Removed, not reworded: the price reads Included and says enough. */}
     </div>
   </section>
 
@@ -217,16 +215,15 @@ const FAQ = [
     </div>
   </section>
 
+  {/* "OPEN PYTHON, NO DRM - source available, nothing compiled" WAS REMOVED 2026-09-03 on
+      Adrian's word. The shipped 2.0.1 payload is compiled in full: 280 cp311 and 280 cp313
+      extensions, and the only .py a customer receives is a vendored YAML library. The claim
+      was true of 1.x and had been live since. The support commitment beside it is unchanged
+      and now stands on its own, so the two-up grid goes with the card it lost. */}
   <section id="store-commit">
-    <div class="st-two">
-      <div class="st-note">
-        <h3 class="st-note__head">What buying commits me to</h3>
-        <p>Updates and Maya compatibility for the latest two Maya releases, best effort, no SLA. Selling this is a support commitment, and saying so out loud is what makes it worth anything.</p>
-      </div>
-      <div class="st-note">
-        <h3 class="st-note__head">Open Python, no DRM</h3>
-        <p>Source available, nothing compiled. The ribbon modules are open Python like the rest of the toolset. Read it, change it, keep it.</p>
-      </div>
+    <div class="st-note">
+      <h3 class="st-note__head">What buying commits me to</h3>
+      <p>Updates and Maya compatibility for the latest two Maya releases, best effort, no SLA. Selling this is a support commitment, and saying so out loud is what makes it worth anything.</p>
     </div>
   </section>
 
