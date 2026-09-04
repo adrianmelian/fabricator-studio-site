@@ -23,12 +23,9 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import ContactForm from '../../components/ContactForm.astro';
+import Masthead from '../../components/Masthead.astro';
 import '../../styles/designed-doc.css';
 
-const TITLE = 'Pipelines and software, built to order.';
-const TRI = ['t-bone', 't-plasma', 't-ember'];
-let li = 0;
-const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
 // CUT TO THE BONE, 2026-09-03. Adrian: "it's wayyyyyyy too long, and all over the place.
 // Let's redo it to be very simple to understand. And it's not only pipelines but also
@@ -67,15 +64,11 @@ const build = [
   <NavBar />
 
   <article class="dd svc">
-    <header class="dd-header">
-      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; SERVICES</div>
-      <h1 class="dd-title svc-title" aria-label={TITLE}>
-        {titleGlyphs.map((g) =>
-          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
-        )}
-      </h1>
-      <p class="dd-summary svc-lede">I am a technical artist with 14 years in AAA games. I build character pipelines and the software that runs them, then document the lot and hand it over, so it is <b>yours to keep and your team can run it without me</b>.</p>
-    </header>
+    {/* CUT TO THE MASTHEAD, 2026-09-03, on his instruction: the FABRICATORSTUDIO / SERVICES
+        eyebrow, the tri-colour "Pipelines and software, built to order." title and the
+        fourteen-years lede all come off, replaced by the same masthead /pricing/ and
+        /account/ carry. His words for both lines. */}
+    <Masthead title="Services" sub="Custom Pipelines and Software" />
 
     <!-- WHAT I BUILD -->
     <section class="svc-section" aria-labelledby="svc-build">
@@ -140,10 +133,6 @@ const build = [
      the contact panel. Shared furniture: designed-doc.css. Drop's off-palette darks are
      snapped to tokens; hairline fades end at the hue at zero alpha, never `transparent`. */
   .svc .dd-header { align-items: center; text-align: center; }
-  .svc-title { white-space: normal; justify-content: center; }
-  .svc-lede { max-width: 58rem; margin-inline: auto; }
-  .svc-lede b { color: var(--bone); }
-
   .svc-section { display: flex; flex-direction: column; gap: 1.5rem; }
   .svc-rule { display: flex; align-items: center; gap: 1.1rem; }
   .svc-rule__label {

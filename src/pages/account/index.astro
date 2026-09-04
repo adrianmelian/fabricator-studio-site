@@ -16,7 +16,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
-import SectionHead from '../../components/SectionHead.astro';
+import Masthead from '../../components/Masthead.astro';
 import SubscriptionTiers from '../../components/SubscriptionTiers.astro';
 import { PRICE_SWITCH_THROWN } from '../../data/launch';
 ---
@@ -27,7 +27,11 @@ import { PRICE_SWITCH_THROWN } from '../../data/launch';
   <NavBar />
 
   <section id="account" class="acct">
-    <SectionHead eyebrow="ACCOUNT" title="YOUR ACCOUNT" sub="No password. We email you a one-time code." />
+    {/* THE SECTION HEAD CAME OFF 2026-09-03 on his instruction: the ACCOUNT eyebrow, the
+        YOUR ACCOUNT title and "No password. We email you a one-time code." The sign-in
+        form below states the one-time code in its own label and button, so the sentence
+        was saying it twice. Same masthead as /pricing/. */}
+    <Masthead title="My Account" />
 
     <p class="acct-offline" id="acct-offline" role="status" hidden>Could not reach the licensing service. Try again in a moment.</p>
 

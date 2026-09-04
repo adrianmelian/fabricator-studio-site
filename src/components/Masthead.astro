@@ -1,0 +1,95 @@
+---
+// THE PAGE MASTHEAD: one word, in the display face, tracked out and underlined.
+//
+// Built 2026-09-03 as a component rather than a class, because it is wanted on two pages
+// that do not share a stylesheet: /pricing/ pulls in designed-doc.css and /account/ does
+// not. One copy of the treatment, no duplicated CSS, and no new global.
+//
+// IT GROWS OUT OF THE PRICING PAGE. His design drop opened that page with a small
+// letterspaced eyebrow over a serif headline; he then cut the headline and the standfirst,
+// which left the eyebrow labelling nothing, so the eyebrow became the title: display face,
+// bigger, underlined. Sized between the label it was and the headline scale it briefly
+// reached, on his instruction ("a little smaller, inbetween what it was and is").
+//
+// IT IS THE PAGE'S H1. A page with no h1 is a page a screen reader and a search result
+// cannot name, and on both of these pages this word is the only thing that names it.
+// `sub` is optional and arrived with the Services page (Adrian, 2026-09-03), where the
+// masthead word is the label and the line under it carries what the page actually offers.
+// /pricing/ and /account/ pass nothing and render the word alone.
+interface Props { title: string; sub?: string }
+const { title, sub } = Astro.props;
+---
+<header class="mh">
+  {/* The inner span carries the rule. Letter-spacing leaves a trailing space after the
+      final letter: it is inside the border box, so an underline drawn on the element runs
+      0.34em past the last glyph. The negative margin re-centres the word and the rule is
+      an absolutely positioned pseudo-element inset by that same trailing space, so it
+      stops under the last letter instead of overhanging it. */}
+  <h1 class="mh__title"><span>{title}</span></h1>
+  {sub && <p class="mh__sub">{sub}</p>}
+</header>
+
+<style>
+  /* THE MASTHEAD OWNS ITS OWN VERTICAL SPACE, on his instruction 2026-09-03: "make it
+     standardized and unified between them". It did not, and the three pages disagreed.
+     /account/ wraps its content in a <section>, which base.css pads 2.5rem, so its
+     masthead started 40px lower than the other two; and <section> has no flex gap, so the
+     underline finished 0px above the sign-in panel and touched it. /pricing/ and
+     /services/ sit in .dd, a flex column whose 2.75rem gap was doing the work instead.
+
+     So the spacing is set here and the two host containers' contributions are cancelled
+     below. Measured on all three afterwards, not assumed. */
+  .mh {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding-top: 3rem;
+    margin-bottom: 3rem;
+  }
+  /* .dd's flex gap lands after this block; take it back off. */
+  :global(.dd) > .mh { margin-bottom: calc(3rem - 2.75rem); }
+  /* base.css: `section { padding: 2.5rem 1.5rem }`. Cancel the top half only. */
+  :global(section) > .mh { margin-top: -2.5rem; }
+  .mh__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.5625rem, 3.4vw, 2.375rem);
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    line-height: 1;
+  }
+  .mh__title span {
+    position: relative;
+    display: inline-block;
+    letter-spacing: 0.34em;
+    margin-right: -0.34em;
+    /* THE RULE MUST OCCUPY HEIGHT. It is an absolutely positioned pseudo-element, so it
+       is out of flow and contributes nothing to the h1's box; hung below the box it then
+       overlapped the subtitle, whose margin was measured from the text rather than from
+       the rule. This padding puts the rule inside the box, so everything below it is
+       spaced from the line the reader actually sees. */
+    padding-bottom: 0.26em;
+  }
+  /* Set in the body face on purpose: a second line of the display serif directly under the
+     first would read as a two-line headline rather than as a label and its subject. */
+  .mh__sub {
+    /* Measured from the rule, which now has height. Widened on his instruction. */
+    margin: 1.75rem 0 0;
+    font-size: clamp(1.0625rem, 1.9vw, 1.375rem);
+    line-height: 1.35;
+    color: var(--bone);
+    max-width: 32ch;
+    text-wrap: pretty;
+  }
+  .mh__title span::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0.34em; /* inset by the trailing letter-space so it stops at the last glyph */
+    bottom: 0;
+    height: 2px;
+    background: currentColor;
+  }
+</style>

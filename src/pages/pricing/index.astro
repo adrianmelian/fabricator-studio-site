@@ -16,6 +16,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import SubscriptionTiers from '../../components/SubscriptionTiers.astro';
+import Masthead from '../../components/Masthead.astro';
 import '../../styles/designed-doc.css';
 
 
@@ -57,11 +58,10 @@ const FAQ = [
         of its products is. Lede ruled 2026-08-31, when the Maya tools stopped being free
         and Armature became the free offering. It is the Studio Pipeline and never "the
         Maya toolset" (Adrian, 2026-08-31). */}
-    <header class="dd-header pr-header">
-      <span class="pr-eyebrow">Pricing</span>
-      <h1 class="pr-title">Armature is free.</h1>
-      <p class="pr-sub">The Studio Pipeline is a subscription. Pick the tools you actually work in, by the week, the month, or the year.</p>
-    </header>
+    {/* CUT TO THE ONE WORD, 2026-09-03, on his instruction: remove "Armature is free."
+        and the standfirst under it. The cards carry the whole message now, and what is
+        left is the masthead, which /account/ now shares. */}
+    <Masthead title="Pricing" />
 
     <!-- FABRICATOR 2.0: the subscription tiers (2026-08-31). The final free 1.x release's
          What's New card links here with a button labelled "What's coming in 2.0", so this
@@ -114,42 +114,6 @@ const FAQ = [
      headline, with the standfirst held to about 52 characters so it breaks in two lines. */
   /* Room above it (Adrian, 2026-09-03). The eyebrow sat hard under the navigation bar
      with nothing between them, so the page opened cramped before the headline arrived. */
-  .pr-header { align-items: center; text-align: center; gap: 18px; padding-top: 2.5rem; }
-  /* THE EYEBROW IS SET IN THE DISPLAY FACE, to pair with the serif headline under it
-     (Adrian, 2026-09-03: "Pricing at the top of the page should look nice with the script
-     text"). It was 11px semibold sans in bone-faint, which read as a form label rather
-     than as part of the same masthead. Same family as the headline, tracked out, and one
-     step brighter so it holds its own without competing. */
-  .pr-eyebrow {
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: clamp(1.0625rem, 1.6vw, 1.3125rem);
-    letter-spacing: 0.34em;
-    text-indent: 0.34em; /* the tracking is trailing, so nudge back to true centre */
-    text-transform: uppercase;
-    color: var(--bone-dim);
-    line-height: 1;
-  }
-  .pr-title {
-    margin: 0;
-    font-family: var(--font-display);
-    font-weight: 400;
-    letter-spacing: -0.01em;
-    /* 54px in the drop, allowed to shrink on a phone rather than wrapping mid-word. */
-    font-size: clamp(2.125rem, 5.2vw, 3.375rem);
-    line-height: 1.1;
-    color: var(--bone);
-    max-width: 20ch;
-    text-wrap: pretty;
-  }
-  .pr-sub {
-    margin: 0;
-    font-size: 16px;
-    color: var(--bone-dim);
-    line-height: 1.6;
-    max-width: 52ch;
-    text-wrap: pretty;
-  }
   /* Licensing page in the design drop's language. Shared furniture: designed-doc.css.
      The drop's off-palette darks are snapped to tokens, and every fade ends at the hue
      at zero alpha rather than the `transparent` keyword. */
