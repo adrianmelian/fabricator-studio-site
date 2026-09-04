@@ -102,9 +102,6 @@ const CARDS = [
       cut. He gave the line; it is not a truncation of mine. */}
   <section id="cr-intro">
     <Masthead title="Unreal Control Rig" promise="An Animator-Friendly Modular Control Rig in Unreal Engine 5.8" />
-    <div class="cr-ctas">
-      <BracketButton kind="hard" href="/pricing/" label="See the plans" event="controlrig-plans" />
-    </div>
   </section>
 
   <section id="cr-cards">
@@ -140,6 +137,12 @@ const CARDS = [
   </section>
 
   <section id="cr-facts">
+    {/* MOVED HERE 2026-09-04 on his instruction. It sat directly under the masthead, which
+        asked for the sale before the page had made it; it now stands immediately above the
+        line saying which plans carry the plugin, which is the question it answers. */}
+    <div class="cr-ctas cr-ctas--facts">
+      <BracketButton kind="hard" href="/pricing/" label="See the plans" event="controlrig-plans" />
+    </div>
     <dl class="cr-facts">
       {/* ENGINE AND READS REMOVED 2026-09-04 on his instruction. What went: "Unreal Engine
           5.8. Dynamic chains need the engine's ControlRigDynamics plugin enabled." and "An
@@ -166,6 +169,9 @@ const CARDS = [
 
 <style>
   .cr-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.75rem; }
+  /* No top margin here: the section above already sets the distance, and the button now
+     leads its own block rather than trailing the one before it. */
+  .cr-ctas--facts { margin-top: 0; margin-bottom: 1.75rem; }
 
   .cr-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.5rem; }
   @media (max-width: 860px) { .cr-grid { grid-template-columns: 1fr; } }
