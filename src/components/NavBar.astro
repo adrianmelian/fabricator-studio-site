@@ -1,8 +1,8 @@
 ---
-// Download opens /store/, the hub for everything the studio ships (Adrian, 2026-08-19:
-// one download page). NewsletterPop still rides here because the nav is on every page, so
-// the post-download ask exists wherever installer links do (the store's own download
-// buttons carry data-installer).
+// The bar carries five entries: Toolset, Help, Pricing, My Account, Services. Two of them are
+// dropdown groups. /store/ lost its Downloads tab 2026-09-03 when Pricing took the slot; it
+// is still the hub for everything the studio ships (Adrian, 2026-08-19: one download page)
+// and is reached from the footer, the hero button and the scan overlay.
 // import NewsletterPop from './NewsletterPop.astro';  // unmounted, see below
 import CoffeeButton from './CoffeeButton.astro';
 
@@ -10,8 +10,10 @@ import CoffeeButton from './CoffeeButton.astro';
 // subpage lights Docs and /armature/eula/ lights Armature; the homepage lights none.
 const path = Astro.url.pathname;
 const active = (href: string) => (path.startsWith(href) ? ' navbar__tab--active' : '');
-// The Toolset entry lights when any of its three pages is the current one.
+// A group entry lights when any page inside it is the current one.
 const groupActive = ['/armature/', '/tools/', '/control-rig/'].some((h) => path.startsWith(h)) ? ' navbar__tab--active' : '';
+// Help holds the two reading surfaces (Adrian, 2026-09-03).
+const helpActive = ['/docs/', '/tutorials/'].some((h) => path.startsWith(h)) ? ' navbar__tab--active' : '';
 ---
 <nav class="navbar">
   <a class="navbar__brand" href="/">
@@ -50,10 +52,24 @@ const groupActive = ['/armature/', '/tools/', '/control-rig/'].some((h) => path.
           <a class={'navbar__tab navbar__drop__item' + active('/control-rig/')} href="/control-rig/">Unreal Control Rig</a>
         </div>
       </div>
-      <a class={'navbar__tab' + active('/store/')} href="/store/">Downloads</a>
-      <a class={'navbar__tab' + active('/docs/')} href="/docs/">Docs</a>
-      <a class={'navbar__tab' + active('/tutorials/')} href="/tutorials/">Tutorials</a>
-      <a class={'navbar__tab' + active('/account/')} href="/account/">Account</a>
+      {/* HELP: DOCUMENTATION AND TUTORIALS BEHIND ONE ENTRY (Adrian, 2026-09-03): "rename
+          Docs to Documentation and put Documentation and Tutorials inside a dropdown like
+          Toolset, called Help". Same machinery as Toolset, which the script and the narrow
+          rules were already written for; the panel is closed until pressed at every width. */}
+      <div class={'navbar__group' + helpActive}>
+        <button class={'navbar__tab navbar__tab--group' + helpActive} type="button" aria-haspopup="true" aria-expanded="false" aria-controls="nav-help">
+          Help<span class="navbar__caret" aria-hidden="true"></span>
+        </button>
+        <div class="navbar__drop" id="nav-help">
+          <a class={'navbar__tab navbar__drop__item' + active('/docs/')} href="/docs/">Documentation</a>
+          <a class={'navbar__tab navbar__drop__item' + active('/tutorials/')} href="/tutorials/">Tutorials</a>
+        </div>
+      </div>
+      {/* PRICING REPLACED DOWNLOADS HERE (Adrian, 2026-09-03): "let's call it Pricing,
+          and replace downloads with it on the top bar". /store/ keeps its page and is
+          still reached from the footer, the hero button and the scan overlay. */}
+      <a class={'navbar__tab' + active('/pricing/')} href="/pricing/">Pricing</a>
+      <a class={'navbar__tab' + active('/account/')} href="/account/">My Account</a>
       <a class={'navbar__tab navbar__tab--bold' + active('/services/')} href="/services/">Services</a>
     </div>
     {/* The coffee door, far right (Adrian, 2026-08-29). A DELIBERATE exception to the
@@ -108,7 +124,12 @@ const groupActive = ['/armature/', '/tools/', '/control-rig/'].some((h) => path.
       if (!btn) return;
       btn.addEventListener('click', function (e) {
         e.stopPropagation();
-        setGroup(group, !group.classList.contains('is-open'));
+        var open = !group.classList.contains('is-open');
+        // ONE PANEL AT A TIME. With a second group (Help, 2026-09-03) the button's
+        // stopPropagation kept the outside-click handler from ever firing, so pressing
+        // Toolset left Help hanging open behind it. Close the others first.
+        Array.prototype.forEach.call(groups, function (g) { if (g !== group) setGroup(g, false); });
+        setGroup(group, open);
       });
     });
     document.addEventListener('click', function (e) {

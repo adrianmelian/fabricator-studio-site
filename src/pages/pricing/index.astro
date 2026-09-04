@@ -18,7 +18,7 @@ import Footer from '../../components/Footer.astro';
 import SubscriptionTiers from '../../components/SubscriptionTiers.astro';
 import '../../styles/designed-doc.css';
 
-const TITLE = 'LICENSING';
+const TITLE = 'PRICING';
 // All bone, no tri-color cycle: Adrian's call, 2026-08-31.
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : 't-bone' }));
 
@@ -39,14 +39,14 @@ const FAQ = [
 ];
 ---
 <BaseLayout
-  title="Licensing | FabricatorStudio"
-  description="Armature is free. The Studio Pipeline is a subscription: Freelancer, Premium, Pro and Enterprise."
+  title="Pricing | FabricatorStudio"
+  description="Armature is free. The Studio Pipeline is a subscription: Freelance Animator, Freelance Tech Art, Pro and Enterprise."
 >
   <NavBar />
 
   <article class="dd lc">
     <header class="dd-header">
-      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; LICENSING</div>
+      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; PRICING</div>
       <h1 class="dd-title" aria-label={TITLE}>
         {titleGlyphs.map((g) =>
           g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
