@@ -58,28 +58,40 @@ import '../../styles/designed-doc.css';
 // The claims that ARE made trace to something real: he is the author of Fabricator,
 // Armature and FS Control Rig, all three of which are on this site.
 // ===========================================================================================
+// A COLOUR PER CARD (Adrian, 2026-09-03). RAISED WITH HIM: the DNA palette holds FOUR
+// hues, plasma, cobalt, ember and magma, so six genuinely distinct colours do not exist in
+// it. The first four cards take the four hues; the last two take the dim weights of plasma
+// and cobalt, which read as related to their bright twins rather than as new colours.
+// Adding hues five and six is a palette decision and his, not a CSS edit.
+// scripts/check-brand-gates.mjs rejects any hex outside the set.
 const services = [
   {
+    accent: 'plasma',
     name: 'Rigging on demand',
     body: 'Production rigs built to your skeleton and your standards, from one hero character to a full cast.',
   },
   {
+    accent: 'cobalt',
     name: 'Tools support',
     body: 'Priority support for studios running Fabricator, Armature or FS Control Rig in production, direct to the person who wrote them.',
   },
   {
+    accent: 'ember',
     name: 'Production consulting',
     body: 'An audit of the pipeline you already have: tools, rigs, export, and where the time is actually going. You get a written report and an order to fix things in.',
   },
   {
+    accent: 'magma',
     name: 'Custom tools and software',
     body: 'Authoring tools, validators and standalone apps, built around how your team already works. Armature, on this site, is one of mine start to finish.',
   },
   {
+    accent: 'plasma-dim',
     name: 'Custom rig development',
     body: 'Face and body rigs designed for the production rather than adapted from a template, with the reusable components your team builds on afterwards.',
   },
   {
+    accent: 'cobalt-dim',
     name: 'Team training',
     body: 'Sessions for your riggers, TDs and animators on your tools and your workflow, not a generic curriculum. Documentation and follow-up questions included.',
   },
@@ -133,7 +145,7 @@ const build = [
       <p class="svc-creed">{servicesCreed}</p>
       <div class="svc-grid svc-grid--plasma">
         {services.map((v) => (
-          <div class="svc-card">
+          <div class={`svc-card svc-card--${v.accent}`}>
             <h3 class="svc-card__name">{v.name}</h3>
             <p class="svc-card__body">{v.body}</p>
           </div>
@@ -322,6 +334,13 @@ const build = [
      outlined boxes stop reading as cards and start reading as warnings. Every hue is in the
      set scripts/check-brand-gates.mjs enforces. */
   .svc-grid--plasma .svc-card { border-color: rgba(124, 255, 178, 0.3); }
+  /* Per-card overrides, one hue each. Same 0.3 weight as the section edges. */
+  .svc-card--plasma { border-color: rgba(124, 255, 178, 0.3) !important; }
+  .svc-card--cobalt { border-color: rgba(124, 184, 255, 0.3) !important; }
+  .svc-card--ember { border-color: rgba(255, 122, 61, 0.3) !important; }
+  .svc-card--magma { border-color: rgba(255, 59, 59, 0.3) !important; }
+  .svc-card--plasma-dim { border-color: rgba(79, 184, 136, 0.45) !important; }
+  .svc-card--cobalt-dim { border-color: rgba(79, 132, 190, 0.45) !important; }
   .svc-grid--cobalt .svc-card { border-color: rgba(124, 184, 255, 0.3); }
   .svc-steps--ember .svc-step { border-color: rgba(255, 122, 61, 0.3); }
   .svc-step__num { font-family: var(--font-mono); font-weight: 800; font-size: 2.5rem; line-height: 1; }
