@@ -42,6 +42,53 @@ import '../../styles/designed-doc.css';
 //
 // The audit is not deleted from the record, only from the page: it was a real offer with a
 // real credit against fix work, and putting it back is this array plus its markup from git.
+// ===========================================================================================
+// OUR SERVICES, added 2026-09-03 on his instruction, modelled on the section mcsGear runs
+// for mGear. He named the six offerings; the copy below is DATA'S and he rules every word.
+//
+// WHAT WAS DELIBERATELY NOT CARRIED OVER FROM THE mGear EXAMPLE, because none of it is
+// true here and a services page is the worst place to find that out:
+//   - "We". This is a one-person studio and the rest of the page says "I". The heading is
+//     his word; the bodies are not pluralised to match it.
+//   - A private Slack channel, weekly meetings, a six-month minimum, recorded courses and
+//     Pyblish validators. Those are mcsGear's terms and mcsGear's stack.
+//   - A link per card. mcsGear's arrows go to six pages that exist. There are no such pages
+//     here, so the cards do not promise one; Get in touch below is the single door.
+//
+// The claims that ARE made trace to something real: he is the author of Fabricator,
+// Armature and FS Control Rig, all three of which are on this site.
+// ===========================================================================================
+const services = [
+  {
+    name: 'Rigging on demand',
+    body: 'Production rigs built to your skeleton and your standards, from one hero character to a full cast.',
+  },
+  {
+    name: 'Tools support',
+    body: 'Priority support for studios running Fabricator, Armature or FS Control Rig in production, direct to the person who wrote them.',
+  },
+  {
+    name: 'Production consulting',
+    body: 'An audit of the pipeline you already have: tools, rigs, export, and where the time is actually going. You get a written report and an order to fix things in.',
+  },
+  {
+    name: 'Custom tools and software',
+    body: 'Authoring tools, validators and standalone apps, built around how your team already works. Armature, on this site, is one of mine start to finish.',
+  },
+  {
+    name: 'Custom rig development',
+    body: 'Face and body rigs designed for the production rather than adapted from a template, with the reusable components your team builds on afterwards.',
+  },
+  {
+    name: 'Team training',
+    body: 'Sessions for your riggers, TDs and animators on your tools and your workflow, not a generic curriculum. Documentation and follow-up questions included.',
+  },
+];
+
+// The line under the heading. DATA'S, and the one sentence on this page that tries to say
+// what the whole offer is for.
+const servicesCreed = 'One idea runs through all of it: you own what I build. The source, the documentation and the decisions stay with your team.';
+
 const build = [
   {
     name: 'Pipelines',
@@ -83,6 +130,22 @@ const build = [
           <div class="svc-card">
             <h3 class="svc-card__name">{b.name}</h3>
             <p class="svc-card__body">{b.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- OUR SERVICES -->
+    <section class="svc-section" aria-labelledby="svc-services">
+      <div class="svc-rule svc-rule--plasma">
+        <h2 id="svc-services" class="svc-rule__label svc-rule__label--plasma">OUR SERVICES</h2>
+      </div>
+      <p class="svc-creed">{servicesCreed}</p>
+      <div class="svc-grid">
+        {services.map((v) => (
+          <div class="svc-card">
+            <h3 class="svc-card__name">{v.name}</h3>
+            <p class="svc-card__body">{v.body}</p>
           </div>
         ))}
       </div>
@@ -147,6 +210,16 @@ const build = [
 </BaseLayout>
 
 <style>
+  /* The creed sits between the rule and the cards, held narrow so it reads as one thought
+     rather than as a full-width paragraph competing with the grid under it. */
+  .svc-creed {
+    margin: 0 0 0.5rem;
+    max-width: 62ch;
+    font-size: 1.0625rem;
+    line-height: 1.6;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
   /* Page-specific: section rules, the card grids, the audit feature, the step cards, and
      the contact panel. Shared furniture: designed-doc.css. Drop's off-palette darks are
      snapped to tokens; hairline fades end at the hue at zero alpha, never `transparent`. */
