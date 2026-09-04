@@ -45,59 +45,125 @@
 import { PLANS } from '../data/plans';
 const plan = (id: string) => PLANS.find((p) => p.id === id)!;
 
+
+// ==========================================================================================
+// REBUILT 2026-09-03 FROM ADRIAN'S DESIGN DROP.
+// Source: Inbox/Website_fabricatorstudio/HTML/"Armature Pricing.html", a Claude Design
+// canvas export. Read, never modified: the Inbox is his and is read-only to the crew.
+//
+// The drop was built against this site's OWN system - Archivo and Instrument Serif, and
+// carbon / iron / bone / plasma at their exact token values - so nothing here invents a
+// colour or a typeface. The single literal that is not a token is the cobalt rail #33547E,
+// darker than --cobalt-dim, and it is his.
+//
+// WHAT THE DESIGN CHANGED, past the paint:
+//   1. A BILLING SELECTOR PER CARD. Weekly / Monthly / Yearly is a segmented control, and
+//      the price, the alt line and the button all follow it. It replaces a row of one
+//      button per plan, which put three prices on screen at once and asked the reader to
+//      pick a checkout rather than a plan.
+//   2. A FEATURE GLYPH THAT MATCHES ITS SENSE. Yes is a plasma tick, no is a dim cross.
+//      This is the fix for the defect he was shown the same day: the Animator card's "No
+//      rigging or skinning tools" was rendering with a GREEN TICK next to it.
+//   3. ONE CTA PER CARD, in its own words, with a footnote beneath.
+//   4. Pro lifts 10px and wears the plasma rail, border, glow and button.
+//
+// ENTERPRISE SAYS "TALK TO US" AND OPENS MAIL, NOT CHECKOUT. The design says so and it
+// agrees with the standing note below that Enterprise is never a buy button. Its monthly
+// and yearly prices still show; the seat is arranged by conversation.
+// ==========================================================================================
+
+// The "was" figures are the design's, and each is an EQUIVALENT rather than a price anyone
+// was charged: $180 is twelve months at $15, $300 is twelve at $25, $540 is twelve at $45,
+// and $10 is the two freelance halves bought separately. They are struck through to show
+// what the longer commitment saves.
+//
+// ONE OF THEM DISAGREES WITH THE COMMERCIAL MODEL AND IS FLAGGED TO HIM: the drop puts $16
+// on the Animator monthly, being four weeks at $4. commercial-model.md computes that band's
+// monthly equivalent as $17.33, because a month is 4.33 weeks and not 4. Rendered as the
+// design has it, pending his ruling.
 const TIERS = [
-  // FREELANCE ANIMATOR (Adrian, 2026-09-03): "It's the Tech Art + Animator package minus
-  // the Tech Art." The animation half - Anim Studio, the ANIM tab, Export All Animation
-  // Clips - plus the Unreal builder, and no rigging or skinning at all.
-  //
-  // It leads the row because it is the cheapest band. Its checks END on what it does NOT
-  // carry, because the one thing a buyer must not misread at $4 is that it rigs.
-  // The weekly ladder is now a clean split: $4 the animation half, $6 the tech art half,
-  // $9 both, and the bundle undercuts the two halves bought together.
   {
     key: 'animator',
-    name: 'FREELANCE ANIMATOR',
-    price: '$4',
-    per: '/ week',
-    alt: 'or $15 / month, or $150 / year',
-    body: 'The animation tools and the Unreal builder.',
-    checks: ['Anim Studio, and the exporter ANIM tab', 'Unreal Control Rig builder', 'Armature advanced', 'No rigging or skinning tools'],
-    plans: [plan('animator_w'), plan('animator_m'), plan('animator_y')],
+    name: 'Freelance animator',
+    summary: 'The animation tools and the Unreal builder.',
+    cta: 'Start animating',
+    footnote: '',
+    // `sel` is the band the card opens on; his design opens the Animator on Monthly.
+    sel: 'animator_m',
+    plans: [
+      { id: 'animator_w', label: 'Weekly', was: '', alt: 'or $15 / month, or $150 / year', tip: 'Billed weekly, cancel any time' },
+      { id: 'animator_m', label: 'Monthly', was: '$16', alt: 'or $4 / week, or $150 / year', tip: 'Billed monthly' },
+      { id: 'animator_y', label: 'Yearly', was: '$180', alt: 'two months free, or $15 / month', tip: 'Billed once a year, two months free' },
+    ],
+    features: [
+      ['yes', 'Anim Studio, and the exporter ANIM tab'],
+      ['yes', 'Unreal Control Rig builder'],
+      ['yes', 'Armature advanced'],
+      ['no', 'No rigging or skinning tools'],
+    ],
   },
   {
     key: 'techart',
-    name: 'FREELANCE TECH ART',
-    price: '$6',
-    per: '/ week',
-    alt: 'or $9 / week with Animation: all tools',
-    body: 'The tech art tools, billed weekly.',
-    checks: ['The tech art tools', 'Exporter: MODEL and RIG tabs', 'Billed weekly, cancel any time'],
-    plans: [plan('techart_w')],
-    animPlans: [plan('techart_anim_w')],
+    name: 'Freelance tech art',
+    summary: 'The tech art tools, billed weekly.',
+    cta: 'Start building',
+    footnote: 'Billed weekly, cancel any time',
+    sel: 'techart_w',
+    plans: [
+      { id: 'techart_w', label: 'Weekly', was: '', alt: 'or $9 / week with Animation: all tools', tip: 'The tech art tools alone' },
+      { id: 'techart_anim_w', label: '+ Animation', was: '$10', alt: 'tech art and animation, every freelance tool', tip: 'Tech art plus the Animation add-on' },
+    ],
+    features: [
+      ['yes', 'The tech art tools'],
+      ['yes', 'Exporter: MODEL and RIG tabs'],
+      ['yes', 'Billed weekly, cancel any time'],
+    ],
   },
   {
     key: 'pro',
-    name: 'PRO',
-    price: '$25',
-    per: '/ month',
-    alt: 'or $250 / year, two months free',
-    body: 'Every tool in the studio.',
-    checks: ['Maya rigging and animation tools', 'Unreal Control Rig builder', 'Advanced Ribbon Modules', 'Monthly or yearly'],
+    name: 'Pro',
     featured: true,
-    plans: [plan('pro_m'), plan('pro_y')],
+    summary: 'Every tool in the studio.',
+    cta: 'Get Pro',
+    footnote: '',
+    sel: 'pro_m',
+    plans: [
+      { id: 'pro_m', label: 'Monthly', was: '', alt: 'or $250 / year, two months free', tip: 'Billed monthly' },
+      { id: 'pro_y', label: 'Yearly', was: '$300', alt: 'two months free, or $25 / month', tip: 'Billed once a year, two months free' },
+    ],
+    features: [
+      ['yes', 'Maya rigging and animation tools'],
+      ['yes', 'Unreal Control Rig builder'],
+      ['yes', 'Advanced Ribbon Modules'],
+      ['yes', 'Monthly or yearly'],
+    ],
   },
   {
     key: 'enterprise',
-    name: 'ENTERPRISE',
-    price: '$45',
-    per: '/ month',
-    alt: 'or $450 / year, two months free',
-    body: 'Pro plus support.',
-    checks: ['Everything in Pro', 'Priority email support'],
-    plans: [plan('enterprise_m'), plan('enterprise_y')],
+    name: 'Enterprise',
+    summary: 'Pro plus support.',
+    cta: 'Talk to us',
+    mailto: 'mailto:licensing@fabricator.studio?subject=Enterprise',
+    footnote: '',
+    sel: 'enterprise_m',
+    plans: [
+      { id: 'enterprise_m', label: 'Monthly', was: '', alt: 'or $450 / year, two months free', tip: 'Billed monthly' },
+      { id: 'enterprise_y', label: 'Yearly', was: '$540', alt: 'two months free, or $45 / month', tip: 'Billed once a year, two months free' },
+    ],
+    features: [
+      ['yes', 'Everything in Pro'],
+      ['yes', 'Priority email support'],
+    ],
   },
 ];
 
+// Each card is RENDERED IN ITS OPENING STATE rather than assembled by script, so the page
+// is correct and readable with JavaScript off, which is also what a crawler and reader mode
+// receive. The script only swaps the three price fields and the button target on a press.
+const view = TIERS.map((t) => {
+  const open = t.plans.find((p) => p.id === t.sel) ?? t.plans[0];
+  return { ...t, open, openPlan: plan(open.id) };
+});
 // THE PER-SEAT LADDER IS NOT RENDERED, and it is not deleted either.
 //
 // It was the Enterprise tier's pricing until 2026-09-02, when Adrian renamed Premium to
@@ -120,55 +186,84 @@ const BANDS = [
   { seats: '251 and up', fee: 'Free', tone: 'free' },
 ];
 ---
-{/* The section head (eyebrow, title, lede) and the Armature strip were cut by Adrian,
-    2026-08-31: the page lede carries the whole message and the cards speak for
-    themselves. */}
 <section id="tiers-20" class="st" aria-label="Subscription tiers">
   <div class="st-tiers">
-    {TIERS.map((t) => (
-      <div class={`st-tier${t.featured ? ' st-tier--featured' : ''}`}>
-        <div class="st-tier__top">
-          <span class={`st-pill${t.featured ? ' st-pill--plasma' : ''}`}><span class="st-pill__dot" aria-hidden="true"></span>{t.name}</span>
-        </div>
-        <div class="st-price">
-          <span class={`st-price__num${t.featured ? ' st-price__num--plasma' : ''}`}>{t.price}</span>
-          <span class="st-price__per">{t.per}</span>
-        </div>
-        {t.alt && <p class="st-price__alt">{t.alt}</p>}
-        <p class="st-tier__body">{t.body}</p>
-        <div class={`st-tier__rule${t.featured ? ' st-tier__rule--plasma' : ''}`} aria-hidden="true"></div>
-        <ul class="st-checks">
-          {t.checks.map((c) => (
-            <li class="st-check">
-              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M5 10l3.5 3.5L15 6" stroke="#7CFFB2" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" /></svg>
-              {c}
-            </li>
-          ))}
-        </ul>
-        <div class="st-buy">
-          <div class="st-buy__row">
-            {t.plans.map((p) => (
-              <button type="button" class="st-plan" data-plan-id={p.id} data-plan-url={p.url ?? ''} disabled={!p.url}>
-                <span class="st-plan__dur">{p.label}</span>
-                <span class="st-plan__price">{p.url ? (<>{p.price}<small>{p.per}</small></>) : 'Coming soon'}</span>
-              </button>
-            ))}
+    {view.map((t) => (
+      <article class={`pt${t.featured ? ' pt--hot' : ''}`} data-tier={t.key}>
+        <div class="pt__rail" aria-hidden="true"></div>
+
+        <div class="pt__body">
+          <div class="pt__top">
+            <span class="pt__name">{t.name}</span>
           </div>
-          {t.animPlans && (
-            <div class="st-buy__anim">
-              <p class="st-buy__animLabel">+ Animation add-on</p>
-              <div class="st-buy__row">
-                {t.animPlans.map((p) => (
-                  <button type="button" class="st-plan" data-plan-id={p.id} data-plan-url={p.url ?? ''} disabled={!p.url}>
-                    <span class="st-plan__dur">{p.label}</span>
-                    <span class="st-plan__price">{p.url ? (<>{p.price}<small>{p.per}</small></>) : 'Coming soon'}</span>
-                  </button>
-                ))}
-              </div>
+
+          {/* The three fields the selector drives. Each carries the opening value in the
+              HTML so the card is complete before any script runs. */}
+          <div class="pt__price">
+            <div class="pt__priceRow">
+              <span class="pt__was" data-was hidden={!t.open.was}>{t.open.was}</span>
+              <span class="pt__amount" data-amount>{t.openPlan?.price}</span>
+              <span class="pt__per" data-per>{t.openPlan?.per}</span>
             </div>
-          )}
+            <span class="pt__alt" data-alt>{t.open.alt}</span>
+          </div>
+
+          <div class="pt__billing">
+            <span class="pt__billingLabel" id={`bill-${t.key}`}>Billing</span>
+            <div class="pt__seg" role="group" aria-labelledby={`bill-${t.key}`}>
+              {t.plans.map((p) => {
+                const pl = plan(p.id);
+                return (
+                  <button
+                    type="button"
+                    class={`pt__segBtn${p.id === t.sel ? ' is-on' : ''}`}
+                    title={p.tip}
+                    aria-pressed={p.id === t.sel ? 'true' : 'false'}
+                    data-band
+                    data-plan-id={p.id}
+                    data-plan-url={pl?.url ?? ''}
+                    data-amount={pl?.price}
+                    data-per={pl?.per}
+                    data-alt={p.alt}
+                    data-was={p.was}
+                  >{p.label}</button>
+                );
+              })}
+            </div>
+          </div>
+
+          <div class="pt__get">
+            <span class="pt__summary">{t.summary}</span>
+            <div class="pt__rule" aria-hidden="true"></div>
+            <ul class="pt__features">
+              {t.features.map(([kind, text]) => (
+                <li class={`pt__feat${kind === 'no' ? ' pt__feat--no' : ''}`}>
+                  {/* THE GLYPH CARRIES THE SENSE. A tick beside "No rigging or skinning
+                      tools" is what this replaces. */}
+                  <span class="pt__glyph" aria-hidden="true">{kind === 'no' ? '×' : '✓'}</span>
+                  <span class="pt__featText">{text}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
-      </div>
+
+        <div class="pt__action">
+          {t.mailto ? (
+            <a class="pt__cta" href={t.mailto}>{t.cta}</a>
+          ) : (
+            <button
+              type="button"
+              class="pt__cta"
+              data-buy
+              data-plan-id={t.sel}
+              data-plan-url={t.openPlan?.url ?? ''}
+              disabled={!t.openPlan?.url}
+            >{t.openPlan?.url ? t.cta : 'Coming soon'}</button>
+          )}
+          {t.footnote && <span class="pt__foot">{t.footnote}</span>}
+        </div>
+      </article>
     ))}
   </div>
 
@@ -220,11 +315,18 @@ const BANDS = [
 </section>
 
 <script>
-  // Wires every .st-plan button to the right destination, built at click time (not at
-  // render time) so a stale href never survives a sign-in that happens later on the same
-  // page load. A visitor with no fs_session in localStorage always lands on /account/ first:
-  // a purchase made without a signed-in account cannot be attached to a seat, so the
-  // sign-in-first path is mandatory here, not a nicety, per the brief.
+  // TWO JOBS, and they are separate on purpose.
+  //
+  // (1) THE BILLING SELECTOR. Pressing a band swaps the price, the per-unit, the alt line
+  //     and the struck-through equivalent inside that card, and re-points that card's one
+  //     CTA at the band now chosen. Purely local to the card; no other card moves.
+  //
+  // (2) THE CHECKOUT HANDOFF, unchanged in substance from the version this replaces. A
+  //     visitor with no fs_session in localStorage can never reach checkout directly: a
+  //     purchase made without a signed-in account cannot be attached to a seat, so a
+  //     signed-out visitor goes to /account/ first. The destination is built AT CLICK TIME
+  //     rather than at render, so a stale href never survives a sign-in that happens later
+  //     on the same page load - and now, so it never survives a band change either.
   (function () {
     var API = 'https://api.fabricator.studio';
     var SESSION_KEY = 'fs_session';
@@ -233,45 +335,83 @@ const BANDS = [
       try { return localStorage.getItem(SESSION_KEY); } catch (e) { return null; }
     }
 
-    var live = Array.prototype.slice
-      .call(document.querySelectorAll('.st-plan[data-plan-url]'))
-      .filter(function (b) { return b.getAttribute('data-plan-url'); });
-    if (!live.length) return;
+    // ---- (1) the selector -------------------------------------------------------------
+    Array.prototype.forEach.call(document.querySelectorAll('.pt'), function (card) {
+      var bands = card.querySelectorAll('[data-band]');
+      var buy = card.querySelector('[data-buy]');
+      var was = card.querySelector('[data-was]');
+      var amount = card.querySelector('[data-amount]');
+      var per = card.querySelector('[data-per]');
+      var alt = card.querySelector('[data-alt]');
+      if (!bands.length) return;
 
-    function wireSignInFirst() {
-      live.forEach(function (b) {
-        b.addEventListener('click', function () { window.location.href = '/account/'; });
+      Array.prototype.forEach.call(bands, function (b) {
+        b.addEventListener('click', function () {
+          Array.prototype.forEach.call(bands, function (o) {
+            o.classList.toggle('is-on', o === b);
+            o.setAttribute('aria-pressed', o === b ? 'true' : 'false');
+          });
+          if (amount) amount.textContent = b.getAttribute('data-amount') || '';
+          if (per) per.textContent = b.getAttribute('data-per') || '';
+          if (alt) alt.textContent = b.getAttribute('data-alt') || '';
+          if (was) {
+            var w = b.getAttribute('data-was') || '';
+            was.textContent = w;
+            // hidden, not display:none in CSS, so the row reflows with no empty gap.
+            was.hidden = !w;
+          }
+          if (buy) {
+            buy.setAttribute('data-plan-id', b.getAttribute('data-plan-id') || '');
+            buy.setAttribute('data-plan-url', b.getAttribute('data-plan-url') || '');
+            buy.disabled = !b.getAttribute('data-plan-url');
+          }
+        });
       });
+    });
+
+    // ---- (2) the checkout handoff -----------------------------------------------------
+    var buys = Array.prototype.slice.call(document.querySelectorAll('[data-buy]'));
+    if (!buys.length) return;
+
+    // Resolved once and then read on every click, so a band changed after sign-in still
+    // gets the right destination.
+    var identity = null;
+
+    function go(btn) {
+      var url = btn.getAttribute('data-plan-url');
+      if (!url) return;
+      if (!identity) { window.location.href = '/account/'; return; }
+      var params = [];
+      if (identity.accountId) params.push('client_reference_id=' + encodeURIComponent(identity.accountId));
+      if (identity.email) params.push('prefilled_email=' + encodeURIComponent(identity.email));
+      window.location.href = url + (params.length ? (url.indexOf('?') === -1 ? '?' : '&') + params.join('&') : '');
     }
 
+    buys.forEach(function (b) { b.addEventListener('click', function () { go(b); }); });
+
     var session = getSession();
-    if (!session) { wireSignInFirst(); return; }
+    if (!session) return;
 
     fetch(API + '/v1/account', { headers: { Authorization: 'Bearer ' + session } })
       .then(function (r) { return r.json(); })
       .then(function (data) {
-        if (!data || !data.ok) { wireSignInFirst(); return; }
-        var email = data.value.email || '';
+        if (!data || !data.ok) return;
         // /v1/account returns `accountId`, confirmed against the live service. The
         // fallbacks stay because dropping client_reference_id is the right failure: the
         // service falls back to the address Stripe verified, which quietly does not work
         // when a buyer pays with a different address than they signed in with. Sending a
         // WRONG id would be worse than sending none.
-        var accountId = data.value.accountId || data.value.id || '';
-        live.forEach(function (b) {
-          var url = b.getAttribute('data-plan-url');
-          var params = [];
-          if (accountId) params.push('client_reference_id=' + encodeURIComponent(accountId));
-          if (email) params.push('prefilled_email=' + encodeURIComponent(email));
-          var full = url + (params.length ? (url.indexOf('?') === -1 ? '?' : '&') + params.join('&') : '');
-          b.addEventListener('click', function () { window.location.href = full; });
-        });
+        identity = {
+          email: data.value.email || '',
+          accountId: data.value.accountId || data.value.id || '',
+        };
       })
-      .catch(function () { wireSignInFirst(); });
+      .catch(function () { identity = null; });
   })();
 </script>
 
 <style>
+
   .st-legal {
     max-width: 46rem;
     margin: 2rem auto 0;
@@ -294,23 +434,6 @@ const BANDS = [
   @media (max-width: 1180px) {
     .st-tiers { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   }
-  .st-tier {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    border-radius: 22px;
-    padding: 1.875rem 2rem 2.125rem;
-    background: linear-gradient(180deg, var(--iron), var(--carbon));
-    border: 1px solid var(--iron-3);
-    box-shadow: var(--shadow-lg);
-  }
-  .st-tier--featured {
-    background: linear-gradient(180deg, rgba(124, 255, 178, 0) 30%, rgba(124, 255, 178, 0.07)), linear-gradient(180deg, var(--iron), var(--carbon));
-    border: 1px solid rgba(124, 255, 178, 0.4);
-    box-shadow: var(--shadow-lg), 0 0 40px -24px rgba(124, 255, 178, 0.3);
-  }
-  .st-tier__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; }
   .st-pill {
     display: inline-flex;
     align-items: center;
@@ -330,18 +453,6 @@ const BANDS = [
   .st-pill--plasma .st-pill__dot { background: var(--plasma); box-shadow: 0 0 10px rgba(124, 255, 178, 0.7); }
   .st-pill--ember { background: rgba(255, 122, 61, 0.13); border-color: rgba(255, 122, 61, 0.45); color: var(--bone); }
   .st-pill--ember .st-pill__dot { background: var(--ember); box-shadow: 0 0 10px rgba(255, 122, 61, 0.7); }
-
-  .st-price { display: flex; align-items: baseline; gap: 0.5rem; }
-  .st-price__num { font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.75rem, 3vw, 2.25rem); letter-spacing: -0.02em; color: var(--bone); }
-  .st-price__num--plasma { color: var(--bone); }
-  .st-price__per { font-family: var(--font-mono); font-weight: 700; font-size: 0.9375rem; color: var(--bone-dim); }
-  .st-price__alt { margin: -0.5rem 0 0; font-size: 0.875rem; color: var(--bone-dim); }
-  .st-tier__body { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
-  .st-tier__rule { height: 1px; background: linear-gradient(90deg, rgba(232, 224, 208, 0.2), rgba(232, 224, 208, 0)); }
-  .st-tier__rule--plasma { background: linear-gradient(90deg, rgba(124, 255, 178, 0.3), rgba(124, 255, 178, 0)); }
-  .st-checks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.6rem; }
-  .st-check { display: flex; align-items: center; gap: 0.7rem; font-size: 0.9375rem; color: var(--bone-dim); }
-  .st-check svg { flex: none; }
 
   .st-ent {
     box-sizing: border-box;
@@ -380,33 +491,168 @@ const BANDS = [
   }
   .st-ent__cta:hover { border-color: var(--ember); }
 
-  /* Buy widget: one small pill per plan id, price sourced from src/data/plans.ts only. */
-  .st-buy { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.25rem; }
-  .st-buy__animLabel { margin: 0 0 0.4rem; font-family: var(--font-mono); font-weight: 700; font-size: 0.75rem; letter-spacing: 0.08em; color: var(--bone-faint); }
-  .st-buy__row { display: flex; flex-wrap: wrap; gap: 0.5rem; }
-  .st-plan {
+  /* MOVED 900px -> 700px, 2026-09-03, and it was measured. 900 was set when these were
+     three wide cards; the design's card is narrower and denser, so at 820px the single
+     column stretched one card to 736px. 700 is also where Pro's 10px lift turns off, so
+     the row becomes one column and flattens at the same width instead of two widths. */
+  @media (max-width: 699px) {
+    .st-tiers { grid-template-columns: 1fr; }
+  }
+  /* ========================================================================================
+     THE CARD, from his design drop. Values are the drop's, translated to this site's tokens
+     wherever the drop used the token's own hex; the two that are not tokens are noted.
+     ==================================================================================== */
+  .pt {
     box-sizing: border-box;
-    flex: 1 1 5.5rem;
+    height: 100%;
     display: flex;
     flex-direction: column;
-    align-items: center;
-    gap: 0.3rem;
-    padding: 0.6rem 0.4rem;
-    border-radius: var(--radius-sm);
+    min-width: 0;
+    border-radius: 12px;
     background: var(--iron);
+    border: 1px solid var(--iron-2);
+    box-shadow: 0 12px 34px rgba(11, 14, 16, 0.5);
+    overflow: hidden;
+  }
+  /* Pro sits 10px proud of the row. On one column the lift is dropped: with nothing beside
+     it to be lifted ABOVE, it reads as a misaligned card instead of a featured one. */
+  @media (min-width: 700px) {
+    .pt--hot { transform: translateY(-10px); }
+  }
+  .pt--hot {
+    background: linear-gradient(to bottom, rgba(124, 255, 178, 0.07), transparent 42%), var(--iron);
+    border-color: rgba(124, 255, 178, 0.38);
+    box-shadow: 0 18px 44px rgba(11, 14, 16, 0.6), 0 0 0 4px rgba(124, 255, 178, 0.06);
+  }
+
+  /* The rail: 3px of colour across the top edge. Cobalt #33547E is the drop's own literal,
+     darker than --cobalt-dim, and it is deliberately not a CTA colour. */
+  .pt__rail { height: 3px; background: #33547E; }
+  .pt--hot .pt__rail { background: linear-gradient(to right, var(--plasma), var(--plasma-dim)); }
+
+  .pt__body { padding: 22px 22px 20px; display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+  .pt__top { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; min-height: 22px; }
+  .pt__name {
+    font-size: 11px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    font-weight: 600;
+    line-height: 1.3;
+    text-wrap: pretty;
+  }
+  .pt--hot .pt__name { color: var(--plasma); }
+
+  .pt__price { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+  .pt__priceRow { display: flex; align-items: baseline; flex-wrap: wrap; gap: 7px; min-width: 0; }
+  .pt__was {
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 400;
+    color: var(--bone-faint);
+    text-decoration: line-through;
+    text-decoration-thickness: 2px;
+  }
+  .pt__amount { font-size: 46px; line-height: 1; font-weight: 700; color: var(--bone); letter-spacing: -0.02em; }
+  .pt__per { font-size: 15px; color: var(--bone-dim); }
+  /* The alt line holds its height whether or not it has text, so four cards keep their
+     price rows on one line across the row. */
+  .pt__alt { font-size: 12px; color: var(--bone-faint); line-height: 1.5; min-height: 36px; text-wrap: pretty; }
+  .pt--hot .pt__alt { color: var(--plasma); }
+
+  .pt__billing { display: flex; flex-direction: column; gap: 6px; }
+  .pt__billingLabel {
+    font-size: 10px;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    color: var(--bone-faint);
+    font-weight: 600;
+  }
+  .pt__seg {
+    display: flex;
+    gap: 3px;
+    padding: 3px;
+    border-radius: 999px;
+    background: var(--carbon);
+    border: 1px solid var(--iron-2);
+  }
+  .pt__segBtn {
+    flex: 1;
+    min-width: 0;
+    padding: 7px 4px;
+    border: none;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--bone-dim);
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 500;
+    cursor: pointer;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .pt__segBtn.is-on { background: var(--iron-3); color: var(--bone); font-weight: 700; }
+  .pt--hot .pt__segBtn.is-on { background: var(--plasma); color: var(--carbon); }
+
+  .pt__get { display: flex; flex-direction: column; gap: 9px; }
+  .pt__summary { font-size: 12px; color: var(--bone); line-height: 1.5; text-wrap: pretty; }
+  .pt__rule { height: 1px; background: var(--iron-2); }
+  .pt__features { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+  .pt__feat { display: flex; align-items: flex-start; gap: 10px; min-width: 0; }
+  /* A ring around the glyph rather than a bare mark, so a cross reads as "not included"
+     instead of as a delete control. */
+  .pt__glyph {
+    flex: 0 0 15px;
+    width: 15px;
+    height: 15px;
+    margin-top: 2px;
+    border-radius: 999px;
+    border: 1.5px solid var(--plasma-dim);
+    color: var(--plasma-dim);
+    font-size: 9px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pt--hot .pt__glyph { border-color: var(--plasma); color: var(--plasma); }
+  .pt__feat--no .pt__glyph,
+  .pt--hot .pt__feat--no .pt__glyph { border-color: var(--bone-faint); color: var(--bone-faint); }
+  .pt__featText { flex: 1; min-width: 0; font-size: 12px; color: var(--bone); line-height: 1.5; text-wrap: pretty; }
+  .pt__feat--no .pt__featText { color: var(--bone-faint); }
+
+  .pt__action { margin-top: auto; padding: 0 22px 22px; display: flex; flex-direction: column; gap: 8px; }
+  .pt__cta {
+    display: block;
+    width: 100%;
+    padding: 13px;
+    border-radius: 999px;
+    background: transparent;
     border: 1px solid var(--iron-3);
     color: var(--bone);
-    font-family: var(--font-mono);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    text-align: center;
+    text-decoration: none;
     cursor: pointer;
-    transition: border-color var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out);
   }
-  .st-plan:hover:not(:disabled) { border-color: var(--plasma-dim); background: var(--iron-2); }
-  .st-plan:disabled { cursor: default; opacity: 0.55; }
-  .st-plan__dur { font-size: 0.75rem; letter-spacing: 0.04em; color: var(--bone-dim); }
-  .st-plan__price { font-size: 0.8125rem; font-weight: 700; color: var(--bone); }
-  .st-plan__price small { font-weight: 500; color: var(--bone-dim); margin-left: 0.2em; }
+  .pt__cta:hover { filter: brightness(1.06); }
+  .pt__cta:disabled { cursor: default; color: var(--bone-faint); filter: none; }
+  .pt--hot .pt__cta {
+    background: linear-gradient(to bottom, var(--plasma), var(--plasma-dim));
+    border: none;
+    color: var(--carbon);
+    box-shadow: 0 1px 2px rgba(11, 14, 16, 0.4), 0 4px 14px rgba(11, 14, 16, 0.35);
+  }
+  .pt__foot { font-size: 11px; color: var(--bone-faint); text-align: center; }
 
-  @media (max-width: 900px) {
-    .st-tiers { grid-template-columns: 1fr; }
+  /* The drop's grid: four across, 16px, stretched so every card is the tallest card's
+     height and every CTA sits on the same line. */
+  .st-tiers { gap: 16px; align-items: stretch; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pt, .pt__cta { transition: none; }
   }
 </style>

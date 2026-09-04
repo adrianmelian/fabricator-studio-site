@@ -18,9 +18,6 @@ import Footer from '../../components/Footer.astro';
 import SubscriptionTiers from '../../components/SubscriptionTiers.astro';
 import '../../styles/designed-doc.css';
 
-const TITLE = 'PRICING';
-// All bone, no tri-color cycle: Adrian's call, 2026-08-31.
-const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : 't-bone' }));
 
 // The 1.x FAQ block (the $2M threshold questions, the GPL conversion, the source-available
 // answer) was cut 2026-08-31 with the rest of the 1.x material. What remains is 2.0-only.
@@ -45,22 +42,25 @@ const FAQ = [
   <NavBar />
 
   <article class="dd lc">
-    <header class="dd-header">
-      <div class="dd-eyebrow">FABRICATORSTUDIO &middot; PRICING</div>
-      <h1 class="dd-title" aria-label={TITLE}>
-        {titleGlyphs.map((g) =>
-          g.cls === 't-gap' ? <span class="t-gap"></span> : <span aria-hidden="true" class={g.cls}>{g.ch}</span>
-        )}
-      </h1>
-      {/* Names the PRODUCT, not the studio (Adrian, 2026-07-30). With Armature shipping as a
-          second product on its own threshold, "FabricatorStudio is free" stopped being true:
-          the studio is not free, one of its two products is. */}
-      {/* Lede rewritten 2026-08-31 on Adrian's ruling: the Maya tools stop being free, the
-          1.x line is phased out, and Armature becomes the free offering. The old lede sold
-          the toolset as free, which is exactly the story this page now exists to end. */}
-      {/* NAMING, IN CONCRETE (Adrian, 2026-08-31): it is not a Maya toolset, it is the
-          Studio Pipeline. 2.0 copy never says "Maya toolset". */}
-      <p class="dd-summary lc-lede"><b>Armature is free.</b> The Studio Pipeline is a subscription.</p>
+    {/* HEADER FROM HIS DESIGN DROP, 2026-09-03. It promotes "Armature is free." out of the
+        lede and makes it the headline, drops the glyph-cycled PRICING title to a small
+        eyebrow, and adds a second sentence to the standfirst.
+
+        THE DROP'S LOGO IS NOT HERE, AND THAT IS DELIBERATE. Its header opens with a
+        horizontal FabricatorStudio wordmark - the pencil f, plasma squares - which is not
+        among this site's assets: the lockup here is the vertical extruder mark, and the
+        Wordmark component is live tri-colour type. The drop is a bare canvas with no site
+        chrome, so its wordmark stands where this page already has a navigation bar
+        carrying the mark. Left out rather than guessed at. HIS CALL.
+
+        Names the PRODUCT, not the studio (Adrian, 2026-07-30): the studio is not free, one
+        of its products is. Lede ruled 2026-08-31, when the Maya tools stopped being free
+        and Armature became the free offering. It is the Studio Pipeline and never "the
+        Maya toolset" (Adrian, 2026-08-31). */}
+    <header class="dd-header pr-header">
+      <span class="pr-eyebrow">Pricing</span>
+      <h1 class="pr-title">Armature is free.</h1>
+      <p class="pr-sub">The Studio Pipeline is a subscription. Pick the tools you actually work in, by the week, the month, or the year.</p>
     </header>
 
     <!-- FABRICATOR 2.0: the subscription tiers (2026-08-31). The final free 1.x release's
@@ -110,6 +110,36 @@ const FAQ = [
 </BaseLayout>
 
 <style>
+  /* The drop's header: centred, 18px gaps, a small letterspaced eyebrow over a serif
+     headline, with the standfirst held to about 52 characters so it breaks in two lines. */
+  .pr-header { align-items: center; text-align: center; gap: 18px; }
+  .pr-eyebrow {
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--bone-faint);
+    font-weight: 600;
+  }
+  .pr-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    /* 54px in the drop, allowed to shrink on a phone rather than wrapping mid-word. */
+    font-size: clamp(2.125rem, 5.2vw, 3.375rem);
+    line-height: 1.1;
+    color: var(--bone);
+    max-width: 20ch;
+    text-wrap: pretty;
+  }
+  .pr-sub {
+    margin: 0;
+    font-size: 16px;
+    color: var(--bone-dim);
+    line-height: 1.6;
+    max-width: 52ch;
+    text-wrap: pretty;
+  }
   /* Licensing page in the design drop's language. Shared furniture: designed-doc.css.
      The drop's off-palette darks are snapped to tokens, and every fade ends at the hue
      at zero alpha rather than the `transparent` keyword. */
