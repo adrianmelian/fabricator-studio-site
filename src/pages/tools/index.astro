@@ -1,124 +1,392 @@
 ---
-// /tools/ — the Studio Pipeline product page. RENAMED from "The Toolset" 2026-09-03 on
-// Adrian's instruction; the URL stays /tools/ so every inbound link, the EULA at
-// /tools/eula/ and the docs tree keep resolving.
+// THE STUDIO PIPELINE PAGE, rebuilt 2026-09-04 from his design drop.
+// Source: the Captain's inbox, "FabricatorStudio Tools.html", a Claude Design canvas
+// export. Read, never modified.
+// Images are HIS ORIGINALS from brand/fabricatorstudio/ToolWindows, which he pointed at,
+// not the drop's embedded copies. Same shots; the drop's are ~5KB heavier apiece, which
+// is the C2PA metadata its bundler adds.
 //
-// New 2026-07-22 (website overhaul, two-door architecture). The homepage used to carry the
-// whole product story, which meant it could not grow: four tools today, AutoSkin next, more
-// after, and every one added made the homepage more crowded. This page is where the toolset
-// lives and grows. The homepage keeps one compact block and a link.
+// THE URL DOES NOT MOVE. /tools/ carries the EULA at /tools/eula/, the docs tree links
+// here, and the nav's Toolset menu points at it.
 //
-// Page order is deliberate and is what kills the two-axis copy trap structurally: the free
-// toolset, then the free download, then the paid modules (FEATURE axis, everyone pays),
-// then the license (ORGANIZATION axis, only large organizations pay, whole toolset). A
-// reader sees the module price and the revenue threshold as two separate things on one page,
-// so nobody concludes ribbons are locked behind a corporate license.
+// WHAT THIS REPLACED: everything. The page was the 1.x story under a 2.0 name. Its $199
+// Ribbon card and revenue-threshold section came off on 2026-09-03; the rest goes now.
+//
+// THREE THINGS RAISED WITH HIM RATHER THAN DECIDED HERE:
+//   1. #FFC857 gold, on Animation Studio and CtrlEditor, is NOT in the DNA palette and
+//      check-brand-gates.mjs rejects it. Left as the drop has it, pending his ruling.
+//   2. "Control Rig, Maya" is what the drop calls the Maya rigging system, which is
+//      Fabricator everywhere else on this site and in the docs.
+//   3. The Advanced Ribbon Modules now appear nowhere on the site.
+//
+// THE SKINTOKENS CREDIT IS NOT OPTIONAL and is not in the drop. AutoSkin is powered by
+// SkinTokens and the MIT licence requires attribution.
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
-import SectionHead from '../../components/SectionHead.astro';
-import ToolsSection from '../../components/ToolsSection.astro';
-import BracketButton from '../../components/BracketButton.astro';
+import Masthead from '../../components/Masthead.astro';
+import { Image } from 'astro:assets';
+
+import reggie from '../../assets/tools/reggie.png';
+import autoskin from '../../assets/tools/autoskin.png';
+import crMaya from '../../assets/tools/control-rig-maya.png';
+import crUnreal from '../../assets/tools/control-rig-unreal.png';
+import animStudio from '../../assets/tools/anim-studio.png';
+import projectSetup from '../../assets/tools/project-setup.png';
+import mayaToolbar from '../../assets/tools/maya-toolbar.png';
+import skinIo from '../../assets/tools/skin-io.png';
+import skeletonIo from '../../assets/tools/skeleton-io.png';
+import ctrlEditor from '../../assets/tools/ctrl-editor.png';
+import demBones from '../../assets/tools/dembones-bake.png';
+import batchRunner from '../../assets/tools/batch-runner.png';
+import settingsShot from '../../assets/tools/settings.png';
+
+// `key` picks the block's hue. Every value but gold is a DNA token.
+const FEATURES = [
+  {
+    key: 'ember', eyebrow: 'On call', host: 'Maya', title: 'AI Technical Artist',
+    img: reggie,
+    alt: 'Reggie, the AI TA, answering a report that upper body controls disappeared, having read the build report and taken a viewport screenshot.',
+    body: 'Reggie is the AI TA on call, trained on the FabricatorStudio pipeline. Describe what broke and he proposes the fix, then walks you through it.',
+    bits: [
+      'Trained on the FabricatorStudio pipeline, not on general Maya trivia',
+      'Reads your build report and your viewport to see what you are seeing',
+      'Reports bugs straight to FabricatorStudio, pre filled and ready to submit',
+    ],
+  },
+  {
+    key: 'cobalt', flip: true, eyebrow: 'Skeleton and weights, predicted', host: 'Maya',
+    title: 'AutoSkeleton & AutoSkin',
+    img: autoskin, alt: 'The AutoSkin tool window in Maya.',
+    body: 'Point it at a mesh and it works out where the bones go, then puts the weights on them.',
+    bits: [
+      'AutoSkeleton fits your own custom skeleton to the mesh',
+      'AutoSkin binds to the joints you choose, with weights predicted from the body rather than guessed from distance',
+      'Runs on your own GPU',
+    ],
+    credit: 'Powered by SkinTokens: AI autoregressive skinning.',
+  },
+  {
+    key: 'plasma', eyebrow: 'Animation rig authoring', host: 'Maya', title: 'Control Rig, Maya',
+    img: crMaya, alt: 'The Fabricator rig authoring window in Maya, with its component tree beside the outliner.',
+    body: 'A network driven modular rigging system with auto orienting joints. Drag and drop rig components onto the outliner to build up your skeleton and rig.',
+    bits: [
+      'Save blueprints of full rigs and share them on differently proportioned characters',
+      'Animation transfer ready',
+      'Building block interface, every component is a drag and drop',
+      'Every stage is undoable and edits are unlimited',
+    ],
+  },
+  {
+    key: 'cobalt', flip: true, eyebrow: 'Rig import and build', host: 'Unreal', title: 'Control Rig, Unreal',
+    img: crUnreal, alt: 'The FS Control Rig builder in Unreal Engine.',
+    body: 'The Unreal half of the same pipeline. Point it at a character from Maya or Armature and it builds a native Modular Control Rig.',
+    bits: [
+      'Pre build checks names, units, frame, orientation, textures and foot pivots before anything is created',
+      'The rig blueprint rides inside the USD, so nothing is guessed from a template',
+      'IK and FK on the spine, arms and legs. The switch matches the pose, so you can flip mid shot without the character moving',
+      'Every module carries a backwards solve, so Bake To Control Rig works with nothing to set up',
+    ],
+  },
+  {
+    key: 'gold', eyebrow: 'Poses and animation', host: 'Maya', title: 'Animation Studio',
+    img: animStudio, alt: 'The Animation Studio window in Maya, with the pose library and the slider strip above it.',
+    body: 'Poses and animations saved to the library for any scene. Save once, reuse on the next character. The slider strip sits above both tabs, one drag from every key.',
+    bits: [
+      'Libraries per character or shared across the project',
+      'Selection sets mask an imported pose down to the parts you choose',
+      'Tweener and Ease design breakdowns live in the viewport. Drag back to centre and the keys land where they started',
+      'Scale to Neighbouring Keys and Time Offset retime by feel, no graph editor',
+      'Mirror a pose across the rig, or reverse the keys you selected',
+    ],
+  },
+  {
+    key: 'bone', flip: true, eyebrow: 'Where every project starts', host: 'Maya', title: 'Project Setup',
+    img: projectSetup, alt: 'The Project Setup window in Maya.',
+    body: 'Define a project once and every tool in the package reads it. Units, frame rate, playback range, and where each kind of asset exports, all in one config, validated as you fill it in.',
+    bits: [
+      'Source art root and content root bind to this machine, with optional per project overrides',
+      'The config carries no drive letters, so a teammate opens the same project and binds their own roots',
+      'Point the configs root at a shared location and the whole team reads the same setup',
+    ],
+  },
+];
+
+// `pos` is the focal point of the shot inside its well. These are left anchored windows,
+// so a source wider than the well holds its left edge or cover slices the fS lockup off;
+// the two portrait shots are held from the top instead.
+const TOOLS = [
+  { key: 'cobalt', name: 'SkinIO', host: 'Maya', img: skinIo, pos: 'left', title: 'Skin weights, save and load',
+    body: 'Save skin weights to a JSON file and load them onto another mesh, matching by closest point, by name, or by label.' },
+  { key: 'plasma', name: 'SkeletonIO', host: 'Maya', img: skeletonIo, pos: 'left', title: 'Joint hierarchy, save and load',
+    body: 'Export a joint hierarchy to JSON, user attributes included, and rebuild it in any scene.' },
+  { key: 'gold', name: 'CtrlEditor', host: 'Maya', img: ctrlEditor, pos: 'left', title: 'Control shape library',
+    body: 'A library of control curves. Swap a shape, mirror it, combine two, recolour it. Save a whole control set, shapes and colours included, and load it onto another character.' },
+  { key: 'ember', name: 'DemBonesBake', host: 'Maya', img: demBones, pos: 'left', title: 'Weight smoothing and bake',
+    body: 'Delta mush a bound mesh to smooth the deformation, then bake the result back down into skin weights.' },
+  { key: 'magma', name: 'BatchRunner', host: 'Maya', img: batchRunner, pos: 'top', title: 'Batch scenes through a script',
+    body: 'Point a Python script at a list of scenes and run it across all of them, exporting or saving each one.' },
+  { key: 'bone', name: 'Settings', host: 'Maya', img: settingsShot, pos: 'top', title: 'Machine bindings and integration',
+    body: 'Bind this machine to a project, point at a shared configs root, and choose what loads when Maya starts.' },
+];
+
+const slug = (s: string) => 'f-' + s.replace(/\W+/g, '-').toLowerCase().replace(/^-|-$/g, '');
 ---
 <BaseLayout
   title="Studio Pipeline | FabricatorStudio"
-  description="Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an Unreal-ready contract."
+  description="The FabricatorStudio Maya and Unreal toolset: rig authoring, predicted skinning, a pose and animation library, and the AI TA on call."
 >
   <NavBar />
 
-  <section id="toolset-intro">
-    <SectionHead
-      eyebrow="FABRICATORSTUDIO"
-      title="STUDIO PIPELINE"
-      sub="A complete Maya to Unreal character pipeline. Modular rigging, automatic skinning, a cross-rig pose and animation library, and FBX and USD exporters with an engine-ready contract."
-    />
-    {/* THE FREE DOWNLOAD IS GONE (Adrian, 2026-09-02): "remove the free download from the
-        FS website. We'll make a freebie after we ship the paid version." The door that used
-        to sit here handed out a 1.x zip whose BSL grant is PERPETUAL, so every download
-        taken between now and the switch is a free seat we can never take back. It points at
-        the tiers instead, which moved to /pricing/ on 2026-09-03 and took the #tiers-20
-        anchor with them. LABEL IS A PLACEHOLDER, ADRIAN'S TO RULE. */}
-    <div class="ts-ctas">
-      <BracketButton kind="hard" href="/pricing/" label="See the plans" />
-      <BracketButton kind="soft" href="/docs/" label="Read the docs" />
-    </div>
-  </section>
+  <article class="tp">
+    {/* THE ONE DEPARTURE FROM THE DROP, and it is flagged to him. The drop opens with the
+        wordmark and the serif line alone; the other three pages took a one-word underlined
+        masthead the same evening on his "standardized and unified" instruction, so this
+        page wears it too and his line sits beneath it as the promise. */}
+    <Masthead title="Tools" />
+    <p class="tp-promise">Design the look. Design the motion. Let the pipeline do the rest.</p>
 
-  <ToolsSection />
+    {FEATURES.map((f) => (
+      <section class={`tp-feat tp-feat--${f.key}${f.flip ? ' tp-feat--flip' : ''}`} aria-labelledby={slug(f.title)}>
+        <div class="tp-feat__rail" aria-hidden="true"></div>
+        <div class="tp-feat__row">
+          <div class="tp-feat__shot">
+            <Image src={f.img} alt={f.alt} widths={[560, 1120]} sizes="(max-width: 900px) 100vw, 560px" />
+          </div>
+          <div class="tp-feat__copy">
+            <div class="tp-feat__top">
+              <span class="tp-feat__eyebrow">{f.eyebrow}</span>
+              <span class="tp-feat__host">{f.host}</span>
+            </div>
+            <h2 class="tp-feat__title" id={slug(f.title)}>{f.title}</h2>
+            <p class="tp-feat__body">{f.body}</p>
+            <div class="tp-feat__rule" aria-hidden="true"></div>
+            <ul class="tp-bits">
+              {f.bits.map((b) => (
+                <li class="tp-bit"><span class="tp-bit__dot" aria-hidden="true"></span><span>{b}</span></li>
+              ))}
+            </ul>
+            {f.credit && <p class="tp-credit">{f.credit}</p>}
+          </div>
+        </div>
+      </section>
+    ))}
 
-  <section id="modules">
-    <SectionHead
-      eyebrow="ADVANCED MODULES"
-      title="RIBBON MODULES"
-      sub="Included with the subscription from the Animation band up."
-    />
-    <div class="mod-card">
-      <div class="mod-card__top">
-        <span class="mod-pill"><span class="mod-pill__dot" aria-hidden="true"></span>ADVANCED MODULES</span>
-        <span class="mod-price">Included</span>
+    {/* THE TOOLBAR, full width: the strip is wide and short and does not belong in a
+        half-and-half row. It scrolls inside its own well rather than shrinking. */}
+    <section class="tp-bar tp-feat--magma" aria-labelledby="f-maya-toolbar">
+      <div class="tp-feat__rail" aria-hidden="true"></div>
+      <div class="tp-bar__inner">
+        <div class="tp-bar__head">
+          <div class="tp-bar__headL">
+            <div class="tp-feat__top">
+              <span class="tp-feat__eyebrow">The whole toolbox, one strip</span>
+              <span class="tp-feat__host">Maya</span>
+            </div>
+            <h2 class="tp-feat__title tp-feat__title--sm" id="f-maya-toolbar">Maya Toolbar</h2>
+          </div>
+          <p class="tp-feat__body tp-bar__lede">Puts the whole FabricatorStudio toolbox into one compact strip inside Maya. Launch the big tools, fire the everyday utilities, and stay in the scene instead of hunting through shelves and menus.</p>
+        </div>
+        <div class="tp-bar__well">
+          <Image src={mayaToolbar} alt="The FabricatorStudio toolbar docked in Maya." />
+        </div>
       </div>
-      <p class="mod-lead">Ribbon-tech spine, arm, and leg. The deformation upgrade that sits on top of the base limbs, for the shoulders, hips, and spines that have to hold up in close-up.</p>
-      <div class="mod-rule" aria-hidden="true"></div>
-      <p class="mod-note"><b>Ribbon rigs animate for everyone.</b> If someone hands your animators a character built with these modules, it works, with nothing installed and nothing to buy. The deformation is baked Maya nodes. You need the modules to build and edit ribbon components, not to use a rig that has them.</p>
-      <p class="mod-axis">Included with every tier from the Animation band up. The base Freelance Tech Art band does not carry them, and modules bought on 1.x stay yours.</p>
-    </div>
-  </section>
+    </section>
 
-  {/* THE TIER ROW CAME OFF THIS PAGE 2026-09-03 (Adrian: pricing gets its own page).
-      What stood here was the 2.0 subscription cards, and before the switch a 1.x block
-      promising "Yours forever" and "Source available" to an under-$2M reader. Both are
-      gone; /pricing/ is the one surface that carries a price, and this is the door to it. */}
-  <section id="tools-pricing">
-    <div class="ts-ctas">
-      <BracketButton kind="hard" href="/pricing/" label="See pricing" />
+    <div class="tp-grid">
+      {TOOLS.map((t) => (
+        <article class={`tp-card tp-feat--${t.key}`}>
+          <div class="tp-feat__rail" aria-hidden="true"></div>
+          <div class={`tp-card__shot tp-card__shot--${t.pos}`}>
+            <Image src={t.img} alt={`The ${t.name} tool window in Maya.`} widths={[320, 640]} sizes="(max-width: 900px) 100vw, 320px" />
+          </div>
+          <div class="tp-card__copy">
+            <div class="tp-feat__top">
+              <span class="tp-feat__eyebrow tp-card__name">{t.name}</span>
+              <span class="tp-feat__host">{t.host}</span>
+            </div>
+            <h3 class="tp-card__title">{t.title}</h3>
+            <p class="tp-card__body">{t.body}</p>
+          </div>
+        </article>
+      ))}
     </div>
-  </section>
+  </article>
 
   <Footer />
 </BaseLayout>
 
 <style>
-  .ts-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 1.75rem; }
-
-  #modules { display: flex; flex-direction: column; }
-  .mod-card {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    gap: 1.1rem;
-    border-radius: 22px;
-    padding: 2rem 2.125rem 2.25rem;
-    background: linear-gradient(180deg, var(--iron), var(--carbon));
-    border: 1px solid rgba(255, 122, 61, 0.35);
-    box-shadow: var(--shadow-lg);
-  }
-  .mod-card__top { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
-  .mod-pill {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.4rem 0.9rem;
-    border-radius: 9px;
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.8125rem;
-    letter-spacing: 0.12em;
-    background: rgba(255, 122, 61, 0.13);
-    border: 1px solid rgba(255, 122, 61, 0.45);
+  .tp { max-width: 85rem; margin: 0 auto; padding: 0 1.5rem 6rem; display: flex; flex-direction: column; gap: 2.5rem; }
+  .tp-promise {
+    margin: -1rem auto 0.5rem;
+    max-width: 24ch;
+    text-align: center;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.875rem, 4.4vw, 3.25rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
     color: var(--bone);
+    text-wrap: pretty;
   }
-  .mod-pill__dot { width: 0.55rem; height: 0.55rem; border-radius: 50%; background: var(--ember); box-shadow: 0 0 10px rgba(255, 122, 61, 0.7); }
-  .mod-price { font-family: var(--font-mono); font-weight: 800; font-size: clamp(1.375rem, 2.6vw, 1.75rem); letter-spacing: -0.02em; color: var(--bone); }
-  .mod-lead { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: var(--bone); text-wrap: pretty; }
-  .mod-rule { height: 1px; background: linear-gradient(90deg, rgba(255, 122, 61, 0.3), rgba(255, 122, 61, 0)); }
-  /* The generosity line is the most trust-building sentence on the page, so it gets the
-     plasma treatment: this is the part that is FREE and stays free. */
-  .mod-note { margin: 0; font-size: 0.9375rem; line-height: 1.65; color: var(--bone-dim); text-wrap: pretty; }
-  .mod-note b { color: var(--bone); }
-  .mod-axis { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-faint); text-wrap: pretty; }
-  .mod-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
 
-  #license-lead { padding-bottom: 0; }
-  .lic-lead { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); max-width: 62rem; text-wrap: pretty; }
-  .lic-lead b { color: var(--bone); }
+  /* ---- one block per hue, EVERY VALUE WRITTEN OUT ------------------------------------
+     These were `rgba(var(--hue), ...)` first, which is shorter and which the brand gate
+     cannot read: it parses gradient stops literally, so a variable turns every wash on
+     this page into an unverifiable stop and blinds the one check that catches a third
+     accent sneaking in. Long-hand is the point, not an oversight.
+
+     GOLD IS NOT A DNA COLOUR. It is the drop's, on Animation Studio and CtrlEditor, and
+     the gate rejects it. Left as designed pending his ruling: gold joins the palette,
+     which is his call and his alone, or those two take a palette hue and the page loses
+     one of its six colours. */
+
+  .tp-feat--plasma {
+    background: linear-gradient(to bottom, rgba(124, 255, 178, 0.07), transparent 42%), var(--iron);
+    border-color: rgba(124, 255, 178, 0.3);
+    box-shadow: 0 18px 44px rgba(11, 14, 16, 0.6), 0 0 0 4px rgba(124, 255, 178, 0.06);
+  }
+  .tp-feat--plasma .tp-feat__rail { background: linear-gradient(to right, #7CFFB2, #4FB888); }
+  .tp-feat--plasma .tp-feat__eyebrow { color: #7CFFB2; }
+  .tp-feat--plasma .tp-feat__host { border-color: rgba(124, 255, 178, 0.34); }
+  .tp-feat--plasma .tp-bit__dot { background: #4FB888; }
+
+  .tp-feat--cobalt {
+    background: linear-gradient(to bottom, rgba(124, 184, 255, 0.07), transparent 42%), var(--iron);
+    border-color: rgba(124, 184, 255, 0.3);
+    box-shadow: 0 18px 44px rgba(11, 14, 16, 0.6), 0 0 0 4px rgba(124, 184, 255, 0.06);
+  }
+  .tp-feat--cobalt .tp-feat__rail { background: linear-gradient(to right, #7CB8FF, #4F84BE); }
+  .tp-feat--cobalt .tp-feat__eyebrow { color: #7CB8FF; }
+  .tp-feat--cobalt .tp-feat__host { border-color: rgba(124, 184, 255, 0.34); }
+  .tp-feat--cobalt .tp-bit__dot { background: #4F84BE; }
+
+  .tp-feat--ember {
+    background: linear-gradient(to bottom, rgba(255, 122, 61, 0.07), transparent 42%), var(--iron);
+    border-color: rgba(255, 122, 61, 0.3);
+    box-shadow: 0 18px 44px rgba(11, 14, 16, 0.6), 0 0 0 4px rgba(255, 122, 61, 0.06);
+  }
+  .tp-feat--ember .tp-feat__rail { background: linear-gradient(to right, #FF7A3D, #B5532A); }
+  .tp-feat--ember .tp-feat__eyebrow { color: #FF7A3D; }
+  .tp-feat--ember .tp-feat__host { border-color: rgba(255, 122, 61, 0.34); }
+  .tp-feat--ember .tp-bit__dot { background: #B5532A; }
+
+  .tp-feat--magma {
+    background: linear-gradient(to bottom, rgba(255, 59, 59, 0.07), transparent 42%), var(--iron);
+    border-color: rgba(255, 59, 59, 0.3);
+    box-shadow: 0 18px 44px rgba(11, 14, 16, 0.6), 0 0 0 4px rgba(255, 59, 59, 0.06);
+  }
+  .tp-feat--magma .tp-feat__rail { background: linear-gradient(to right, #FF3B3B, #B52A2A); }
+  .tp-feat--magma .tp-feat__eyebrow { color: #FF3B3B; }
+  .tp-feat--magma .tp-feat__host { border-color: rgba(255, 59, 59, 0.34); }
+  .tp-feat--magma .tp-bit__dot { background: #B52A2A; }
+
+  .tp-feat--bone {
+    background: linear-gradient(to bottom, rgba(232, 224, 208, 0.07), transparent 42%), var(--iron);
+    border-color: rgba(232, 224, 208, 0.3);
+    box-shadow: 0 18px 44px rgba(11, 14, 16, 0.6), 0 0 0 4px rgba(232, 224, 208, 0.06);
+  }
+  .tp-feat--bone .tp-feat__rail { background: linear-gradient(to right, #E8E0D0, #8A8378); }
+  .tp-feat--bone .tp-feat__eyebrow { color: #E8E0D0; }
+  .tp-feat--bone .tp-feat__host { border-color: rgba(232, 224, 208, 0.34); }
+  .tp-feat--bone .tp-bit__dot { background: #8A8378; }
+
+  .tp-feat--gold {
+    background: linear-gradient(to bottom, rgba(255, 200, 87, 0.07), transparent 42%), var(--iron);
+    border-color: rgba(255, 200, 87, 0.3);
+    box-shadow: 0 18px 44px rgba(11, 14, 16, 0.6), 0 0 0 4px rgba(255, 200, 87, 0.06);
+  }
+  .tp-feat--gold .tp-feat__rail { background: linear-gradient(to right, #FFC857, #B8903C); }
+  .tp-feat--gold .tp-feat__eyebrow { color: #FFC857; }
+  .tp-feat--gold .tp-feat__host { border-color: rgba(255, 200, 87, 0.34); }
+  .tp-feat--gold .tp-bit__dot { background: #B8903C; }
+
+
+  .tp-feat__row { display: flex; flex-wrap: wrap; }
+  /* The shot leads an unflipped block and follows a flipped one. The drop used
+     wrap-reverse; `order` does the same without reversing the wrap direction, so at one
+     column every block reads picture then words rather than alternating. */
+  .tp-feat__shot { flex: 1 1 32rem; min-width: 0; border-right: 1px solid var(--iron-2); }
+  .tp-feat--flip .tp-feat__shot { order: 2; border-right: none; border-left: 1px solid var(--iron-2); }
+  .tp-feat__shot :global(img) { display: block; width: 100%; height: 100%; min-height: 22rem; object-fit: cover; object-position: 50% 0%; }
+
+  .tp-feat__copy { flex: 1 1 24rem; min-width: 0; display: flex; flex-direction: column; gap: 1rem; padding: 1.75rem; }
+  .tp-feat__top { display: flex; align-items: center; gap: 0.625rem; flex-wrap: wrap; }
+  .tp-feat__eyebrow {
+    font-size: 0.625rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .tp-feat__host {
+    flex: 0 0 auto;
+    font-size: 0.6875rem;
+    color: var(--bone-dim);
+    font-weight: 500;
+    padding: 0.1875rem 0.625rem;
+    border-radius: 10px;
+    border: 1px solid var(--iron-3);
+  }
+  .tp-feat__title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    letter-spacing: -0.01em;
+    font-size: clamp(1.5rem, 2.6vw, 2rem);
+    line-height: 1.2;
+    color: var(--bone);
+    text-wrap: pretty;
+  }
+  .tp-feat__title--sm { font-size: clamp(1.375rem, 2.2vw, 1.75rem); }
+  .tp-feat__body { margin: 0; font-size: 0.8125rem; color: var(--bone-dim); line-height: 1.65; text-wrap: pretty; }
+  .tp-feat__rule { height: 1px; background: var(--iron-2); }
+
+  .tp-bits { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.5625rem; }
+  .tp-bit { display: flex; align-items: flex-start; gap: 0.625rem; min-width: 0; font-size: 0.75rem; color: var(--bone-dim); line-height: 1.5; text-wrap: pretty; }
+  .tp-bit__dot { flex: 0 0 5px; width: 5px; height: 5px; margin-top: 0.5rem; border-radius: 999px; background: var(--bone-faint); }
+
+  /* The attribution SkinTokens' MIT licence requires. Quiet, but on the page. */
+  .tp-credit { margin: 0.25rem 0 0; font-size: 0.6875rem; color: var(--bone-faint); }
+
+  /* ---- the toolbar strip ------------------------------------------------------------- */
+  .tp-bar__inner { display: flex; flex-direction: column; gap: 1rem; padding: 1.5rem 1.625rem 1.625rem; }
+  .tp-bar__head { display: flex; align-items: flex-end; justify-content: space-between; gap: 1.25rem; flex-wrap: wrap; }
+  .tp-bar__headL { display: flex; flex-direction: column; gap: 0.5625rem; min-width: 0; }
+  .tp-bar__lede { flex: 1 1 24rem; min-width: 0; }
+  .tp-bar__well {
+    padding: 0.875rem 1rem;
+    border-radius: 8px;
+    background: var(--carbon);
+    border: 1px solid var(--iron-3);
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+  .tp-bar__well :global(img) { display: block; height: 2.625rem; width: auto; max-width: none; }
+
+  /* ---- the six-card grid ------------------------------------------------------------- */
+  .tp-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1rem; align-items: stretch; }
+  .tp-card { height: 100%; }
+  .tp-card__shot { height: 13.25rem; background: var(--carbon); border-bottom: 1px solid var(--iron-2); }
+  .tp-card__shot :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  /* A left anchored window: hold the left edge or cover slices the lockup off it. */
+  .tp-card__shot--left :global(img) { object-position: 0% 0%; }
+  .tp-card__shot--top :global(img) { object-position: 50% 0%; }
+  .tp-card__copy { flex: 1; display: flex; flex-direction: column; gap: 0.75rem; padding: 1.25rem 1.25rem 1.375rem; min-width: 0; }
+  .tp-card__name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .tp-card__title { margin: 0; font-size: 1.0625rem; color: var(--bone); font-weight: 600; line-height: 1.35; text-wrap: pretty; }
+  .tp-card__body { margin: 0; font-size: 0.75rem; color: var(--bone-dim); line-height: 1.6; text-wrap: pretty; }
+
+  @media (max-width: 1100px) {
+    .tp-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+  @media (max-width: 900px) {
+    /* One column. The shot goes on top of every block, flipped or not, so the reading
+       order is picture then words all the way down. */
+    .tp-feat__shot, .tp-feat--flip .tp-feat__shot { order: 0; border: none; border-bottom: 1px solid var(--iron-2); }
+    .tp-feat__shot :global(img) { min-height: 0; height: auto; }
+  }
+  @media (max-width: 700px) {
+    .tp-grid { grid-template-columns: 1fr; }
+  }
 </style>
