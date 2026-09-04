@@ -24,8 +24,11 @@
 // is noise to a screen reader.
 import Wordmark from './Wordmark.astro';
 
-interface Props { title: string }
-const { title } = Astro.props;
+// `promise` is the display-serif line under the rule. It began as page-local CSS on the
+// Maya Pipeline page; when the Unreal page asked for the same header on 2026-09-04 it
+// moved in here rather than being copied, so the two cannot drift.
+interface Props { title: string; promise?: string }
+const { title, promise } = Astro.props;
 ---
 <header class="mh">
   <Wordmark class="mh__mark" decorative height="clamp(2rem, 4.4vw, 2.875rem)" />
@@ -35,6 +38,7 @@ const { title } = Astro.props;
       an absolutely positioned pseudo-element inset by that same trailing space, so it
       stops under the last letter instead of overhanging it. */}
   <h1 class="mh__title"><span>{title}</span></h1>
+  {promise && <p class="mh__promise">{promise}</p>}
 </header>
 
 <style>
@@ -94,6 +98,19 @@ const { title } = Astro.props;
        the rule. This padding puts the rule inside the box, so everything below it is
        spaced from the line the reader actually sees. */
     padding-bottom: 0.26em;
+  }
+  /* Sits the same 40px under the title that the wordmark sits above it, so the masthead
+     steps evenly from mark to title to promise. */
+  .mh__promise {
+    margin: 2.5rem auto 0;
+    max-width: 24ch;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1.875rem, 4.4vw, 3.25rem);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+    color: var(--bone);
+    text-wrap: pretty;
   }
   .mh__title span::after {
     content: '';

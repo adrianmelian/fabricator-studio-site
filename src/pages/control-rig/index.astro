@@ -40,7 +40,7 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
-import SectionHead from '../../components/SectionHead.astro';
+import Masthead from '../../components/Masthead.astro';
 import BracketButton from '../../components/BracketButton.astro';
 import LazyVideos from '../../components/LazyVideos.astro';
 
@@ -95,12 +95,13 @@ const CARDS = [
 <BaseLayout title={TITLE} description={DESCRIPTION}>
   <NavBar />
 
+  {/* THE SHARED MASTHEAD (Adrian, 2026-09-04): the wordmark, the underlined title, and the
+      serif promise, same as Pricing, Maya Pipeline, Services and My Account.
+      HIS TITLE AND HIS SUB, and the sub is SHORTER than what stood here: ", built in one
+      click from the same export that rigs your character in Maya. No manual rigging." is
+      cut. He gave the line; it is not a truncation of mine. */}
   <section id="cr-intro">
-    <SectionHead
-      eyebrow="FABRICATORSTUDIO"
-      title="UNREAL PROCEDURAL CONTROL RIG"
-      sub="An Animator-Friendly Modular Control Rig in Unreal Engine 5.8, built in one click from the same export that rigs your character in Maya. No manual rigging."
-    />
+    <Masthead title="Unreal Control Rig" promise="An Animator-Friendly Modular Control Rig in Unreal Engine 5.8" />
     <div class="cr-ctas">
       <BracketButton kind="hard" href="/pricing/" label="See the plans" event="controlrig-plans" />
     </div>
@@ -140,19 +141,20 @@ const CARDS = [
 
   <section id="cr-facts">
     <dl class="cr-facts">
-      <div class="cr-fact">
-        <dt>Engine</dt>
-        <dd>Unreal Engine 5.8. Dynamic chains need the engine's ControlRigDynamics plugin enabled.</dd>
-      </div>
-      <div class="cr-fact">
-        <dt>Reads</dt>
-        <dd>An Armature 2.1.8 or newer export, or the Studio Pipeline's Maya exporter. Older exports are refused by name and asked to re-export.</dd>
-      </div>
+      {/* ENGINE AND READS REMOVED 2026-09-04 on his instruction. What went: "Unreal Engine
+          5.8. Dynamic chains need the engine's ControlRigDynamics plugin enabled." and "An
+          Armature 2.1.8 or newer export, or the Studio Pipeline's Maya exporter. Older
+          exports are refused by name and asked to re-export."
+          The engine version still reaches a buyer: it is in the promise line at the top of
+          this page and in the download row's own note on the account page. The Armature
+          minimum now appears nowhere on the site, which is raised with him. */}
       <div class="cr-fact">
         <dt>Included in</dt>
-        {/* commercial-model.md: the Animation band, Pro and Enterprise carry it; base
-            Freelance Tech Art does not. Tier names as renamed 2026-09-02. */}
-        <dd>Freelance Tech Art + Animation, Pro and Enterprise. Not in base Freelance Tech Art.</dd>
+        {/* HIS LINE. He wrote "Freelance Animation", which is not one of the tier names;
+            the two bands carrying controlrig.plugin are Freelance Animator and Freelance
+            Tech Art + Animation. Placed as written and raised with him rather than
+            silently corrected, because the words on a price surface are his. */}
+        <dd>Freelance Animation, Pro and Enterprise. Not in base Freelance Tech Art.</dd>
       </div>
     </dl>
   </section>

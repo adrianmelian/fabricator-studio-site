@@ -143,8 +143,7 @@ const slug = (s: string) => 'f-' + s.replace(/\W+/g, '-').toLowerCase().replace(
         wordmark and the serif line alone; the other three pages took a one-word underlined
         masthead the same evening on his "standardized and unified" instruction, so this
         page wears it too and his line sits beneath it as the promise. */}
-    <Masthead title="Maya Pipeline" />
-    <p class="tp-promise">Design the look. Design the motion. Let the pipeline do the rest.</p>
+    <Masthead title="Maya Pipeline" promise="Design the look. Design the motion. Let the pipeline do the rest." />
 
     {FEATURES.map((f) => (
       <section class={`tp-feat tp-feat--${f.key}${f.flip ? ' tp-feat--flip' : ''}`} aria-labelledby={slug(f.title)}>
@@ -218,21 +217,6 @@ const slug = (s: string) => 'f-' + s.replace(/\W+/g, '-').toLowerCase().replace(
 
 <style>
   .tp { max-width: 85rem; margin: 0 auto; padding: 0 1.5rem 6rem; display: flex; flex-direction: column; gap: 2.5rem; }
-  .tp-promise {
-    /* CLOSER TO THE TITLE (Adrian, 2026-09-04): it sat 72px below it, further than the
-       wordmark sits above it. The masthead already owns the space beneath itself, so this
-       pulls back up to sit 24px under the title and lets the page gap carry the rest. */
-    margin: -2.5rem auto 0;
-    max-width: 24ch;
-    text-align: center;
-    font-family: var(--font-display);
-    font-weight: 400;
-    font-size: clamp(1.875rem, 4.4vw, 3.25rem);
-    line-height: 1.1;
-    letter-spacing: -0.01em;
-    color: var(--bone);
-    text-wrap: pretty;
-  }
 
   /* ---- one block per hue, EVERY VALUE WRITTEN OUT ------------------------------------
      These were `rgba(var(--hue), ...)` first, which is shorter and which the brand gate
