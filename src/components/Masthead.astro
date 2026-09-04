@@ -13,11 +13,13 @@
 //
 // IT IS THE PAGE'S H1. A page with no h1 is a page a screen reader and a search result
 // cannot name, and on both of these pages this word is the only thing that names it.
-// `sub` is optional and arrived with the Services page (Adrian, 2026-09-03), where the
-// masthead word is the label and the line under it carries what the page actually offers.
-// /pricing/ and /account/ pass nothing and render the word alone.
-interface Props { title: string; sub?: string }
-const { title, sub } = Astro.props;
+// ONE WORD, NO SUBTITLE. A `sub` prop existed for about an hour on 2026-09-03, when the
+// Services page carried "Custom Pipelines and Software" under the rule; he cut it the same
+// evening ("it's the same thing below basically") because WHAT I BUILD sits directly
+// beneath and says it in three cards. Removed rather than left unused: no page passes it,
+// and putting it back is this comment plus a paragraph.
+interface Props { title: string }
+const { title } = Astro.props;
 ---
 <header class="mh">
   {/* The inner span carries the rule. Letter-spacing leaves a trailing space after the
@@ -26,7 +28,6 @@ const { title, sub } = Astro.props;
       an absolutely positioned pseudo-element inset by that same trailing space, so it
       stops under the last letter instead of overhanging it. */}
   <h1 class="mh__title"><span>{title}</span></h1>
-  {sub && <p class="mh__sub">{sub}</p>}
 </header>
 
 <style>
@@ -71,17 +72,6 @@ const { title, sub } = Astro.props;
        the rule. This padding puts the rule inside the box, so everything below it is
        spaced from the line the reader actually sees. */
     padding-bottom: 0.26em;
-  }
-  /* Set in the body face on purpose: a second line of the display serif directly under the
-     first would read as a two-line headline rather than as a label and its subject. */
-  .mh__sub {
-    /* Measured from the rule, which now has height. Widened on his instruction. */
-    margin: 1.75rem 0 0;
-    font-size: clamp(1.0625rem, 1.9vw, 1.375rem);
-    line-height: 1.35;
-    color: var(--bone);
-    max-width: 32ch;
-    text-wrap: pretty;
   }
   .mh__title span::after {
     content: '';
