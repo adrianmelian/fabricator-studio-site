@@ -26,6 +26,13 @@
      depicts for X. (DNA amendment pending ratification.) */
   --magma:       #FF3B3B;
   --magma-dim:   #B52A2A;
+  /* Gold (Adrian 2026-09-04): the ANIMATION tertiary accent - poses, keys, the pass a
+     character makes through the animator's hands. It arrived in his Tools design drop and
+     the brand gate caught it as an off-palette third accent; he widened the palette rather
+     than recolour the design. Same scoping as cobalt and magma: for depiction, never a
+     CTA, never a state colour, never the wordmark. */
+  --gold:        #FFC857;
+  --gold-dim:    #B8903C;
 
   /* ===== typography (Mindmeld 2.0, revised 2026-08-18) =====
      Two families. Display = Instrument Serif, which ships ONE weight (400) and no bold cut,

@@ -187,6 +187,13 @@ const PALETTE = new Set([
   'ff7a3d', 'b5532a',                               // ember
   '7cb8ff', '4f84be',                               // cobalt (structural tertiary, Adrian 2026-07-17)
   'ff3b3b', 'b52a2a',                               // magma (code tertiary, Adrian 2026-07-17)
+  // GOLD, added 2026-09-04 on Adrian's word. It arrived in his own Tools design drop, on
+  // Animation Studio and CtrlEditor, and this gate is what caught it: 11 violations, and
+  // they blocked the deploy, because the workflow's deploy job needs the build job and the
+  // build job runs these gates. He was given both ways out and chose to widen the palette
+  // rather than recolour his design. Same scoping as cobalt and magma: a tertiary for
+  // depiction, never a CTA, never a state colour, never the wordmark.
+  'ffc857', 'b8903c',                               // gold (animation tertiary, Adrian 2026-09-04)
   '000', '000000', 'fff', 'ffffff',                 // neutrals (shadow / scrim ink)
 ]);
 // Principle 1 bans a third functional ACCENT, not a neutral tint. The animated tool-window
@@ -223,6 +230,7 @@ const PALETTE_RGB = [
   [255, 122, 61], [181, 83, 42],
   [124, 184, 255], [79, 132, 190],
   [255, 59, 59], [181, 42, 42],
+  [255, 200, 87], [184, 144, 60],
   [0, 0, 0], [255, 255, 255],
 ];
 // A gradient's FIRST part may be a direction/shape prelude rather than a color stop, and
