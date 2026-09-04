@@ -144,7 +144,7 @@ const build = [
     <!-- WHAT I BUILD -->
     <section class="svc-section" aria-labelledby="svc-build">
       <div class="svc-rule svc-rule--cobalt">
-        <h2 id="svc-build" class="svc-rule__label svc-rule__label--plasma">CUSTOM TOOLS</h2>
+        <h2 id="svc-build" class="svc-rule__label svc-rule__label--cobalt">CUSTOM TOOLS</h2>
       </div>
       <div class="svc-grid svc-grid--cobalt">
         {build.map((b) => (
@@ -159,7 +159,7 @@ const build = [
     <!-- HOW IT WORKS -->
     <section class="svc-section" aria-labelledby="svc-how">
       <div class="svc-rule svc-rule--ember">
-        <h2 id="svc-how" class="svc-rule__label svc-rule__label--plasma">HOW IT WORKS</h2>
+        <h2 id="svc-how" class="svc-rule__label svc-rule__label--ember">HOW IT WORKS</h2>
       </div>
       <ol class="svc-steps svc-steps--ember">
         <li class="svc-step">
@@ -238,8 +238,11 @@ const build = [
     font-size: clamp(1.25rem, 2.6vw, 1.625rem);
     letter-spacing: 0.04em;
   }
-  .svc-rule__label--plasma { color: var(--bone); }
-  .svc-rule__label--ember { color: var(--bone); }
+  /* THE TITLE TAKES ITS STRIPE'S COLOUR (Adrian, 2026-09-03). All three read bone before
+     this, which is why the coloured rules looked unattached to the words beside them. */
+  .svc-rule__label--plasma { color: var(--plasma); }
+  .svc-rule__label--cobalt { color: var(--cobalt); }
+  .svc-rule__label--ember { color: var(--ember); }
   .svc-rule::after { content: ''; flex: 1; height: 1px; }
   .svc-rule--plasma::after { background: linear-gradient(90deg, rgba(124, 255, 178, 0.4), rgba(124, 255, 178, 0)); }
   .svc-rule--ember::after { background: linear-gradient(90deg, rgba(255, 122, 61, 0.4), rgba(255, 122, 61, 0)); }
