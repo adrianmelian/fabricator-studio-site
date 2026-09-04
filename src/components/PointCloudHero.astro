@@ -15,7 +15,17 @@
 // nobody scrolls through three empty screens to reach the page.
 import { Image } from 'astro:assets';
 import BracketButton from './BracketButton.astro';
-import heroWordmark from '../assets/hero/wordmark-banner.png';
+// THE SINGLE-COLOUR WORDMARK (Adrian, 2026-09-04: "swap all the colourful watermarks with
+// the new one, found on the Pricing page header"). Same artwork the Masthead renders on
+// /pricing/, /tools/, /services/, /account/ and /control-rig/, so the homepage's h1 and every
+// page header are now one drawing. It replaces assets/hero/wordmark-banner.png, whose letters
+// were individually orange, green and bone.
+//
+// The ASSET is imported directly rather than mounting Wordmark.astro: that component is
+// height-driven and ships widths [440, 880], while this mark renders up to 470 CSS px and
+// needs the 1180 candidate for a 2x display. Ratios are 2205x320 and 2214x320, a 0.4%
+// difference, so nothing below this reflows.
+import heroWordmark from '../assets/fabricatorstudio-wordmark.png';
 ---
 
 {/* THE STAGE IS A STACK OF FIXED LAYERS (Adrian, 2026-08-19). Nothing scrolls past anything:
@@ -50,8 +60,29 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
         itself leaves. The ask outlives the whole opening. That is why it sits outside
         .pc__text, which owns the text fade, and on a layer above the video's z1. */}
     <div class="pc__cta" data-pc-cta>
-      <BracketButton kind="hard" href="/pricing/" label="Pricing" event="hero-pricing" />
-      <BracketButton kind="plasma-outline" href="/services/" label="Services" event="hero-services" />
+      {/* THE THREE PRODUCT DOORS (Adrian, 2026-09-04): "between the watermark and 2 pills
+          let's make 3 buttons each in their own row". One row each, above the pills.
+
+          THEY LIVE INSIDE .pc__cta ON PURPOSE, rather than as a block of their own. The
+          travel loop measures this element's rect and derives BOTH landings from it: the
+          group goes to the floor at rect.bottom - inset - ctaRest.height, and the wordmark
+          is then placed at ctaTargetTop - gap - its own height. Putting the doors in here
+          means a taller block pushes the wordmark up by exactly the right amount, with no
+          second transform to keep in sync and no chance of the two drifting apart. A
+          sibling block would have needed its own travel and its own fade.
+
+          Kind `soft` (iron, bone) rather than plasma: Pricing is the filled primary and
+          five plasma buttons in one stack would leave no primary at all. Register is his
+          call, as ever. */}
+      <div class="pc__doors">
+        <BracketButton kind="soft" href="/armature/" label={'Armature Rigging & Skinning'} event="hero-armature" />
+        <BracketButton kind="soft" href="/tools/" label="Maya Pipeline Tools" event="hero-maya-pipeline" />
+        <BracketButton kind="soft" href="/control-rig/" label="Unreal Control Rig" event="hero-control-rig" />
+      </div>
+      <div class="pc__pills">
+        <BracketButton kind="hard" href="/pricing/" label="Pricing" event="hero-pricing" />
+        <BracketButton kind="plasma-outline" href="/services/" label="Services" event="hero-services" />
+      </div>
     </div>
   </div>
 
@@ -260,17 +291,44 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     height: auto;
   }
 
+  /* A COLUMN NOW (Adrian, 2026-09-04), holding the three product doors over the two pills.
+     It was a single flex row of two buttons. */
   .pc__cta {
     display: flex;
+    flex-direction: column;
+    align-items: stretch;
     gap: 1rem;
-    flex-wrap: wrap;
     margin-top: 3.4rem;
+    /* IT RIDES THE SAME PIN AS THE WORDMARK (2026-09-04). The wordmark is offset by
+       --pc-wm so it lands on the crossbar of the F in the point cloud, and that offset is
+       relative: it moves the mark WITHOUT moving the flow. The copy column is centred, so
+       when this block grew from one row of pills to five the whole column rose by half the
+       added height, the pinned wordmark stayed where it was, and the top button printed
+       across the wordmark's baseline. Measured against production: 59px of clearance there,
+       19px of overlap here. Riding the same offset makes the gap the margin above and
+       nothing else, at any number of buttons. */
+    position: relative;
+    top: var(--pc-wm, 0px);
     font-size: 0.95rem;
     will-change: transform, opacity;
     /* max-content, not the column's width: the travel math centres THIS rect on the canvas,
-       and a full-width rect parks a lone button left of centre. */
+       and a full-width rect parks a lone button left of centre. With a column, max-content
+       is the widest label's, so the three doors form one edge rather than three widths. */
     width: max-content;
   }
+  /* One row each. Stretched, so the stack reads as a block with a single left and right
+     edge instead of three centred pills of three different lengths. */
+  .pc__doors {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.55rem;
+  }
+  /* :global, NOT a bare .btn. The button markup is generated inside BracketButton and carries
+     THAT component's scope id, so a scoped rule written here matches nothing. This lane has
+     paid for that trap twice already. */
+  .pc__doors :global(.btn) { text-align: center; }
+  .pc__pills { display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center; }
 
   /* ---- the fallback -------------------------------------------------------------------
      Reduced motion, no WebGL2, or a failed init: the canvas layer goes entirely, the copy
@@ -318,6 +376,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
   }
   .pc[data-pc-static] ~ .pc__copylayer .pc__text { opacity: 1; transform: none; }
   .pc[data-pc-static] ~ .pc__copylayer .pc__wordmark { top: 0; }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__cta { top: 0; }
   .pc[data-pc-static] ~ .pc-runway { display: none; }
 
   @media (max-width: 900px) {
@@ -332,6 +391,9 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
 
        Scoped to the live path only. The static fallback keeps its own composition below. */
     .pc:not([data-pc-static]) ~ .pc__copylayer .pc__copy {
+      /* The three doors plus the two pills (197px measured) plus the floor margin below
+         them. Read by both anchors below. */
+      --pc-group: 13.5rem;
       left: 0;
       right: 0;
       top: var(--header-h);
@@ -351,10 +413,25 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     .pc:not([data-pc-static]) ~ .pc__copylayer .pc__display { margin-top: 7svh; }
     /* Two thirds down, and `top` here deliberately overrides --pc-wm: that variable aligns
        the wordmark to the mark's projected anchor, which is a desktop composition and pulls
-       it off Adrian's line at this width. */
+       it off Adrian's line at this width.
+
+       RAISED FROM 68% TO 52% (2026-09-04) AND IT IS HIS COMPOSITION, SO IT IS HIS TO PUT
+       BACK. His line left 32% of the screen below it, about 250px on a 390x844 phone. The
+       button group was one row of pills and fitted. It is five rows now and measures 197px,
+       so at 68% the block ran to y=890 on an 844 screen and PRICING AND SERVICES WERE OFF
+       THE BOTTOM OF THE PHONE ENTIRELY. Measured, not guessed.
+       At 52% the same group lands 464..763 with 81px to spare, and the 6.4rem gap between
+       the mark and the buttons below is untouched. Desktop is not affected: there the
+       landing is computed from the group's own height and had already adjusted itself. */
     .pc:not([data-pc-static]) ~ .pc__copylayer .pc__wordmark {
       position: absolute;
-      top: 68%;
+      /* THE CLAMP IS THE SHORT-SCREEN GUARD. 52% is the composition; the second term is the
+         floor. On a 360x640 phone 52% still ran the pills 17px past the bottom edge, because
+         the room below the mark is a PERCENTAGE and the button group is a fixed 197px. Below
+         about 700px of viewport the group is anchored off the bottom instead, so the last
+         pill always has a floor margin. --pc-group is that group's height plus that margin,
+         and it is the one number to change if a sixth button is ever added. */
+      top: min(52%, calc(100% - var(--pc-group) - 4.6rem));
       left: 0;
       right: 0;
       margin: 0;
@@ -367,7 +444,7 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
        the frame loop clears the inline transform at this width. */
     .pc:not([data-pc-static]) ~ .pc__copylayer .pc__cta {
       position: absolute;
-      top: calc(68% + 6.4rem);
+      top: min(calc(52% + 6.4rem), calc(100% - var(--pc-group)));
       left: 0;
       right: 0;
       width: auto;
@@ -420,8 +497,24 @@ import heroWordmark from '../assets/hero/wordmark-banner.png';
     .pc[data-pc-static] ~ .pc__copylayer .pc__copy { position: relative; top: auto; transform: none; left: 0; margin: 0; max-width: none; padding: var(--sp-7) var(--container-px, 20px); pointer-events: auto; }
     .pc[data-pc-static] ~ .pc__copylayer .pc__text { opacity: 1; transform: none; }
     .pc[data-pc-static] ~ .pc__copylayer .pc__wordmark { top: 0; }
+  .pc[data-pc-static] ~ .pc__copylayer .pc__cta { top: 0; }
     .pc[data-pc-static] ~ .pc__copylayer .pc__wordmark :global(img) { width: min(86vw, 470px); }
     .pc[data-pc-static] ~ .pc-runway { display: none; }
+  }
+
+  /* ================= THE PHILOSOPHY LINE CLEARS THE MARK =================
+     Raising the wordmark to 52% to fit the three doors walked it into the philosophy line,
+     which is anchored off the BOTTOM at 33.3% and grows upward. Measured against production
+     across five viewports: clean there, overlapping here at 390x844, 414x896 and 768x1024,
+     and at 360x640 once the short-screen clamp engaged.
+     The paragraph is parked a rem above wherever the mark actually is, and the mark has two
+     possible positions, so this takes the higher of the two: 48% + 1rem mirrors the 52%
+     anchor, and the group term mirrors the clamp that overrides it on a short screen. A
+     larger bottom offset is higher up the page, so max() is the one that clears both. */
+  @media (max-width: 900px) {
+    .pc:not([data-pc-static]) ~ .pc__copylayer .pc__philosophy {
+      bottom: max(calc(48% + 1rem), calc(var(--pc-group) + 5.6rem));
+    }
   }
 </style>
 
