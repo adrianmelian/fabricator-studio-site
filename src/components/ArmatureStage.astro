@@ -142,6 +142,9 @@ const { variant = 'page', skin = '/mesh/superheroin.skin', tex = '' } = Astro.pr
     const o = new Float32Array([1,0,0,0, 0,1,0,0, 0,0,1,0, x, y, z, 1]);
     return o;
   }
+  function scaling(x: number, y: number, z: number) {
+    return new Float32Array([x,0,0,0, 0,y,0,0, 0,0,z,0, 0,0,0,1]);
+  }
   // small-angle local rotation, XYZ order, degrees
   function rotXYZ(rx: number, ry: number, rz: number) {
     const d = Math.PI / 180;
@@ -208,12 +211,14 @@ const { variant = 'page', skin = '/mesh/superheroin.skin', tex = '' } = Astro.pr
     const XRAY_VS = `#version 300 es
 in vec3 aPos; in vec3 aNor;
 uniform mat4 uProj, uView, uModel;
-out vec3 vN; out vec3 vV;
+out vec3 vN; out vec3 vV; out float vY;
 void main() {
-  vec4 mv = uView * (uModel * vec4(aPos, 1.0));
+  vec4 wp = uModel * vec4(aPos, 1.0);
+  vec4 mv = uView * wp;
   gl_Position = uProj * mv;
   vN = mat3(uView) * (mat3(uModel) * aNor);
   vV = -mv.xyz;
+  vY = wp.y;
 }`;
     // Her solid: the same fresnel, SKINNED. Joint matrices ride a 4 x nj float texture;
     // weights are u8-normalised and renormalised here.
@@ -221,7 +226,7 @@ void main() {
 in vec3 aPos; in vec4 aNor; in vec4 aJ; in vec4 aW;
 uniform mat4 uProj, uView;
 uniform sampler2D uJT;
-out vec3 vN; out vec3 vV;
+out vec3 vN; out vec3 vV; out float vY;
 mat4 jm(float j) {
   int y = int(j + 0.5);
   return mat4(
@@ -238,24 +243,36 @@ void main() {
   gl_Position = uProj * mv;
   vN = mat3(uView) * (mat3(S) * aNor.xyz);
   vV = -mv.xyz;
+  vY = p.y;
 }`;
+    // uWipe: the world height below which the x-ray exists, with a burn at the frontier
+    // (Adrian, 2026-09-04: "from the bottom up, like a wipe"). 100 means the whole body,
+    // which is what every draw outside the man's arrival passes.
     const XRAY_FS = `#version 300 es
 precision highp float;
 uniform vec3 uPlasma, uBone;
-uniform float uAlpha;
-in vec3 vN; in vec3 vV;
+uniform float uAlpha, uWipe, uWipeBand;
+in vec3 vN; in vec3 vV; in float vY;
 out vec4 frag;
 void main() {
+  float on = 1.0 - smoothstep(uWipe, uWipe + uWipeBand, vY);
+  if (on < 0.004) discard;
   float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 3.0);
   vec3 c = mix(uBone * 0.04, mix(uBone, uPlasma, 0.55), rim * 0.55);
-  frag = vec4(c * uAlpha, 1.0);
+  // 0.3, not 0.9: through the bloom 0.9 was a white slab across his hips, not a line.
+  c += uPlasma * max(0.0, 1.0 - abs(vY - uWipe) / uWipeBand) * 0.3;
+  frag = vec4(c * uAlpha * on, 1.0);
 }`;
     // Her points: the homepage's materialisation grammar -- height-gated reveal, frontier
     // burn, a calm breathing wave.
     const PT_VS = `#version 300 es
 in vec3 aPos; in vec3 aNor; in float aPhase; in vec3 aRand; in float aYN;
+// aPos2 / uMorph: a point's OTHER shape. The man's cloud is born as the FS mark and every
+// point flies from its spot on the mark to its spot on him (Adrian, 2026-09-04: the mark
+// is "the machinery of this universe"). A cloud with no second shape sets uMorph to 1.
+in vec3 aPos2;
 uniform mat4 uProj, uView;
-uniform float uTime, uSize, uReveal, uFade;
+uniform float uTime, uSize, uReveal, uFade, uMorph, uCut;
 uniform vec3 uOffset;
 // SCATTER: how far each point sits from where it belongs. Zero is the mesh. Used only by
 // the man's opening, where the page has to show a field of points BEFORE it shows a body:
@@ -264,7 +281,7 @@ uniform float uScatter;
 out float vWave; out float vAlive; out float vEdge;
 void main() {
   float w = sin(uTime * 0.7 + aPhase * 2.0);
-  vec3 p = aPos + aNor * (w * 0.013) + uOffset
+  vec3 p = mix(aPos2, aPos, uMorph) + aNor * (w * 0.013) + uOffset
     + (aRand - 0.5) * uScatter
     + vec3(sin(uTime * 0.31 + aPhase), sin(uTime * 0.27 + aPhase * 1.7), sin(uTime * 0.23 + aPhase * 2.3))
       * (uScatter * 0.10);
@@ -273,6 +290,9 @@ void main() {
   gl_PointSize = max(0.0356 * uSize * (300.0 / -mv.z), 1.0);
   vWave = sin(uTime * 0.35 + aPhase * 0.12);
   float vis = 1.0 - smoothstep(uReveal, uReveal + 0.045, aYN);
+  // uCut is the man's wipe seen from the points' side: everything under it has already
+  // become the hologram and is gone from here. -1 leaves every point alone.
+  vis *= smoothstep(uCut - 0.045, uCut, aYN);
   vEdge = (uReveal < 1.05 ? 1.0 : 0.0) * max(0.0, 1.0 - abs(aYN - uReveal) / 0.05);
   vAlive = vis * uFade;
 }`;
@@ -391,10 +411,64 @@ void main() {
   // 1.08x albedo left the composite clipping and the bloom pass then ate her face. Read the
   // ceiling as 0.61x: it looks dark in isolation and correct through the chain.
   vec3 c = alb * (0.115 + key * 0.66) + uPlasma * rim * 0.16;
-  // the frontier burn, the same grammar her points and her skeleton arrive on
-  c += uPlasma * max(0.0, 1.0 - abs(d) / uBand) * 1.15;
+  // the frontier burn, the same grammar her points and her skeleton arrive on. A third of
+  // the band and a third of the strength: at the full band it lit whole limbs at once.
+  c += uPlasma * max(0.0, 1.0 - abs(d) / (uBand * 0.35)) * 0.35;
   frag = vec4(c * uAlpha, on * uAlpha);
 }`;
+    // THE CONTROL CURVES (Adrian, 2026-09-04: "more like real animation rig controls
+    // that are nurbs curves in the 3D scene"). The old controls were camera-facing squares
+    // of a fixed world size, which is a diagram of a control. These are shapes with a model
+    // matrix: a wire cube that sits IN the hand and turns with it, a ring that lies flat
+    // around the chest and tilts with the spine. Reference: the knight on his own services
+    // card, ConceptArt/FabricatorStudio/2026-09-01_services-cards/cards_page_v1.png.
+    // ONE STROKE, NOT THREE HAIRLINES. WebGL draws lines one pixel wide, full stop, and the
+    // first pass faked weight with three nested loops, which read as three lines with hot
+    // spots wherever they crossed. Every segment is a quad here, extruded in SCREEN space
+    // to uWidthPx, with square caps so the corners close. Drawn with ordinary alpha
+    // blending so overlaps do not stack: the glow comes from the bloom and it is even.
+    const CURVE_VS = `#version 300 es
+in vec3 aP0; in vec3 aP1; in float aSide; in float aEnd;
+uniform mat4 uProj, uView, uModel;
+uniform vec2 uViewport;
+uniform float uWidthPx;
+void main() {
+  mat4 MVP = uProj * uView * uModel;
+  vec4 c0 = MVP * vec4(aP0, 1.0);
+  vec4 c1 = MVP * vec4(aP1, 1.0);
+  vec2 h = uViewport * 0.5;
+  vec2 s0 = c0.xy / c0.w * h;
+  vec2 s1 = c1.xy / c1.w * h;
+  vec2 d = s1 - s0;
+  float l = length(d);
+  d = l > 1e-4 ? d / l : vec2(1.0, 0.0);
+  vec2 n = vec2(-d.y, d.x);
+  float w = uWidthPx * 0.5;
+  vec4 c = aEnd < 0.5 ? c0 : c1;
+  vec2 sp = (aEnd < 0.5 ? s0 - d * w : s1 + d * w) + n * aSide * w;
+  gl_Position = vec4(sp / h * c.w, c.z, c.w);
+}`;
+    const CURVE_FS = `#version 300 es
+precision highp float;
+uniform vec3 uColor; uniform float uAlpha;
+out vec4 frag;
+void main() { frag = vec4(uColor, uAlpha); }`;
+    // A SOLID SHAPE, faceted: flat per-face normals lit from the camera's upper left, so
+    // a pole vector's diamond reads as a small gem rather than a flat sticker.
+    const GEM_VS = `#version 300 es
+in vec3 aPos; in vec3 aNor;
+uniform mat4 uProj, uView, uModel;
+out float vL;
+void main() {
+  vec3 n = normalize(mat3(uView) * (mat3(uModel) * aNor));
+  vL = 0.55 + 0.45 * max(0.0, dot(n, normalize(vec3(-0.4, 0.7, 0.6))));
+  gl_Position = uProj * uView * uModel * vec4(aPos, 1.0);
+}`;
+    const GEM_FS = `#version 300 es
+precision highp float;
+uniform vec3 uColor; uniform float uAlpha;
+in float vL; out vec4 frag;
+void main() { frag = vec4(uColor * vL, uAlpha); }`;
     const STAR_VS = `#version 300 es
 in vec3 aPos; in vec3 aSeed;
 uniform mat4 uProj, uView; uniform float uTime, uSpeed;
@@ -475,6 +549,8 @@ void main() {
     const P_PT = prog(PT_VS, PT_FS);
     const P_BONE = prog(BONE_VS, BONE_FS);
     const P_CTRL = prog(CTRL_VS, CTRL_FS);
+    const P_CURVE = prog(CURVE_VS, CURVE_FS);
+    const P_GEM = prog(GEM_VS, GEM_FS);
     const P_STAR = prog(STAR_VS, STAR_FS);
     const P_GRID = prog(GRID_VS, GRID_FS);
     const P_BRIGHT = prog(QUAD_VS, BRIGHT_FS);
@@ -510,6 +586,85 @@ void main() {
       gl.enableVertexAttribArray(loc);
       gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
     }
+
+    // A unit wire cube, twelve edges, and a unit octagon in the XZ plane (normal Y). Maya's
+    // own control grammar: a box on anything that translates, a ring on anything that turns.
+    // Each is a list of SEGMENTS, and each segment becomes six vertices of a quad.
+    const strokeVao = (segs: number[][][]) => {
+      const n = segs.length * 6;
+      const p0 = new Float32Array(n * 3), p1 = new Float32Array(n * 3);
+      const side = new Float32Array(n), end = new Float32Array(n);
+      const corners = [[-1, 0], [1, 0], [1, 1], [-1, 0], [1, 1], [-1, 1]];
+      segs.forEach(([a, b], si) => {
+        corners.forEach(([sd, en], k) => {
+          const v = si * 6 + k;
+          p0.set(a, v * 3); p1.set(b, v * 3); side[v] = sd; end[v] = en;
+        });
+      });
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const attr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_CURVE.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      attr('aP0', p0, 3); attr('aP1', p1, 3); attr('aSide', side, 1); attr('aEnd', end, 1);
+      return { vao, count: n };
+    };
+    const CUBE_SEGS = (() => {
+      const c = [[-1,-1,-1],[1,-1,-1],[1,1,-1],[-1,1,-1],[-1,-1,1],[1,-1,1],[1,1,1],[-1,1,1]];
+      const e = [[0,1],[1,2],[2,3],[3,0],[4,5],[5,6],[6,7],[7,4],[0,4],[1,5],[2,6],[3,7]];
+      return e.map(([a, b]) => [c[a], c[b]]);
+    })();
+    // OCTAGONS, NOT CIRCLES (Adrian, 2026-09-04). Eight sides, turned half a step so a flat
+    // edge faces forward, which is the shape Maya riggers actually draw for these.
+    const RING_N = 8;
+    const RING_SEGS = (() => {
+      const pts: number[][] = [];
+      for (let i = 0; i < RING_N; i++) {
+        const a = (i / RING_N) * Math.PI * 2 + Math.PI / RING_N;
+        pts.push([Math.cos(a), 0, Math.sin(a)]);
+      }
+      return pts.map((pt, i) => [pt, pts[(i + 1) % RING_N]]);
+    })();
+    const cubeStroke = strokeVao(CUBE_SEGS);
+    const ringStroke = strokeVao(RING_SEGS);
+    // one segment along X, 0 to 1: the pole vector tether, stretched by its model matrix
+    const lineStroke = strokeVao([[[0, 0, 0], [1, 0, 0]]]);
+    // THE DIAMOND (Adrian, 2026-09-05: "make the PV control a solid diamond"): an
+    // octahedron, unit wide, a third taller than wide so it reads as a gem, flat-shaded.
+    const gemVao = (() => {
+      const T = 1.35;
+      const top = [0, T, 0], bot = [0, -T, 0];
+      const ring = [[1, 0, 0], [0, 0, 1], [-1, 0, 0], [0, 0, -1]];
+      const pos: number[] = [], nor: number[] = [];
+      const tri = (a: number[], b: number[], c: number[]) => {
+        const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]], v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+        const n = vnorm(vcross(u, v));
+        for (const p of [a, b, c]) { pos.push(...p); nor.push(...n); }
+      };
+      for (let i = 0; i < 4; i++) {
+        const a = ring[i], b = ring[(i + 1) % 4];
+        tri(top, b, a);
+        tri(bot, a, b);
+      }
+      const vao = gl.createVertexArray()!;
+      gl.bindVertexArray(vao);
+      const attr = (name: string, data: number[]) => {
+        const loc = gl.getAttribLocation(P_GEM.p, name);
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data), gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, 3, gl.FLOAT, false, 0, 0);
+      };
+      attr('aPos', pos); attr('aNor', nor);
+      return { vao, count: pos.length / 3 };
+    })();
 
     const quadVao = gl.createVertexArray()!;
     gl.bindVertexArray(quadVao);
@@ -626,32 +781,90 @@ void main() {
     const MAN_PT_N = 4200;
     const manPtVao = gl.createVertexArray()!;
     if (DRIVEN0) {
-      const tri = manNi / 3;
-      const cum = new Float32Array(tri);
-      let total = 0;
-      for (let t = 0; t < tri; t++) {
-        const a = manIdx[t * 3] * 3, b = manIdx[t * 3 + 1] * 3, c = manIdx[t * 3 + 2] * 3;
-        const ux = manPos[b] - manPos[a], uy = manPos[b + 1] - manPos[a + 1], uz = manPos[b + 2] - manPos[a + 2];
-        const vx = manPos[c] - manPos[a], vy = manPos[c + 1] - manPos[a + 1], vz = manPos[c + 2] - manPos[a + 2];
-        total += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
-        cum[t] = total;
+      // Area-weighted surface sampling, the recipe every cloud on the site uses.
+      const sample = (pos: Float32Array, nor: Float32Array, idx: Uint16Array, n: number, seed: number) => {
+        const tri = idx.length / 3;
+        const cum = new Float32Array(tri);
+        let total = 0;
+        for (let t = 0; t < tri; t++) {
+          const a = idx[t * 3] * 3, b = idx[t * 3 + 1] * 3, c = idx[t * 3 + 2] * 3;
+          const ux = pos[b] - pos[a], uy = pos[b + 1] - pos[a + 1], uz = pos[b + 2] - pos[a + 2];
+          const vx = pos[c] - pos[a], vy = pos[c + 1] - pos[a + 1], vz = pos[c + 2] - pos[a + 2];
+          total += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+          cum[t] = total;
+        }
+        const rnd = mulberry32(seed);
+        const oPos = new Float32Array(n * 3), oNor = new Float32Array(n * 3);
+        for (let i = 0; i < n; i++) {
+          const r = rnd() * total;
+          let lo = 0, hi = tri - 1;
+          while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < r) lo = m + 1; else hi = m; }
+          const a = idx[lo * 3], b = idx[lo * 3 + 1], c = idx[lo * 3 + 2];
+          let u = rnd(), v = rnd();
+          if (u + v > 1) { u = 1 - u; v = 1 - v; }
+          const w = 1 - u - v;
+          for (let k = 0; k < 3; k++) {
+            oPos[i * 3 + k] = pos[a * 3 + k] * w + pos[b * 3 + k] * u + pos[c * 3 + k] * v;
+            oNor[i * 3 + k] = nor[a * 3 + k] * w + nor[b * 3 + k] * u + nor[c * 3 + k] * v;
+          }
+        }
+        return { pos: oPos, nor: oNor };
+      };
+      // Sort a cloud by height, so rank i on one shape is rank i on the other. Paired at
+      // random the morph is a burst that happens to land; paired by height the bottom of
+      // the mark becomes his feet and the top becomes his head, and it reads as one thing
+      // becoming another. Ties broken on x so the order is deterministic.
+      const byHeight = (c: { pos: Float32Array; nor: Float32Array }, n: number) => {
+        const order = Array.from({ length: n }, (_, i) => i)
+          .sort((a, b) => (c.pos[a * 3 + 1] - c.pos[b * 3 + 1]) || (c.pos[a * 3] - c.pos[b * 3]));
+        const pos = new Float32Array(n * 3), nor = new Float32Array(n * 3);
+        order.forEach((src, dst) => {
+          for (let k = 0; k < 3; k++) { pos[dst * 3 + k] = c.pos[src * 3 + k]; nor[dst * 3 + k] = c.nor[src * 3 + k]; }
+        });
+        return { pos, nor };
+      };
+
+      // THE MARK, the shape his cloud is born as. The same FSMH the homepage draws, put
+      // through the same normalise (largest dimension 2.1, stood on y=0), so it is upright
+      // in the xy plane and faces the camera on the same axis he stands on.
+      const lgBuf = await (await fetch('/mesh/fs_logo.mesh')).arrayBuffer();
+      const lgDv = new DataView(lgBuf);
+      if (String.fromCharCode(lgDv.getUint8(0), lgDv.getUint8(1), lgDv.getUint8(2), lgDv.getUint8(3)) !== 'FSMH')
+        throw new Error('bad mark mesh');
+      const lgNv = lgDv.getUint32(4, true), lgNi = lgDv.getUint32(8, true);
+      let lo2 = 12;
+      const lgRaw = new Float32Array(lgBuf.slice(lo2, lo2 + lgNv * 12)); lo2 += lgNv * 12;
+      const lgNor = new Float32Array(lgBuf.slice(lo2, lo2 + lgNv * 12)); lo2 += lgNv * 12;
+      const lgIdx = new Uint16Array(lgBuf.slice(lo2, lo2 + lgNi * 2));
+      const lgPos = new Float32Array(lgRaw.length);
+      {
+        const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
+        for (let i = 0; i < lgRaw.length; i += 3)
+          for (let k = 0; k < 3; k++) {
+            if (lgRaw[i + k] < mn[k]) mn[k] = lgRaw[i + k];
+            if (lgRaw[i + k] > mx[k]) mx[k] = lgRaw[i + k];
+          }
+        const size = [mx[0] - mn[0], mx[1] - mn[1], mx[2] - mn[2]];
+        const sc = 2.1 / Math.max(size[0], size[1], size[2], 1e-6);
+        const ctr = [(mn[0] + mx[0]) / 2, (mn[1] + mx[1]) / 2, (mn[2] + mx[2]) / 2];
+        // Lifted so its centre sits at his, rather than standing on the floor: a mark that
+        // sits on the grid reads as a sign; one that hangs at chest height reads as a thing
+        // in the air that is about to become something.
+        const lift = 1.05 - (size[1] * sc) / 2;
+        for (let i = 0; i < lgPos.length; i += 3) {
+          lgPos[i] = (lgRaw[i] - ctr[0]) * sc;
+          lgPos[i + 1] = (lgRaw[i + 1] - ctr[1]) * sc + (size[1] * sc) / 2 + lift;
+          lgPos[i + 2] = (lgRaw[i + 2] - ctr[2]) * sc;
+        }
       }
-      const rnd = mulberry32(19);
-      const pPos = new Float32Array(MAN_PT_N * 3), pNor = new Float32Array(MAN_PT_N * 3);
+
+      const man = byHeight(sample(manPos, manRawNor, manIdx, MAN_PT_N, 19), MAN_PT_N);
+      const mark = byHeight(sample(lgPos, lgNor, lgIdx, MAN_PT_N, 23), MAN_PT_N);
+      const pPos = man.pos, pNor = man.nor, pPos2 = mark.pos;
+      const rnd = mulberry32(31);
       const pPh = new Float32Array(MAN_PT_N), pRnd = new Float32Array(MAN_PT_N * 3), pYN = new Float32Array(MAN_PT_N);
       let ymin = Infinity, ymax = -Infinity;
       for (let i = 0; i < MAN_PT_N; i++) {
-        const r = rnd() * total;
-        let lo = 0, hi = tri - 1;
-        while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < r) lo = m + 1; else hi = m; }
-        const a = manIdx[lo * 3], b = manIdx[lo * 3 + 1], c = manIdx[lo * 3 + 2];
-        let u = rnd(), v = rnd();
-        if (u + v > 1) { u = 1 - u; v = 1 - v; }
-        const w = 1 - u - v;
-        for (let k = 0; k < 3; k++) {
-          pPos[i * 3 + k] = manPos[a * 3 + k] * w + manPos[b * 3 + k] * u + manPos[c * 3 + k] * v;
-          pNor[i * 3 + k] = manRawNor[a * 3 + k] * w + manRawNor[b * 3 + k] * u + manRawNor[c * 3 + k] * v;
-        }
         pPh[i] = pPos[i * 3] * 1.7 + pPos[i * 3 + 1] * 2.3 + pPos[i * 3 + 2] * 1.1;
         pRnd[i * 3] = rnd(); pRnd[i * 3 + 1] = rnd(); pRnd[i * 3 + 2] = rnd();
         if (pPos[i * 3 + 1] < ymin) ymin = pPos[i * 3 + 1];
@@ -670,6 +883,7 @@ void main() {
         gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
       };
       attr('aPos', pPos, 3);
+      attr('aPos2', pPos2, 3);
       attr('aNor', pNor, 3);
       attr('aPhase', pPh, 1);
       attr('aRand', pRnd, 3);
@@ -825,7 +1039,9 @@ void main() {
           if (!w) continue;
           acc += (depth[hJnt[v * 4 + k]] || 0) * w; wt += w;
         }
-        hMD[v] = wt ? acc / wt / maxDepth : 0;
+        // 0.72 chain depth, 0.28 height: the order is still root-outward, but no two
+        // vertices on one limb share a value, so the frontier is a line and not a limb.
+        hMD[v] = (wt ? acc / wt / maxDepth : 0) * 0.72 + ((hPos[v * 3 + 1] - 0) / 2.1) * 0.28;
       }
       gl.bindVertexArray(matVao);
       const attr = (name: string, data: ArrayBufferView, sz: number, type: number, normalize: boolean) => {
@@ -974,13 +1190,33 @@ void main() {
       { chain: ['thigh_l', 'calf_l', 'foot_l'], kind: 'leg' },
       { chain: ['thigh_r', 'calf_r', 'foot_r'], kind: 'leg' },
       { chain: ['neck_01', 'neck_02', 'head'], kind: 'axial' },
-      { chain: ['spine_01', 'spine_02', 'spine_03'], kind: 'axial' },
-    ].map((e) => ({ chain: e.chain.map((n) => jIndexByName[n]), kind: e.kind }))
-      .filter((e) => e.chain.every((j) => j !== undefined));
+      // THE WHOLE SPINE (Adrian, 2026-09-04: "every single spine joint should share the
+      // rotation"). Five on the ninja, three on the old character; the missing ones are
+      // dropped rather than the chain, so both rigs keep a chest control.
+      { chain: ['spine_01', 'spine_02', 'spine_03', 'spine_04', 'spine_05'], kind: 'axial' },
+      // THE COG (Adrian, 2026-09-04: "a control around her hips that is like a COG
+      // control"). It TRANSLATES the pelvis, everything above rides along, and the legs are
+      // re-solved to where the feet already were, so the feet stay planted the way they do
+      // under a real rig's IK feet.
+      { chain: ['pelvis'], kind: 'cog' },
+    ].map((e) => ({ chain: e.chain.map((n) => jIndexByName[n]).filter((j) => j !== undefined), kind: e.kind, limb: -1 }))
+      .filter((e) => e.kind === 'axial' ? e.chain.length >= 2 : e.kind === 'cog' ? e.chain.length === 1 : e.chain.length === 3);
+    // THE POLE VECTORS (Adrian, 2026-09-05: "PV controls to the knees and elbows... the
+    // missing piece to make it really look like a control rig"). One per limb, a small
+    // world-level box floating ahead of the knee and behind the elbow, tethered to its
+    // joint by a hairline the way Maya draws a pole vector constraint. Its chain is the
+    // limb's mid joint, for naming and colour only; `limb` is the effector it steers.
+    // Dragging it re-solves that limb with the box as the pole, so the knee or elbow
+    // swings while the foot or hand stays exactly where it was.
+    for (let li = 0, n = EFF_DEF.length; li < n; li++)
+      if (EFF_DEF[li].kind === 'arm' || EFF_DEF[li].kind === 'leg')
+        EFF_DEF.push({ chain: [EFF_DEF[li].chain[1]], kind: 'pv', limb: li });
     const EFFECTORS = EFF_DEF.map((e) => e.chain);
     const EFF_KIND = EFF_DEF.map((e) => e.kind);
+    const EFF_LIMB = EFF_DEF.map((e) => e.limb);
     const effJoint = EFFECTORS.map((c) => c[c.length - 1]);
     let ikChain = -1;             // index into EFFECTORS, -1 = none
+    let ikOff = [0, 0, 0];         // shape-to-joint offset of the grabbed control
     let ikSettling = false;
     const ikTarget = new Float32Array(3);
     const effNatural = new Float32Array(effJoint.length * 3); // pre-IK effector positions
@@ -1072,6 +1308,76 @@ void main() {
     const jointPts = new Float32Array(shown.length * 3);
     const bonePts = new Float32Array(boneList.length * 18);
     const effPts = new Float32Array(effJoint.length * 3);
+    const effMats: Float32Array[] = effJoint.map(() => new Float32Array(16));
+    // the toe joint under each foot effector, for aiming its control; -1 for everything else
+    const effBall = effJoint.map((j) => {
+      const nm = jNames[j];
+      if (!nm.startsWith('foot_')) return -1;
+      const b = jIndexByName[nm.replace('foot_', 'ball_')];
+      return b === undefined ? -1 : b;
+    });
+    // WHAT EACH CONTROL IS. Rings on the axial joints, boxes on the ends of the limbs, and
+    // the size each one is drawn AND picked at, so the shape you see is the shape you hit.
+    // The ring's normal is the joint's own X, which on this skeleton runs along the bone,
+    // so the chest ring lies across the torso and tilts with the lean.
+    // `flat` rings lie level in the world rather than across the bone, and `lift` raises
+    // the shape above its joint: the head's ring is a HALO over the crown (Adrian,
+    // 2026-09-04), and the COG ring sits level around the hips.
+    // Keyed by EFFECTOR index: a pole vector shares its joint's name with nothing but is a
+    // different control from the limb it steers.
+    const ctrlOf = (i: number) => {
+      const nm = jNames[effJoint[i]];
+      return EFF_KIND[i] === 'pv' ? { kind: 'gem', r: 0.045, flat: false, lift: 0 }
+      : nm === 'head' ? { kind: 'ring', r: 0.16, flat: false, lift: 0.30 }
+      // hands, COG and chest at 70% of their first size (Adrian, 2026-09-04)
+      : nm === 'pelvis' ? { kind: 'ring', r: 0.28, flat: true, lift: 0 }
+      : nm.startsWith('spine_') ? { kind: 'ring', r: 0.25, flat: false, lift: 0 }
+      : nm.startsWith('hand') ? { kind: 'cube', r: 0.06, flat: false, lift: 0 }
+      : { kind: 'cube', r: 0.11, flat: false, lift: 0 };
+    };
+    const ctrlHit = (i: number) => { const c = ctrlOf(i); return c.kind === 'ring' ? c.r : c.r * 1.75; };
+    // WHERE A LIFTED SHAPE ACTUALLY IS. Flat shapes lift along world up; a shape that rides
+    // its joint lifts along the joint's X, the bone axis, which on the head runs up through
+    // the crown. The halo used to lift along world up while the head tilted under it, and
+    // read as counter-rotating against the head (Adrian, 2026-09-04).
+    const liftVec = (i: number, mat: Float32Array | number[]) => {
+      const c = ctrlOf(i);
+      if (!c.lift) return [0, 0, 0];
+      if (c.flat) return [0, c.lift, 0];
+      const sc = Math.hypot(mat[0], mat[1], mat[2]) || 1;
+      return [(mat[0] / sc) * c.lift, (mat[1] / sc) * c.lift, (mat[2] / sc) * c.lift];
+    };
+    // The pole a limb solves toward when nothing is holding one: legs fold forward, arms
+    // fold behind and a little outward (the 2026-08-19 ruling, unchanged).
+    const fixedPole = (kind: string, rootX: number) =>
+      kind === 'leg' ? [0, 0, 1] : [rootX >= 0 ? 0.35 : -0.35, 0, -1];
+    // WHERE A POLE VECTOR RESTS. A fixed distance off the mid joint, in the plane the limb
+    // is actually bent in: the perpendicular part of root-to-mid against root-to-end. A
+    // limb that is nearly straight has no such plane worth reading, so the fixed pole
+    // takes over smoothly as the bend closes, and the box never jitters on an A-pose.
+    const PV_DIST = (kind: string) => (kind === 'leg' ? 0.55 : 0.42);
+    const pvHomeOf = (li: number) => {
+      const ch = EFFECTORS[li], kind = EFF_KIND[li];
+      const A = worlds[ch[0]], B = worlds[ch[1]], E = worlds[ch[2]];
+      const pA = [A[12], A[13], A[14]], pB = [B[12], B[13], B[14]], pE = [E[12], E[13], E[14]];
+      const n = vnorm([pE[0] - pA[0], pE[1] - pA[1], pE[2] - pA[2]]);
+      const vAB = [pB[0] - pA[0], pB[1] - pA[1], pB[2] - pA[2]];
+      const kb = vdot(vAB, n);
+      const bend = [vAB[0] - n[0] * kb, vAB[1] - n[1] * kb, vAB[2] - n[2] * kb];
+      const bl = Math.hypot(bend[0], bend[1], bend[2]);
+      const fp0 = fixedPole(kind, pA[0]);
+      const kf = vdot(fp0, n);
+      const fp = vnorm([fp0[0] - n[0] * kf, fp0[1] - n[1] * kf, fp0[2] - n[2] * kf]);
+      // A NEARLY STRAIGHT LIMB IS NOT A BEND. Her standing legs sit 3cm off straight with
+      // the knee a hair inward, and reading that as the bend plane aimed both knee boxes
+      // at each other (Adrian, 2026-09-05). Below 6cm the rig's own pole is the truth;
+      // the geometry only takes over as the limb closes past 20cm off the line.
+      const w = Math.min(1, Math.max(0, (bl - 0.06) / 0.14));
+      const bn = bl > 1e-6 ? [bend[0] / bl, bend[1] / bl, bend[2] / bl] : fp;
+      const dir = vnorm([bn[0] * w + fp[0] * (1 - w), bn[1] * w + fp[1] * (1 - w), bn[2] * w + fp[2] * (1 - w)]);
+      const d = PV_DIST(kind);
+      return [pB[0] + dir[0] * d, pB[1] + dir[1] * d, pB[2] + dir[2] * d];
+    };
     function evalPose(t: number, amp: number, dt: number) {
       // pass 1: FK from the bind locals, with the ROM's world-axis rotations applied at
       // each joint's pivot INSIDE the pass so they carry to the children.
@@ -1091,7 +1397,10 @@ void main() {
       }
       // the handles' natural (idle) positions, for grabbing and for settling home
       effJoint.forEach((j, i) => {
-        effNatural[i * 3] = worlds[j][12]; effNatural[i * 3 + 1] = worlds[j][13]; effNatural[i * 3 + 2] = worlds[j][14];
+        // a pole vector's home is read off the FK pose, so a released one walks back to
+        // the pose the routine is in and lets go without a snap
+        const p = EFF_KIND[i] === 'pv' ? pvHomeOf(EFF_LIMB[i]) : [worlds[j][12], worlds[j][13], worlds[j][14]];
+        effNatural[i * 3] = p[0]; effNatural[i * 3 + 1] = p[1]; effNatural[i * 3 + 2] = p[2];
       });
 
       // pass 2: CCD IK on the grabbed chain
@@ -1101,7 +1410,7 @@ void main() {
         if (ikSettling) {
           // the target walks home; when it arrives the chain lets go
           const nat = [effNatural.slice()][0];
-          const i0 = effJoint.indexOf(eff) * 3;
+          const i0 = ikChain * 3;
           const dx = nat[i0] - ikTarget[0], dy = nat[i0 + 1] - ikTarget[1], dz = nat[i0 + 2] - ikTarget[2];
           const k = Math.min(1, dt * 5);
           ikTarget[0] += dx * k; ikTarget[1] += dy * k; ikTarget[2] += dz * k;
@@ -1114,10 +1423,43 @@ void main() {
           // cosines -- legs pole forward, arms pole behind-and-outward -- then the root
           // and mid rotate onto it. Axial chains (head, chest) keep the live-hinge
           // method; their bends are small.
-          const jA = chain[0], jB = chain[1], jE = chain[2];
-          const kind = EFF_KIND[ikChain];
-          for (let pass = 0; pass < (kind === 'axial' ? 3 : 2); pass++) {
-            if (kind !== 'axial') {
+          // The two-bone limb solve, as a function: the grabbed chain calls it with the
+          // pointer's target, and the COG calls it for both legs with the feet's own
+          // resting positions. The parameters shadow the outer names on purpose so the
+          // body reads exactly as it did when it was inline.
+          // `poleDir`, when given, replaces the fixed pole: the direction from the limb's
+          // root to a held pole vector control.
+          const solveLimb = (ch: number[], kind: string, ikTarget: ArrayLike<number>, pass: number, poleDir?: number[]) => {
+            const jA = ch[0], jB = ch[1], jE = ch[2];
+            {
+              // THE CLAVICLE TAKES HALF THE SHOULDER (Adrian, 2026-09-04: "give half the
+              // shoulder rotation to the clavicle"). Before the two-bone solve runs, the
+              // angle the whole arm has to swing, shoulder to target, is measured and HALF
+              // of it is put on the clavicle about the clavicle's own pivot. That moves the
+              // shoulder, and the solve below then does the rest from where the shoulder
+              // now is, so the upper arm ends up carrying the other half. First pass only:
+              // the second pass is a refinement of the same target and must not add more.
+              if (pass === 0 && kind === 'arm') {
+                const jC = jParent[jA];
+                if (jC >= 0 && jNames[jC].startsWith('clavicle_')) {
+                  const pA = [worlds[jA][12], worlds[jA][13], worlds[jA][14]];
+                  const pE = [worlds[jE][12], worlds[jE][13], worlds[jE][14]];
+                  const vAE = [pE[0] - pA[0], pE[1] - pA[1], pE[2] - pA[2]];
+                  const vAT = [ikTarget[0] - pA[0], ikTarget[1] - pA[1], ikTarget[2] - pA[2]];
+                  const ax = vcross(vAE, vAT);
+                  const lE = Math.hypot(vAE[0], vAE[1], vAE[2]), lT = Math.hypot(vAT[0], vAT[1], vAT[2]);
+                  if (Math.hypot(ax[0], ax[1], ax[2]) > 1e-6 && lE > 1e-6 && lT > 1e-6) {
+                    const ang = Math.acos(Math.min(1, Math.max(-1, vdot(vAE, vAT) / (lE * lT))));
+                    const pc = [worlds[jC][12], worlds[jC][13], worlds[jC][14]];
+                    const M = mmul(mmul(translation(pc[0], pc[1], pc[2]), rotAxis(ax, ang * 0.5)), translation(-pc[0], -pc[1], -pc[2]));
+                    worlds[jC] = mmul(M, worlds[jC]);
+                    locals[jC] = jParent[jC] < 0 ? worlds[jC] : mmul(rigidInverse(worlds[jParent[jC]]), worlds[jC]);
+                    worlds[jA] = mmul(worlds[jC], locals[jA]);
+                    worlds[jB] = mmul(worlds[jA], locals[jB]);
+                    worlds[jE] = mmul(worlds[jB], locals[jE]);
+                  }
+                }
+              }
               const pA0 = [worlds[jA][12], worlds[jA][13], worlds[jA][14]];
               let pB0 = [worlds[jB][12], worlds[jB][13], worlds[jB][14]];
               let pC0 = [worlds[jE][12], worlds[jE][13], worlds[jE][14]];
@@ -1127,7 +1469,7 @@ void main() {
               const dRaw = Math.hypot(dv0[0], dv0[1], dv0[2]);
               const d = Math.min(L1 + L2 - 1e-3, Math.max(Math.abs(L1 - L2) + 1e-3, dRaw));
               const n = dRaw > 1e-6 ? [dv0[0] / dRaw, dv0[1] / dRaw, dv0[2] / dRaw] : [0, -1, 0];
-              const pole = kind === 'leg' ? [0, 0, 1] : [pA0[0] >= 0 ? 0.35 : -0.35, 0, -1];
+              const pole = poleDir || fixedPole(kind, pA0[0]);
               let hg = vcross(n, pole);
               if (Math.hypot(hg[0], hg[1], hg[2]) < 1e-4) hg = vcross(n, [0, 1, 0]);
               let m = vnorm(vcross(hg, n));
@@ -1160,48 +1502,104 @@ void main() {
               }
               worlds[jE] = mmul(worlds[jB], locals[jE]);
               locals[jB] = mmul(rigidInverse(worlds[jA]), worlds[jB]);
+            }
+          };
+          const jA = chain[0], jB = chain[1], jE = chain[chain.length - 1];
+          const kind = EFF_KIND[ikChain];
+          const footKeep = kind === 'leg' ? new Float32Array(worlds[jE]) : null;
+          if (kind === 'cog') {
+            // Move the pelvis to the target, carry everything under it, then put the feet
+            // back where they were: each leg re-solves to its own resting foot position.
+            const jP = chain[0];
+            // THE FEET KEEP THEIR ROTATION (Adrian, 2026-09-04: "lock the rotation of the
+            // feet controls when moving the COG"). A foot is an FK child of the calf, so a
+            // knee that folds tilts the foot with it; a rig's IK foot does not. Each foot's
+            // world orientation is taken BEFORE the pelvis moves and put back after its leg
+            // has been re-solved, on top of the solved position.
+            const footWorld = EFFECTORS.map((ch, li) => EFF_KIND[li] === 'leg' ? new Float32Array(worlds[ch[2]]) : null);
+            const d = [ikTarget[0] - worlds[jP][12], ikTarget[1] - worlds[jP][13], ikTarget[2] - worlds[jP][14]];
+            worlds[jP] = mmul(translation(d[0], d[1], d[2]), worlds[jP]);
+            locals[jP] = jParent[jP] < 0 ? worlds[jP] : mmul(rigidInverse(worlds[jParent[jP]]), worlds[jP]);
+            for (let j = 0; j < NJ; j++)
+              if (j !== jP) worlds[j] = jParent[j] < 0 ? locals[j] : mmul(worlds[jParent[j]], locals[j]);
+            for (let li = 0; li < EFFECTORS.length; li++) {
+              if (EFF_KIND[li] !== 'leg') continue;
+              const ch = EFFECTORS[li];
+              const foot = [effNatural[li * 3], effNatural[li * 3 + 1], effNatural[li * 3 + 2]];
+              for (let p2 = 0; p2 < 2; p2++) solveLimb(ch, 'leg', foot, p2);
+              const locked = new Float32Array(footWorld[li]!);
+              locked[12] = worlds[ch[2]][12]; locked[13] = worlds[ch[2]][13]; locked[14] = worlds[ch[2]][14];
+              worlds[ch[2]] = locked;
+              for (const j of ch) locals[j] = mmul(rigidInverse(worlds[jParent[j]]), worlds[j]);
+            }
+          } else if (kind === 'pv') {
+            // THE POLE VECTOR SWINGS THE KNEE, NOT THE FOOT. The limb it steers is re-solved
+            // to the end position the pose already gave it, with the held box as the pole,
+            // so only the plane of the bend changes. A foot keeps its rotation as it does
+            // under every other solve.
+            const li = EFF_LIMB[ikChain];
+            const ch = EFFECTORS[li], lk = EFF_KIND[li];
+            const end = [effNatural[li * 3], effNatural[li * 3 + 1], effNatural[li * 3 + 2]];
+            const keep = lk === 'leg' ? new Float32Array(worlds[ch[2]]) : null;
+            const A = worlds[ch[0]];
+            const pd = [ikTarget[0] - A[12], ikTarget[1] - A[13], ikTarget[2] - A[14]];
+            for (let p2 = 0; p2 < 2; p2++) solveLimb(ch, lk, end, p2, pd);
+            if (keep) {
+              keep[12] = worlds[ch[2]][12]; keep[13] = worlds[ch[2]][13]; keep[14] = worlds[ch[2]][14];
+              worlds[ch[2]] = keep;
+            }
+            for (const j of ch) locals[j] = mmul(rigidInverse(worlds[jParent[j]]), worlds[j]);
+          } else
+          // ONE PASS FOR AN AXIAL CHAIN, NOT FOUR. Iterating to land the tip on the pointer
+          // bent the chest to twice the angle the visitor asked for: a chain curved into an
+          // arc has an end tangent of double its chord, so four converging passes put 80
+          // degrees on the chest to reach a 41 degree target (measured 2026-09-04). Adrian's
+          // rule is the rig's rule: the control's angle, split evenly, once. The tip then
+          // sits inside the pointer's arc, and the spine reads as a spine.
+          for (let pass = 0; pass < (kind === 'axial' ? 1 : 2); pass++) {
+            if (kind === 'axial') {
+              // EVERY JOINT SHARES THE BEND (Adrian, 2026-09-04: "if one joint is being
+              // asked to rotate 90 degrees but there's 3 spine joints, all 3 joints should
+              // rotate 30 degrees to reach the destination"). The old hinge method folded
+              // the middle joint and aimed the root, which is a knee, not a spine. Here the
+              // angle from the chain's base to its tip, onto the target, is measured and
+              // split EQUALLY over every joint in the chain, base to tip, each about its own
+              // pivot. Compounded down the chain those N small turns curve the spine by the
+              // whole angle. Because each turn moves the pivots below it, one split does not
+              // land the tip exactly, and that is the point: see the pass count below.
+              const pA = [worlds[jA][12], worlds[jA][13], worlds[jA][14]];
+              const lv = liftVec(ikChain, worlds[jE]);
+              const pE = [worlds[jE][12] + lv[0], worlds[jE][13] + lv[1], worlds[jE][14] + lv[2]];
+              const vAE = [pE[0] - pA[0], pE[1] - pA[1], pE[2] - pA[2]];
+              // The target is the POINTER, a fixed point: the joint-space target plus the
+              // offset taken at the grab. Adding the live lift instead moved the target with
+              // every pass as the head turned under it, and the head ran away from a small drag.
+              const vAT = [ikTarget[0] + ikOff[0] - pA[0], ikTarget[1] + ikOff[1] - pA[1], ikTarget[2] + ikOff[2] - pA[2]];
+              const ax = vcross(vAE, vAT);
+              const lE = Math.hypot(vAE[0], vAE[1], vAE[2]), lT = Math.hypot(vAT[0], vAT[1], vAT[2]);
+              if (Math.hypot(ax[0], ax[1], ax[2]) < 1e-6 || lE < 1e-6 || lT < 1e-6) break;
+              const ang = Math.acos(Math.min(1, Math.max(-1, vdot(vAE, vAT) / (lE * lT))));
+              if (ang < 1e-4) break;
+              const share = ang / chain.length;
+              for (let ci = 0; ci < chain.length; ci++) {
+                const j = chain[ci];
+                const pj = [worlds[j][12], worlds[j][13], worlds[j][14]];
+                const M = mmul(mmul(translation(pj[0], pj[1], pj[2]), rotAxis(ax, share)), translation(-pj[0], -pj[1], -pj[2]));
+                worlds[j] = mmul(M, worlds[j]);
+                locals[j] = jParent[j] < 0 ? worlds[j] : mmul(rigidInverse(worlds[jParent[j]]), worlds[j]);
+                for (let ck = ci + 1; ck < chain.length; ck++)
+                  worlds[chain[ck]] = mmul(worlds[chain[ck - 1]], locals[chain[ck]]);
+              }
               continue;
             }
-            const pA = [worlds[jA][12], worlds[jA][13], worlds[jA][14]];
-            const pB = [worlds[jB][12], worlds[jB][13], worlds[jB][14]];
-            const pC = [worlds[jE][12], worlds[jE][13], worlds[jE][14]];
-            const L1 = Math.hypot(pB[0] - pA[0], pB[1] - pA[1], pB[2] - pA[2]);
-            const L2 = Math.hypot(pC[0] - pB[0], pC[1] - pB[1], pC[2] - pB[2]);
-            const dv = [ikTarget[0] - pA[0], ikTarget[1] - pA[1], ikTarget[2] - pA[2]];
-            const d = Math.min(L1 + L2 - 1e-3, Math.max(Math.abs(L1 - L2) + 1e-3, Math.hypot(dv[0], dv[1], dv[2])));
-            const phi = Math.acos(Math.min(1, Math.max(-1, (L1 * L1 + L2 * L2 - d * d) / (2 * L1 * L2))));
-            const vBA = [pA[0] - pB[0], pA[1] - pB[1], pA[2] - pB[2]];
-            const vBC = [pC[0] - pB[0], pC[1] - pB[1], pC[2] - pB[2]];
-            const psi = Math.acos(Math.min(1, Math.max(-1, vdot(vnorm(vBA), vnorm(vBC)))));
-            let hinge = vcross(vBC, vBA);
-            if (Math.hypot(hinge[0], hinge[1], hinge[2]) < 1e-5 && lastView)
-              hinge = vcross(vBA, [lastView[2], lastView[6], lastView[10]]);
-            const rotB = (delta: number) => {
-              const M = mmul(mmul(translation(pB[0], pB[1], pB[2]), rotAxis(hinge, delta)), translation(-pB[0], -pB[1], -pB[2]));
-              worlds[jB] = mmul(M, worlds[jB]);
-              worlds[jE] = mmul(worlds[jB], locals[jE]);
-            };
-            rotB(psi - phi);
-            {
-              const pC2 = [worlds[jE][12], worlds[jE][13], worlds[jE][14]];
-              const vBC2 = [pC2[0] - pB[0], pC2[1] - pB[1], pC2[2] - pB[2]];
-              const psi2 = Math.acos(Math.min(1, Math.max(-1, vdot(vnorm(vBA), vnorm(vBC2)))));
-              if (Math.abs(psi2 - phi) > Math.abs(psi - phi)) rotB(2 * (phi - psi));
-            }
-            locals[jB] = mmul(rigidInverse(worlds[jA]), worlds[jB]);
-            // the root aims the folded limb onto the target, unclamped
-            const pC3 = [worlds[jE][12], worlds[jE][13], worlds[jE][14]];
-            const vAC = [pC3[0] - pA[0], pC3[1] - pA[1], pC3[2] - pA[2]];
-            const vAT = [ikTarget[0] - pA[0], ikTarget[1] - pA[1], ikTarget[2] - pA[2]];
-            const ax = vcross(vAC, vAT);
-            const lC = Math.hypot(vAC[0], vAC[1], vAC[2]), lT = Math.hypot(vAT[0], vAT[1], vAT[2]);
-            if (Math.hypot(ax[0], ax[1], ax[2]) > 1e-6 && lC > 1e-6 && lT > 1e-6) {
-              const ang = Math.acos(Math.min(1, Math.max(-1, vdot(vAC, vAT) / (lC * lT))));
-              const M = mmul(mmul(translation(pA[0], pA[1], pA[2]), rotAxis(ax, ang)), translation(-pA[0], -pA[1], -pA[2]));
-              worlds[jA] = mmul(M, worlds[jA]);
-              worlds[jB] = mmul(worlds[jA], locals[jB]);
-              worlds[jE] = mmul(worlds[jB], locals[jE]);
-            }
+            solveLimb(chain, kind, ikTarget, pass);
+          }
+          if (footKeep) {
+            // THE IK FOOT KEEPS ITS OWN ROTATION. The solve above put it where the pointer
+            // is; its orientation stays what the pose gave it, as an IK foot's does.
+            const w2 = worlds[jE];
+            footKeep[12] = w2[12]; footKeep[13] = w2[13]; footKeep[14] = w2[14];
+            worlds[jE] = footKeep;
           }
           // fold the solve back into locals, then rebuild EVERY world from locals so the
           // twists and fingers downstream of the chain follow their parents
@@ -1243,7 +1641,37 @@ void main() {
         bonePts[o + 15] = px + wx; bonePts[o + 16] = py + wy; bonePts[o + 17] = pz + wz;
       });
       effJoint.forEach((j, i) => {
+        const e = effMats[i];
+        if (EFF_KIND[i] === 'pv') {
+          // The box is under the pointer while it is held or walking home, and rides the
+          // solved limb otherwise. World-level, like a locator.
+          const p = ikChain === i ? [ikTarget[0], ikTarget[1], ikTarget[2]] : pvHomeOf(EFF_LIMB[i]);
+          effPts[i * 3] = p[0]; effPts[i * 3 + 1] = p[1]; effPts[i * 3 + 2] = p[2];
+          e.set([1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  p[0], p[1], p[2], 1]);
+          return;
+        }
         effPts[i * 3] = worlds[j][12]; effPts[i * 3 + 1] = worlds[j][13]; effPts[i * 3 + 2] = worlds[j][14];
+        // The rotation part only, at UNIT scale. The bake's joint matrices carry the source
+        // file's scale in their 3x3, which the skinning cancels against the inverse binds and
+        // the position reads never touched; a control shape multiplied through it drew as a
+        // dot. Dividing out the column length leaves the joint's orientation and nothing else.
+        const m = worlds[j], sc = Math.hypot(m[0], m[1], m[2]) || 1;
+        const ball = effBall[i];
+        if (ball >= 0) {
+          // THE FOOT CONTROL IS LEVEL AND AIMED AT THE TOE (Adrian, 2026-09-04: "world
+          // orientation, and then rotated in Y so X is facing toward toe joint, but not
+          // pointed down at it"). Visual only: the frame is world-up, turned about Y so
+          // its X runs from the foot to the ball joint as seen from above.
+          const b = worlds[ball];
+          let dx = b[12] - m[12], dz = b[14] - m[14];
+          const l = Math.hypot(dx, dz) || 1;
+          dx /= l; dz /= l;
+          e.set([dx, 0, dz, 0,  0, 1, 0, 0,  -dz, 0, dx, 0,  m[12], m[13], m[14], 1]);
+        } else {
+          for (let k = 0; k < 12; k++) e[k] = m[k] / sc;
+          e[3] = 0; e[7] = 0; e[11] = 0;
+          e[12] = m[12]; e[13] = m[13]; e[14] = m[14]; e[15] = 1;
+        }
       });
       gl.bindTexture(gl.TEXTURE_2D, jointTex);
       gl.texSubImage2D(gl.TEXTURE_2D, 0, 0, 0, 4, NJ, gl.RGBA, gl.FLOAT, skinPix);
@@ -1388,13 +1816,13 @@ void main() {
         const MIN_HIT = 42;   // what the old circle gave, kept as the small-on-screen floor
         let best = -1, bestD = Infinity;
         for (let i = 0; i < effJoint.length; i++) {
-          const px = effPts[i * 3], py = effPts[i * 3 + 1], pz = effPts[i * 3 + 2];
+          const lv = liftVec(i, effMats[i]);
+          const px = effPts[i * 3] + lv[0], py = effPts[i * 3 + 1] + lv[1], pz = effPts[i * 3 + 2] + lv[2];
           const sp = screenOf([px, py, pz]);
           if (!sp) continue;
           // Same radius the draw uses, minus the pulse: it breathes 6% and rounding that into
           // the hit target would make the handle grow and shrink under the cursor.
-          const nm = jNames[effJoint[i]];
-          const rad = nm === 'head' ? 0.13 : nm === 'spine_03' ? 0.18 : 0.12;
+          const rad = ctrlHit(i);
           const ep = screenOf([px + camRight[0] * rad, py + camRight[1] * rad, pz + camRight[2] * rad]);
           const halfPx = ep ? Math.hypot(ep[0] - sp[0], ep[1] - sp[1]) : 0;
           const hit = Math.max(halfPx + EDGE_PAD, MIN_HIT);
@@ -1412,6 +1840,7 @@ void main() {
           const sp = screenOf([effPts[best * 3], effPts[best * 3 + 1], effPts[best * 3 + 2]])!;
           ikDepth = sp[2];
           ikTarget.set([effPts[best * 3], effPts[best * 3 + 1], effPts[best * 3 + 2]]);
+          ikOff = liftVec(best, effMats[best]);
           e.preventDefault();
           return;
         }
@@ -1422,7 +1851,7 @@ void main() {
     });
     document.addEventListener('pointermove', (e) => {
       if (ikDrag && lastView) {
-        ikTarget.set(dragTarget(e.clientX, e.clientY, ikDepth));
+        { const tp = dragTarget(e.clientX, e.clientY, ikDepth); ikTarget.set([tp[0] - ikOff[0], tp[1] - ikOff[1], tp[2] - ikOff[2]]); }
         return;
       }
       if (!orbDrag || !orbLast) return;
@@ -1446,7 +1875,10 @@ void main() {
     let manOut = 0, herReveal = 0, grow = 0, solid = 0, alive = 0, growEff = 0, ptFade = 0, skelAlpha = 0;
     let mat = 0, doors = 0;
     // The man's own arrival. 1 everywhere but a driven page, where he assembles first.
-    let manIn = 1, manAsm = 1, manPtFade = 0;
+    let manIn = 1, manAsm = 1, manPtFade = 0, manLeave = 0, manGone = 0;
+    // Her wipe line, driven pages only: the height the hologram has risen to through her
+    // points. 0 means not started, and the x-ray draw treats it as "no wipe".
+    let herWipe = 0;
     // WHERE THE THREE DOORS STAND. Objects in the place, not a menu under it: they run away
     // to her left along the grid, each further back than the last, so the close is a place
     // with exits rather than a footer. The page projects these three points every frame and
@@ -1518,11 +1950,25 @@ void main() {
       const aland = smooth(clamp01((q - 0.15) / 0.4));
       manOut = smooth(clamp01((q - 2.05) / 0.5));
       if (DRIVEN0) {
-        // scatter -> his shape -> the hologram. Three states, three legs, and the first of
-        // them is deliberately a field with no body in it.
+        // the mark -> his shape -> the hologram. Three states, three legs. manAsm is the
+        // morph; the scatter is a hump on top of it, so the points loosen in flight and land
+        // rather than sliding along straight lines like a tween.
         manAsm = smooth(clamp01((q - 0.02) / 0.62));
-        manIn = smooth(clamp01((q - 0.62) / 0.40));
-        manPtFade = (1 - manIn) * (1 - manOut);
+        // HE LEAVES THE WAY HE CAME, IN REVERSE (Adrian, 2026-09-05: "as her particles are
+        // materializing in, let's at the same time materialize out with that same wipe,
+        // but in reverse, the da Vinci man... like he's infusing himself to make her").
+        // A beat earlier than her hologram (Adrian, 2026-09-05: "as her point cloud
+        // materializes, not her xray, before that, he phases out"): her points gather
+        // 1.0-1.95, and over that stretch his wipe line comes back DOWN, the hologram
+        // shrinking to the floor and the points returning above it; once the line is on
+        // the floor the points loosen and go, gone before her wipe begins at 2.0.
+        manLeave = smooth(clamp01((q - 1.0) / 0.95));
+        manGone = smooth(clamp01((q - 1.75) / 0.45));
+        manIn = smooth(clamp01((q - 0.62) / 0.40)) * (1 - manLeave);
+        manOut = smooth(clamp01((q - 1.9) / 0.2));
+        // A WIPE, NOT A CROSSFADE. The points stay at full strength and are cut away from
+        // the floor up as the x-ray rises through them; manIn is the height of that line.
+        manPtFade = (manIn < 0.999 ? 1 : 0) * (1 - manGone);
       }
       herReveal = clamp01((q - 1.0) / 1.0) * 1.08;
       grow = clamp01((q - 2.1) / 0.8);
@@ -1535,13 +1981,35 @@ void main() {
       // to reveal: without textures the range does not exist and /armature/'s clock is
       // exactly the clock it has always been.
       if (TEXTURED) {
-        mat = smooth(clamp01((q - 3.5) / 0.8));
-        alive = smooth(clamp01((q - 4.35) / 0.45));
-        doors = smooth(clamp01((q - 4.95) / 0.6));
+        // HER ORDER IS HIS ORDER (Adrian, 2026-09-04: "on the ninja, do the same wipe as
+        // the first step, then the joints appear, etc"). /armature/ grows the skeleton
+        // through her points and solidifies after; here the hologram wipes up through the
+        // points FIRST, floor to head like the man's, and the skeleton grows inside a body
+        // that already reads as a body. Same beats, one swap, and the hold at 1.95 and the
+        // alive beat at 4.35 are exactly where the page expects them.
+        // THE TEMPO IS HIS, IN SECONDS (Adrian, 2026-09-04: "particles-hologram-skeleton
+        // build (make this like 3 seconds, its the coolest part, and ease into the end, so
+        // when the fingers are building it's a little slower) - skinning 2 seconds, then
+        // rig build is like instant"). The page runs q LINEARLY at one unit per second
+        // from the hold at 1.95, so every range below reads directly as a duration:
+        //   2.0 - 4.0   the hologram wipes up through her points       2s
+        //   4.0 - 7.0   the skeleton grows, eased OUT so the fingers,   3s
+        //               which are the deepest joints, land slowly
+        //   7.0 - 9.0   the skin floods out along the bones            2s
+        //   9.0 - 9.25  the controls snap on                           instant
+        herWipe = smooth(clamp01((q - 2.0) / 2.0));
+        solid = herWipe > 0 ? 1 : 0;
+        {
+          const t = clamp01((q - 4.0) / 3.0);
+          grow = 1 - Math.pow(1 - t, 2.4);
+        }
+        mat = smooth(clamp01((q - 7.0) / 2.0));
+        alive = smooth(clamp01((q - 9.0) / 0.25));
+        doors = smooth(clamp01((q - 9.4) / 0.6));
       }
       // the calisthenics run while the skinning beat holds the stage, then hand off to
       // the stillness the controls pose against
-      const romAmp = solid * (1 - alive);
+      const romAmp = (TEXTURED ? smooth(clamp01((q - 6.9) / 0.4)) : solid) * (1 - alive);
       lastAliveOn = alive > 0.5;
 
       const de = document.documentElement.style;
@@ -1628,7 +2096,9 @@ void main() {
       const home = HOSTED ? smooth(clamp01((q - 7.2) / 0.6)) : 0;
       const away = 1 - home;
 
-      ptFade = (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45) * away;
+      ptFade = TEXTURED
+        ? (herReveal > 0 && herWipe < 0.999 ? 1 : 0) * away
+        : (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45) * away;
       skelAlpha = (grow > 0 ? 0.85 : 0) * away * (1 - mat * 0.6);
       // The x-ray hands the body over to the surface rather than sitting under it: two
       // fresnels stacked read as a smear, and she is meant to STOP being a hologram here.
@@ -1643,6 +2113,12 @@ void main() {
       }
 
       evalPose(time, romAmp, dt);
+      // for the lab harness only: where the controls and joints are this frame
+      if (DRIVEN) (window as any).__armDbg = {
+        eff: effPts, kinds: EFF_KIND, names: effJoint.map((j) => jNames[j]),
+        joint: (nm: string) => { const j = jIndexByName[nm]; return j === undefined ? null : [worlds[j][12], worlds[j][13], worlds[j][14]]; },
+        screenOf, ikChain,
+      };
 
       if (!orbDrag) {
         orbVY += (-60 * orbY - 10 * orbVY) * dt; orbY += orbVY * dt;
@@ -1658,9 +2134,9 @@ void main() {
       // distance, the height and a few degrees of yaw ever change. The legs, in q:
       //   0.00-1.10  establishing: wide and high, the reference man alone on the grid
       //   1.10-1.95  push in as her points gather in front of him
-      //   1.95-4.80  the build, holding, creeping in one step across the whole sequence so
+      //   1.95-9.25  the build, holding, creeping in one step across the whole sequence so
       //              the longest stretch on the page is never a locked-off frame
-      //   4.80-      the pull back for the doors, opening the ground to her left
+      //   9.30-      the pull back for the doors, opening the ground to her left
       if (DRIVEN) {
         // PORTRAIT PULLS BACK RATHER THAN RECOMPOSING. A distance dialled for a 34 degree
         // horizontal half-angle means something else entirely at the 11 degrees a 390 frame
@@ -1668,36 +2144,74 @@ void main() {
         // edges. The same trade /armature/ makes with FIT_PULLBACK, and the one number to
         // dial here.
         const NARROW_PULL = innerWidth <= 700 ? 1.5 : 1;
-        const D_WIDE = { yaw: 0.16, pitch: 0.055, dist: 5.50 * NARROW_PULL, ty: 1.20, tz: 0.30, tx: 0 };
-        const D_FIT = { yaw: 0.30, pitch: 0.010, dist: 4.35 * NARROW_PULL, ty: 1.06, tz: 0.62, tx: 0 };
-        const D_HER = { yaw: 0.05, pitch: -0.015, dist: 3.30 * NARROW_PULL, ty: 1.05, tz: HER_POS[2], tx: 0 };
-        // THE CLOSE HAS NO FLANK ON A PHONE. D_OUT opens the ground to her left for three
-        // door plates, and 2.26 metres of that is simply outside a 390 frame: the doors
-        // projected to x -197 and the whole close was off screen. In portrait the camera
-        // retreats and lifts instead, she sits high and small, and the doors stack under her
-        // in the copy layer. Same place, composed for the frame it is in.
+        // THE MARKS ARE HIS TO DIAL (Adrian, 2026-09-05: "camera controls on the bottom,
+        // then I can align the camera for every scene exactly how I like it"). They live
+        // on the window so the page's tuning panel (/next/?cam) can edit them live; the
+        // numbers here are the shipped values, and the panel prints the set to paste back.
+        const CM = ((window as any).__armCamMarks ||= {
+          // the opening shot, his numbers from the panel (Adrian, 2026-09-05)
+          wide: { yaw: 0, pitch: -0.12, dist: 6.81, ty: 1.20, tz: 0.30, tx: 0 },
+          // the push in on the man's points, his numbers (Adrian, 2026-09-05: "should
+          // basically just be pushing in from the starting shot")
+          push: { yaw: 0, pitch: 0.125, dist: 3.54, ty: 1.0, tz: 0.30, tx: 0 },
+          // the fitting room, his numbers (Adrian, 2026-09-05): high and swung wide
+          fit: { yaw: 0.695, pitch: 0.59, dist: 5.76, ty: 1.06, tz: 0.61, tx: 0.1 },
+          // the build's start, his numbers (Adrian, 2026-09-05): close over her head, looking down
+          her: { yaw: 0, pitch: 0.7, dist: 1.75, ty: 1.58, tz: 1.27, tx: 0 },
+          // WHERE THE BUILD ENDS (Adrian, 2026-09-05: "a 'her out' which would be a
+          // transition from where we start and where we end during her transformation").
+          // The camera flies from `her` to this across the whole build; it replaces the
+          // fixed 0.22 creep and starts out as exactly that, until he dials it.
+          herOut: { yaw: 0, pitch: 0.24, dist: 3.23, ty: 1.02, tz: 0.88, tx: 0 },
+          // Realization, his numbers from the panel (Adrian, 2026-09-05): high and turned,
+          // looking down on her from her right
+          out: { yaw: 0.805, pitch: 0.365, dist: 3.63, ty: 1.05, tz: 1.13, tx: -0.58 },
+          // THE CLOSE HAS NO FLANK ON A PHONE. In portrait the camera retreats and lifts
+          // instead, she sits high and small, and the doors stack under her in the copy
+          // layer. Same place, composed for the frame it is in.
+          outNarrow: { yaw: 0.04, pitch: 0.055, dist: 5.90, ty: 1.42, tz: HER_POS[2], tx: 0 },
+        });
+        const D_WIDE = { ...CM.wide, dist: CM.wide.dist * NARROW_PULL };
+        const D_PUSH = { ...CM.push, dist: CM.push.dist * NARROW_PULL };
+        const D_FIT = { ...CM.fit, dist: CM.fit.dist * NARROW_PULL };
+        const D_HER = { ...CM.her, dist: CM.her.dist * NARROW_PULL };
+        const D_HER2 = { ...CM.herOut, dist: CM.herOut.dist * NARROW_PULL };
         const narrowOut = innerWidth <= 700;
-        const D_OUT = narrowOut
-          ? { yaw: 0.04, pitch: 0.055, dist: 5.90, ty: 1.42, tz: HER_POS[2], tx: 0 }
-          : { yaw: -0.20, pitch: 0.030, dist: 4.70, ty: 1.02, tz: HER_POS[2], tx: -0.72 };
-        const d1 = smooth(clamp01((q - 0.30) / 0.80));
+        const D_OUT = narrowOut ? CM.outNarrow : CM.out;
+        // THE LEGS. Ideation is the push in from the opening shot to the man's points;
+        // Integration carries it on to the fitting angle as her points gather.
+        const d0 = smooth(clamp01((q - 0.02) / 0.60));
+        const d1 = smooth(clamp01((q - 0.62) / 0.45));
         // THE SWING TO FRONT-ON HAPPENS DURING THE BUILD, NOT BEFORE IT. Arriving front-on
         // by the hold put her point cloud exactly on top of the reference man, two figures
         // on one axis reading as one confused shape. Held at the fitting angle she stands
         // clearly IN FRONT of him, and the camera turns to face her as the skeleton lands.
-        const d2 = smooth(clamp01((q - 1.95) / 0.95));
-        const d3 = smooth(clamp01((q - 4.80) / 0.90));
-        const dl = (a: number, b: number, c2: number, e2: number) =>
-          lerp(lerp(lerp(a, b, d1), c2, d2), e2, d3);
-        const creep = smooth(clamp01((q - 1.95) / 2.85)) * 0.22;
+        // The turn happens at the START of the build (Adrian, 2026-09-05: "move camera, so
+        // now we are in front of point cloud ninja face on"), before the wipe begins at 2.0.
+        // Slowed and moved earlier (Adrian, 2026-09-05: "between conceptualization and
+        // automation it's super abrupt... while her particles are coming in, we're
+        // transitioning"): the move now runs from the end of the push across the whole
+        // of her points gathering, and lands as her wipe begins.
+        const d2 = smooth(clamp01((q - 1.10) / 1.30));
+        // the build itself: her -> her out, from the end of the swing to the hold
+        const d2b = smooth(clamp01((q - 2.40) / 6.90));
+        const d3 = smooth(clamp01((q - 9.30) / 0.90));
+        const dl = (a: number, p: number, b: number, c2: number, c3: number, e2: number) =>
+          lerp(lerp(lerp(lerp(a, p, d0), b, d1), lerp(c2, c3, d2b), d2), e2, d3);
+        // what the panel needs to know which mark it is looking at
+        (window as any).__armCamInfo = {
+          q, narrow: narrowOut,
+          w: { wide: (1 - d0) * (1 - d1) * (1 - d2) * (1 - d3), push: d0 * (1 - d1) * (1 - d2) * (1 - d3),
+            fit: d1 * (1 - d2) * (1 - d3), her: d2 * (1 - d2b) * (1 - d3), herOut: d2 * d2b * (1 - d3), out: d3 },
+        };
         return {
           tgt: [
-            HER_POS[0] + dl(D_WIDE.tx, D_FIT.tx, D_HER.tx, D_OUT.tx),
-            dl(D_WIDE.ty, D_FIT.ty, D_HER.ty, D_OUT.ty),
-            dl(D_WIDE.tz, D_FIT.tz, D_HER.tz, D_OUT.tz)],
-          yaw: dl(D_WIDE.yaw, D_FIT.yaw, D_HER.yaw, D_OUT.yaw) + oy,
-          pitch: dl(D_WIDE.pitch, D_FIT.pitch, D_HER.pitch, D_OUT.pitch) + op,
-          dist: dl(D_WIDE.dist, D_FIT.dist, D_HER.dist, D_OUT.dist) - creep,
+            HER_POS[0] + dl(D_WIDE.tx, D_PUSH.tx, D_FIT.tx, D_HER.tx, D_HER2.tx, D_OUT.tx),
+            dl(D_WIDE.ty, D_PUSH.ty, D_FIT.ty, D_HER.ty, D_HER2.ty, D_OUT.ty),
+            dl(D_WIDE.tz, D_PUSH.tz, D_FIT.tz, D_HER.tz, D_HER2.tz, D_OUT.tz)],
+          yaw: dl(D_WIDE.yaw, D_PUSH.yaw, D_FIT.yaw, D_HER.yaw, D_HER2.yaw, D_OUT.yaw) + oy,
+          pitch: dl(D_WIDE.pitch, D_PUSH.pitch, D_FIT.pitch, D_HER.pitch, D_HER2.pitch, D_OUT.pitch) + op,
+          dist: dl(D_WIDE.dist, D_PUSH.dist, D_FIT.dist, D_HER.dist, D_HER2.dist, D_OUT.dist),
           home: 0,
         };
       }
@@ -1853,7 +2367,11 @@ void main() {
         gl.uniformMatrix4fv(P_XRAY.u.uView, false, view);
         gl.uniform3fv(P_XRAY.u.uPlasma, PLASMA);
         gl.uniform3fv(P_XRAY.u.uBone, BONE);
-        gl.uniform1f(P_XRAY.u.uAlpha, 0.5 * (1 - manOut) * manIn);
+        gl.uniform1f(P_XRAY.u.uAlpha, 0.5 * (1 - manOut) * (DRIVEN0 && manIn <= 0 ? 0 : 1));
+        // 2.1 is his height; the line starts under the floor and finishes over his head so
+        // both ends of the wipe are clean.
+        gl.uniform1f(P_XRAY.u.uWipe, DRIVEN0 ? -0.15 + manIn * 2.45 : 100);
+        gl.uniform1f(P_XRAY.u.uWipeBand, 0.12);
         gl.uniformMatrix4fv(P_XRAY.u.uModel, false, MAN_M);
         gl.bindVertexArray(manVao);
         gl.drawElements(gl.TRIANGLES, manNi, gl.UNSIGNED_SHORT, 0);
@@ -1869,7 +2387,10 @@ void main() {
         gl.uniform1f(P_PT.u.uSize, 1.0);
         gl.uniform1f(P_PT.u.uReveal, 1.2);
         gl.uniform1f(P_PT.u.uFade, manPtFade);
-        gl.uniform1f(P_PT.u.uScatter, 1.7 * (1 - manAsm));
+        gl.uniform1f(P_PT.u.uMorph, manAsm);
+        gl.uniform1f(P_PT.u.uScatter, 0.55 * Math.sin(Math.PI * manAsm) + 0.55 * manGone);
+        // the same line as the x-ray's, in the points' normalised height (0 floor, 1 head)
+        gl.uniform1f(P_PT.u.uCut, manIn <= 0 ? -1 : -0.07 + manIn * 1.17);
         gl.uniform3f(P_PT.u.uOffset, 0, 0, 0);
         gl.uniform3fv(P_PT.u.uPlasma, PLASMA);
         gl.uniform3fv(P_PT.u.uEmber, EMBER);
@@ -1887,7 +2408,9 @@ void main() {
         gl.uniform1f(P_PT.u.uSize, 1.0);
         gl.uniform1f(P_PT.u.uReveal, herReveal);
         gl.uniform1f(P_PT.u.uFade, ptFade);
+        gl.uniform1f(P_PT.u.uMorph, 1);
         gl.uniform1f(P_PT.u.uScatter, 0);
+        gl.uniform1f(P_PT.u.uCut, herWipe <= 0 ? -1 : -0.07 + herWipe * 1.17);
         gl.uniform3f(P_PT.u.uOffset, HER_POS[0], HER_POS[1], HER_POS[2]);
         gl.uniform3fv(P_PT.u.uPlasma, PLASMA);
         gl.uniform3fv(P_PT.u.uEmber, EMBER);
@@ -1903,7 +2426,10 @@ void main() {
         gl.uniformMatrix4fv(P_SKIN.u.uView, false, view);
         gl.uniform3fv(P_SKIN.u.uPlasma, PLASMA);
         gl.uniform3fv(P_SKIN.u.uBone, BONE);
-        gl.uniform1f(P_SKIN.u.uAlpha, 0.5 * solid);
+        gl.uniform1f(P_SKIN.u.uAlpha, (TEXTURED ? 0.32 : 0.5) * solid);
+        // her feet are on y=0 and she is 2.1 tall: the same line the man's wipe used
+        gl.uniform1f(P_SKIN.u.uWipe, herWipe > 0 ? -0.15 + herWipe * 2.45 : 100);
+        gl.uniform1f(P_SKIN.u.uWipeBand, herWipe > 0 ? 0.12 : 1);
         bindTex(P_SKIN.u.uJT, jointTex, 6);
         gl.bindVertexArray(herVao);
         gl.drawElements(gl.TRIANGLES, NI, gl.UNSIGNED_SHORT, 0);
@@ -1943,25 +2469,82 @@ void main() {
         // THE CONTROLS (Adrian, 2026-08-19): a THICKER single line, solid and glowing --
         // five tightly nested loops read as one heavy stroke through the bloom.
         if (alive > 0.5) {
-          // A CONTROL IS NEVER OCCLUDED BY THE THING IT CONTROLS. Every animation package
-          // draws controls on top, and with depth on, her body cut the horizontal edges off
-          // each square and left a pair of floating vertical bars.
-          gl.disable(gl.DEPTH_TEST);
-          gl.bindVertexArray(squareVao);
-          gl.uniform1f(P_CTRL.u.uAlpha, alive);
-          const pulse = 1 + 0.06 * Math.sin(time * 2.2);
+          // THE CONTROLS SIT IN THE SCENE, AND SHE OCCLUDES THEM (Adrian, 2026-09-04: "make
+          // the control curves not draw on top of the character"). The first pass drew them
+          // over her, which is what a viewport does, but a viewport is not a picture: a ring
+          // whose back half passes behind her waist reads as a ring around her, and one
+          // drawn over her reads as a sticker. Depth is hers from the materials pass; the
+          // strokes test against it and write none of their own.
+          if (TEXTURED && mat > 0.003) { gl.enable(gl.DEPTH_TEST); gl.depthMask(false); }
+          else gl.disable(gl.DEPTH_TEST);
+          gl.useProgram(P_CURVE.p);
+          gl.uniformMatrix4fv(P_CURVE.u.uProj, false, proj);
+          gl.uniformMatrix4fv(P_CURVE.u.uView, false, view);
+          gl.uniform1f(P_CURVE.u.uAlpha, alive);
+          gl.uniform2f(P_CURVE.u.uViewport, canvas.width, canvas.height);
+          // 3.2 CSS pixels, in device pixels: a stroke, not a hairline and not a bar
+          gl.uniform1f(P_CURVE.u.uWidthPx, 3.2 * (canvas.width / Math.max(1, canvas.clientWidth)));
+          // NO PULSE (Adrian, 2026-09-04: "the control curves are like scaling up and down,
+          // stop that"), and overlaps do not stack, so a ring seen edge-on is no brighter
+          // than one seen flat.
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+          // the ring is built in XZ with its normal on Y; this turns that normal onto the
+          // joint's X, the bone axis, so the ring lies across the bone
+          const RING_TO_X = rotAxis([0, 0, 1], Math.PI / 2);
           for (let i = 0; i < effJoint.length; i++) {
             const nm = jNames[effJoint[i]];
-            if (nm.endsWith('_l')) gl.uniform3f(P_CTRL.u.uColor, 0.32, 0.55, 1.0);
-            else if (nm.endsWith('_r')) gl.uniform3f(P_CTRL.u.uColor, 1.0, 0.3, 0.28);
-            else gl.uniform3f(P_CTRL.u.uColor, 1.0, 0.84, 0.25);
-            gl.uniform3f(P_CTRL.u.uCenter, effPts[i * 3], effPts[i * 3 + 1], effPts[i * 3 + 2]);
-            const rad = (nm === 'head' ? 0.13 : nm === 'spine_03' ? 0.18 : 0.12) * pulse;
-            for (let k = -1; k <= 1; k++) {
-              gl.uniform1f(P_CTRL.u.uRadius, rad + k * 0.006);
-              gl.drawArrays(gl.LINE_LOOP, 0, 4);
+            if (nm.endsWith('_l')) gl.uniform3f(P_CURVE.u.uColor, 0.32, 0.55, 1.0);
+            else if (nm.endsWith('_r')) gl.uniform3f(P_CURVE.u.uColor, 1.0, 0.3, 0.28);
+            else gl.uniform3f(P_CURVE.u.uColor, 1.0, 0.84, 0.25);
+            const c = ctrlOf(i);
+            const isRing = c.kind === 'ring';
+            const stroke = isRing ? ringStroke : cubeStroke;
+            if (c.kind === 'gem') {
+              // the solid diamond, its back faces culled so the lit front is what shows,
+              // then back to the stroke program for its tether
+              gl.useProgram(P_GEM.p);
+              gl.uniformMatrix4fv(P_GEM.u.uProj, false, proj);
+              gl.uniformMatrix4fv(P_GEM.u.uView, false, view);
+              gl.uniformMatrix4fv(P_GEM.u.uModel, false, mmul(effMats[i], scaling(c.r, c.r, c.r)));
+              gl.uniform1f(P_GEM.u.uAlpha, alive);
+              if (nm.endsWith('_l')) gl.uniform3f(P_GEM.u.uColor, 0.32, 0.55, 1.0);
+              else gl.uniform3f(P_GEM.u.uColor, 1.0, 0.3, 0.28);
+              gl.enable(gl.CULL_FACE);
+              gl.bindVertexArray(gemVao.vao);
+              gl.drawArrays(gl.TRIANGLES, 0, gemVao.count);
+              gl.disable(gl.CULL_FACE);
+              gl.useProgram(P_CURVE.p);
+            } else {
+              gl.bindVertexArray(stroke.vao);
+              const r = c.r;
+              const M = !isRing
+                ? mmul(effMats[i], scaling(r, r, r))
+                : c.flat
+                  ? mmul(translation(effPts[i * 3], effPts[i * 3 + 1] + c.lift, effPts[i * 3 + 2]), scaling(r, r, r))
+                  : mmul(effMats[i], mmul(translation(c.lift, 0, 0), mmul(RING_TO_X, scaling(r, r, r))));
+              gl.uniformMatrix4fv(P_CURVE.u.uModel, false, M);
+              gl.drawArrays(gl.TRIANGLES, 0, stroke.count);
+            }
+            if (EFF_KIND[i] === 'pv') {
+              // THE TETHER: a hairline from the box to the joint it steers, drawn thinner and
+              // dimmer than the controls, the way a viewport shows a pole vector constraint.
+              // The one-segment stroke runs 0..1 along X; the model matrix's X column IS the
+              // joint-to-box vector, so no length or rotation is computed here.
+              const J = worlds[effJoint[i]];
+              const jx = J[12], jy = J[13], jz = J[14];
+              const M = new Float32Array([
+                effPts[i * 3] - jx, effPts[i * 3 + 1] - jy, effPts[i * 3 + 2] - jz, 0,
+                0, 1, 0, 0,  0, 0, 1, 0,  jx, jy, jz, 1]);
+              gl.uniform1f(P_CURVE.u.uWidthPx, 1.2 * (canvas.width / Math.max(1, canvas.clientWidth)));
+              gl.uniform1f(P_CURVE.u.uAlpha, alive * 0.55);
+              gl.bindVertexArray(lineStroke.vao);
+              gl.uniformMatrix4fv(P_CURVE.u.uModel, false, M);
+              gl.drawArrays(gl.TRIANGLES, 0, lineStroke.count);
+              gl.uniform1f(P_CURVE.u.uWidthPx, 3.2 * (canvas.width / Math.max(1, canvas.clientWidth)));
+              gl.uniform1f(P_CURVE.u.uAlpha, alive);
             }
           }
+          gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
           if (TEXTURED && mat > 0.003) gl.enable(gl.DEPTH_TEST);
         }
       }
