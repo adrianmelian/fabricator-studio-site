@@ -252,6 +252,8 @@ void main() {
 precision highp float;
 uniform vec3 uPlasma, uBone;
 uniform float uAlpha, uWipe, uWipeBand;
+// uScanY: the same sweeping line the points carry, at a world height; -100 for none
+uniform float uScanY;
 in vec3 vN; in vec3 vV; in float vY;
 out vec4 frag;
 void main() {
@@ -259,8 +261,11 @@ void main() {
   if (on < 0.004) discard;
   float rim = pow(1.0 - abs(dot(normalize(vN), normalize(vV))), 3.0);
   vec3 c = mix(uBone * 0.04, mix(uBone, uPlasma, 0.55), rim * 0.55);
-  // 0.3, not 0.9: through the bloom 0.9 was a white slab across his hips, not a line.
-  c += uPlasma * max(0.0, 1.0 - abs(vY - uWipe) / uWipeBand) * 0.3;
+  // A LINE, NOT A BAND (Adrian, 2026-09-05): the burn was a bubble the width of the wipe
+  // band with a long fall-off; now it is a hard three-centimetre line at the frontier.
+  // 0.45 through the bloom reads as a line; 0.9 read as a white slab across his hips.
+  c += uPlasma * (1.0 - smoothstep(0.012, 0.03, abs(vY - uWipe))) * 0.45;
+  c += uPlasma * (1.0 - smoothstep(0.012, 0.03, abs(vY - uScanY))) * 0.45;
   frag = vec4(c * uAlpha * on, 1.0);
 }`;
     // Her points: the homepage's materialisation grammar -- height-gated reveal, frontier
@@ -278,13 +283,34 @@ uniform vec3 uOffset;
 // the man's opening, where the page has to show a field of points BEFORE it shows a body:
 // a height-gated reveal assembles a shape, and the brief's first beat is the absence of one.
 uniform float uScatter;
+// THE LIFE OF A RESTING CLOUD (Adrian, 2026-09-05: "add some animation to the points, just
+// like the one we had from Armature, when all the points moved around individually and
+// then like a scan line went through it"). uDrift is how far each point wanders on its
+// own; uScan is a glow-only line at a normalised height that sweeps through the cloud, -1
+// for none. uVortex twists the cloud about its axis, strongest at the feet, spinning with
+// time: the morph between the mark and the man peaks it halfway and lets it go at either end.
+uniform float uDrift, uScan, uVortex;
 out float vWave; out float vAlive; out float vEdge;
 void main() {
   float w = sin(uTime * 0.7 + aPhase * 2.0);
-  vec3 p = mix(aPos2, aPos, uMorph) + aNor * (w * 0.013) + uOffset
+  vec3 base = mix(aPos2, aPos, uMorph);
+  float va = uVortex * (3.2 * (1.0 - aYN) + 0.9 * aRand.z + uTime * 1.3);
+  float cs = cos(va), sn = sin(va);
+  base.xz = vec2(base.x * cs - base.z * sn, base.x * sn + base.z * cs);
+  // IN FLIGHT, EVERY POINT WANDERS ON ITS OWN (Adrian, 2026-09-05: "when I stop in the
+  // middle all the points are all super still... like they are all individually moving
+  // around, not all together like a twist"). Three incommensurate sines seeded off the
+  // point's own phase, so no two neighbours agree and no wavefront can form; scaled by the
+  // scatter, so the wander is strongest halfway and gone at either end.
+  vec3 wander = vec3(
+    sin(uTime * 1.9 + aPhase * 7.0) * sin(uTime * 0.7 + aRand.x * 6.0),
+    sin(uTime * 2.3 + aPhase * 11.0) * sin(uTime * 0.9 + aRand.y * 6.0),
+    sin(uTime * 1.6 + aPhase * 5.0) * sin(uTime * 0.8 + aRand.z * 6.0));
+  vec3 p = base + aNor * (w * 0.013) + uOffset
     + (aRand - 0.5) * uScatter
+    + wander * (uScatter * 0.16)
     + vec3(sin(uTime * 0.31 + aPhase), sin(uTime * 0.27 + aPhase * 1.7), sin(uTime * 0.23 + aPhase * 2.3))
-      * (uScatter * 0.10);
+      * (uScatter * 0.10 + uDrift);
   vec4 mv = uView * vec4(p, 1.0);
   gl_Position = uProj * mv;
   gl_PointSize = max(0.0356 * uSize * (300.0 / -mv.z), 1.0);
@@ -293,7 +319,12 @@ void main() {
   // uCut is the man's wipe seen from the points' side: everything under it has already
   // become the hologram and is gone from here. -1 leaves every point alone.
   vis *= smoothstep(uCut - 0.045, uCut, aYN);
-  vEdge = (uReveal < 1.05 ? 1.0 : 0.0) * max(0.0, 1.0 - abs(aYN - uReveal) / 0.05);
+  // THE SCAN LINE IS A LINE (Adrian, 2026-09-05: "reduce the fall off to almost nothing,
+  // and make the line thinner"): two percent of the height, hard-edged, instead of a five
+  // percent band that faded out either side.
+  float edge = (uReveal < 1.05 ? 1.0 : 0.0) * (1.0 - smoothstep(0.012, 0.02, abs(aYN - uReveal)));
+  if (uScan >= 0.0) edge += 1.0 - smoothstep(0.012, 0.02, abs(aYN - uScan));
+  vEdge = min(edge, 1.0);
   vAlive = vis * uFade;
 }`;
     const PT_FS = `#version 300 es
@@ -1866,6 +1897,21 @@ void main() {
     });
 
     let time = 0, prev = 0, ready = false;
+    // THE SCAN'S CLOCK (Adrian, 2026-09-05: "the scan lines happen at too even intervals and
+    // too often, vary their timing and extend them a bit, every 3-5 seconds between"). One
+    // sweep takes 1.8s floor to crown; then a pause drawn fresh each time from 3 to 5
+    // seconds; then the next. Returns the line's normalised height, or -1 between sweeps.
+    const SCAN_LEN = 1.8;
+    let scanAt = 1.0, scanEnd = -1;
+    function scanLine(now: number) {
+      if (now >= scanAt && scanEnd < 0) scanEnd = scanAt + SCAN_LEN;
+      if (scanEnd >= 0) {
+        if (now < scanEnd) return ((now - (scanEnd - SCAN_LEN)) / SCAN_LEN) * 1.3 - 0.15;
+        scanEnd = -1;
+        scanAt = now + 3 + Math.random() * 2;
+      }
+      return -1;
+    }
     // ---- THE STORY, SPLIT FROM ITS HOST (Adrian, 2026-08-22: "one seamless scene").
     // Drawing used to be welded to this component's own canvas, camera and bloom, which is
     // what made the act a SECOND scene on the homepage no matter how well it was blended.
@@ -2143,41 +2189,46 @@ void main() {
         // gives you, and at these numbers the reference man's outstretched arms ran off both
         // edges. The same trade /armature/ makes with FIT_PULLBACK, and the one number to
         // dial here.
-        const NARROW_PULL = innerWidth <= 700 ? 1.5 : 1;
         // THE MARKS ARE HIS TO DIAL (Adrian, 2026-09-05: "camera controls on the bottom,
         // then I can align the camera for every scene exactly how I like it"). They live
         // on the window so the page's tuning panel (/next/?cam) can edit them live; the
         // numbers here are the shipped values, and the panel prints the set to paste back.
+        //
+        // TWO SETS, DESKTOP AND PHONE (Adrian, 2026-09-05: "camera angles in mobile aspect
+        // ratio"). A distance dialled for a 34 degree horizontal half-angle means something
+        // else at the 11 degrees a 390 frame gives you, so a portrait viewport reads the
+        // `n`-prefixed set. Its starting values are the desktop marks pulled back by half,
+        // which is what the old NARROW_PULL did, and the close is the old outNarrow.
         const CM = ((window as any).__armCamMarks ||= {
           // the opening shot, his numbers from the panel (Adrian, 2026-09-05)
           wide: { yaw: 0, pitch: -0.12, dist: 6.81, ty: 1.20, tz: 0.30, tx: 0 },
-          // the push in on the man's points, his numbers (Adrian, 2026-09-05: "should
-          // basically just be pushing in from the starting shot")
+          // the push in on the man's points, his numbers (Adrian, 2026-09-05)
           push: { yaw: 0, pitch: 0.125, dist: 3.54, ty: 1.0, tz: 0.30, tx: 0 },
           // the fitting room, his numbers (Adrian, 2026-09-05): high and swung wide
           fit: { yaw: 0.695, pitch: 0.59, dist: 5.76, ty: 1.06, tz: 0.61, tx: 0.1 },
           // the build's start, his numbers (Adrian, 2026-09-05): close over her head, looking down
           her: { yaw: 0, pitch: 0.7, dist: 1.75, ty: 1.58, tz: 1.27, tx: 0 },
-          // WHERE THE BUILD ENDS (Adrian, 2026-09-05: "a 'her out' which would be a
-          // transition from where we start and where we end during her transformation").
-          // The camera flies from `her` to this across the whole build; it replaces the
-          // fixed 0.22 creep and starts out as exactly that, until he dials it.
-          herOut: { yaw: 0, pitch: 0.24, dist: 3.23, ty: 1.02, tz: 0.88, tx: 0 },
-          // Realization, his numbers from the panel (Adrian, 2026-09-05): high and turned,
-          // looking down on her from her right
+          // where the build ends (Adrian, 2026-09-05: "a 'her out'")
+          herOut: { yaw: 0, pitch: -0.175, dist: 3.69, ty: 1.02, tz: 0.88, tx: 0 },
+          // Realization, his numbers (Adrian, 2026-09-05): high and turned, from her right
           out: { yaw: 0.805, pitch: 0.365, dist: 3.63, ty: 1.05, tz: 1.13, tx: -0.58 },
-          // THE CLOSE HAS NO FLANK ON A PHONE. In portrait the camera retreats and lifts
-          // instead, she sits high and small, and the doors stack under her in the copy
-          // layer. Same place, composed for the frame it is in.
-          outNarrow: { yaw: 0.04, pitch: 0.055, dist: 5.90, ty: 1.42, tz: HER_POS[2], tx: 0 },
+          // the phone set, his numbers from the panel (Adrian, 2026-09-05)
+          nWide: { yaw: 0, pitch: 0.07, dist: 6.3, ty: 0, tz: 0.30, tx: 0 },
+          nPush: { yaw: 0, pitch: 0.125, dist: 4.86, ty: 0.81, tz: 0.30, tx: 0 },
+          nFit: { yaw: 0.695, pitch: 0.59, dist: 8.64, ty: 1.06, tz: 0.61, tx: 0.1 },
+          nHer: { yaw: 0, pitch: 0.7, dist: 2.02, ty: 1.58, tz: 1.66, tx: 0 },
+          nHerOut: { yaw: 0, pitch: -0.215, dist: 3.41, ty: 1.02, tz: 0.88, tx: 0 },
+          // THE CLOSE HAS NO FLANK ON A PHONE: the camera retreats and lifts, she sits high
+          // and small, and the rows stack under her in the copy layer.
+          nOut: { yaw: -0.605, pitch: 0.26, dist: 3.46, ty: 0.93, tz: 0.95, tx: 0 },
         });
-        const D_WIDE = { ...CM.wide, dist: CM.wide.dist * NARROW_PULL };
-        const D_PUSH = { ...CM.push, dist: CM.push.dist * NARROW_PULL };
-        const D_FIT = { ...CM.fit, dist: CM.fit.dist * NARROW_PULL };
-        const D_HER = { ...CM.her, dist: CM.her.dist * NARROW_PULL };
-        const D_HER2 = { ...CM.herOut, dist: CM.herOut.dist * NARROW_PULL };
         const narrowOut = innerWidth <= 700;
-        const D_OUT = narrowOut ? CM.outNarrow : CM.out;
+        const D_WIDE = narrowOut ? CM.nWide : CM.wide;
+        const D_PUSH = narrowOut ? CM.nPush : CM.push;
+        const D_FIT = narrowOut ? CM.nFit : CM.fit;
+        const D_HER = narrowOut ? CM.nHer : CM.her;
+        const D_HER2 = narrowOut ? CM.nHerOut : CM.herOut;
+        const D_OUT = narrowOut ? CM.nOut : CM.out;
         // THE LEGS. Ideation is the push in from the opening shot to the man's points;
         // Integration carries it on to the fitting angle as her points gather.
         const d0 = smooth(clamp01((q - 0.02) / 0.60));
@@ -2372,6 +2423,11 @@ void main() {
         // both ends of the wipe are clean.
         gl.uniform1f(P_XRAY.u.uWipe, DRIVEN0 ? -0.15 + manIn * 2.45 : 100);
         gl.uniform1f(P_XRAY.u.uWipeBand, 0.12);
+        // THE SAME SCAN ON THE HOLOGRAM (Adrian, 2026-09-05: "the same exact effect on the
+        // davinci man"): once he is fully up, the points' irregular sweep runs through the
+        // x-ray too, in world height. 2.1 is his height, mapped the way the wipe is.
+        const holoScan = DRIVEN0 && manIn >= 0.999 && manLeave <= 0 ? scanLine(time) : -1;
+        gl.uniform1f(P_XRAY.u.uScanY, holoScan >= 0 ? -0.15 + holoScan * 2.45 : -100);
         gl.uniformMatrix4fv(P_XRAY.u.uModel, false, MAN_M);
         gl.bindVertexArray(manVao);
         gl.drawElements(gl.TRIANGLES, manNi, gl.UNSIGNED_SHORT, 0);
@@ -2389,6 +2445,15 @@ void main() {
         gl.uniform1f(P_PT.u.uFade, manPtFade);
         gl.uniform1f(P_PT.u.uMorph, manAsm);
         gl.uniform1f(P_PT.u.uScatter, 0.55 * Math.sin(Math.PI * manAsm) + 0.55 * manGone);
+        // at rest the points wander a little and a scan sweeps through them every few
+        // seconds; mid-morph the sweep stops and the vortex takes over
+        const resting = manAsm < 0.02 || (manAsm > 0.98 && manIn <= 0);
+        gl.uniform1f(P_PT.u.uDrift, 0.010);
+        gl.uniform1f(P_PT.u.uScan, resting ? scanLine(time) : -1);
+        // NO TWIST THROUGH THE MORPH (Adrian, 2026-09-05, after trying one: "it's just like
+        // spinning between FS and davinci, it's much worse than it was"). The flight is the
+        // scatter hump alone, as it was; the vortex uniform stays in the shader, at zero.
+        gl.uniform1f(P_PT.u.uVortex, 0);
         // the same line as the x-ray's, in the points' normalised height (0 floor, 1 head)
         gl.uniform1f(P_PT.u.uCut, manIn <= 0 ? -1 : -0.07 + manIn * 1.17);
         gl.uniform3f(P_PT.u.uOffset, 0, 0, 0);
@@ -2408,6 +2473,9 @@ void main() {
         gl.uniform1f(P_PT.u.uSize, 1.0);
         gl.uniform1f(P_PT.u.uReveal, herReveal);
         gl.uniform1f(P_PT.u.uFade, ptFade);
+        gl.uniform1f(P_PT.u.uDrift, 0);
+        gl.uniform1f(P_PT.u.uScan, -1);
+        gl.uniform1f(P_PT.u.uVortex, 0);
         gl.uniform1f(P_PT.u.uMorph, 1);
         gl.uniform1f(P_PT.u.uScatter, 0);
         gl.uniform1f(P_PT.u.uCut, herWipe <= 0 ? -1 : -0.07 + herWipe * 1.17);
@@ -2430,6 +2498,7 @@ void main() {
         // her feet are on y=0 and she is 2.1 tall: the same line the man's wipe used
         gl.uniform1f(P_SKIN.u.uWipe, herWipe > 0 ? -0.15 + herWipe * 2.45 : 100);
         gl.uniform1f(P_SKIN.u.uWipeBand, herWipe > 0 ? 0.12 : 1);
+        gl.uniform1f(P_SKIN.u.uScanY, -100);
         bindTex(P_SKIN.u.uJT, jointTex, 6);
         gl.bindVertexArray(herVao);
         gl.drawElements(gl.TRIANGLES, NI, gl.UNSIGNED_SHORT, 0);

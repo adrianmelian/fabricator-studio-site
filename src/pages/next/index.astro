@@ -22,6 +22,11 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import ArmatureStage from '../../components/ArmatureStage.astro';
 import NavBar from '../../components/NavBar.astro';
 import Wordmark from '../../components/Wordmark.astro';
+// his cleaned-up portrait (Adrian, 2026-09-05); the older adrian.png stays for the live homepage
+import adrian from '../../assets/about/portrait.png';
+import markCG from '../../assets/press/cgchannel.png';
+import markAW from '../../assets/press/animworks.png';
+import BracketButton from '../../components/BracketButton.astro';
 import { Image } from 'astro:assets';
 import { LINKS } from '../../data/links';
 import fsLogo from '../../assets/fs-logo.png';
@@ -36,7 +41,7 @@ import unrealLogo from '../../assets/logos/unreal.png';
 // it. Where the range is empty (Iteration) she holds still and posable.
 //   Ideation           the mark becomes his points                 q 0.00 - 0.62
 //   Integration        the hologram wipes up through him           q 0.62 - 1.05
-//   Conceptualization  her points gather in front of him           q 1.05 - 1.95
+//   Creation           her points gather in front of him           q 1.05 - 1.95
 //   Automation         the camera turns to face her, then the      q 1.95 - 9.30
 //                      wipe, the skeleton, the skin, the controls
 //   Iteration          she is built; drag her                      q 9.30 (hold)
@@ -44,18 +49,49 @@ import unrealLogo from '../../assets/logos/unreal.png';
 const WAYPOINTS = [
   { id: 'ideation', label: 'Ideation', w: 1.2, q0: 0.0, q1: 0.62 },
   { id: 'integration', label: 'Integration', w: 1.0, q0: 0.62, q1: 1.05 },
-  { id: 'conceptualization', label: 'Conceptualization', w: 1.2, q0: 1.05, q1: 1.95 },
+  { id: 'creation', label: 'Creation', w: 1.2, q0: 1.05, q1: 1.95 },
   { id: 'automation', label: 'Automation', w: 4.0, q0: 1.95, q1: 9.3 },
   { id: 'iteration', label: 'Iteration', w: 1.6, q0: 9.3, q1: 9.3 },
   { id: 'realization', label: 'Realization', w: 1.4, q0: 9.3, q1: 10.3 },
+  // THE LAST SCREEN (Adrian, 2026-09-05: "as an overlay to the 3D scene let's add the Meet
+  // the Team screen, it should take over the entire screen... the bottom most screen").
+  // The world holds its closing frame underneath; the layer covers it.
+  { id: 'team', label: 'Meet the Team', w: 1.4, q0: 10.3, q1: 10.3 },
 ];
-const TOTAL = WAYPOINTS.reduce((a, b) => a + b.w, 0);   // 10.4, inside the 8-14 budget
+const TOTAL = WAYPOINTS.reduce((a, b) => a + b.w, 0);   // 11.8, inside the 8-14 budget
 let acc = 0;
 const CUM = WAYPOINTS.map((wp) => { const s = acc; acc += wp.w; return s; });
 
 // THE THREE ROWS (his revised concept, 2026-09-05: the opening and the close both carry
 // the three products as a list of rows with their marks, in place of the plates that
 // stood in the world). The opening's first row is the download itself.
+// THE ACCOLADES (Adrian, 2026-09-05: "include the accolades we've gotten from anim.works
+// and cgchannel"). Their words, not ours: CG Channel's own headline and byline, and the
+// title Animworks gave the listing when they stocked it. Both URLs verified 2026-09-05.
+const PRESS = [
+  {
+    href: 'https://www.cgchannel.com/2026/08/armature-is-a-free-ai-assisted-standalone-character-rigging-tool/',
+    source: 'CG Channel',
+    mark: markCG,
+    quote: 'Armature is a free AI-assisted standalone character rigging tool',
+    by: 'Jim Thacker, 6 August 2026',
+  },
+  {
+    href: 'https://anim.works/product/armature-artist-ai-rigging-adrian-melian/',
+    source: 'Animworks',
+    mark: markAW,
+    quote: 'Armature: Artist+AI Rigging by Adrian Melian',
+    by: 'Harvey Newman, 12 August 2026',
+  },
+];
+// THE RECORD, from his About concept (2026-09-05), his words
+const RECORD = [
+  { where: 'Sledgehammer Games', what: 'Lead, Character and Weapons Tech Art. Two Call of Duty titles.' },
+  { where: 'Camouflaj', what: 'Expert Technical Artist' },
+  { where: 'Meta, Double Fine', what: 'Technical Art' },
+  { where: 'Ubisoft, NCSoft', what: 'Technical Art' },
+];
+
 const ROWS = [
   { href: '/armature/', label: 'Armature', tag: 'Free', icon: fsLogo, cls: '' },
   { href: '/tools/', label: 'Maya pipeline tools', tag: '', icon: mayaLogo, cls: 'row__icon--maya' },
@@ -137,8 +173,8 @@ const ROWS = [
       <Wordmark class="cw__mark" decorative height="clamp(2rem, 3.2vw, 3.6rem)" />
       <h2 class="cw__h">Artistic AI Tooling. <em>Built with refinement in mind.</em></h2>
     </div>
-    <div class="cw" data-cw="conceptualization">
-      <p class="cw__eyebrow">Conceptualization</p>
+    <div class="cw" data-cw="creation">
+      <p class="cw__eyebrow">Creation</p>
       <h2 class="cw__h">Tools to drive assets to production level standards. <em>Fast.</em></h2>
     </div>
     <div class="cw" data-cw="automation">
@@ -147,7 +183,7 @@ const ROWS = [
     </div>
     <div class="cw" data-cw="iteration">
       <p class="cw__eyebrow">Iteration</p>
-      <h2 class="cw__h">Stream your imagination <em>into existence.</em></h2>
+      <h2 class="cw__h">Stream imagination <em>into existence.</em></h2>
     </div>
     <div class="cw" data-cw="realization">
       <p class="cw__eyebrow">Realization</p>
@@ -166,7 +202,54 @@ const ROWS = [
     </div>
   </div>
 
-  <p class="hint" data-hint hidden>Drag her arms and legs.</p>
+  {/* MEET THE TEAM. The page's last screen, a layer that covers the world outright rather
+      than a window inside it. The introduction video and the engagements ask carry the
+      copy the live homepage's close already carries, verbatim; the paragraphs he said he
+      would write with me are not here yet. The accolades close the screen. */}
+  <section class="team" data-team aria-label="Meet the Team">
+    <div class="team__inner">
+      <p class="cw__eyebrow">Who builds it</p>
+      <h2 class="team__title">Adrian <em>Melian.</em></h2>
+      <p class="team__lede">Technical Artist. Fourteen years in AAA character rigging, skinning and tools.</p>
+      <div class="team__grid">
+        <figure class="team__fig">
+          <Image class="team__photo" src={adrian} alt="Adrian Melian" widths={[540, 1080]} sizes="(max-width: 900px) 92vw, 34vw" loading="lazy" />
+          <figcaption class="team__cap"><span>Founder, FabricatorStudio</span><span>2026</span></figcaption>
+        </figure>
+        <div class="team__col">
+          <div class="team__bio">
+            <p class="team__p">Hi, I am a Technical Artist with fourteen years in AAA character rigging, skinning and tools. I led the Character and Weapons Tech Art teams across two Call of Duty titles, then joined Camouflaj as an Expert Technical Artist.</p>
+            <p class="team__p team__p--bone">I founded FabricatorStudio in 2026 to help teams meet their pipeline needs.</p>
+          </div>
+          <div class="team__record">
+            <span class="team__label">The record</span>
+            <div class="team__rows">
+              {RECORD.map((r) => (
+                <div class="team__row"><span class="team__where">{r.where}</span><span class="team__what">{r.what}</span></div>
+              ))}
+              <div class="team__rule"></div>
+            </div>
+          </div>
+          <div class="team__ctas">
+            <a class="team__mailbtn" href="mailto:adrian@fabricator.studio">adrian@fabricator.studio<span aria-hidden="true">&rarr;</span></a>
+            <a class="team__link" href="/tools/">See the toolset</a>
+          </div>
+        </div>
+      </div>
+      <div class="team__pressblock">
+        <span class="team__label">Press</span>
+        <div class="team__press">
+          {PRESS.map((pr) => (
+            <a class="press" href={pr.href} target="_blank" rel="noopener">
+              <Image class="press__mark" src={pr.mark} alt={pr.source} width={208} height={73} loading="lazy" />
+              <span class="press__q">&ldquo;{pr.quote}&rdquo;</span>
+              <span class="press__by">{pr.by}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
+  </section>
 
   {/* THE CAMERA PANEL (Adrian, 2026-09-05). His dials for the four camera marks, shown
       only at /next/?cam and never to a visitor. The script builds the sliders; the stage
@@ -186,8 +269,18 @@ const ROWS = [
     <p>Artistic AI Tooling. Built with refinement in mind.</p>
     <p>Tools to drive assets to production level standards. Fast.</p>
     <p>Turn slow technical precision into artistic intent.</p>
-    <p>Stream your imagination into existence.</p>
+    <p>Stream imagination into existence.</p>
     <p>Optimize creation. Realize your ideas at the speed of thought.</p>
+    <h2>Adrian Melian.</h2>
+    <p>Technical Artist. Fourteen years in AAA character rigging, skinning and tools.</p>
+    <p>Hi, I am a Technical Artist with fourteen years in AAA character rigging, skinning and tools. I led the Character and Weapons Tech Art teams across two Call of Duty titles, then joined Camouflaj as an Expert Technical Artist.</p>
+    <p>I founded FabricatorStudio in 2026 to help teams meet their pipeline needs. <a href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>, or <a href="/tools/">see the toolset</a>.</p>
+    <ul>
+      {RECORD.map((r) => <li>{r.where}: {r.what}</li>)}
+    </ul>
+    <ul>
+      {PRESS.map((pr) => <li><a href={pr.href}>{pr.source}</a>: {pr.quote} ({pr.by})</li>)}
+    </ul>
     <ul>
       {ROWS.map((r) => <li><a href={r.href}>{r.label}</a>{r.tag ? ': ' + r.tag : ''}</li>)}
     </ul>
@@ -224,8 +317,8 @@ const ROWS = [
   }
 
   /* The scroll track. The only thing in document flow, which is the grammar's one
-     structural rule: 10.4 viewport heights of travel, and no sections anywhere. */
-  .track { height: 1040svh; }
+     structural rule: 11.8 viewport heights of travel, and no sections anywhere. */
+  .track { height: 1180svh; }
 
   /* ---- the map ---------------------------------------------------------------------- */
   /* THE DOTS ARE BACK (Adrian, 2026-09-05: "go back to the original dots, BUT if the user
@@ -436,24 +529,181 @@ const ROWS = [
     .copy__scrim { background: linear-gradient(180deg, rgba(11, 14, 16, 0) 30%, rgba(11, 14, 16, 0.72) 100%); }
   }
 
-  /* ---- the hint --------------------------------------------------------------------- */
-  .hint {
+  /* ---- meet the team ------------------------------------------------------------------ */
+  /* His About concept (2026-09-05), fitted to one screen: the eyebrow, the name as the
+     headline, a lede, his photo with a caption beside the bio and the record, the mail as
+     the button, then the press with the outlets' own marks. Where the screen is shorter
+     than the design, the layer scrolls inside itself once it is fully up. */
+  .team {
     position: fixed;
-    /* Bottom RIGHT, not bottom centre: she stands centred for the whole of this beat and
-       the line was printing across her feet. */
-    right: max(2rem, 6vw);
-    bottom: 7svh;
+    inset: 0;
+    /* a section, so the site's container width would otherwise apply and leave the world
+       showing at both edges (caught 2026-09-05: 144px of stars either side) */
+    width: auto;
+    max-width: none;
     margin: 0;
-    z-index: 4;
-    font-family: var(--font-mono);
-    font-size: 0.8125rem;
-    letter-spacing: 0.16em;
-    color: var(--bone-dim);
+    z-index: 5;
+    display: grid;
+    align-content: center;
+    padding: calc(var(--header-h) + 1.5svh) clamp(20px, 4vw, 68px) 2.5svh clamp(48px, 7vw, 132px);
+    background: var(--carbon);
+    color: var(--bone);
     opacity: 0;
-    transition: opacity 700ms var(--ease-out);
     pointer-events: none;
+    overflow: hidden;
   }
-  .hint[data-in] { opacity: 1; }
+  .team[data-in] { pointer-events: auto; overflow-y: auto; overscroll-behavior: auto; }
+  .team__inner { display: grid; gap: clamp(12px, 1.4vw, 20px); max-width: 1320px; }
+  .team__title {
+    margin: 0;
+    max-width: 14em;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(40px, 5vw, 84px);
+    line-height: 0.88;
+    letter-spacing: -0.028em;
+  }
+  .team__title em { font-style: italic; }
+  .team__lede {
+    margin: 0;
+    max-width: 26ch;
+    font-family: var(--font-body);
+    font-size: clamp(15px, 1.25vw, 22px);
+    font-weight: 500;
+    line-height: 1.32;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+  .team__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 34fr) minmax(0, 56fr);
+    gap: clamp(24px, 3.4vw, 56px);
+    align-items: start;
+    margin-top: clamp(8px, 1.4vw, 22px);
+  }
+  .team__fig { margin: 0; display: grid; gap: clamp(8px, 0.9vw, 12px); }
+  .team__fig :global(.team__photo) {
+    display: block;
+    width: 100%;
+    max-height: 44vh;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    /* a square source in the concept's 4/5 frame: the face sits at the upper third */
+    object-position: 50% 28%;
+    border-radius: var(--radius-sm);
+    background: var(--iron);
+  }
+  .team__cap {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: var(--font-body);
+    font-size: clamp(11px, 0.82vw, 13px);
+    letter-spacing: 0.04em;
+    color: var(--bone-dim);
+  }
+  .team__col { display: grid; gap: clamp(16px, 2vw, 30px); min-width: 0; }
+  .team__bio { display: grid; gap: clamp(10px, 1.1vw, 16px); max-width: 46ch; }
+  .team__p {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: clamp(14px, 1.05vw, 17px);
+    line-height: 1.55;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .team__p--bone { color: var(--bone); }
+  .team__label {
+    display: block;
+    margin-bottom: clamp(8px, 0.9vw, 12px);
+    font-family: var(--font-body);
+    font-size: clamp(10px, 0.78vw, 12px);
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .team__rows { display: grid; }
+  .team__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: clamp(16px, 2vw, 40px);
+    padding: clamp(8px, 0.9vw, 12px) 0;
+    border-top: 1px solid var(--iron-2);
+  }
+  .team__rule { border-top: 1px solid var(--iron-2); }
+  .team__where { flex: 0 0 auto; font-family: var(--font-body); font-size: clamp(13px, 1vw, 16px); font-weight: 600; letter-spacing: -0.005em; }
+  .team__what { flex: 1 1 auto; text-align: right; font-family: var(--font-body); font-size: clamp(11px, 0.85vw, 13px); line-height: 1.4; color: var(--bone-dim); }
+  .team__ctas { display: flex; align-items: center; flex-wrap: wrap; gap: clamp(14px, 1.6vw, 24px); }
+  .team__mailbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(12px, 1.3vw, 20px);
+    height: clamp(42px, 3.2vw, 52px);
+    padding: 0 clamp(18px, 1.7vw, 26px);
+    border-radius: var(--radius-sm);
+    background: var(--plasma);
+    color: var(--carbon);
+    font-family: var(--font-body);
+    font-size: clamp(13px, 0.98vw, 16px);
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background var(--t-fast) var(--ease-out);
+  }
+  .team__mailbtn span { font-weight: 400; font-size: 1.05em; }
+  .team__mailbtn:hover { background: var(--plasma-dim); }
+  .team__link {
+    font-family: var(--font-body);
+    font-size: clamp(12px, 0.9vw, 14px);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    text-decoration: none;
+  }
+  .team__link:hover { color: var(--bone); }
+  .team__mailbtn:focus-visible, .team__link:focus-visible, .press:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+  .team__pressblock { margin-top: clamp(10px, 1.6vw, 26px); }
+  .team__press {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 56px);
+    border-top: 1px solid var(--iron-2);
+    padding-top: clamp(14px, 1.6vw, 22px);
+  }
+  .press {
+    display: grid;
+    gap: clamp(8px, 0.9vw, 12px);
+    align-content: start;
+    color: var(--bone);
+    text-decoration: none;
+  }
+  .press :global(.press__mark) { display: block; width: auto; height: clamp(26px, 2.4vw, 38px); opacity: 0.9; border-radius: var(--radius-sm); }
+  .press__q {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(18px, 1.6vw, 26px);
+    line-height: 1.16;
+    letter-spacing: -0.012em;
+    text-wrap: pretty;
+  }
+  .press__by {
+    font-family: var(--font-body);
+    font-size: clamp(11px, 0.84vw, 13px);
+    letter-spacing: 0.03em;
+    color: var(--bone-dim);
+  }
+  @media (max-width: 900px) {
+    .team { padding: calc(var(--header-h) + 1svh) 1.25rem 3svh 1.25rem; align-content: start; }
+    .team__grid { grid-template-columns: 1fr; gap: 1.2rem; }
+    .team__fig :global(.team__photo) { max-height: 48vh; }
+    .team__title { font-size: clamp(36px, 11vw, 52px); }
+    .team__bio { max-width: none; }
+    .team__press { grid-template-columns: 1fr; }
+  }
 
   /* ---- the rows ---------------------------------------------------------------------- */
   /* His revised concept's product list: hairline-ruled rows, a mark, the name, a plasma
@@ -477,9 +727,9 @@ const ROWS = [
     transition: border-color var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out);
   }
   .row:last-child { border-bottom: 1px solid var(--iron-2); }
-  .row:hover, .row:focus-visible { border-top-color: var(--plasma); }
+  /* every row lights the way the download row does (Adrian, 2026-09-05) */
+  .row:hover, .row:focus-visible { border-top-color: var(--plasma); background: rgba(124, 255, 178, 0.06); }
   .row--lead { border-top-color: var(--plasma); }
-  .row--lead:hover, .row--lead:focus-visible { background: rgba(124, 255, 178, 0.06); }
   .row:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
   .cw[style*="opacity: 0"] .row { pointer-events: none; }
   .rows :global(.row__icon) { flex: 0 0 auto; display: block; width: clamp(22px, 1.7vw, 26px); height: auto; }
@@ -533,8 +783,11 @@ const ROWS = [
   }
   /* Built by script, so every inner rule is global: Astro's scope only reaches markup. */
   .cam[hidden] { display: none; }
+  .cam[data-min] :global(.cam__sliders), .cam[data-min] :global(textarea) { display: none; }
+  .cam :global(.cam__set) { color: var(--plasma); text-transform: uppercase; white-space: nowrap; }
+  .cam :global(button[hidden]) { display: none; }
   .cam :global(.cam__row) { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; }
-  .cam :global(.cam__marks) { display: flex; gap: 0.3rem; }
+  .cam :global(.cam__marks) { display: flex; flex-wrap: wrap; gap: 0.3rem; }
   .cam :global(button) {
     font: inherit;
     letter-spacing: inherit;
@@ -599,14 +852,14 @@ const ROWS = [
   /* ---- ?clean: the world alone, for screenshots ------------------------------------- */
   :global(html[data-clean]) .map,
   :global(html[data-clean]) .copy,
-  :global(html[data-clean]) .hint,
   :global(html[data-clean]) .nav-lip,
+  :global(html[data-clean]) .team,
   :global(html[data-clean] .navbar) { display: none; }
 
   /* ---- the still page --------------------------------------------------------------- */
   .still { display: none; }
   @media (prefers-reduced-motion: reduce) {
-    .world, .map, .copy, .hint { display: none; }
+    .world, .map, .copy, .team { display: none; }
     .track { height: 0; }
     .still {
       display: block;
@@ -641,8 +894,7 @@ const ROWS = [
     // layer but the world. Nothing else changes; the wheel still drives her.
     if (/[?&]clean(?=&|$)/.test(location.search)) document.documentElement.setAttribute('data-clean', '');
     var copyEls = {}, mapBtns = {};
-    var hint = null, scrim = null;
-    var B_DOORS = CUM[WAYPOINTS.length - 1];
+    var scrim = null, team = null;
 
     function trackU() {
       var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
@@ -735,6 +987,13 @@ const ROWS = [
         var x = (u - CUM[i]) / WAYPOINTS[i].w;
         place(el, windowOf(i, u), x < 0.5);
       }
+      // THE TEAM SCREEN covers the world: it fades up over the first fifth of its span and
+      // holds to the bottom, and it takes the pointer only once it is truly up.
+      if (team) {
+        var to = windowOf(WAYPOINTS.length - 1, u);
+        team.style.opacity = to.toFixed(3);
+        if (to > 0.5) team.setAttribute('data-in', ''); else team.removeAttribute('data-in');
+      }
       if (copyEls.top) place(copyEls.top, topWindow(u), false);
       if (scrim) scrim.style.opacity = peak.toFixed(3);
       var idx = currentIndex(u);
@@ -750,12 +1009,6 @@ const ROWS = [
         }
       }
 
-      if (hint) {
-        if ((window.__armAlive || 0) > 0.6 && u < B_DOORS) {
-          hint.hidden = false;
-          hint.setAttribute('data-in', '');
-        } else hint.removeAttribute('data-in');
-      }
 
     }
 
@@ -770,8 +1023,8 @@ const ROWS = [
           scrollTo({ top: (Number(b.dataset.goto) / TOTAL) * max, behavior: 'smooth' });
         });
       });
-      hint = document.querySelector('[data-hint]');
       scrim = document.querySelector('[data-scrim]');
+      team = document.querySelector('[data-team]');
       requestAnimationFrame(tick);
     }
 
@@ -788,10 +1041,14 @@ const ROWS = [
     var KEYS = ['yaw', 'pitch', 'dist', 'tx', 'ty', 'tz'];
     var RANGE = { yaw: [-1.4, 1.4, 0.005], pitch: [-0.7, 0.7, 0.005], dist: [1, 9, 0.01],
       tx: [-2.5, 2.5, 0.01], ty: [0, 2.6, 0.01], tz: [-2.5, 2.5, 0.01] };
-    var MARKS = ['wide', 'push', 'fit', 'her', 'herOut', 'out', 'outNarrow'];
+    // two sets: the desktop marks and the phone marks; the tabs show the set for the
+    // viewport that is open, the readout prints both
+    var BASE = ['wide', 'push', 'fit', 'her', 'herOut', 'out'];
+    var N_OF = { wide: 'nWide', push: 'nPush', fit: 'nFit', her: 'nHer', herOut: 'nHerOut', out: 'nOut' };
+    var MARKS = BASE.concat(BASE.map(function (k) { return N_OF[k]; }));
     var STORE = 'armCamMarks';
     var panel = document.querySelector('[data-cam]');
-    var shipped = null, pinned = null, active = 'wide', inputs = {}, tabs = {}, readout, qEl;
+    var shipped = null, pinned = null, active = 'wide', inputs = {}, tabs = {}, readout, qEl, setLabel, curSet = '';
 
     function marks() { return window.__armCamMarks; }
     function fmt(v) { return (Math.round(v * 1000) / 1000).toString(); }
@@ -829,12 +1086,18 @@ const ROWS = [
 
       var row = document.createElement('div'); row.className = 'cam__row';
       var tabWrap = document.createElement('div'); tabWrap.className = 'cam__marks';
+      setLabel = document.createElement('span'); setLabel.className = 'cam__set';
+      row.appendChild(setLabel);
       MARKS.forEach(function (k) {
         var b = document.createElement('button'); b.type = 'button'; b.textContent = k;
+        b.dataset.set = k.charAt(0) === 'n' && k !== 'none' ? 'n' : 'd';
         b.addEventListener('click', function () { pinned = k; show(k); });
         tabs[k] = b; tabWrap.appendChild(b);
       });
       row.appendChild(tabWrap);
+      var hide = document.createElement('button'); hide.type = 'button'; hide.textContent = 'hide';
+      hide.addEventListener('click', function () { panel.toggleAttribute('data-min'); hide.textContent = panel.hasAttribute('data-min') ? 'show' : 'hide'; });
+      row.appendChild(hide);
       var follow = document.createElement('button'); follow.type = 'button'; follow.textContent = 'follow scroll';
       follow.addEventListener('click', function () { pinned = null; });
       row.appendChild(follow);
@@ -886,8 +1149,15 @@ const ROWS = [
       var info = window.__armCamInfo;
       if (!info) return;
       var best = 'wide', bw = -1;
-      ['wide', 'push', 'fit', 'her', 'herOut', 'out'].forEach(function (k) { if (info.w[k] > bw) { bw = info.w[k]; best = k; } });
-      if (best === 'out' && info.narrow) best = 'outNarrow';
+      BASE.forEach(function (k) { if (info.w[k] > bw) { bw = info.w[k]; best = k; } });
+      if (info.narrow) best = N_OF[best];
+      var set = info.narrow ? 'n' : 'd';
+      if (set !== curSet) {
+        curSet = set;
+        MARKS.forEach(function (k) { tabs[k].hidden = tabs[k].dataset.set !== set; });
+        setLabel.textContent = info.narrow ? 'phone set' : 'desktop set';
+        pinned = null;
+      }
       qEl.textContent = 'q ' + info.q.toFixed(2) + '  wide ' + Math.round(info.w.wide * 100)
         + '  push ' + Math.round(info.w.push * 100) + '  fit ' + Math.round(info.w.fit * 100) + '  her ' + Math.round(info.w.her * 100) + '  herOut ' + Math.round(info.w.herOut * 100)
         + '  out ' + Math.round(info.w.out * 100);
