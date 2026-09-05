@@ -304,7 +304,7 @@ const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
     </div>
     <div class="cw" data-cw="creation">
       <p class="cw__eyebrow">Creation</p>
-      <h2 class="cw__h">Tools to drive assets to production level standards. <em>Fast.</em></h2>
+      <h2 class="cw__h">Tools to drive assets to production level standards. <em class="cw__em--breathe">Fast.</em></h2>
     </div>
     <div class="cw" data-cw="automation">
       <p class="cw__eyebrow">Automation</p>
@@ -591,6 +591,10 @@ const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
   }
   .cw__h--xl { font-size: clamp(52px, 7.6vw, 146px); line-height: 0.86; letter-spacing: -0.028em; }
   .cw__h em { display: block; font-style: italic; }
+  /* AN OPTICAL NUDGE (Adrian, 2026-09-05: "the space between the second line and 'Fast.'
+     is too close, even it out"). Measured, the three line pitches are identical; the eye
+     reads the tall italic F under a line with no descenders as crowded. 0.1em down. */
+  .cw__h .cw__em--breathe { margin-top: 0.1em; }
   .cw__h .cw__free { display: inline-block; vertical-align: middle; margin-left: 0.4em; }
   /* the quote (his concept's second beat): an ember opening mark, the line in italic
      serif, a rule and the name */
@@ -1405,6 +1409,11 @@ const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
       wn.querySelector('[data-wn-close]').addEventListener('click', close);
       var tab = document.querySelector('[data-wn-tab]');
       if (tab) tab.addEventListener('click', function () { wnOpen(true); });
+      // OPEN ON ARRIVAL (Adrian, 2026-09-05: "can we have the whats new window open by
+      // default... not in mobile mode though"): a visitor landing at the top on a desktop
+      // gets the panel down; a phone gets the closed strip, a mid-page landing gets
+      // nothing, and the strip returns closed at the top as before.
+      if (scrollY <= 40 && !matchMedia('(max-width: 700px)').matches) wnOpen(true);
       window.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
       // the wheel anywhere over the panel scrolls the panel's body; once the body is at
       // its end the page takes the wheel again, and the panel leaves as it should
