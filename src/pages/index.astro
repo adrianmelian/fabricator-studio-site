@@ -318,12 +318,19 @@ const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
       <p class="cw__eyebrow">Realization</p>
       <h2 class="cw__h cw__h--close">Optimize <em>creation.</em></h2>
       <p class="cw__sub">Realize your ideas at the speed of thought.</p>
+      {/* THE SAME THREE DOORS AS THE TOP (Adrian, 2026-09-05: "the same exact door as the
+          top with hover and everything"): the download itself leads, then the two pages. */}
       <div class="rows">
-        {ROWS.map((r) => (
+        <a class="row row--lead" href={LINKS.installer} data-installer data-goatcounter-click="next-download-armature-close">
+          <Image class="row__icon" src={fsLogo} alt="" width={26} height={26} loading="lazy" />
+          <span class="row__label row__label--bold">Download Armature</span>
+          <span class="row__tag">Free</span>
+          <span class="row__arrow" aria-hidden="true">&rarr;</span>
+        </a>
+        {ROWS.slice(1).map((r) => (
           <a class="row" href={r.href}>
             <Image class={'row__icon ' + r.cls} src={r.icon} alt="" width={26} height={26} loading="lazy" />
             <span class="row__label">{r.label}</span>
-            {r.tag && <span class="row__tag">{r.tag}</span>}
             <span class="row__arrow" aria-hidden="true">&rarr;</span>
           </a>
         ))}
@@ -638,7 +645,7 @@ const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
   }
   /* the download: a real link inside a layer that otherwise lets the pointer through */
   .cw__cta :global(.btn) { pointer-events: auto; }
-  .cw[style*="opacity: 0"] .cw__cta :global(.btn) { pointer-events: none; }
+  .cw:not([data-up]) .cw__cta :global(.btn) { pointer-events: none; }
   .cw__free {
     font-family: var(--font-body);
     font-size: clamp(11px, 0.85vw, 13px);
@@ -860,7 +867,10 @@ const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
   .row:hover, .row:focus-visible { border-top-color: var(--plasma); background: rgba(124, 255, 178, 0.06); }
   .row--lead { border-top-color: var(--plasma); }
   .row:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
-  .cw[style*="opacity: 0"] .row { pointer-events: none; }
+  /* LIVE WHILE UP (2026-09-05): the old gate matched the style text "opacity: 0", which
+     is also "opacity: 0.97", so a row was dead anywhere on its fade; at the close, where a
+     reader stops wherever the wheel leaves them, that was most of the window. */
+  .cw:not([data-up]) .row { pointer-events: none; }
   .rows :global(.row__icon) { flex: 0 0 auto; display: block; width: clamp(22px, 1.7vw, 26px); height: auto; }
   .rows :global(.row__icon--maya) { filter: grayscale(1) brightness(1.55) contrast(0.82); opacity: 0.72; }
   .rows :global(.row__icon--unreal) { opacity: 0.72; }
@@ -1435,6 +1445,8 @@ const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
       var peak = 0;
       function place(el, o, rising) {
         el.style.opacity = o.toFixed(3);
+        if (o > 0.5) { if (!el.hasAttribute('data-up')) el.setAttribute('data-up', ''); }
+        else if (el.hasAttribute('data-up')) el.removeAttribute('data-up');
         el.style.transform = 'translateY(' + ((1 - o) * (rising ? 34 : -34)).toFixed(1) + 'px)';
         if (o > peak) peak = o;
       }
