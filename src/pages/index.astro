@@ -1,507 +1,1625 @@
 ---
-// The homepage. Rebuilt 2026-07-22 (website overhaul, two-door architecture).
+// THE NEW HOMEPAGE, built at its own route (Adrian, 2026-09-04).
 //
-// What changed and why, so nobody re-litigates it from the diff:
+// WHY NOT ON index.astro. The live homepage carries uncommitted work, and an experiment
+// that may replace it wholesale should not share a file with the page that is currently
+// shipping. This moves over when it earns the slot.
 //
-// The page used to be a product page wearing a studio's name. Its first four screens offered
-// one action, nothing said a person was for hire until a visitor found the Services tab, and
-// it ended on the bio with no ask at all. It also argued twice: six adjective cards sat
-// directly under four blocks that DEMONSTRATED the same claims, and a tutorials grid spent a
-// whole section saying that a nav item exists.
+// This is the scroll-craft build. Its brief, plan, feeling curve and fingerprint row live
+// in the depot at Projects/FabricatorStudio/Website/scrollcraft/builds/fabricatorstudio-home/.
 //
-// The governing rule of the pass was a FIXED SECTION BUDGET: every addition names the element
-// it replaces, and the page may end shorter but never longer. It ended shorter.
+// GRAMMAR: continuous world (uniqueness.md 2.4), which forces four things and this page
+// obeys all four -- nothing in document flow but the spacer, copy arriving inside the world
+// rather than scrolling over it, a nav that is a clickable MAP rather than a bar, and a
+// close that is arrival at a place whose call to action is an object standing in it.
 //
-//   key features (6 adjective cards)  ->  BUILT WITH IT (the proof section)
-//   tutorials grid                    ->  WORK WITH ME (the closing ask, the page had none)
-//   hero sub 2 ("Generative AI era")  ->  the studio line, and it now leads the hero
-//   the 4th repeat of the free line   ->  the shipped record, credited to the person
-//   the four tool cards + popups      ->  relocated INTACT to /tools/, which can grow
-//   the licensing tiers               ->  relocated to /tools/, next to what they price
-//
-// Deliberately untouched: the hero video, the wordmark, the download gate and its
-// MailerLite/R2 path, the welcome video's position, the WHY quote (Adrian's verbatim story),
-// and Mindmeld 2.0 styling everywhere.
+// THE SCROLL IS THE WHOLE TIMELINE (Adrian, 2026-09-05: "remove the button, let's turn it
+// back to a scrolling effect, all the way through joints and building the control rig").
+// The BRING TO LIFE press that drove her build on 2026-09-04 is gone; the wheel runs the
+// entire pipeline, and the un-creation runs in reverse because every beat is a pure
+// function of q. BringToLife.astro stays in the tree, unused, in case he wants it back.
 import BaseLayout from '../layouts/BaseLayout.astro';
-import BracketButton from '../components/BracketButton.astro';
+import ArmatureStage from '../components/ArmatureStage.astro';
 import NavBar from '../components/NavBar.astro';
-import ScrollHint from '../components/ScrollHint.astro';
-import Footer from '../components/Footer.astro';
-import WelcomeVideo from '../components/WelcomeVideo.astro';
-import SectionHead from '../components/SectionHead.astro';
-import Pill from '../components/Pill.astro';
-import YouTubeFacade from '../components/YouTubeFacade.astro';
-import DownloadBand from '../components/DownloadBand.astro';
-import ToolsSection from '../components/ToolsSection.astro';
-import PointCloudHero from '../components/PointCloudHero.astro';
-import HeroVideoControls from '../components/HeroVideoControls.astro';
-import PipelineOverlay from '../components/PipelineOverlay.astro';
-import ArmatureOverlay from '../components/ArmatureOverlay.astro';
-import WallOverlay from '../components/WallOverlay.astro';
-import CloseOverlay from '../components/CloseOverlay.astro';
-import ArmatureAct from '../components/ArmatureAct.astro';
-import ScrollDots from '../components/ScrollDots.astro';
+import Wordmark from '../components/Wordmark.astro';
+// his cleaned-up portrait (Adrian, 2026-09-05); the older adrian.png stays for the live homepage
+import adrian from '../assets/about/portrait.png';
+import markCG from '../assets/press/cgchannel.png';
+import markAW from '../assets/press/animworks.png';
+import { Image } from 'astro:assets';
+import { LINKS } from '../data/links';
+import fsLogo from '../assets/fs-logo.png';
+import mayaLogo from '../assets/logos/maya.png';
+import unrealLogo from '../assets/logos/unreal.png';
+import wnSupport from '../assets/whatsnew/notice_support.png';
+import wnMesh from '../assets/whatsnew/notice_mesh_editing.png';
+import wnOverhaul from '../assets/whatsnew/notice_ui_overhaul.png';
+import wnUnreal from '../assets/whatsnew/notice_controlrig_unreal.png';
+import wnMaya from '../assets/whatsnew/notice_auto_skeleton_fit.png';
 
-// The product card art rather than a trailer frame (Adrian, 2026-08-04): it carries the
-// lockup and the tagline baked in, so the thumbnail says what the video is before a click.
-import trailerPoster from '../assets/armature/armature-card-poster.jpg';
-// One flag governs every control-rig claim on the site (R25, R27). See src/data/armature.ts.
-import { ARMATURE, MAYA_CONTROL_RIG } from '../data/armature';
+// THE SCORE. Six waypoints, his names and his sequence (2026-09-05). Weights are viewport
+// heights and they are the only dial on this page. Automation holds the most by far: it is
+// the whole build, seven and a third seconds of clock that the wheel now scrubs.
+//
+// Each waypoint owns a range of q, ArmatureStage's clock, and scroll maps linearly across
+// it. Where the range is empty (Iteration) she holds still and posable.
+//   Ideation           the mark becomes his points                 q 0.00 - 0.62
+//   Integration        the hologram wipes up through him           q 0.62 - 1.05
+//   Creation           her points gather in front of him           q 1.05 - 1.95
+//   Automation         the camera turns to face her, then the      q 1.95 - 9.30
+//                      wipe, the skeleton, the skin, the controls
+//   Iteration          the controls fade in; drag her             q 9.30 - 9.80
+//   Realization        the camera pulls back and the doors open    q 9.80 - 10.80
+// THE EXTRA BEAT ON THE QUOTE (Adrian, 2026-09-05, the final polish: "let the same sit in
+// the push position for an extra beat, leave the davinci quote up, then during that extra
+// beat as I scroll down the transition out of the quote happens then we pull the camera
+// out to fit"). `hold` is the tail of a waypoint's span over which the clock sits at q1:
+// Ideation's push lands at 1.2vh as before, the camera then holds there for 0.6vh with
+// the quote up, the quote fades over the end of that hold, and Integration's move to fit
+// begins where it always did, at q 0.62.
+const WAYPOINTS = [
+  { id: 'ideation', label: 'Ideation', w: 1.8, q0: 0.0, q1: 0.62, hold: 0.6 },
+  // the same beat at the top of fit (Adrian, 2026-09-05): the move lands at 1.0vh, holds 0.6
+  { id: 'integration', label: 'Integration', w: 1.6, q0: 0.62, q1: 1.05, hold: 0.6 },
+  { id: 'creation', label: 'Creation', w: 1.2, q0: 1.05, q1: 1.95 },
+  // the ROM breathes (Adrian, 2026-09-05): the build lands at 4.0vh, the routine runs on for 0.6
+  { id: 'automation', label: 'Automation', w: 4.6, q0: 1.95, q1: 9.3, hold: 0.6 },
+  // the clock walks 9.3 -> 9.8 here so the controls can fade in over the scroll
+  { id: 'iteration', label: 'Iteration', w: 1.6, q0: 9.3, q1: 9.8 },
+  { id: 'realization', label: 'Realization', w: 1.4, q0: 9.8, q1: 10.8 },
+  // THE LAST SCREEN (Adrian, 2026-09-05: "as an overlay to the 3D scene let's add the Meet
+  // the Team screen, it should take over the entire screen... the bottom most screen").
+  // The world holds its closing frame underneath; the layer covers it.
+  { id: 'team', label: 'Meet the Team', w: 1.4, q0: 10.8, q1: 10.8 },
+];
+const TOTAL = WAYPOINTS.reduce((a, b) => a + b.w, 0);   // 13.6, inside the 8-14 budget
+let acc = 0;
+const CUM = WAYPOINTS.map((wp) => { const s = acc; acc += wp.w; return s; });
 
-// BUILT WITH IT. Three entries, not four: Archangel is held back until Adrian clears the
-// game's art direction for public view, and a filler fourth would weaken the three that
-// carry real weight. Every claim here is verifiable today, which is the entire point of the
-// section: we out-prove the field, we were just never showing it.
-//
-// `pill` is plasma for shipped/live states (DNA principle 2: plasma = success/correct).
-// Ember stays reserved for IN DEVELOPMENT, which nothing on this page currently carries.
-//
-// Media: a poster still that carries the card on its own, and a six-second silent loop that
-// plays on hover or keyboard focus. NOT autoplay. The hero already autoplays a video, three
-// more loops firing on load would cost real weight and battery for motion most visitors
-// never look at, and the still is what has to read at thumbnail size regardless. On touch,
-// under reduced-motion, and with JS off, the poster simply stands on its own.
-//
-// Both clips are 4:3, which is why the media box is no longer 16:10: both subjects are
-// standing figures, and a wide box spent most of its area on floor and empty background.
-//
-// `shot` names the asset an entry is still waiting on (MrMiata:
-// workspace/2026-07-22_website-overhaul/SHOT-LIST.md). An entry with no media renders a
-// visibly unfinished plate rather than silently collapsing.
-const PROOF = [
+// THE THREE ROWS (his revised concept, 2026-09-05: the opening and the close both carry
+// the three products as a list of rows with their marks, in place of the plates that
+// stood in the world). The opening's first row is the download itself.
+// THE ACCOLADES (Adrian, 2026-09-05: "include the accolades we've gotten from anim.works
+// and cgchannel"). Their words, not ours: CG Channel's own headline and byline, and the
+// title Animworks gave the listing when they stocked it. Both URLs verified 2026-09-05.
+const PRESS = [
   {
-    // Replaced the Reggie card 2026-07-29 (Adrian). Three characters carry more weight than
-    // one, and these are the ones the pipeline is being built on now. Reggie's clip and poster
-    // are still in public/proof/ if this needs reverting.
-    // The clip shows three characters. Saying so in the title, again in the claim, is telling a
-    // reader what they can already see. The copy carries the part the picture cannot: that all
-    // of them took the same route to get there.
-    name: 'Armature characters',
-    pill: 'IN UNREAL',
-    claim: 'Rigged, skinned, and animating in engine, all through the same route.',
-    detail:
-      'Joints placed by hand, skin weights solved on the machine, and one USD file carrying the mesh, skeleton, orientations and weights into Unreal, where the Fabricator Control Rig is built procedurally from that same export data.',
-    video: '/proof/proof-unreal-montage.mp4',
-    poster: '/proof/proof-unreal-montage.jpg',
-    alt: 'A samurai, a ninja and a lumberjack character animating in the Unreal viewport.',
+    href: 'https://www.cgchannel.com/2026/08/armature-is-a-free-ai-assisted-standalone-character-rigging-tool/',
+    source: 'CG Channel',
+    mark: markCG,
+    quote: 'Armature is a free AI-assisted standalone character rigging tool',
+    by: 'Jim Thacker, 6 August 2026',
   },
   {
-    // Replaced the QS_BipedRig card 2026-07-29 (Adrian). Its clip and poster stay in
-    // public/proof/, so restoring it is a data change and nothing else.
-    //
-    // The clip shows Maya and Unreal, and it says so itself with both logos in frame. What it
-    // cannot show is that neither rig was authored: both are generated from the same export.
-    name: 'The Fabricator Control Rig',
-    pill: 'MAYA + UNREAL',
-    claim: 'Built procedurally in both, from one export.',
-    // R27 item 3: this card had the same shipped-versus-demonstrated gap /armature's VERIFIED
-    // panel got corrected for under R25. Reading the SAME flag rather than hardcoding a
-    // sentence means the homepage and /armature cannot describe the toolset differently, which
-    // is the actual risk when one claim lives in two places.
-    detail:
-      'The USD export carries control rig build data alongside the mesh, skeleton and weights. Both rigs are generated from it, so the controls, their shapes and their hierarchy match without anyone rebuilding them on the far side. ' +
-      (MAYA_CONTROL_RIG
-        ? 'The Maya builder ships free in the toolset today; the Unreal builder is what we are working on next.'
-        : 'Both builders are what we are working on next.'),
-    video: '/proof/proof-controlrig.mp4',
-    poster: '/proof/proof-controlrig.jpg',
-    // Poster is the crossfade frame at t=3.5, where both logos and both rigs are on screen at
-    // once. It makes the point before anyone presses play.
-    alt: 'The same character and control rig shown in Maya and then in Unreal.',
+    href: 'https://anim.works/product/armature-artist-ai-rigging-adrian-melian/',
+    source: 'Animworks',
+    mark: markAW,
+    quote: 'Armature: Artist+AI Rigging by Adrian Melian',
+    by: 'Harvey Newman, 12 August 2026',
   },
 ];
+// THE RECORD, from his About concept (2026-09-05), his words
+const RECORD = [
+  { where: 'Sledgehammer Games', what: 'Lead, Character and Weapons Tech Art. Two Call of Duty titles.' },
+  { where: 'Camouflaj', what: 'Expert Technical Artist' },
+  { where: 'Meta, Double Fine', what: 'Technical Art' },
+  { where: 'Ubisoft, NCSoft', what: 'Technical Art' },
+];
+
+const ROWS = [
+  { href: '/armature/', label: 'Armature', tag: 'Free', icon: fsLogo, cls: '' },
+  { href: '/tools/', label: 'Maya pipeline tools', tag: '', icon: mayaLogo, cls: 'row__icon--maya' },
+  { href: '/control-rig/', label: 'Unreal Control Rig', tag: '', icon: unrealLogo, cls: 'row__icon--unreal' },
+];
+
+// WHAT'S NEW (Adrian, 2026-09-05: "that exact window with everything in it, thumbnails and
+// all"). Armature 2.3.0's own launch notice, the card the app opens with, then trimmed at
+// his word the same evening: the Unreal Control Rig section flipped to Released and moved
+// to the top with a button to its page, the support ask shortened and its pill gone, the
+// flat release notes gone ("they are in the full release notes page anyway"), the footer's
+// coffee button gone. The section bodies are the app's changelog.ts verbatim; the ask is
+// his shortened line. The 'Topic: sentence' headlines are split at render as the app
+// splits them, so the topic word takes its colour.
+const WN = {
+  version: '2.3.0',
+  date: 'Released 1 September 2026',
+  banner: {
+    title: 'Support: We can’t do this without you',
+    body: 'Please consider donating to the cause. FabricatorStudio is a one person studio and could use your support!',
+    shot: wnSupport,
+  },
+  sections: [
+    { tag: 'Released', tone: 'plasma', scope: 'Unreal', title: 'Unreal: FS Control Rig Builder',
+      body: 'Build a character rig in Unreal in one click, using FS Control Rig Modules. Packed with the latest UE 5.8 features. The rig features auto IK/FK match on the switch, an IK/FK spine, twist joints integration, and much more.',
+      shot: wnUnreal, href: '/control-rig/', cta: 'See the Control Rig' },
+    { tag: 'New', tone: 'plasma', scope: 'Armature', title: 'Armature: Multi-mesh support',
+      body: 'A character can be made of more than one mesh. Import, rename, group, separate, combine and hide them in the Meshes panel, with weights kept per mesh and an export that writes one file, one per group, or one per mesh.',
+      shot: wnMesh },
+    { tag: 'New', tone: 'plasma', scope: 'Armature', title: 'Armature: Full UI/UX Overhaul',
+      body: 'To make the workflow even more Artist-Friendly I have done a full overhaul on the interface, I hope you enjoy it!',
+      shot: wnOverhaul },
+    { tag: 'Coming soon', tone: 'cobalt', scope: 'Maya', title: 'Maya: Auto skeleton placement',
+      body: 'It builds a skeleton and fits it to your character automatically. The final step in full FS rig automation.',
+      shot: wnMaya },
+  ],
+};
+function wnTopic(title) {
+  const i = title.indexOf(':');
+  if (i <= 0 || i > 24) return null;
+  const topic = title.slice(0, i);
+  return { topic, slug: topic.toLowerCase().replace(/[^a-z0-9]+/g, '-'), rest: title.slice(i + 1) };
+}
+const WN_SUMMARY = `${WN.sections.length} highlight${WN.sections.length === 1 ? '' : 's'}`;
+const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
 ---
 <BaseLayout
-  title="FabricatorStudio | The Artist-Friendly Game Dev Pipeline"
-  description="A one-person technical art studio. The free Maya to Unreal character pipeline, and the 14-year AAA technical artist who built it, available for hire."
+  title="FabricatorStudio"
+  description="Scroll a character through the whole rigging pipeline: skeleton, skinning, materials, control rig. Then move her yourself."
 >
+  {/* THE BAR, AS A DRAWER (Adrian, 2026-09-05: "if the user starts scrolling down it goes
+      away, but if they scroll up it comes back... in the closed state if they hover over
+      it unravels"). The site's own NavBar, untouched; the page drives html[data-nav] from
+      the scroll direction and the styles below do the rest. */}
   <NavBar />
-  <ScrollHint />
-  {/* How far in you are, and how much is still there. 21.8 screens do not announce
-      themselves. Reads the beats' own variables; carries no timings. */}
-  <ScrollDots />
+  <div class="nav-lip" data-nav-lip aria-hidden="true"></div>
 
-  {/* THE OPENING (Adrian, 2026-08-19). The FS mark as 5,000 points over the app's own grid,
-      scroll-driven through a centring push-in and then an explosion that hands the page to
-      the hero video below. It carries the identity and the two free doors, which is why the
-      video hero no longer repeats them. Progressive enhancement: reduced motion, no WebGL2
-      and every width under 900px get the same copy standing on carbon, and the scroll runway
-      collapses with it. */}
-  <PointCloudHero />
+  {/* WHAT'S NEW (Adrian, 2026-09-05): Armature's launch notice as a panel over the world,
+      on the right; the top of the screen on a phone. It leaves when the page scrolls
+      down and does not return until the page is back at the very top. The close retires
+      it for the visit. Same title bar, version strip, support banner, sections, notes
+      box and footer as the app's card; the coffee button is the site's own self-hosted
+      one, opening the same panel the bar's button opens. */}
+  {/* THE PANEL IS A DRAWER (Adrian, 2026-09-05: "give it a drawer 'What's new' and it
+      closes in mobile view but if the user clicks it it opens up but full height", then
+      "make it a drawer on the right, just like how it is on the top in mobile mode, and if
+      I X it out, then it goes back into the drawer, but I can still open it again"). This
+      strip is the closed drawer, top right on desktop and under the bar on a phone; a
+      press opens the panel, the close folds it back to the strip. */}
+  <button type="button" class="wn__tab" data-wn-tab aria-controls="wn-panel" aria-expanded="false">
+    <span class="wn__tab-label">What’s new</span>
+    <span class="wn__tab-ver">{WN.version}</span>
+    <span class="wn__spacer"></span>
+    <span class="wn__tab-chev" aria-hidden="true">&#8964;</span>
+  </button>
+  <aside class="wn" id="wn-panel" data-wn-panel aria-label="What’s new in Armature">
+    <div class="wn__titlebar">
+      <span class="wn__heading">What’s new</span>
+      <span class="wn__version">{WN.version}</span>
+      <span class="wn__spacer"></span>
+      <button type="button" class="wn__close" data-wn-close aria-label="Close">&#10005;</button>
+    </div>
+    <div class="wn__strip">
+      <span class="wn__pill"><span class="wn__dot" aria-hidden="true"></span>{WN.version}</span>
+      <span class="wn__spacer"></span>
+      <span class="wn__date">{WN.date}</span>
+    </div>
+    <div class="wn__banner">
+      <div class="wn__banner-shot">
+        <Image src={WN.banner.shot} alt="" widths={[360, 720]} sizes="180px" loading="eager" />
+      </div>
+      <div class="wn__banner-col">
+        <div class="wn__banner-line">
+          <span class="wn__banner-title">
+            {WN_BANNER_TOPIC ? (<><span class={`wn__topic wn__topic--${WN_BANNER_TOPIC.slug}`}>{WN_BANNER_TOPIC.topic}:</span>{WN_BANNER_TOPIC.rest}</>) : WN.banner.title}
+          </span>
+        </div>
+        <div class="wn__banner-copy">{WN.banner.body}</div>
+        {/* a plain link out: the bar's facade panel left with the bar's coffee button */}
+        <a class="wn__coffee" href={LINKS.coffee} target="_blank" rel="noopener" data-goatcounter-click="coffee-whatsnew">
+          <img src="/bmc-button.svg" alt="Buy me a coffee" width="235" height="50" />
+        </a>
+      </div>
+    </div>
+    <div class="wn__body" data-wn-body>
+      <div class="wn__kicker wn__kicker--head">What’s new:</div>
+      {WN.sections.map((h) => { const tp = wnTopic(h.title); return (
+        <div class="wn__section">
+          <div class="wn__shot">
+            <Image src={h.shot} alt="" widths={[520, 1040]} sizes="(max-width: 700px) 100vw, 520px" loading="lazy" />
+          </div>
+          <div class="wn__col">
+            <div class="wn__tags">
+              <span class={`wn__tag wn__tag--${h.tone}`}>{h.tag.toUpperCase()}</span>
+              <span class="wn__scope">{h.scope}</span>
+            </div>
+            <div class="wn__title">
+              {tp ? (<><span class={`wn__topic wn__topic--${tp.slug}`}>{tp.topic}:</span>{tp.rest}</>) : h.title}
+            </div>
+            <div class="wn__copy">{h.body}</div>
+            {h.href && <a class="wn__cta" href={h.href}>{h.cta}<span class="wn__cta-arrow" aria-hidden="true">&rarr;</span></a>}
+          </div>
+        </div>
+      ); })}
+    </div>
+    <div class="wn__footer">
+      <span class="wn__summary">{WN_SUMMARY}</span>
+      <span class="wn__spacer"></span>
+      <a class="wn__notes-link" href="/changelog/">Full release notes</a>
+    </div>
+  </aside>
 
-  <section id="hero" class="hero-v2" data-panel>
-    {/* New Armature cut, 2026-08-03. Dated filenames rather than overwriting: public/ assets
-        are served unhashed, so reusing the old names would leave the previous cut in browser
-        and CDN caches for days. 2560x1440 (was 2560x1080), which crops less at desktop widths
-        under object-fit: cover. */}
-    {/* aria-hidden is GONE from the video (2026-08-29): it now carries a transport, so it
-        is a control target rather than decoration, and a labelled button pointing at a
-        hidden element is a contradiction. The poster still below it stays decorative. */}
-    <video class="hero-media" autoplay muted loop playsinline
-      poster="/demo/fs_hero_poster_2026-08.jpg"
-      src="/demo/fs_hero_2026-08.mp4">
-    </video>
-    <img class="hero-media hero-poster" src="/demo/fs_hero_poster_2026-08.jpg" alt="" aria-hidden="true" />
-    {/* NO SCRIM AND NO COPY (Adrian, 2026-08-19). This panel is the video and nothing else.
-        The scrim existed to make text legible over it; with the text gone it was only
-        dimming the footage. The identity moved into the opening, and the philosophy copy
-        that used to sit here moved out with it rather than being restated over a video
-        nobody is reading. */}
+  {/* THE WORLD. One canvas, fixed, and nothing is ever drawn over it that is not copy. */}
+  <div class="world" data-world>
+    <ArmatureStage variant="page" skin="/mesh/zumi.skin" tex="/mesh/zumi" />
+    <div class="world__scan" aria-hidden="true"></div>
+  </div>
 
-    {/* THE TRANSPORT (Adrian, 2026-08-29): nothing on screen said the opening footage was a
-        video. A line that reads at a glance, with play, pause and rewind on hover. He chose
-        this over pinning the scroll for it; the reasoning is in the component. */}
-    <HeroVideoControls />
+  {/* THE MAP. The grammar's nav: not a bar, a diagram of where you are in the one place,
+      and every stop is reachable by click and by keyboard. */}
+  <nav class="map" data-map aria-label="Where you are">
+    <ol>
+      {WAYPOINTS.map((wp, i) => (
+        <li>
+          <button type="button" data-goto={CUM[i] + wp.w * 0.22} data-wp={wp.id} aria-label={wp.label}>
+            <span class="map__dot" aria-hidden="true"></span>
+            <span class="map__n" aria-hidden="true">{wp.label}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+  </nav>
+
+  {/* THE COPY LAYER. Windowed against the whole track, never scrolling over the world.
+      Adrian's copy, 2026-09-05, as written; the anchor changes every window so the page
+      never settles into one centred column, and no window sits on her. */}
+  {/* THE COPY LAYER, in the treatment he designed (his "FabricatorStudio Homepage" concept
+      page, 2026-09-05): an open left column, no box, a rule and label for an eyebrow, a big
+      serif headline whose last phrase turns italic, an Archivo sub, the pill download with
+      a small plasma "Free.", and a scrim from the left so the words read over the world.
+      His words verbatim (2026-09-05), split across the slots. */}
+  <div class="copy" data-copy>
+    <div class="copy__scrim" data-scrim aria-hidden="true"></div>
+    <div class="cw" data-cw="top">
+      <p class="cw__eyebrow">Technical art studio</p>
+      <h1 class="cw__h cw__h--xl">Tech Art <em>Re-imagined.</em></h1>
+      <p class="cw__sub">Artist + AI Pipelines and Software.<br>From a 14 year AAA vet.</p>
+      <div class="rows">
+        <a class="row row--lead" href={LINKS.installer} data-installer data-goatcounter-click="next-download-armature-top">
+          <Image class="row__icon" src={fsLogo} alt="" width={26} height={26} loading="eager" />
+          <span class="row__label row__label--bold">Download Armature</span>
+          <span class="row__tag">Free</span>
+          <span class="row__arrow" aria-hidden="true">&rarr;</span>
+        </a>
+        {ROWS.slice(1).map((r) => (
+          <a class="row" href={r.href}>
+            <Image class={'row__icon ' + r.cls} src={r.icon} alt="" width={26} height={26} loading="eager" />
+            <span class="row__label">{r.label}</span>
+            <span class="row__arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        ))}
+      </div>
+    </div>
+    <div class="cw" data-cw="ideation">
+      <p class="cw__eyebrow">Ideation</p>
+      <figure class="cw__quote">
+        <span class="cw__qmark" aria-hidden="true">&ldquo;</span>
+        <blockquote class="cw__q">Where the spirit does not work with the hand, there is no art.</blockquote>
+        <figcaption class="cw__cite">Leonardo da Vinci</figcaption>
+      </figure>
+    </div>
+    <div class="cw" data-cw="integration">
+      <p class="cw__eyebrow">Integration</p>
+      <Wordmark class="cw__mark" decorative height="clamp(2rem, 3.2vw, 3.6rem)" />
+      <h2 class="cw__h">Artistic AI Tooling. <em>Built with refinement in mind.</em></h2>
+    </div>
+    <div class="cw" data-cw="creation">
+      <p class="cw__eyebrow">Creation</p>
+      <h2 class="cw__h">Tools to drive assets to production level standards. <em>Fast.</em></h2>
+    </div>
+    <div class="cw" data-cw="automation">
+      <p class="cw__eyebrow">Automation</p>
+      <h2 class="cw__h">Turn slow technical precision <em>into artistic intent.</em></h2>
+    </div>
+    <div class="cw" data-cw="iteration">
+      <p class="cw__eyebrow">Iteration</p>
+      <h2 class="cw__h">Stream imagination <em>into existence.</em></h2>
+    </div>
+    <div class="cw" data-cw="realization">
+      <p class="cw__eyebrow">Realization</p>
+      <h2 class="cw__h cw__h--close">Optimize <em>creation.</em></h2>
+      <p class="cw__sub">Realize your ideas at the speed of thought.</p>
+      <div class="rows">
+        {ROWS.map((r) => (
+          <a class="row" href={r.href}>
+            <Image class={'row__icon ' + r.cls} src={r.icon} alt="" width={26} height={26} loading="lazy" />
+            <span class="row__label">{r.label}</span>
+            {r.tag && <span class="row__tag">{r.tag}</span>}
+            <span class="row__arrow" aria-hidden="true">&rarr;</span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  {/* MEET THE TEAM. The page's last screen, a layer that covers the world outright rather
+      than a window inside it. The introduction video and the engagements ask carry the
+      copy the live homepage's close already carries, verbatim; the paragraphs he said he
+      would write with me are not here yet. The accolades close the screen. */}
+  <section class="team" data-team aria-label="Meet the Team">
+    <div class="team__inner">
+      <p class="cw__eyebrow">Who builds it</p>
+      <h2 class="team__title">Adrian <em>Melian.</em></h2>
+      <p class="team__lede">Technical Artist. Fourteen years in AAA character rigging, skinning and tools.</p>
+      <div class="team__grid">
+        <figure class="team__fig">
+          <Image class="team__photo" src={adrian} alt="Adrian Melian" widths={[540, 1080]} sizes="(max-width: 900px) 92vw, 34vw" loading="lazy" />
+          <figcaption class="team__cap"><span>Founder, FabricatorStudio</span><span>2026</span></figcaption>
+        </figure>
+        <div class="team__col">
+          <div class="team__bio">
+            <p class="team__p">Hi, I am a Technical Artist with fourteen years in AAA character rigging, skinning and tools. I led the Character and Weapons Tech Art teams across two Call of Duty titles, then joined Camouflaj as an Expert Technical Artist.</p>
+            <p class="team__p team__p--bone">I founded FabricatorStudio in 2026 to help teams meet their pipeline needs.</p>
+          </div>
+          <div class="team__record">
+            <span class="team__label">The record</span>
+            <div class="team__rows">
+              {RECORD.map((r) => (
+                <div class="team__row"><span class="team__where">{r.where}</span><span class="team__what">{r.what}</span></div>
+              ))}
+              <div class="team__rule"></div>
+            </div>
+          </div>
+          <div class="team__ctas">
+            <a class="team__mailbtn" href="mailto:adrian@fabricator.studio">adrian@fabricator.studio<span aria-hidden="true">&rarr;</span></a>
+            <a class="team__link" href="/tools/">See the toolset</a>
+          </div>
+        </div>
+      </div>
+      <div class="team__pressblock">
+        <span class="team__label">Press</span>
+        <div class="team__press">
+          {PRESS.map((pr) => (
+            <a class="press" href={pr.href} target="_blank" rel="noopener">
+              <Image class="press__mark" src={pr.mark} alt={pr.source} width={208} height={73} loading="lazy" />
+              <span class="press__q">&ldquo;{pr.quote}&rdquo;</span>
+              <span class="press__by">{pr.by}</span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </div>
   </section>
 
-  {/* THE PIPELINE BEAT (Adrian, 2026-08-19 second pass): the x-ray pipe in the room --
-      chaos drawn in at the left, four hoverable sections, a character condensing out at the
-      right. Replaced the tool carousel. Choreography and the 3D scene live in
-      PointCloudHero; this layer is the title, the labels and the hover cards. */}
-  <PipelineOverlay />
+  {/* THE CAMERA PANEL (Adrian, 2026-09-05). His dials for the four camera marks, shown
+      only at /?cam and never to a visitor. The script builds the sliders; the stage
+      reads the marks off the window every frame. */}
+  <div class="cam" data-cam hidden aria-hidden="true"></div>
 
-  {/* THE ARMATURE BEAT (Adrian, 2026-08-19): after the carousel's last step the toolset
-      clears and Armature rises on the same glass. Choreography in PointCloudHero's loop. */}
-  <ArmatureOverlay />
+  <div class="track" data-track aria-hidden="true"></div>
 
-  {/* THE DOWNLOAD BEAT (Adrian, 2026-08-19): the tool wall scanned into view by a climbing
-      band with the download riding it. Choreography in PointCloudHero's loop. */}
-  <WallOverlay />
-
-  {/* THE ARMATURE ACT (Adrian, 2026-08-22): after the tool wall wipe the page goes straight
-      into the Armature story rather than sending the reader to another URL. Same component
-      /armature/ mounts, so there is one implementation and the product keeps its own page.
-
-      The raise is not optional. .hero-v2[data-cine] is position:fixed at z-index 1 for the
-      length of the opening runway, so anything after it that is not lifted gets the video
-      printed over it -- which is exactly why .site-footer-raise below exists. */}
-  <div class="armature-act-raise">
-    <ArmatureAct variant="inline" />
+  {/* REDUCED MOTION GETS A PAGE, NOT A BLANK CANVAS. The stage does not boot at all under
+      that setting, so without this the world would be an empty black rectangle. Same words,
+      same doors, in document flow. */}
+  <div class="still">
+    <h1>Tech Art Re-imagined.</h1>
+    <p>Artist + AI Pipelines and Software. From a 14 year AAA vet.</p>
+    <p><a href={LINKS.installer} data-installer>Download Armature</a> Free.</p>
+    <blockquote>&ldquo;Where the spirit does not work with the hand, there is no art.&rdquo; Leonardo da Vinci</blockquote>
+    <p>Artistic AI Tooling. Built with refinement in mind.</p>
+    <p>Tools to drive assets to production level standards. Fast.</p>
+    <p>Turn slow technical precision into artistic intent.</p>
+    <p>Stream imagination into existence.</p>
+    <p>Optimize creation. Realize your ideas at the speed of thought.</p>
+    <h2>Adrian Melian.</h2>
+    <p>Technical Artist. Fourteen years in AAA character rigging, skinning and tools.</p>
+    <p>Hi, I am a Technical Artist with fourteen years in AAA character rigging, skinning and tools. I led the Character and Weapons Tech Art teams across two Call of Duty titles, then joined Camouflaj as an Expert Technical Artist.</p>
+    <p>I founded FabricatorStudio in 2026 to help teams meet their pipeline needs. <a href="mailto:adrian@fabricator.studio">adrian@fabricator.studio</a>, or <a href="/tools/">see the toolset</a>.</p>
+    <ul>
+      {RECORD.map((r) => <li>{r.where}: {r.what}</li>)}
+    </ul>
+    <ul>
+      {PRESS.map((pr) => <li><a href={pr.href}>{pr.source}</a>: {pr.quote} ({pr.by})</li>)}
+    </ul>
+    <ul>
+      {ROWS.map((r) => <li><a href={r.href}>{r.label}</a>{r.tag ? ': ' + r.tag : ''}</li>)}
+    </ul>
   </div>
-
-  {/* THE CLOSING BEAT (Adrian, 2026-08-19; moved here 2026-08-22). About Me and the
-      engagements ask, one fullscreen layout over the room. It used to sit between the wall
-      wipe and here, which put the hire-me ask in the MIDDLE of the page and left the page
-      ending on Armature's pricing. It closes now, which is also what stops the act's opaque
-      edge guillotining it mid-sentence.
-
-      It needs a runway because .cl is position:fixed and carries no scroll of its own; the
-      hero's runway used to provide it. Empty and aria-hidden: it is scroll, not content. */}
-  <div class="close-runway" data-close-runway aria-hidden="true"></div>
-  <CloseOverlay />
-
-  {/* STILL STRIPPED (Adrian, 2026-08-19): one transition at a time. Armature, proof,
-      DownloadBand, hire and about return from git (this branch, commit d9e73c5) as each
-      transition lands. */}
-
-  {/* Raised above the fixed video layer (z1), or scrolling past the runway would slide the
-      footer invisibly underneath it. */}
-  <div class="site-footer-raise">
-    <Footer />
-  </div>
-
-  {/* Proof cards: poster by default, loop on hover or keyboard focus.
-      Bails entirely on touch (no hover pointer) and under reduced-motion, where the poster
-      is the whole experience and preload="none" means the clip is never even fetched. */}
-  <script is:inline>
-    (function () {
-      var mm = window.matchMedia;
-      if (!mm) return;
-      if (mm('(prefers-reduced-motion: reduce)').matches) return;
-      if (!mm('(hover: hover)').matches) return;
-      document.querySelectorAll('.pf-card').forEach(function (card) {
-        var v = card.querySelector('.pf-vid');
-        if (!v) return;
-        function play() {
-          card.classList.add('is-playing');
-          var p = v.play();
-          // Autoplay policy can still reject a programmatic play(); swallow it rather than
-          // throwing an unhandled rejection into the console on every hover.
-          if (p && p.catch) p.catch(function () { card.classList.remove('is-playing'); });
-        }
-        function stop() {
-          v.pause();
-          card.classList.remove('is-playing');
-        }
-        card.addEventListener('pointerenter', play);
-        card.addEventListener('pointerleave', stop);
-        card.addEventListener('focusin', play);
-        card.addEventListener('focusout', stop);
-      });
-    })();
-  </script>
-
-  <script is:inline>
-    (function () {
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      // Modern browsers (incl. mobile) get smooth compositor parallax from CSS (base.css).
-      // This JS only runs as a fallback where scroll-driven animations are unsupported.
-      if (window.CSS && CSS.supports && CSS.supports('animation-timeline: view()')) return;
-      var pairs = [].slice.call(document.querySelectorAll('[data-parallax]'))
-        .map(function (img) { return { img: img, win: img.closest('[data-parallax-window]') }; })
-        .filter(function (pr) { return pr.win; });
-      if (!pairs.length) return;
-      var ticking = false;
-      function update() {
-        ticking = false;
-        var vh = window.innerHeight || document.documentElement.clientHeight;
-        for (var i = 0; i < pairs.length; i++) {
-          var img = pairs[i].img, win = pairs[i].win;
-          var overflow = img.offsetHeight - win.offsetHeight;
-          if (overflow <= 0) { img.style.transform = ''; continue; }
-          var rect = win.getBoundingClientRect();
-          var p = (vh - rect.top) / (vh + rect.height);
-          p = p < 0 ? 0 : p > 1 ? 1 : p;
-          img.style.transform = 'translateY(' + (-overflow * (1 - p)).toFixed(1) + 'px)';
-        }
-      }
-      function onScroll() { if (!ticking) { ticking = true; requestAnimationFrame(update); } }
-      window.addEventListener('scroll', onScroll, { passive: true });
-      window.addEventListener('resize', onScroll);
-      update();
-    })();
-  </script>
 </BaseLayout>
 
 <style>
-  .site-footer-raise { position: relative; z-index: 3; background: var(--carbon); }
-  /* NO BACKGROUND (Adrian, 2026-08-22). An opaque block here is what made the act read as a
-     second 3D scene: it cut a hard edge across the room and guillotined whatever was under
-     it. The act's own canvas is opaque, so it covers the room by rendering it, not by
-     hiding it -- which is what lets the two scenes cross into one continuous shot. */
-  .armature-act-raise { position: relative; z-index: 3; }
-  /* Transparent on purpose: the close beat plays OVER the room, so the point cloud canvas
-     behind it has to show through. No z-index either -- .cl (z2) paints over this, and the
-     footer (z3) curtains over .cl, which is how the beat has always exited. */
-  .close-runway { height: 150svh; }
-
-  .hero-v2 {
-    position: relative;
-    overflow: hidden;
-    width: 100vw;
-    max-width: 100vw;
-    margin: 0 0 0 calc(50% - 50vw);
-    padding: 0;
-    /* svh, not vh: on mobile vh measures the viewport with the toolbars RETRACTED, so a
-       100vh hero is taller than what you can see and the next section peeks on load.
-       min-height, not height: .hero-v2 clips its overflow and a fixed height would
-       guillotine the CTAs on short screens. */
-    min-height: calc(100vh - var(--header-h));
-    min-height: calc(100svh - var(--header-h));
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    flex-direction: column;
-  }
-
-  /* THE CINEMATIC PROMOTION (Adrian, 2026-08-19). When the point-cloud opening is running it
-     sets [data-cine], and this section stops being an in-flow panel and becomes a fixed layer
-     at z1: above the 3D scene (z0), below the copy and its download buttons (z2). It does not
-     scroll up; it FADES IN in place as the cloud explodes, opacity driven per frame by the
-     opening's own loop. The fallback paths never set the attribute, so reduced-motion,
-     no-WebGL and mobile keep the normal in-flow section. */
-  .hero-v2[data-cine] {
+  /* ---- the world -------------------------------------------------------------------- */
+  .world {
     position: fixed;
     inset: 0;
-    z-index: 1;
-    width: auto;
-    max-width: none;
-    margin: 0;
-    min-height: 0;
-    opacity: 0;
-    /* The video is pure backdrop while the buttons above it take the clicks. */
-    pointer-events: none;
+    background: var(--carbon);
+    z-index: 0;
   }
-
-  .hero-media {
+  .world :global(.ast-canvas) {
     position: absolute;
     inset: 0;
     width: 100%;
     height: 100%;
-    object-fit: cover;
-    z-index: 0;
+    display: block;
   }
-  .hero-v2 video.hero-media { display: block; }
-  .hero-v2 img.hero-poster { display: none; }
-  @media (prefers-reduced-motion: reduce) {
-    .hero-v2 video.hero-media { display: none; }
-    .hero-v2 img.hero-poster { display: block; }
-  }
-
-  /* BUILT WITH IT. Reuses the card furniture the key-features grid used, so this cost
-     styling work rather than design work, and the section it replaces is not missed. */
-  #proof { text-align: left; }
-  .pf-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 1.125rem; }
-  @media (max-width: 900px) { .pf-grid { grid-template-columns: 1fr; } }
-  .pf-card {
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    background: linear-gradient(180deg, var(--iron), var(--carbon));
-    border: 1px solid rgba(124, 255, 178, 0.14);
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: var(--shadow-md);
-  }
-  /* 4:3, not 16:10. Both proof subjects are standing figures, and a wide box spent most of
-     its area on floor and empty background. */
-  .pf-media {
-    position: relative;
-    aspect-ratio: 4 / 3;
-    overflow: hidden;
-    border-bottom: 1px solid rgba(124, 255, 178, 0.18);
-    background: radial-gradient(120% 120% at 50% 38%, var(--iron-2), var(--carbon));
-  }
-  .pf-vid { display: block; width: 100%; height: 100%; object-fit: cover; }
-  /* The affordance, and the only thing that says the still is also a clip. It fades out
-     once playback starts, so a playing card is not wearing a play button. */
-  .pf-play {
+  /* The PS2 half of his reference set, and the ONLY place it touches the world: a scanline
+     interference so faint it reads as the projection being a projection. Everything else
+     retro on this page is typographic, because retro in the world AND in the type at once
+     reads as a filter laid over a photograph rather than as a designed page. */
+  .world__scan {
     position: absolute;
-    left: 50%;
-    top: 50%;
-    width: 2.75rem;
-    height: 2.75rem;
-    margin: -1.375rem 0 0 -1.375rem;
-    border-radius: 50%;
-    background: rgba(11, 14, 16, 0.55);
-    border: 1px solid rgba(124, 255, 178, 0.5);
+    inset: 0;
     pointer-events: none;
-    transition: opacity var(--t-base) var(--ease-out);
+    background: repeating-linear-gradient(
+      0deg, rgba(232, 224, 208, 0.030) 0 1px, rgba(11, 14, 16, 0) 1px 3px);
+    mix-blend-mode: overlay;
+    opacity: 0.55;
   }
-  .pf-play::after {
-    content: '';
-    position: absolute;
-    left: 55%;
+
+  /* The scroll track. The only thing in document flow, which is the grammar's one
+     structural rule: 13.6 viewport heights of travel, and no sections anywhere. */
+  .track { height: 1360svh; }
+
+  /* ---- the map ---------------------------------------------------------------------- */
+  /* THE DOTS ARE BACK (Adrian, 2026-09-05: "go back to the original dots, BUT if the user
+     mouses over the dots, it expands the dots and shows the name"). The rail the live
+     homepage runs: six pixel dots, a dim trail behind the lit one. Each stop is still a
+     real button that jumps there; its name rides out beside the dot on hover or focus. */
+  .map {
+    position: fixed;
+    left: clamp(0.65rem, 1.6vw, 1.5rem);
     top: 50%;
-    transform: translate(-50%, -50%);
-    border-top: 0.45rem solid transparent;
-    border-bottom: 0.45rem solid transparent;
-    border-left: 0.75rem solid var(--plasma);
+    transform: translateY(-50%);
+    z-index: 3;
   }
-  .pf-card.is-playing .pf-play { opacity: 0; }
-  /* No hover pointer means no hover affordance to advertise. */
-  @media (hover: none) {
-    .pf-play { display: none; }
+  .map ol { list-style: none; margin: 0; padding: 0; display: grid; gap: clamp(0.45rem, 1.1vh, 0.7rem); }
+  .map button {
+    position: relative;
+    display: flex;
+    align-items: center;
+    /* the hit area is the dot plus a quiet margin, so the rail is easy to catch */
+    padding: 0.3rem;
+    margin: -0.3rem;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--bone-faint);
+  }
+  .map__dot {
+    display: block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: rgba(11, 14, 16, 0);
+    border: 1px solid var(--iron-3);
+    transition: background 0.4s var(--ease-out), border-color 0.4s var(--ease-out),
+      transform 0.4s var(--ease-out), box-shadow 0.4s var(--ease-out);
+  }
+  /* passed: filled, but quiet. The trail is what shows how far in you are. */
+  .map button[data-passed] .map__dot {
+    background: rgba(124, 255, 178, 0.42);
+    border-color: rgba(124, 255, 178, 0.42);
+  }
+  /* here: the one that lights up */
+  .map button[data-at] .map__dot {
+    background: var(--plasma);
+    border-color: var(--plasma);
+    transform: scale(1.55);
+    box-shadow: 0 0 10px rgba(124, 255, 178, 0.55);
+  }
+  .map__n {
+    position: absolute;
+    left: calc(100% + 0.35rem);
+    top: 50%;
+    transform: translate(-6px, -50%);
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity var(--t-fast) var(--ease-out), transform var(--t-base) var(--ease-out);
+  }
+  .map button:hover .map__dot,
+  .map button:focus-visible .map__dot {
+    transform: scale(2.2);
+    border-color: var(--bone-dim);
+  }
+  .map button[data-at]:hover .map__dot,
+  .map button[data-at]:focus-visible .map__dot { transform: scale(2.2); border-color: var(--plasma); }
+  .map button:hover .map__n,
+  .map button:focus-visible .map__n { opacity: 1; transform: translate(0, -50%); }
+  .map button[data-at] .map__n { color: var(--plasma); }
+  .map button:focus-visible { outline: 2px solid var(--plasma); outline-offset: 3px; border-radius: var(--radius-pill); }
+  /* Tighter, and off the thumb's edge of the screen. */
+  @media (max-width: 700px) {
+    .map { left: 0.5rem; }
+    .map ol { gap: 0.4rem; }
+    .map__dot { width: 5px; height: 5px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .map__dot, .map__n { transition: none; }
   }
 
-  .pf-pending {
-    height: 100%;
+  /* ---- the copy layer --------------------------------------------------------------- */
+  .copy {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  /* the concept's left scrim, up only while a window is */
+  .copy__scrim {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    background: linear-gradient(97deg, rgba(11, 14, 16, 0.82) 0%, rgba(11, 14, 16, 0.66) 26%,
+      rgba(11, 14, 16, 0.38) 44%, rgba(11, 14, 16, 0.06) 64%, rgba(11, 14, 16, 0) 78%);
+  }
+  .cw {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    align-content: center;
+    padding: 0 clamp(20px, 4vw, 68px) 0 clamp(48px, 7vw, 132px);
+    opacity: 0;
+    /* opacity and the 34px rise are set per frame by the script; no transition, the wheel is the clock */
+  }
+  .cw > * { max-width: min(100%, 54vw); }
+  .cw__eyebrow {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 0.75rem;
-    padding: 1.25rem;
-    text-align: center;
+    gap: 12px;
+    margin: 0 0 clamp(18px, 2vw, 28px);
+    font-family: var(--font-body);
+    font-size: clamp(10px, 0.78vw, 12px);
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--plasma);
   }
-  .pf-shot {
-    font-family: var(--font-mono);
-    font-weight: 800;
-    font-size: 0.6875rem;
-    letter-spacing: 0.22em;
+  .cw__eyebrow::before { content: ""; flex: 0 0 auto; width: 24px; height: 1px; background: var(--plasma); }
+  .cw__h {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(44px, 5.6vw, 110px);
+    line-height: 0.9;
+    letter-spacing: -0.025em;
     color: var(--bone);
-    border: 1px solid rgba(255, 122, 61, 0.45);
-    background: rgba(255, 122, 61, 0.13);
-    border-radius: 8px;
-    padding: 0.3rem 0.7rem;
+    text-wrap: balance;
   }
-  /* The v1 entry: its evidence is textual, so it is set as type rather than faked. */
-  .pf-media--type {
+  .cw__h--xl { font-size: clamp(52px, 7.6vw, 146px); line-height: 0.86; letter-spacing: -0.028em; }
+  .cw__h em { display: block; font-style: italic; }
+  .cw__h .cw__free { display: inline-block; vertical-align: middle; margin-left: 0.4em; }
+  /* the quote (his concept's second beat): an ember opening mark, the line in italic
+     serif, a rule and the name */
+  .cw__quote { margin: 0; max-width: min(100%, 50vw); }
+  .cw__qmark {
+    display: block;
+    /* the glyph sits above its half-height line box; this keeps it off the eyebrow */
+    margin-top: 0.42em;
+    font-family: var(--font-display);
+    font-size: clamp(64px, 7vw, 130px);
+    line-height: 0.5;
+    color: var(--ember);
+  }
+  .cw__q {
+    margin: clamp(6px, 0.8vw, 12px) 0 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 400;
+    font-size: clamp(32px, 4.3vw, 80px);
+    line-height: 1.03;
+    letter-spacing: -0.018em;
+    color: var(--bone);
+    text-wrap: balance;
+  }
+  .cw__cite {
     display: flex;
-    flex-direction: column;
     align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    padding: 1.25rem;
-    text-align: center;
+    gap: 14px;
+    margin-top: clamp(22px, 2.4vw, 38px);
+    font-family: var(--font-body);
+    font-size: clamp(11px, 0.82vw, 13px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
   }
-  .pf-v { font-family: var(--font-display); font-weight: 400; font-size: clamp(2.5rem, 6vw, 3.5rem); line-height: 1; color: var(--bone); }
-  .pf-v__lic { font-family: var(--font-mono); font-size: 0.75rem; letter-spacing: 0.14em; color: var(--bone-dim); }
-  .pf-v__links { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem 1rem; margin-top: 0.5rem; }
-  .pf-v__links a { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--bone); text-decoration: none; border-bottom: 1px solid rgba(124, 255, 178, 0.4); }
-  .pf-v__links a:hover { color: var(--bone); }
-
-  .pf-body { display: flex; flex-direction: column; gap: 0.75rem; padding: 1.5rem 1.5rem 1.625rem; }
-  .pf-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; flex-wrap: wrap; }
-  .pf-name { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: 1.1875rem; line-height: 1.1; color: var(--bone); }
-  /* plasma = success / correct (principle 2). Ember stays reserved for IN DEVELOPMENT. */
-  .pf-pill {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.6875rem;
-    letter-spacing: 0.14em;
-    color: var(--bone);
-    background: rgba(124, 255, 178, 0.13);
-    border: 1px solid rgba(124, 255, 178, 0.45);
-    border-radius: 8px;
-    padding: 0.25rem 0.6rem;
+  .cw__cite::before { content: ""; flex: 0 0 auto; width: 28px; height: 1px; background: var(--ember); }
+  /* the full wordmark over Integration's line (Adrian, 2026-09-05) */
+  .cw :global(.cw__mark) { margin: 0 0 clamp(18px, 2vw, 28px); }
+  .cw__sub {
+    margin: clamp(22px, 2.4vw, 36px) 0 0;
+    max-width: 31ch;
+    font-family: var(--font-body);
+    font-size: clamp(15px, 1.15vw, 20px);
+    line-height: 1.5;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .cw__cta {
+    display: flex;
+    align-items: center;
+    gap: clamp(14px, 1.4vw, 22px);
+    margin: clamp(26px, 3vw, 44px) 0 0;
+  }
+  /* the download: a real link inside a layer that otherwise lets the pointer through */
+  .cw__cta :global(.btn) { pointer-events: auto; }
+  .cw[style*="opacity: 0"] .cw__cta :global(.btn) { pointer-events: none; }
+  .cw__free {
+    font-family: var(--font-body);
+    font-size: clamp(11px, 0.85vw, 13px);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--plasma);
     white-space: nowrap;
   }
-  .pf-claim { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone); text-wrap: pretty; }
-  /* Scan on the surface, deep on demand, both work: the same promise the tool cards make,
-     without a second modal system to maintain for one paragraph of detail. */
-  .pf-more { margin-top: auto; }
-  .pf-more__q {
-    font-family: var(--font-mono);
-    font-weight: 700;
-    font-size: 0.8125rem;
-    letter-spacing: 0.06em;
-    color: var(--bone);
-    cursor: pointer;
-    list-style: none;
+  @media (max-width: 700px) {
+    .cw { padding: 0 1.25rem 14svh 2.25rem; align-content: end; }
+    .cw > * { max-width: 100%; }
+    .cw__h { font-size: clamp(36px, 11vw, 52px); }
+    .cw__h--xl { font-size: clamp(44px, 13vw, 64px); }
+    .cw__quote { max-width: 100%; }
+    .cw__q { font-size: clamp(26px, 8vw, 40px); }
+    .copy__scrim { background: linear-gradient(180deg, rgba(11, 14, 16, 0) 30%, rgba(11, 14, 16, 0.72) 100%); }
   }
-  .pf-more__q::-webkit-details-marker { display: none; }
-  .pf-more__q::after { content: ' +'; }
-  .pf-more[open] .pf-more__q::after { content: ' \2212'; }
-  .pf-more__a { margin: 0.75rem 0 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-dim); text-wrap: pretty; }
 
-  /* THE TOOLSET: one compact block where four full-bleed cards used to be. */
-  #toolset { text-align: left; }
-  .tk-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); gap: 2.5rem; align-items: center; }
-  @media (max-width: 900px) { .tk-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
-  .tk-ui { border-radius: 16px; overflow: hidden; border: 1px solid var(--iron-3); box-shadow: var(--shadow-lg); }
-  .tk-body { display: flex; flex-direction: column; gap: 1rem; }
-  .tk-lead { margin: 0; font-size: 1.0625rem; line-height: 1.65; color: var(--bone); text-wrap: pretty; }
-  .tk-line { margin: 0; font-size: 0.9375rem; line-height: 1.6; color: var(--bone-dim); }
-  .tk-line a { color: var(--bone); text-decoration: none; border-bottom: 1px solid transparent; }
-  .tk-line a:hover { border-bottom-color: var(--plasma); }
-  .tk-lic { margin: 0; font-family: var(--font-mono); font-size: 0.875rem; color: var(--bone-faint); }
-  .tk-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
+  /* ---- meet the team ------------------------------------------------------------------ */
+  /* His About concept (2026-09-05), fitted to one screen: the eyebrow, the name as the
+     headline, a lede, his photo with a caption beside the bio and the record, the mail as
+     the button, then the press with the outlets' own marks. Where the screen is shorter
+     than the design, the layer scrolls inside itself once it is fully up. */
+  .team {
+    position: fixed;
+    inset: 0;
+    /* a section, so the site's container width would otherwise apply and leave the world
+       showing at both edges (caught 2026-09-05: 144px of stars either side) */
+    width: auto;
+    max-width: none;
+    margin: 0;
+    z-index: 5;
+    display: grid;
+    align-content: center;
+    padding: calc(var(--header-h) + 1.5svh) clamp(20px, 4vw, 68px) 2.5svh clamp(48px, 7vw, 132px);
+    background: var(--carbon);
+    color: var(--bone);
+    opacity: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .team[data-in] { pointer-events: auto; overflow-y: auto; overscroll-behavior: auto; }
+  .team__inner { display: grid; gap: clamp(12px, 1.4vw, 20px); max-width: 1320px; }
+  .team__title {
+    margin: 0;
+    max-width: 14em;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(40px, 5vw, 84px);
+    line-height: 0.88;
+    letter-spacing: -0.028em;
+  }
+  .team__title em { font-style: italic; }
+  .team__lede {
+    margin: 0;
+    max-width: 26ch;
+    font-family: var(--font-body);
+    font-size: clamp(15px, 1.25vw, 22px);
+    font-weight: 500;
+    line-height: 1.32;
+    letter-spacing: -0.01em;
+    text-wrap: pretty;
+  }
+  .team__grid {
+    display: grid;
+    grid-template-columns: minmax(0, 34fr) minmax(0, 56fr);
+    gap: clamp(24px, 3.4vw, 56px);
+    align-items: start;
+    margin-top: clamp(8px, 1.4vw, 22px);
+  }
+  .team__fig { margin: 0; display: grid; gap: clamp(8px, 0.9vw, 12px); }
+  .team__fig :global(.team__photo) {
+    display: block;
+    width: 100%;
+    max-height: 44vh;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+    /* a square source in the concept's 4/5 frame: the face sits at the upper third */
+    object-position: 50% 28%;
+    border-radius: var(--radius-sm);
+    background: var(--iron);
+  }
+  .team__cap {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 16px;
+    font-family: var(--font-body);
+    font-size: clamp(11px, 0.82vw, 13px);
+    letter-spacing: 0.04em;
+    color: var(--bone-dim);
+  }
+  .team__col { display: grid; gap: clamp(16px, 2vw, 30px); min-width: 0; }
+  .team__bio { display: grid; gap: clamp(10px, 1.1vw, 16px); max-width: 46ch; }
+  .team__p {
+    margin: 0;
+    font-family: var(--font-body);
+    font-size: clamp(14px, 1.05vw, 17px);
+    line-height: 1.55;
+    color: var(--bone-dim);
+    text-wrap: pretty;
+  }
+  .team__p--bone { color: var(--bone); }
+  .team__label {
+    display: block;
+    margin-bottom: clamp(8px, 0.9vw, 12px);
+    font-family: var(--font-body);
+    font-size: clamp(10px, 0.78vw, 12px);
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+  .team__rows { display: grid; }
+  .team__row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: clamp(16px, 2vw, 40px);
+    padding: clamp(8px, 0.9vw, 12px) 0;
+    border-top: 1px solid var(--iron-2);
+  }
+  .team__rule { border-top: 1px solid var(--iron-2); }
+  .team__where { flex: 0 0 auto; font-family: var(--font-body); font-size: clamp(13px, 1vw, 16px); font-weight: 600; letter-spacing: -0.005em; }
+  .team__what { flex: 1 1 auto; text-align: right; font-family: var(--font-body); font-size: clamp(11px, 0.85vw, 13px); line-height: 1.4; color: var(--bone-dim); }
+  .team__ctas { display: flex; align-items: center; flex-wrap: wrap; gap: clamp(14px, 1.6vw, 24px); }
+  .team__mailbtn {
+    display: inline-flex;
+    align-items: center;
+    gap: clamp(12px, 1.3vw, 20px);
+    height: clamp(42px, 3.2vw, 52px);
+    padding: 0 clamp(18px, 1.7vw, 26px);
+    border-radius: var(--radius-sm);
+    background: var(--plasma);
+    color: var(--carbon);
+    font-family: var(--font-body);
+    font-size: clamp(13px, 0.98vw, 16px);
+    font-weight: 700;
+    white-space: nowrap;
+    text-decoration: none;
+    transition: background var(--t-fast) var(--ease-out);
+  }
+  .team__mailbtn span { font-weight: 400; font-size: 1.05em; }
+  .team__mailbtn:hover { background: var(--plasma-dim); }
+  .team__link {
+    font-family: var(--font-body);
+    font-size: clamp(12px, 0.9vw, 14px);
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+    text-decoration: none;
+  }
+  .team__link:hover { color: var(--bone); }
+  .team__mailbtn:focus-visible, .team__link:focus-visible, .press:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+  .team__pressblock { margin-top: clamp(10px, 1.6vw, 26px); }
+  .team__press {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(20px, 3vw, 56px);
+    border-top: 1px solid var(--iron-2);
+    padding-top: clamp(14px, 1.6vw, 22px);
+  }
+  .press {
+    display: grid;
+    gap: clamp(8px, 0.9vw, 12px);
+    align-content: start;
+    color: var(--bone);
+    text-decoration: none;
+  }
+  .press :global(.press__mark) { display: block; width: auto; height: clamp(26px, 2.4vw, 38px); opacity: 0.9; border-radius: var(--radius-sm); }
+  .press__q {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: clamp(18px, 1.6vw, 26px);
+    line-height: 1.16;
+    letter-spacing: -0.012em;
+    text-wrap: pretty;
+  }
+  .press__by {
+    font-family: var(--font-body);
+    font-size: clamp(11px, 0.84vw, 13px);
+    letter-spacing: 0.03em;
+    color: var(--bone-dim);
+  }
+  @media (max-width: 900px) {
+    .team { padding: calc(var(--header-h) + 1svh) 1.25rem 3svh 1.25rem; align-content: start; }
+    .team__grid { grid-template-columns: 1fr; gap: 1.2rem; }
+    .team__fig :global(.team__photo) { max-height: 48vh; }
+    .team__title { font-size: clamp(36px, 11vw, 52px); }
+    .team__bio { max-width: none; }
+    .team__press { grid-template-columns: 1fr; }
+  }
 
-  /* ARMATURE: the 86-second trailer carries this block, so the media leads and takes the wider
-     column. It is 16:9 now (the block used to be built portrait-first around the vertical
-     teaser cut). The frame itself is the YouTubeFacade component's. */
-  #armature { text-align: left; }
-  .arm-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 2.75rem; align-items: center; }
-  @media (max-width: 900px) { .arm-grid { grid-template-columns: 1fr; gap: 1.75rem; } }
+  /* ---- the rows ---------------------------------------------------------------------- */
+  /* His revised concept's product list: hairline-ruled rows, a mark, the name, a plasma
+     tag where there is one, and an arrow. The opening's first row is the download and
+     wears a plasma rule; the rest light their rule on hover. */
+  .cw .rows {
+    display: grid;
+    gap: clamp(2px, 0.4vw, 6px);
+    margin-top: clamp(28px, 3.2vw, 48px);
+    max-width: min(100%, 320px);
+  }
+  .row {
+    display: flex;
+    align-items: center;
+    gap: clamp(11px, 1.05vw, 15px);
+    padding: clamp(13px, 1.3vw, 18px) clamp(6px, 0.8vw, 12px);
+    border-top: 1px solid var(--iron-2);
+    color: var(--bone);
+    text-decoration: none;
+    pointer-events: auto;
+    transition: border-color var(--t-fast) var(--ease-out), background var(--t-fast) var(--ease-out);
+  }
+  .row:last-child { border-bottom: 1px solid var(--iron-2); }
+  /* every row lights the way the download row does (Adrian, 2026-09-05) */
+  .row:hover, .row:focus-visible { border-top-color: var(--plasma); background: rgba(124, 255, 178, 0.06); }
+  .row--lead { border-top-color: var(--plasma); }
+  .row:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+  .cw[style*="opacity: 0"] .row { pointer-events: none; }
+  .rows :global(.row__icon) { flex: 0 0 auto; display: block; width: clamp(22px, 1.7vw, 26px); height: auto; }
+  .rows :global(.row__icon--maya) { filter: grayscale(1) brightness(1.55) contrast(0.82); opacity: 0.72; }
+  .rows :global(.row__icon--unreal) { opacity: 0.72; }
+  .row__label {
+    flex: 1 1 auto;
+    font-family: var(--font-body);
+    font-size: clamp(14px, 1.02vw, 17px);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    white-space: nowrap;
+  }
+  .row__label--bold { font-weight: 700; }
+  .row__tag {
+    flex: 0 0 auto;
+    font-family: var(--font-body);
+    font-size: clamp(10px, 0.78vw, 12px);
+    font-weight: 700;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--plasma);
+  }
+  .row__arrow { flex: 0 0 auto; width: 13px; font-size: clamp(13px, 0.95vw, 16px); color: var(--bone-faint); }
+  .row--lead .row__arrow { color: var(--plasma); }
+  .cw__h--close { font-size: clamp(50px, 7vw, 132px); line-height: 0.88; letter-spacing: -0.028em; }
+  @media (max-width: 700px) {
+    .cw__h--close { font-size: clamp(44px, 13vw, 64px); }
+    .cw .rows { max-width: 100%; }
+  }
 
-  .arm-body { display: flex; flex-direction: column; align-items: flex-start; gap: 1rem; }
-  .arm-head { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.6rem, 3.4vw, 2.4rem); line-height: 1.05; letter-spacing: -0.02em; color: var(--bone); }
-  /* The headline and this sentence are one sentence across two sizes, exactly as on the
-     landing page, so the gap between them stays tight. */
-  .arm-lead { margin: -0.35rem 0 0; font-size: 1.0625rem; line-height: 1.6; color: var(--bone); max-width: 40rem; text-wrap: pretty; }
-  .arm-note { margin: 0; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); max-width: 40rem; text-wrap: pretty; }
-  .arm-ctas { display: flex; gap: 1rem; flex-wrap: wrap; margin-top: 0.25rem; }
+  /* ---- the camera panel (dev only, ?cam) ------------------------------------------- */
+  .cam {
+    position: fixed;
+    left: 50%;
+    bottom: 1rem;
+    transform: translateX(-50%);
+    z-index: 6;
+    width: min(64rem, calc(100vw - 2rem));
+    padding: 0.7rem 0.9rem;
+    display: grid;
+    gap: 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.06em;
+    color: var(--bone-dim);
+    background: rgba(11, 14, 16, 0.88);
+    border: 1px solid rgba(124, 255, 178, 0.25);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-md);
+  }
+  /* Built by script, so every inner rule is global: Astro's scope only reaches markup. */
+  .cam[hidden] { display: none; }
+  .cam[data-min] :global(.cam__sliders), .cam[data-min] :global(textarea) { display: none; }
+  .cam :global(.cam__set) { color: var(--plasma); text-transform: uppercase; white-space: nowrap; }
+  .cam :global(button[hidden]) { display: none; }
+  .cam :global(.cam__row) { display: flex; flex-wrap: wrap; gap: 0.4rem 0.8rem; align-items: center; }
+  .cam :global(.cam__marks) { display: flex; flex-wrap: wrap; gap: 0.3rem; }
+  .cam :global(button) {
+    font: inherit;
+    letter-spacing: inherit;
+    text-transform: uppercase;
+    color: var(--bone-faint);
+    background: none;
+    border: 1px solid rgba(232, 224, 208, 0.18);
+    border-radius: var(--radius-sm);
+    padding: 0.25rem 0.55rem;
+    cursor: pointer;
+  }
+  .cam :global(button[data-on]) { color: var(--plasma); border-color: var(--plasma); }
+  .cam :global(button:focus-visible) { outline: 2px solid var(--plasma); outline-offset: 2px; }
+  .cam :global(.cam__q) { margin-left: auto; color: var(--bone-faint); white-space: nowrap; }
+  .cam :global(.cam__sliders) { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.3rem 1rem; }
+  .cam :global(.cam__s) { display: grid; grid-template-columns: 3.2rem 1fr 4.4rem; gap: 0.5rem; align-items: center; }
+  .cam :global(.cam__s label) { text-transform: uppercase; color: var(--bone-faint); }
+  .cam :global(.cam__s input[type="range"]) { width: 100%; accent-color: var(--plasma); margin: 0; }
+  .cam :global(.cam__s input[type="number"]) {
+    font: inherit;
+    color: var(--bone);
+    background: rgba(232, 224, 208, 0.06);
+    border: 1px solid rgba(232, 224, 208, 0.18);
+    border-radius: var(--radius-sm);
+    padding: 0.15rem 0.3rem;
+    width: 100%;
+  }
+  .cam :global(textarea) {
+    font: inherit;
+    font-size: 0.625rem;
+    color: var(--bone-dim);
+    background: rgba(232, 224, 208, 0.04);
+    border: 1px solid rgba(232, 224, 208, 0.12);
+    border-radius: var(--radius-sm);
+    width: 100%;
+    height: 4.4rem;
+    resize: vertical;
+    white-space: pre;
+  }
+  @media (max-width: 900px) { .cam :global(.cam__sliders) { grid-template-columns: 1fr; } }
 
-  /* WORK WITH ME: the page's only ask. It had none. */
-  .hb-card {
+  /* ---- the bar as a drawer ---------------------------------------------------------- */
+  /* Away: the bar rides up out of the frame and leaves a lip the height of its bottom
+     edge plus a few pixels, which is what the pointer catches. Hovering the lip (or
+     tabbing into the bar) brings the whole bar back for as long as the pointer stays. */
+  :global(.navbar) {
+    transition: transform 360ms var(--ease-out), background var(--t-base) var(--ease-out) !important;
+    will-change: transform;
+  }
+  /* ALL THE WAY UP (Adrian, 2026-09-05: "I can see the bottom of the coffee button").
+     Nothing of the bar stays in frame; an invisible lip along the top edge is what the
+     pointer catches, and the bar comes back while the pointer is on the lip or the bar. */
+  :global(html[data-nav="away"] .navbar) { transform: translateY(-100%); }
+  :global(html[data-nav="away"][data-nav-hover] .navbar),
+  :global(html[data-nav="away"] .navbar:focus-within) { transform: none; }
+  .nav-lip { position: fixed; top: 0; left: 0; right: 0; height: 14px; z-index: 101; }
+  :global(html:not([data-nav="away"])) .nav-lip { pointer-events: none; }
+  @media (prefers-reduced-motion: reduce) {
+    :global(.navbar) { transition: none !important; }
+  }
+
+  /* ---- What's new: Armature's launch notice as a panel ------------------------------- */
+  /* The app's card in the site's tokens, on DARK GREY GLASS (Adrian, 2026-09-05: "not
+     grey/blue, just dark grey on dark grey"): neutral greys and bone hairlines, no iron.
+     Tinted glass over the world, a title bar, the
+     version strip, the support banner on black with a rule down its left, the sections
+     and the notes box in the app's inset frame, and the footer. Narrower than the card,
+     so each section stands its picture over its copy, which is what the card itself does
+     under 900px. Every colour is a site token; the app's sulfur (the ask's yellow) is the
+     palette's gold here, the coffee yellow stays inside the licensed SVG. */
+  .wn {
+    position: fixed;
+    z-index: 4;
+    top: calc(var(--header-h) + 14px);
+    right: 14px;
+    bottom: 14px;
+    width: clamp(380px, 36vw, 520px);
     display: flex;
     flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 2.5rem 2.75rem;
-    border-radius: 20px;
-    background: linear-gradient(120deg, rgba(255, 122, 61, 0.1), rgba(255, 122, 61, 0)), var(--carbon);
-    border: 1px solid rgba(255, 122, 61, 0.35);
-    border-left: 3px solid var(--ember);
+    background: rgba(18, 18, 18, 0.72);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    border: 1px solid rgba(232, 224, 208, 0.12);
+    border-radius: var(--radius);
     box-shadow: var(--shadow-lg);
+    overflow: hidden;
+    color: var(--bone);
+    font-family: var(--font-body);
+    transition: transform 460ms var(--ease-out), opacity 460ms var(--ease-out), visibility 0s linear 0s;
+    will-change: transform;
   }
-  @media (max-width: 640px) { .hb-card { padding: 1.75rem 1.5rem; } }
-  .hb-head { margin: 0; font-family: var(--font-display); font-weight: 400; font-size: clamp(1.6rem, 3.2vw, 2.25rem); line-height: 1.05; color: var(--bone); }
-  .hb-line { margin: 0; font-size: 1rem; line-height: 1.65; color: var(--bone-dim); max-width: 54rem; text-wrap: pretty; }
-  .hb-ctas { display: flex; align-items: center; gap: 1.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
-  .hb-mail { font-family: var(--font-mono); font-size: 0.9375rem; color: var(--bone-dim); text-decoration: none; border-bottom: 1px solid var(--iron-3); }
-  .hb-mail:hover { color: var(--bone); border-color: var(--ember); }
+  /* Closed, or away: up behind the bar. The panel PULLS DOWN from the strip's place
+     (Adrian, 2026-09-05: "just have the window pull down from it, no coming from the
+     right"), and goes back up the same way. */
+  :global(html[data-wn="away"]) .wn,
+  :global(html:not([data-wn-open])) .wn {
+    transform: translateY(calc(-100% - var(--header-h) - 28px));
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 460ms var(--ease-out), opacity 460ms var(--ease-out), visibility 0s linear 460ms;
+  }
+  .wn__spacer { flex: 1 1 auto; }
+  .wn__titlebar {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 11px;
+    padding: 0 8px 0 14px;
+    height: 44px;
+    border-bottom: 1px solid rgba(232, 224, 208, 0.12);
+  }
+  .wn__heading { font-size: 13px; font-weight: 700; color: var(--bone); white-space: nowrap; }
+  .wn__version { font-size: 11px; color: var(--bone-faint); font-variant-numeric: tabular-nums; }
+  .wn__close {
+    width: 30px;
+    height: 26px;
+    border: none;
+    background: none;
+    border-radius: var(--radius-sm);
+    color: var(--bone-dim);
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .wn__close:hover { background: var(--ember-dim); color: var(--bone); }
+  .wn__close:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+  .wn__strip {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    background: rgba(8, 8, 8, 0.62);
+    border-bottom: 1px solid rgba(232, 224, 208, 0.08);
+  }
+  /* NO PILLS (Adrian, 2026-09-05: "they are the pinnacle of ai generated"). The version
+     is the dot and the number, nothing drawn around them. */
+  .wn__pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--bone);
+    font-size: 12px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .wn__dot { width: 6px; height: 6px; border-radius: 50%; background: var(--plasma); }
+  .wn__date { font-size: 11px; color: var(--bone-faint); }
+  /* the ask, on the app's true black so its picture has no seam, gold rule down the left */
+  .wn__banner {
+    flex: none;
+    display: flex;
+    align-items: stretch;
+    gap: 14px;
+    border-bottom: 1px solid rgba(232, 224, 208, 0.12);
+    border-left: 3px solid var(--gold);
+    background: #000000;
+  }
+  /* the whole 16:9 picture, as the app hangs it, centred on the band */
+  .wn__banner-shot { flex: none; align-self: center; width: 176px; aspect-ratio: 16 / 9; background: #000000; }
+  .wn__banner-shot :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .wn__banner-col { display: flex; flex-direction: column; gap: 6px; min-width: 0; flex: 1 1 auto; padding: 11px 14px 11px 0; }
+  .wn__banner-line { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .wn__banner-line .wn__tag { position: relative; top: -1px; }
+  .wn__banner-title { font-size: 15px; font-weight: 700; color: var(--bone); line-height: 1.3; }
+  .wn__banner-copy { font-size: 12px; line-height: 1.55; color: var(--bone-dim); }
+  .wn__banner .wn__coffee { align-self: flex-start; margin-top: 3px; }
+  /* the body is the only thing that scrolls */
+  .wn__body {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 14px 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(232, 224, 208, 0.16) transparent;
+  }
+  .wn__section {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    background: rgba(8, 8, 8, 0.62);
+    border: 1px solid rgba(232, 224, 208, 0.08);
+    border-radius: var(--radius-sm);
+  }
+  .wn__section { gap: 11px; padding: 11px; }
+  .wn__shot {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    border-radius: var(--radius-sm);
+    border: 1px solid rgba(232, 224, 208, 0.12);
+    background: rgba(8, 8, 8, 0.9);
+  }
+  .wn__shot :global(img) { display: block; width: 100%; height: 100%; object-fit: cover; }
+  .wn__col { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+  .wn__tags { display: flex; align-items: center; gap: 9px; }
+  /* the tag is the page's own eyebrow: a short rule and tracked caps in the tone's colour */
+  .wn__tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .wn__tag::before { content: ''; width: 14px; height: 1px; background: currentColor; }
+  .wn__tag--plasma { color: var(--plasma); }
+  .wn__tag--cobalt { color: var(--cobalt); }
+  .wn__scope { font-size: 11px; color: var(--bone-faint); }
+  .wn__title { font-size: 14px; font-weight: 700; color: var(--bone); line-height: 1.3; }
+  .wn__topic { color: var(--bone); }
+  .wn__topic--support { color: var(--gold); }
+  .wn__topic--armature { color: var(--plasma); }
+  .wn__topic--unreal { color: var(--cobalt); }
+  .wn__topic--maya { color: var(--ember); }
+  .wn__copy { font-size: 12px; line-height: 1.55; color: var(--bone-dim); }
+  .wn__kicker {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--bone-faint);
+  }
+  .wn__kicker--head { color: var(--bone); }
+  /* the way to a released thing's page: the page's own row, a rule, the label, the arrow */
+  .wn__cta {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-top: 6px;
+    padding: 10px 4px;
+    border-top: 1px solid var(--plasma);
+    border-bottom: 1px solid rgba(232, 224, 208, 0.08);
+    color: var(--bone);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+    transition: background var(--t-fast) var(--ease-out);
+  }
+  .wn__cta:hover, .wn__cta:focus-visible { background: rgba(124, 255, 178, 0.06); }
+  .wn__cta:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+  .wn__cta-arrow { color: var(--plasma); font-size: 14px; }
+  .wn__footer {
+    flex: none;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 12px;
+    background: rgba(8, 8, 8, 0.62);
+    border-top: 1px solid rgba(232, 224, 208, 0.08);
+  }
+  .wn__summary { font-size: 11px; color: var(--bone-faint); white-space: nowrap; }
+  .wn__footer .wn__notes-link { margin-left: auto; }
+  .wn__notes-link {
+    color: var(--bone-dim);
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .wn__notes-link::after { content: ' →'; color: var(--bone-faint); }
+  .wn__notes-link:hover, .wn__notes-link:focus-visible { color: var(--plasma); }
+  .wn__notes-link:hover::after, .wn__notes-link:focus-visible::after { color: var(--plasma); }
+  /* the site's own coffee door, the licensed SVG, 30px tall here */
+  .wn__coffee { display: block; padding: 0; border: none; background: none; line-height: 0; cursor: pointer; border-radius: var(--radius-sm); text-decoration: none; }
+  .wn__coffee img { display: block; height: 30px; width: auto; }
+  .wn__coffee:hover { opacity: 0.88; }
+  .wn__coffee:focus-visible { outline: 2px solid var(--plasma); outline-offset: 2px; }
+  /* the drawer strip: the panel's width at the top right, the same glass as the panel */
+  .wn__tab {
+    display: flex;
+    position: fixed;
+    z-index: 4;
+    top: calc(var(--header-h) + 14px);
+    right: 14px;
+    width: clamp(380px, 36vw, 520px);
+    height: 42px;
+    border: 1px solid rgba(232, 224, 208, 0.12);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-lg);
+    align-items: center;
+    gap: 9px;
+    padding: 0 16px;
+    background: rgba(18, 18, 18, 0.80);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    color: var(--bone);
+    font-family: var(--font-body);
+    text-align: left;
+    cursor: pointer;
+    transition: transform 360ms var(--ease-out), opacity 360ms var(--ease-out), visibility 0s linear 0s;
+  }
+  .wn__tab:hover { border-color: var(--bone-faint); }
+  /* the strip goes with the scroll rule, and away while the drawer is open */
+  :global(html[data-wn="away"]) .wn__tab {
+    transform: translateY(calc(-100% - var(--header-h) - 28px));
+    opacity: 0;
+    visibility: hidden;
+    transition: transform 360ms var(--ease-out), opacity 360ms var(--ease-out), visibility 0s linear 360ms;
+  }
+  /* open: the strip stays where it is and the panel comes down over it */
+  :global(html[data-wn-open]) .wn__tab {
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 200ms var(--ease-out), visibility 0s linear 200ms;
+  }
+  .wn__tab-label { font-size: 13px; font-weight: 700; }
+  .wn__tab-ver { font-size: 11px; color: var(--bone-faint); font-variant-numeric: tabular-nums; }
+  .wn__tab-chev { font-size: 16px; line-height: 0; color: var(--plasma); position: relative; top: -4px; }
+  .wn__tab:focus-visible { outline: 2px solid var(--plasma); outline-offset: -2px; }
+  @media (max-width: 700px) {
+    /* the strip is the full width under the bar, and goes off the top */
+    .wn__tab { top: var(--header-h); left: 0; right: 0; width: auto; border: none; border-bottom: 1px solid rgba(232, 224, 208, 0.12); border-radius: 0; box-shadow: none; }
+    :global(html[data-wn="away"]) .wn__tab { transform: translateY(calc(-100% - var(--header-h) - 8px)); }
+    /* open: the full height under the bar; closed: off the top, with the strip in its place */
+    .wn {
+      top: var(--header-h);
+      left: 0;
+      right: 0;
+      bottom: 0;
+      width: auto;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      background: rgba(18, 18, 18, 0.92);
+    }
+    :global(html[data-wn="away"]) .wn,
+    :global(html:not([data-wn-open])) .wn { transform: translateY(calc(-100% - var(--header-h) - 8px)); }
+    .wn__banner-shot { width: 136px; }
+    .wn__summary { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .wn { transition: none; }
+  }
 
-  #about { text-align: left; }
+  /* ---- ?clean: the world alone, for screenshots ------------------------------------- */
+  :global(html[data-clean]) .map,
+  :global(html[data-clean]) .copy,
+  :global(html[data-clean]) .nav-lip,
+  :global(html[data-clean]) .team,
+  :global(html[data-clean]) .wn,
+  :global(html[data-clean]) .wn__tab,
+  :global(html[data-clean] .navbar) { display: none; }
+
+  /* ---- the still page --------------------------------------------------------------- */
+  .still { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .world, .map, .copy, .team, .wn, .wn__tab { display: none; }
+    .track { height: 0; }
+    .still {
+      display: block;
+      max-width: 62ch;
+      margin: 0 auto;
+      padding: 12svh 1.5rem;
+      color: var(--bone);
+      font-family: var(--font-mono);
+    }
+    .still h1 { font-family: var(--font-display); font-size: 2.5rem; margin: 0 0 1rem; }
+    .still ul { padding-left: 1.1rem; }
+    .still a { color: var(--plasma); }
+  }
 </style>
+
+<script define:vars={{ WAYPOINTS, CUM, TOTAL }}>
+  (function () {
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // THE DRIVER, declared before anything else on the page runs. ArmatureStage reads these
+    // two globals instead of a runway when the first is set, and every beat of her creation
+    // is a pure function of the second. This block is inline rather than a module for
+    // exactly that reason: a module is deferred and would arrive after the stage's own boot.
+    //
+    // Reduced motion: the stage does not boot at all under it, and the still page below
+    // the fold is what that visitor gets.
+    window.__armDriven = true;
+    window.__armQ = 0;
+    if (reduced) { window.__armDriven = false; return; }
+
+    // A CLEAN FRAME FOR HIS SCREENSHOTS (Adrian, 2026-09-05): /?clean hides every
+    // layer but the world. Nothing else changes; the wheel still drives her.
+    if (/[?&]clean(?=&|$)/.test(location.search)) document.documentElement.setAttribute('data-clean', '');
+    var copyEls = {}, mapBtns = {};
+    var scrim = null, team = null;
+
+    function trackU() {
+      var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+      return Math.min(1, Math.max(0, scrollY / max)) * TOTAL;
+    }
+
+    // THE CLOCK IS THE SCROLL. Each waypoint owns a q range and the wheel walks it linearly;
+    // a waypoint whose range is empty is a hold. Scrolling up runs her un-creation in
+    // reverse, because the stage's beats are pure functions of q.
+    function qFor(u) {
+      for (var i = WAYPOINTS.length - 1; i >= 0; i--) {
+        if (u >= CUM[i]) {
+          var wp = WAYPOINTS[i];
+          // a held tail: the clock reaches q1 before the span ends and sits there
+          var x = Math.min(1, Math.max(0, (u - CUM[i]) / (wp.w - (wp.hold || 0))));
+          return wp.q0 + (wp.q1 - wp.q0) * x;
+        }
+      }
+      return 0;
+    }
+
+    // The window a waypoint's copy is open for: in over the first fifth of its span, out
+    // over the last fifth, so no two are ever fully up at the same time.
+    // THE TOP STANZA holds from the first pixel and is gone before Ideation's line arrives.
+    var TOP_OUT = 0.30, TOP_LEN = 0.30;
+    function topWindow(u) { return 1 - Math.min(1, Math.max(0, (u - TOP_OUT) / TOP_LEN)); }
+    function windowOf(i, u) {
+      var s = CUM[i], w = WAYPOINTS[i].w;
+      // Ideation's own line waits for the top stanza to clear
+      if (i === 0) { s += TOP_OUT + TOP_LEN; w -= TOP_OUT + TOP_LEN; }
+      var x = (u - s) / w;
+      if (x <= 0) return 0;
+      // THE CLOSE HOLDS. Every other window fades out so no two are ever fully up at once,
+      // but the last one is the last thing on the page: fading it leaves the visitor at the
+      // bottom of a black frame, which is the ending the skill's hard rules forbid outright.
+      if (i === WAYPOINTS.length - 1) return Math.min(1, x / 0.22);
+      if (x >= 1) return 0;
+      return Math.min(1, x / 0.22, (1 - x) / 0.22);
+    }
+
+    function currentIndex(u) {
+      for (var i = WAYPOINTS.length - 1; i >= 0; i--) if (u >= CUM[i]) return i;
+      return 0;
+    }
+
+    // THE DRAWER. Down hides, up shows, the top of the page always shows. A few pixels of
+    // slack so a trackpad's jitter does not flap it.
+    var navY = scrollY, navState = '';
+    function navTick() {
+      var y = scrollY, next = navState;
+      if (y < 24) next = 'here';
+      else if (y > navY + 6) next = 'away';
+      else if (y < navY - 6) next = 'here';
+      if (Math.abs(y - navY) > 6 || y < 24) navY = y;
+      if (next !== navState) { navState = next; document.documentElement.setAttribute('data-nav', next); }
+    }
+
+    // WHAT'S NEW (Adrian, 2026-09-05): down hides the drawer, strip and all, and it does
+    // not come back until the page is back at the very top, closed. A few pixels of slack
+    // between the two thresholds so a trackpad's jitter at the top does not flap it.
+    var wnState = '';
+    function wnTick() {
+      var y = scrollY, next = wnState;
+      if (y <= 4) next = 'here';
+      else if (y > 40) next = 'away';
+      else if (!next) next = 'here';
+      if (next !== wnState) {
+        wnState = next;
+        document.documentElement.setAttribute('data-wn', next);
+        // leaving the top folds the phone drawer too
+        if (next !== 'here') wnOpen(false);
+      }
+    }
+    // the drawer: open is the panel, closed is the strip
+    function wnOpen(on) {
+      var h = document.documentElement, tab = document.querySelector('[data-wn-tab]');
+      if (on) h.setAttribute('data-wn-open', ''); else h.removeAttribute('data-wn-open');
+      if (tab) tab.setAttribute('aria-expanded', on ? 'true' : 'false');
+    }
+    (function () {
+      var wn = document.querySelector('[data-wn-panel]');
+      if (!wn) return;
+      var body = wn.querySelector('[data-wn-body]');
+      // the close folds the drawer back to the strip; it can be opened again
+      var close = function () { wnOpen(false); };
+      wn.querySelector('[data-wn-close]').addEventListener('click', close);
+      var tab = document.querySelector('[data-wn-tab]');
+      if (tab) tab.addEventListener('click', function () { wnOpen(true); });
+      window.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+      // the wheel anywhere over the panel scrolls the panel's body; once the body is at
+      // its end the page takes the wheel again, and the panel leaves as it should
+      wn.addEventListener('wheel', function (e) {
+        if (!body) return;
+        var down = e.deltaY > 0;
+        var atEnd = down && body.scrollTop + body.clientHeight >= body.scrollHeight - 1;
+        var atStart = !down && body.scrollTop <= 0;
+        if (atEnd || atStart) return;
+        body.scrollTop += e.deltaY;
+        e.preventDefault();
+      }, { passive: false });
+    })();
+
+    // the lip: pointer on it or on the bar keeps the bar out while the drawer is away
+    (function () {
+      var lip = document.querySelector('[data-nav-lip]'), bar = document.querySelector('.navbar');
+      if (!lip || !bar) return;
+      var on = function () { document.documentElement.setAttribute('data-nav-hover', ''); };
+      var off = function () { document.documentElement.removeAttribute('data-nav-hover'); };
+      lip.addEventListener('pointerenter', on);
+      bar.addEventListener('pointerenter', on);
+      bar.addEventListener('pointerleave', off);
+      lip.addEventListener('pointerleave', function (e) {
+        // leaving the lip downward into the bar keeps it; leaving elsewhere lets go
+        if (!(e.relatedTarget && bar.contains(e.relatedTarget))) off();
+      });
+    })();
+
+    var lastIdx = -1;
+    function tick() {
+      requestAnimationFrame(tick);
+      navTick();
+      wnTick();
+      var u = trackU();
+      window.__armQ = qFor(u);
+
+      // Type arrives from 34px below and leaves 34px above, the concept's own motion;
+      // the top stanza only ever leaves.
+      var peak = 0;
+      function place(el, o, rising) {
+        el.style.opacity = o.toFixed(3);
+        el.style.transform = 'translateY(' + ((1 - o) * (rising ? 34 : -34)).toFixed(1) + 'px)';
+        if (o > peak) peak = o;
+      }
+      for (var i = 0; i < WAYPOINTS.length; i++) {
+        var el = copyEls[WAYPOINTS[i].id];
+        if (!el) continue;
+        var x = (u - CUM[i]) / WAYPOINTS[i].w;
+        place(el, windowOf(i, u), x < 0.5);
+      }
+      // THE TEAM SCREEN covers the world: it fades up over the first fifth of its span and
+      // holds to the bottom, and it takes the pointer only once it is truly up.
+      if (team) {
+        var to = windowOf(WAYPOINTS.length - 1, u);
+        team.style.opacity = to.toFixed(3);
+        if (to > 0.5) team.setAttribute('data-in', ''); else team.removeAttribute('data-in');
+      }
+      if (copyEls.top) place(copyEls.top, topWindow(u), false);
+      if (scrim) scrim.style.opacity = peak.toFixed(3);
+      var idx = currentIndex(u);
+      if (idx !== lastIdx) {
+        lastIdx = idx;
+        for (var k = 0; k < WAYPOINTS.length; k++) {
+          var b = mapBtns[WAYPOINTS[k].id];
+          if (!b) continue;
+          if (k === idx) b.setAttribute('data-at', '');
+          else b.removeAttribute('data-at');
+          if (k < idx) b.setAttribute('data-passed', '');
+          else b.removeAttribute('data-passed');
+        }
+      }
+
+
+    }
+
+    function boot() {
+      document.querySelectorAll('[data-cw]').forEach(function (el) { copyEls[el.dataset.cw] = el; });
+      document.querySelectorAll('[data-map] button').forEach(function (b) {
+        mapBtns[b.dataset.wp] = b;
+        b.addEventListener('click', function () {
+          var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+          // data-goto already lands a fifth INTO the waypoint, where its copy is fully open,
+          // rather than on the boundary, where it has not begun to fade in yet.
+          scrollTo({ top: (Number(b.dataset.goto) / TOTAL) * max, behavior: 'smooth' });
+        });
+      });
+      scrim = document.querySelector('[data-scrim]');
+      team = document.querySelector('[data-team]');
+      requestAnimationFrame(tick);
+    }
+
+    if (document.readyState === 'loading') addEventListener('DOMContentLoaded', boot);
+    else boot();
+
+    // ---- THE CAMERA PANEL (Adrian, 2026-09-05: "camera controls on the bottom, then I
+    // can align the camera for every scene exactly how I like it"). Only at ?cam. The
+    // stage publishes its marks on window.__armCamMarks and, each frame, which ones the
+    // current q is blending. The panel follows the dominant mark unless he pins one,
+    // edits the numbers live, keeps them across a reload (only with ?cam, so the plain
+    // page always shows the shipped values), and prints the whole set to paste back.
+    if (!/[?&]cam\b/.test(location.search)) return;
+    var KEYS = ['yaw', 'pitch', 'dist', 'tx', 'ty', 'tz'];
+    var RANGE = { yaw: [-1.4, 1.4, 0.005], pitch: [-0.7, 0.7, 0.005], dist: [1, 9, 0.01],
+      tx: [-2.5, 2.5, 0.01], ty: [0, 2.6, 0.01], tz: [-2.5, 2.5, 0.01] };
+    // two sets: the desktop marks and the phone marks; the tabs show the set for the
+    // viewport that is open, the readout prints both
+    var BASE = ['wide', 'push', 'fit', 'her', 'herOut', 'out'];
+    var N_OF = { wide: 'nWide', push: 'nPush', fit: 'nFit', her: 'nHer', herOut: 'nHerOut', out: 'nOut' };
+    var MARKS = BASE.concat(BASE.map(function (k) { return N_OF[k]; }));
+    var STORE = 'armCamMarks';
+    var panel = document.querySelector('[data-cam]');
+    var shipped = null, pinned = null, active = 'wide', inputs = {}, tabs = {}, readout, qEl, setLabel, curSet = '';
+
+    function marks() { return window.__armCamMarks; }
+    function fmt(v) { return (Math.round(v * 1000) / 1000).toString(); }
+    function dump() {
+      var m = marks(), out = [];
+      MARKS.forEach(function (k) {
+        out.push(k + ': { ' + KEYS.map(function (p) { return p + ': ' + fmt(m[k][p]); }).join(', ') + ' }');
+      });
+      return out.join('\n');
+    }
+    function save() { try { localStorage.setItem(STORE, JSON.stringify(marks())); } catch (e) {} }
+    function show(k) {
+      active = k;
+      MARKS.forEach(function (t) { if (t === k) tabs[t].setAttribute('data-on', ''); else tabs[t].removeAttribute('data-on'); });
+      KEYS.forEach(function (p) {
+        var v = marks()[k][p];
+        inputs[p].range.value = v; inputs[p].num.value = fmt(v);
+      });
+      readout.value = dump();
+    }
+    function set(p, v) {
+      if (!isFinite(v)) return;
+      marks()[active][p] = v;
+      inputs[p].range.value = v; inputs[p].num.value = fmt(v);
+      readout.value = dump();
+      save();
+    }
+    function build() {
+      var m = marks();
+      shipped = JSON.parse(JSON.stringify(m));
+      try {
+        var kept = JSON.parse(localStorage.getItem(STORE) || 'null');
+        if (kept) MARKS.forEach(function (k) { if (kept[k]) KEYS.forEach(function (p) { if (isFinite(kept[k][p])) m[k][p] = kept[k][p]; }); });
+      } catch (e) {}
+
+      var row = document.createElement('div'); row.className = 'cam__row';
+      var tabWrap = document.createElement('div'); tabWrap.className = 'cam__marks';
+      setLabel = document.createElement('span'); setLabel.className = 'cam__set';
+      row.appendChild(setLabel);
+      MARKS.forEach(function (k) {
+        var b = document.createElement('button'); b.type = 'button'; b.textContent = k;
+        b.dataset.set = k.charAt(0) === 'n' && k !== 'none' ? 'n' : 'd';
+        b.addEventListener('click', function () { pinned = k; show(k); });
+        tabs[k] = b; tabWrap.appendChild(b);
+      });
+      row.appendChild(tabWrap);
+      var hide = document.createElement('button'); hide.type = 'button'; hide.textContent = 'hide';
+      hide.addEventListener('click', function () { panel.toggleAttribute('data-min'); hide.textContent = panel.hasAttribute('data-min') ? 'show' : 'hide'; });
+      row.appendChild(hide);
+      var follow = document.createElement('button'); follow.type = 'button'; follow.textContent = 'follow scroll';
+      follow.addEventListener('click', function () { pinned = null; });
+      row.appendChild(follow);
+      var reset = document.createElement('button'); reset.type = 'button'; reset.textContent = 'reset mark';
+      reset.addEventListener('click', function () {
+        KEYS.forEach(function (p) { marks()[active][p] = shipped[active][p]; });
+        save(); show(active);
+      });
+      row.appendChild(reset);
+      var resetAll = document.createElement('button'); resetAll.type = 'button'; resetAll.textContent = 'reset all';
+      resetAll.addEventListener('click', function () {
+        MARKS.forEach(function (k) { KEYS.forEach(function (p) { marks()[k][p] = shipped[k][p]; }); });
+        save(); show(active);
+      });
+      row.appendChild(resetAll);
+      var copy = document.createElement('button'); copy.type = 'button'; copy.textContent = 'copy';
+      copy.addEventListener('click', function () {
+        readout.select();
+        try { navigator.clipboard.writeText(readout.value); } catch (e) { document.execCommand('copy'); }
+      });
+      row.appendChild(copy);
+      qEl = document.createElement('span'); qEl.className = 'cam__q'; row.appendChild(qEl);
+      panel.appendChild(row);
+
+      var grid = document.createElement('div'); grid.className = 'cam__sliders';
+      KEYS.forEach(function (p) {
+        var s = document.createElement('div'); s.className = 'cam__s';
+        var l = document.createElement('label'); l.textContent = p; l.htmlFor = 'cam-' + p;
+        var r = document.createElement('input'); r.type = 'range'; r.id = 'cam-' + p;
+        r.min = RANGE[p][0]; r.max = RANGE[p][1]; r.step = RANGE[p][2];
+        var n = document.createElement('input'); n.type = 'number'; n.step = RANGE[p][2];
+        r.addEventListener('input', function () { set(p, Number(r.value)); });
+        n.addEventListener('change', function () { set(p, Number(n.value)); });
+        s.appendChild(l); s.appendChild(r); s.appendChild(n);
+        grid.appendChild(s);
+        inputs[p] = { range: r, num: n };
+      });
+      panel.appendChild(grid);
+      readout = document.createElement('textarea'); readout.readOnly = true; readout.spellcheck = false;
+      panel.appendChild(readout);
+      panel.hidden = false;
+      panel.removeAttribute('aria-hidden');
+      show(active);
+    }
+    function camTick() {
+      requestAnimationFrame(camTick);
+      if (!marks()) return;
+      if (!shipped) build();
+      var info = window.__armCamInfo;
+      if (!info) return;
+      var best = 'wide', bw = -1;
+      BASE.forEach(function (k) { if (info.w[k] > bw) { bw = info.w[k]; best = k; } });
+      if (info.narrow) best = N_OF[best];
+      var set = info.narrow ? 'n' : 'd';
+      if (set !== curSet) {
+        curSet = set;
+        MARKS.forEach(function (k) { tabs[k].hidden = tabs[k].dataset.set !== set; });
+        setLabel.textContent = info.narrow ? 'phone set' : 'desktop set';
+        pinned = null;
+      }
+      qEl.textContent = 'q ' + info.q.toFixed(2) + '  wide ' + Math.round(info.w.wide * 100)
+        + '  push ' + Math.round(info.w.push * 100) + '  fit ' + Math.round(info.w.fit * 100) + '  her ' + Math.round(info.w.her * 100) + '  herOut ' + Math.round(info.w.herOut * 100)
+        + '  out ' + Math.round(info.w.out * 100);
+      if (!pinned && best !== active) show(best);
+    }
+    requestAnimationFrame(camTick);
+  })();
+</script>

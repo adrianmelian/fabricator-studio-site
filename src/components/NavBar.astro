@@ -4,7 +4,6 @@
 // is still the hub for everything the studio ships (Adrian, 2026-08-19: one download page)
 // and is reached from the footer, the hero button and the scan overlay.
 // import NewsletterPop from './NewsletterPop.astro';  // unmounted, see below
-import CoffeeButton from './CoffeeButton.astro';
 import { Image } from 'astro:assets';
 import fsLogo from '../assets/fs-logo.png';
 
@@ -79,15 +78,10 @@ const helpActive = ['/docs/', '/tutorials/'].some((h) => path.startsWith(h)) ? '
       <a class={'navbar__tab' + active('/account/')} href="/account/">My Account</a>
       <a class={'navbar__tab navbar__tab--bold' + active('/services/')} href="/services/">Services</a>
     </div>
-    {/* The coffee door, far right (Adrian, 2026-08-29). A DELIBERATE exception to the
-        2026-08-19 "no side doors" ruling, taken with that ruling in front of him: the tip
-        jar is the one ask that has no page of its own to live on.
-        It wears Buy Me a Coffee's own yellow button, self-hosted, and opens their widget
-        in a panel on the page rather than sending anyone away. The reasoning for both, and
-        the two third-party routes that were rejected, is in CoffeeButton.astro. */}
-    <div class="navbar__coffee">
-      <CoffeeButton />
-    </div>
+    {/* THE FAR RIGHT IS EMPTY (Adrian, 2026-09-05). The coffee door stood here from
+        2026-08-29; it became a Download Armature button for an hour, then went: "I think
+        we can remove the download armature button on the top bar". The ask lives in the
+        home page's What's new panel. CoffeeButton.astro and its facade are kept, unused. */}
   </div>
 </nav>
 {/* UNMOUNTED 2026-09-02, at the 2.0 switch. Two reasons, and the first one alone is
@@ -225,7 +219,6 @@ const helpActive = ['/docs/', '/tutorials/'].some((h) => path.startsWith(h)) ? '
   .navbar__tab--active { color: var(--bone); }
   .navbar__tab--active:hover { color: var(--bone); }
 
-  .navbar__coffee { display: flex; align-items: center; }
 
   /* The Toolset dropdown. The button is a tab in every respect (same type, same colours) so
      the row reads as one voice; the caret is the only tell that it opens. */
@@ -361,6 +354,5 @@ const helpActive = ['/docs/', '/tutorials/'].some((h) => path.startsWith(h)) ? '
     .navbar__menu .navbar__drop__item { padding-left: 1.25rem; }
     .navbar__menu .navbar__drop__item:hover { background: none; }
     /* In the dropdown the button is a row like the tabs, left aligned rather than stretched. */
-    .navbar__menu .navbar__coffee { padding: 0.85rem 0; justify-content: flex-start; }
   }
 </style>
