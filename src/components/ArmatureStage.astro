@@ -1307,7 +1307,11 @@ void main() {
     // no per-joint axis convention can break it. The loop:
     //   arms to T and back / elbows / fists / head L-R-fwd-back / spine twist L-R /
     //   legs spread / knees / ankle+toe wiggle -> repeat.
-    const ROM_LEN = 22;
+    // THE TABLE IS IN ROUTINE SECONDS; the routine runs at twice that (Adrian, 2026-09-05:
+    // "increase the speed of the rom by 2x"), so 25.5 here is 12.75 on the clock.
+    // EVERY MOVE AT THE ARMS' PACE (Adrian, 2026-09-05: "use the arms up pacing on
+    // everything"): three routine seconds per movement, up and back.
+    const ROM_LEN = 51.5, ROM_RATE = 2;
     const hump = (t: number, a: number, b: number) => {
       const f = (t - a) / (b - a);
       return f > 0 && f < 1 ? Math.sin(Math.PI * f) : 0;
@@ -1318,8 +1322,12 @@ void main() {
     // it per frame to the axis the IK solver already bends that limb about, the normal of
     // the plane through the bone and its pole, so the forearm folds toward the pole and
     // nowhere else, whichever way the shoulder has carried it.
-    function romRotation(j: number, tt: number): { ax: number[] | null; deg: number } | null {
-      const t = tt % ROM_LEN;
+    // `local: true` reads the axis off the joint's own frame at that instant (its world
+    // matrix's column), so a finger curls about ITS Z and a spine joint bends about ITS X,
+    // whatever way the chain above has turned (Adrian, 2026-09-05: "have them all rotate on
+    // local Z").
+    function romRotation(j: number, tt: number): { ax: number[] | null; deg: number; local?: boolean } | null {
+      const t = (tt * ROM_RATE) % ROM_LEN;
       const name = jNames[j];
       const side = jSide[j];
       // 0-3s: arms rise laterally to the T and come back. The CLAVICLE carries ~85% of
@@ -1333,58 +1341,72 @@ void main() {
         const d = 61 * hump(t, 0, 3);
         if (d) return { ax: [0, 0, 1], deg: d * side };
       }
-      // 3-5.5s: both elbows bend, about the hinge
+      // 3-6s: both elbows bend, about the hinge
       if (name.startsWith('lowerarm_') && !name.includes('twist')) {
-        const d = 68 * hump(t, 3, 5.5);
+        const d = 68 * hump(t, 3, 6);
         if (d) return { ax: null, deg: d };
       }
-      // 5.5-7.5s: fists -- the curl is about Z (Adrian's ruling), toward the palm
+      // 6-9s: fists -- the curl is about the finger's OWN Z (Adrian, 2026-09-05), in
+      // the direction each hand curled before, which jZ carries from the bind frame
       if (isFinger(name)) {
-        const d = 55 * hump(t, 5.5, 7.5);
-        if (d) return { ax: [0, 0, 1], deg: -d * side };
+        const d = 55 * hump(t, 6, 9);
+        // the thumbs' own Z runs the other way (Adrian, 2026-09-05: "thumbs are rotating
+        // backwards now"), so they take the opposite sign
+        const thumb = name.startsWith('thumb_') ? -1 : 1;
+        if (d) return { ax: [0, 0, 1], deg: -d * side * jZ[j] * thumb, local: true };
       }
-      // 7.5-11.5s: the head looks left, right, forward, back
+      // 9-21s: the head looks left, right, forward, back
       if (name === 'neck_01' || name === 'neck_02' || name === 'head') {
         const w = name === 'head' ? 14 : 8;
-        const yl = w * hump(t, 7.5, 8.5), yr = -w * hump(t, 8.5, 9.5);
-        const pf = w * hump(t, 9.5, 10.5), pb = -w * hump(t, 10.5, 11.5);
+        const yl = w * hump(t, 9, 12), yr = -w * hump(t, 12, 15);
+        const pf = w * hump(t, 15, 18), pb = -w * hump(t, 18, 21);
         if (yl || yr) return { ax: [0, 1, 0], deg: yl + yr };
         if (pf || pb) return { ax: [1, 0, 0], deg: pf + pb };
       }
-      // 11.5-14.5s: spine twist, left then right
+      // 21-33s: the spine, all three joints 20 degrees each about their own X, one way
+      // then the other, then the same about their own Y (Adrian, 2026-09-05)
       if (name === 'spine_01' || name === 'spine_02' || name === 'spine_03') {
-        const d = 9 * (hump(t, 11.5, 13) - hump(t, 13, 14.5));
-        if (d) return { ax: [0, 1, 0], deg: d };
+        const dx = 20 * (hump(t, 21, 24) - hump(t, 24, 27));
+        if (dx) return { ax: [1, 0, 0], deg: dx, local: true };
+        const dy = 20 * (hump(t, 27, 30) - hump(t, 30, 33));
+        if (dy) return { ax: [0, 1, 0], deg: dy, local: true };
       }
-      // 14.5-17s: legs spread outward and return
+      // 33-36s: legs spread outward to 85 degrees each and return; 36-42s: each leg
+      // swings forward and back 85 about its own Z (Adrian, 2026-09-05)
       if (name.startsWith('thigh_') && !name.includes('twist')) {
-        const d = 24 * hump(t, 14.5, 17);
+        const d = 85 * hump(t, 33, 36);
         if (d) return { ax: [0, 0, 1], deg: d * side };
+        const sw = 85 * (hump(t, 36, 39) - hump(t, 39, 42));
+        if (sw) return { ax: [0, 0, 1], deg: sw, local: true };
       }
-      // 17-19.5s: knees bend back
+      // 42-45s: knees bend back
       if (name.startsWith('calf_') && !name.includes('twist')) {
-        const d = 55 * hump(t, 17, 19.5);
+        const d = 85 * hump(t, 42, 45);
         if (d) return { ax: [1, 0, 0], deg: d };
       }
-      // 19.5-21.5s: ankles and toes wiggle
+      // 45-48s: ankles bend up then down, 65 degrees; 48-51s: toes the same, on their own
+      // (Adrian, 2026-09-05: "split them up... toes bend up and down 65 degrees. Ankles 65")
       if (name.startsWith('foot_')) {
-        const f = (t - 19.5) / 2;
-        if (f > 0 && f < 1) return { ax: [1, 0, 0], deg: 11 * Math.sin(f * Math.PI * 4) * Math.sin(Math.PI * f) };
+        const d = 65 * (hump(t, 45, 46.5) - hump(t, 46.5, 48));
+        if (d) return { ax: [1, 0, 0], deg: d };
       }
       if (name.startsWith('ball_')) {
-        const f = (t - 19.5) / 2;
-        if (f > 0 && f < 1) return { ax: [1, 0, 0], deg: 13 * Math.sin(f * Math.PI * 4 + 1.2) * Math.sin(Math.PI * f) };
+        const d = 65 * (hump(t, 48, 49.5) - hump(t, 49.5, 51));
+        if (d) return { ax: [1, 0, 0], deg: d };
       }
       return null;
     }
     // per-joint side of the body, measured ONCE at bind and frozen (a live test flipped
     // mid-move when the arms crossed the centre, and the reversal read as flapping)
     const jSide = new Array(NJ).fill(1);
+    // and which way each joint's own Z points against the world's at bind, so a curl about
+    // the local axis keeps the direction the world-axis curl had
+    const jZ = new Array(NJ).fill(1);
     {
       const w: Float32Array[] = new Array(NJ);
       for (let j = 0; j < NJ; j++) w[j] = jParent[j] < 0 ? jLocal[j] : mmul(w[jParent[j]], jLocal[j]);
       const rootX = w[jIndexByName['pelvis'] ?? 0][12];
-      for (let j = 0; j < NJ; j++) jSide[j] = w[j][12] - rootX >= 0 ? 1 : -1;
+      for (let j = 0; j < NJ; j++) { jSide[j] = w[j][12] - rootX >= 0 ? 1 : -1; jZ[j] = w[j][10] >= 0 ? 1 : -1; }
     }
 
     const worlds: Float32Array[] = new Array(NJ);
@@ -1475,7 +1497,11 @@ void main() {
           if (R) {
             const px = W[12], py = W[13], pz = W[14];
             let ax = R.ax;
-            if (!ax) {
+            if (ax && R.local) {
+              // the joint's own axis, read off its frame as the chain above has turned it
+              const k = ax[0] ? 0 : ax[1] ? 4 : 8;
+              ax = vnorm([W[k], W[k + 1], W[k + 2]]);
+            } else if (!ax) {
               // the hinge: bone (parent pivot to this pivot) crossed with the limb's pole
               const P = worlds[jParent[j]];
               const u = vnorm([px - P[12], py - P[13], pz - P[14]]);
