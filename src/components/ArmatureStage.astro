@@ -2006,7 +2006,7 @@ void main() {
     // Split in two -- work out the frame, then draw it with whatever camera you are given --
     // the same story can be drawn by the homepage's renderer, into the homepage's buffer,
     // through the homepage's bloom. /armature/ takes the identical path with itself as host.
-    let manOut = 0, herReveal = 0, grow = 0, solid = 0, alive = 0, growEff = 0, ptFade = 0, skelAlpha = 0;
+    let manOut = 0, herReveal = 0, grow = 0, solid = 0, alive = 0, growEff = 0, ptFade = 0, skelAlpha = 0, skelOut = 0;
     let mat = 0, doors = 0;
     // The man's own arrival. 1 everywhere but a driven page, where he assembles first.
     let manIn = 1, manAsm = 1, manPtFade = 0, manLeave = 0, manGone = 0;
@@ -2133,7 +2133,8 @@ void main() {
         //   4.0 - 7.0   the skeleton grows, eased OUT so the fingers,   3s
         //               which are the deepest joints, land slowly
         //   7.0 - 9.0   the skin floods out along the bones            2s
-        //   9.0 - 9.3   the calisthenics run on, and the page holds here for a beat
+        //   9.0 - 9.3   the skeleton fades out over her; the calisthenics run on, and the
+        //               page holds at 9.3 for a beat: her alone, no rig, moving
         //   9.3 - 9.6   the controls FADE in across Iteration's scroll (Adrian,
         //               2026-09-05: "it's too instant now"); the routine eases out under them
         herWipe = smooth(clamp01((q - 2.0) / 2.0));
@@ -2144,6 +2145,7 @@ void main() {
         }
         mat = smooth(clamp01((q - 7.0) / 2.0));
         alive = smooth(clamp01((q - 9.3) / 0.3));
+        skelOut = smooth(clamp01((q - 9.0) / 0.3));
         doors = smooth(clamp01((q - 9.9) / 0.6));
       }
       // the calisthenics run while the skinning beat holds the stage, then hand off to
@@ -2599,13 +2601,22 @@ void main() {
         gl.drawElements(gl.TRIANGLES, NI, gl.UNSIGNED_SHORT, 0);
       }
 
-      // the skeleton: bones then joints, growing root-outward, lit inside the x-ray
-      if (skelAlpha > 0.003) {
+      // the skeleton: bones then joints, growing root-outward, lit inside the x-ray.
+      // DRAWN OVER HER, NOT INSIDE HER (Adrian, 2026-09-05: "keep the joints visible and
+      // drawing over her mesh during automation, as the control rig fades in fade out the
+      // joints"). The surface used to occlude the rig once the skin flooded, and a finger
+      // is too thin to hide a ring, so the fingers' joints hung on alone. No depth test for
+      // the skeleton now; it leaves as one thing on skelOut, 9.0-9.3, BEFORE the controls
+      // (Adrian, same hour: "fade them out before control rig so we have a beat where we
+      // see her without joints or control rig with the ROM playing").
+      const rigAlpha = skelAlpha * (1 - skelOut);
+      if (rigAlpha > 0.003) {
+        gl.disable(gl.DEPTH_TEST);
         gl.useProgram(P_BONE.p);
         gl.uniformMatrix4fv(P_BONE.u.uProj, false, proj);
         gl.uniformMatrix4fv(P_BONE.u.uView, false, view);
         gl.uniform1f(P_BONE.u.uGrow, growEff);
-        gl.uniform1f(P_BONE.u.uAlpha, skelAlpha);
+        gl.uniform1f(P_BONE.u.uAlpha, rigAlpha);
         gl.bindVertexArray(boneVao);
         gl.drawArrays(gl.LINES, 0, boneList.length * 6);
 
@@ -2621,7 +2632,7 @@ void main() {
           const jd = shownDisp[i];
           if (jd.d > growEff + 0.02) continue;
           const edge = Math.max(0, 1 - Math.abs(jd.d - growEff) / 0.08);
-          gl.uniform1f(P_CTRL.u.uAlpha, skelAlpha * (0.38 + edge * 0.9));
+          gl.uniform1f(P_CTRL.u.uAlpha, rigAlpha * (0.38 + edge * 0.9));
           gl.uniform3f(P_CTRL.u.uColor, jd.col[0], jd.col[1], jd.col[2]);
           gl.uniform3f(P_CTRL.u.uCenter, jointPts[i * 3], jointPts[i * 3 + 1], jointPts[i * 3 + 2]);
           gl.uniform1f(P_CTRL.u.uRadius, jd.r);
@@ -2630,8 +2641,11 @@ void main() {
           gl.drawArrays(gl.LINE_LOOP, 0, CIRCLE_N);
         }
 
-        // THE CONTROLS (Adrian, 2026-08-19): a THICKER single line, solid and glowing --
-        // five tightly nested loops read as one heavy stroke through the bloom.
+        gl.enable(gl.DEPTH_TEST);
+      }
+      // THE CONTROLS (Adrian, 2026-08-19): a THICKER single line, solid and glowing --
+      // five tightly nested loops read as one heavy stroke through the bloom.
+      {
         if (alive > 0.002) {
           // THE CONTROLS SIT IN THE SCENE, AND SHE OCCLUDES THEM (Adrian, 2026-09-04: "make
           // the control curves not draw on top of the character"). The first pass drew them
