@@ -1,0 +1,243 @@
+---
+// THE BUTTON (Adrian, 2026-09-04): "I think it should be a cool looking TRON like button,
+// 'BRING TO LIFE.'" That is the label, verbatim, and it is the only label on it.
+//
+// WHY IT IS REAL MARKUP AND NOT A QUAD IN THE CANVAS. The grammar wants the call to action
+// to be an object standing in the world, and a drawn quad satisfies exactly that and fails
+// everything else: it cannot be focused, cannot be reached by keyboard, has no accessible
+// name, and does not exist for a screen reader. So this is a real <button>, lit and framed
+// to belong to the room rather than to sit on top of it. The world reacts to it (see
+// --btl-charge below); it does not live inside it.
+//
+// It publishes three things and owns no state of its own beyond the press:
+//   --btl-hover   0..1   pointer proximity, for the ring's bloom
+//   --btl-charge  0..1   press-and-hold charge, 0 until pressed
+//   a `btl:fire` CustomEvent on window when the charge completes
+//
+// The stage listens for the event and runs her creation off its own clock. This component
+// knows nothing about her, which is why it can be dropped anywhere in the world.
+interface Props {
+  label?: string;
+  /** ms the ring takes to fill once pressed. Zero fires immediately. */
+  charge?: number;
+}
+const { label = 'BRING TO LIFE', charge = 420 } = Astro.props;
+---
+
+<div class="btl" data-btl>
+  {/* The plate is a real button. Everything else is decoration on top of it and is
+      aria-hidden, so the accessible name is exactly the label and nothing else. */}
+  <button class="btl__plate" type="button" data-btl-fire>
+    <span class="btl__grid" aria-hidden="true"></span>
+    <span class="btl__ring" aria-hidden="true"></span>
+    <span class="btl__label">{label}</span>
+  </button>
+  {/* The hint is not a "scroll" cue: it names what the control does, which the label alone
+      cannot, and it is removed the moment the button has been used once. */}
+  <p class="btl__hint" data-btl-hint>Press to run the rig</p>
+</div>
+
+<style>
+  .btl {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.9rem;
+    /* The layer above it is click-through; this is one of the few things that takes a
+       pointer, so it takes it back explicitly. */
+    pointer-events: auto;
+  }
+
+  /* ---- the plate -----------------------------------------------------------------
+     TRON is edge light and a dark interior, not a glowing slab. The fill stays close to
+     the room's own black so the button reads as a lit frame standing in the space, and
+     the light is carried by the border, the inset hairline and one offset shadow.
+     taste.md bans zero-offset coloured halos, so the outer glow is a real offset shadow
+     plus a wide low-alpha spread, never a symmetric neon ring. */
+  .btl__plate {
+    position: relative;
+    display: grid;
+    place-items: center;
+    padding: 1.05rem 2.6rem;
+    border: 1px solid rgba(124, 255, 178, 0.55);
+    /* A hard 2px corner is the 1.0 form and gate G5 fails it: 2.0 forms are rounded. The
+       TRON read is carried by the edge light and the corner brackets, not by the corner. */
+    border-radius: var(--radius-sm);
+    overflow: hidden;
+    background:
+      linear-gradient(180deg, rgba(124, 255, 178, 0.09), rgba(11, 14, 16, 0.86) 62%),
+      rgba(11, 14, 16, 0.9);
+    color: var(--bone);
+    cursor: pointer;
+    isolation: isolate;
+    box-shadow:
+      inset 0 1px 0 rgba(124, 255, 178, 0.35),
+      inset 0 0 0 1px rgba(124, 255, 178, 0.08),
+      0 2px 18px rgba(124, 255, 178, calc(0.10 + var(--btl-hover, 0) * 0.16)),
+      0 10px 40px rgba(0, 0, 0, 0.55);
+    transition:
+      border-color var(--t-fast, 160ms) var(--ease-out, ease),
+      background var(--t-fast, 160ms) var(--ease-out, ease),
+      transform var(--t-fast, 160ms) var(--ease-spring, ease);
+  }
+  .btl__plate:hover { border-color: rgba(124, 255, 178, 0.9); }
+  .btl__plate:active { transform: scale(0.985); }
+
+  /* THE CORNERS, not a full second border. Four L-brackets read as a targeting frame,
+     which is the TRON grammar; a complete inner rectangle just reads as a double border. */
+  .btl__plate::before,
+  .btl__plate::after {
+    content: '';
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    border: 1px solid rgba(124, 255, 178, 0.75);
+    pointer-events: none;
+  }
+  .btl__plate::before { top: 5px; left: 5px; border-right: 0; border-bottom: 0; }
+  .btl__plate::after { bottom: 5px; right: 5px; border-left: 0; border-top: 0; }
+
+  /* The grid inside the plate, which is the one literal quote from TRON_Grid.jpg. Two
+     repeating-linear-gradients, held at very low alpha: at full strength it fights the
+     label, and the label is the only thing on this control that carries meaning. */
+  .btl__grid {
+    position: absolute;
+    inset: 1px;
+    background:
+      repeating-linear-gradient(90deg, rgba(124, 255, 178, 0.10) 0 1px, rgba(11, 14, 16, 0) 1px 11px),
+      repeating-linear-gradient(0deg, rgba(124, 255, 178, 0.07) 0 1px, rgba(11, 14, 16, 0) 1px 11px);
+    opacity: calc(0.5 + var(--btl-hover, 0) * 0.5);
+    transition: opacity var(--t-fast, 160ms) var(--ease-out, ease);
+  }
+
+  /* THE CHARGE. A left-to-right wipe driven by --btl-charge, using clip-path rather than
+     width, because taste.md forbids animating width and clip-path is the wipe primitive. */
+  .btl__ring {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgba(124, 255, 178, 0.30), rgba(124, 255, 178, 0.12));
+    clip-path: inset(0 calc(100% - var(--btl-charge, 0) * 100%) 0 0);
+    pointer-events: none;
+  }
+
+  .btl__label {
+    position: relative;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 0.9375rem;
+    /* Tracking OPENS at this size, which is the opposite of the display rule: at 15px in
+       caps the letters need air or the word reads as one block. */
+    letter-spacing: 0.22em;
+    /* The trailing letter-space would otherwise push the word left of centre. */
+    text-indent: 0.22em;
+    color: var(--bone);
+    white-space: nowrap;
+  }
+
+  .btl__hint {
+    margin: 0;
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.14em;
+    color: var(--bone-faint);
+    transition: opacity var(--t-base, 240ms) var(--ease-out, ease);
+  }
+  .btl[data-btl-used] .btl__hint { opacity: 0; }
+
+  /* Focus is never removed, and it is not the hover treatment either: a keyboard user
+     gets a ring that does not depend on the pointer proximity variable. */
+  .btl__plate:focus-visible {
+    outline: 2px solid var(--plasma);
+    outline-offset: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btl__plate,
+    .btl__grid,
+    .btl__hint { transition: none; }
+  }
+</style>
+
+<script>
+  (function () {
+    const root = document.querySelector('[data-btl]') as HTMLElement | null;
+    if (!root) return;
+    const btn = root.querySelector('[data-btl-fire]') as HTMLButtonElement;
+    const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const chargeMs = reduced ? 0 : Number(root.dataset.btlCharge || 420);
+
+    let fired = false;
+
+    function fire() {
+      if (fired) return;
+      fired = true;
+      root.setAttribute('data-btl-used', '');
+      root.style.setProperty('--btl-charge', '1');
+      // The stage owns what happens next. This component only says that it happened.
+      dispatchEvent(new CustomEvent('btl:fire', { detail: { source: 'press' } }));
+    }
+
+    // ---- the charge. A press fills the plate, and RELEASING EARLY CANCELS IT, so a
+    // mis-click is recoverable. Held rather than instant because the sequence that
+    // follows takes the page over for ten seconds, and a control with that consequence
+    // should ask for a moment of intent rather than fire on a stray tap.
+    let raf = 0, t0 = 0;
+    function step(now: number) {
+      if (fired) return;
+      const p = chargeMs <= 0 ? 1 : Math.min(1, (now - t0) / chargeMs);
+      root.style.setProperty('--btl-charge', p.toFixed(3));
+      if (p >= 1) fire();
+      else raf = requestAnimationFrame(step);
+    }
+    function begin(e: Event) {
+      if (fired) return;
+      e.preventDefault();
+      t0 = performance.now();
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(step);
+    }
+    function cancel() {
+      if (fired) return;
+      cancelAnimationFrame(raf);
+      root.style.setProperty('--btl-charge', '0');
+    }
+
+    btn.addEventListener('pointerdown', begin);
+    btn.addEventListener('pointerup', cancel);
+    btn.addEventListener('pointerleave', cancel);
+    btn.addEventListener('pointercancel', cancel);
+
+    // KEYBOARD AND ASSISTIVE TECH DO NOT HOLD. A click event arrives from Enter, Space and
+    // from an assistive click with no pointerdown before it, and asking somebody to hold a
+    // key for 420ms to use the page's central control would be a barrier, not intent.
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      fire();
+    });
+
+    // ---- pointer proximity, desktop only. The plate brightens as the hand approaches,
+    // which is the cheapest way to say "this one is different" without an arrow or a
+    // pulsing animation running forever in the corner of the eye.
+    if (!reduced && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+      addEventListener('pointermove', (e) => {
+        const r = btn.getBoundingClientRect();
+        const dx = Math.max(r.left - e.clientX, 0, e.clientX - r.right);
+        const dy = Math.max(r.top - e.clientY, 0, e.clientY - r.bottom);
+        const d = Math.hypot(dx, dy);
+        const near = Math.max(0, 1 - d / 320);
+        root.style.setProperty('--btl-hover', near.toFixed(3));
+      }, { passive: true });
+    }
+
+    // VALVE 3 FROM THE PLAN: the press is a reward, never a gate. A visitor who scrolls
+    // past without pressing gets the sequence anyway, so arrival is never blocked on an
+    // interaction they did not notice. The stage decides what "past" means and tells us.
+    addEventListener('btl:autofire', () => {
+      if (fired) return;
+      root.setAttribute('data-btl-used', '');
+      root.style.setProperty('--btl-charge', '1');
+      fired = true;
+      dispatchEvent(new CustomEvent('btl:fire', { detail: { source: 'auto' } }));
+    });
+  })();
+</script>

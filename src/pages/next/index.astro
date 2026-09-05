@@ -1,0 +1,555 @@
+---
+// THE NEW HOMEPAGE, built at its own route (Adrian, 2026-09-04).
+//
+// WHY NOT ON index.astro. The live homepage carries uncommitted work, and an experiment
+// that may replace it wholesale should not share a file with the page that is currently
+// shipping. This moves over when it earns the slot.
+//
+// This is the scroll-craft build. Its brief, plan, feeling curve and fingerprint row live
+// in the depot at Projects/FabricatorStudio/Website/scrollcraft/builds/fabricatorstudio-home/.
+//
+// GRAMMAR: continuous world (uniqueness.md 2.4), which forces four things and this page
+// obeys all four -- nothing in document flow but the spacer, copy arriving inside the world
+// rather than scrolling over it, a nav that is a clickable MAP rather than a bar, and a
+// close that is arrival at a place whose call to action is an object standing in it.
+//
+// SIGNATURE MOVE: press BRING TO LIFE and the whole rigging pipeline runs -- particles,
+// hologram, skeleton, skinning, textures and materials, control rig -- ending in a rig the
+// visitor can drag. His, 2026-09-04, replacing a weaker one of mine.
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import ArmatureStage from '../../components/ArmatureStage.astro';
+import BringToLife from '../../components/BringToLife.astro';
+
+// THE SCORE, from PLAN.md section 5. Weights are viewport-heights and they are the only
+// dial on this page: there are no acts and no devices to assign, so pacing IS the score.
+// Waypoint 5 is Armature and holds the most of any single stretch, which is his "most the
+// story is about Armature"; waypoint 6 is the peak and is the second longest.
+const WAYPOINTS = [
+  { id: 'idea', label: 'Idea', w: 1.3 },
+  { id: 'form', label: 'Form', w: 1.3 },
+  { id: 'made', label: 'Made', w: 1.3 },
+  { id: 'intent', label: 'Intent', w: 1.3 },
+  { id: 'build', label: 'Build', w: 2.6 },
+  { id: 'alive', label: 'Alive', w: 2.2 },
+  { id: 'doors', label: 'Doors', w: 1.2 },
+];
+const TOTAL = WAYPOINTS.reduce((a, b) => a + b.w, 0);   // 11.2, inside the 8-14 budget
+let acc = 0;
+const CUM = WAYPOINTS.map((wp) => { const s = acc; acc += wp.w; return s; });
+
+// THE CLOCK, in ArmatureStage's own units. Its header states every beat as a pure function
+// of q, and the materials beat this build added sits between solidify and alive:
+//   her points 0.7-1.95 | skeleton 2.1-2.9 | solidify 2.9-3.6 | MATERIALS 3.5-4.3
+//   | alive and grabbable from 4.35 | the doors open from 4.95
+// She is ALREADY the point cloud when the button appears (Adrian: "I'm think we see her as
+// the point cloud, the button comes up"), so the hold sits at the end of the fitting room.
+const Q_HOLD = 1.95;
+const Q_ALIVE = 4.85;
+const Q_DOORS = 5.75;
+const PLAY_MS = 7000;   // "like 6-8 seconds", his words
+
+const DOORS = [
+  { href: '/armature/', label: 'Armature', note: 'Rigging and skinning' },
+  { href: '/tools/', label: 'Maya Pipeline Tools', note: 'The whole pipeline' },
+  { href: '/control-rig/', label: 'Unreal Control Rig', note: 'Animate in engine' },
+];
+---
+<BaseLayout
+  title="FabricatorStudio"
+  description="Press one button and watch a character get rigged: skeleton, skinning, materials, control rig. Then move her yourself."
+>
+  {/* THE WORLD. One canvas, fixed, and nothing is ever drawn over it that is not copy. */}
+  <div class="world" data-world>
+    <ArmatureStage variant="page" skin="/mesh/ninja.skin" tex="/mesh/ninja" />
+    <div class="world__scan" aria-hidden="true"></div>
+  </div>
+
+  {/* THE MAP. The grammar's nav: not a bar, a diagram of where you are in the one place,
+      and every stop is reachable by click and by keyboard. */}
+  <nav class="map" data-map aria-label="Where you are">
+    <ol>
+      {WAYPOINTS.map((wp, i) => (
+        <li>
+          <button type="button" data-goto={CUM[i] + wp.w * 0.22} data-wp={wp.id}>
+            <span class="map__rule" aria-hidden="true"></span>
+            <span class="map__n">{wp.label}</span>
+          </button>
+        </li>
+      ))}
+    </ol>
+  </nav>
+
+  {/* THE COPY LAYER. Windowed against the whole track, never scrolling over the world.
+      His lore from BRIEF.md answer 2, cut into windows; the anchor changes every window so
+      the page never settles into one centred column. */}
+  <div class="copy" data-copy aria-hidden="true">
+    <div class="cw cw--trail cw--low" data-cw="idea">
+      <p class="cw__eyebrow">The simulated universe</p>
+      <p class="cw__line">An idea, held as particles.</p>
+    </div>
+    <div class="cw cw--lead" data-cw="form">
+      <p class="cw__line">It is brought into simulated reality.</p>
+    </div>
+    <div class="cw cw--trail" data-cw="made">
+      <p class="cw__line">A man, made in the image of the universe.</p>
+    </div>
+    <div class="cw cw--lead cw--low" data-cw="intent">
+      <p class="cw__line">He has the idea for an animated being.</p>
+    </div>
+    <div class="cw cw--lead cw--top" data-cw="build">
+      <p class="cw__eyebrow">Armature</p>
+      <p class="cw__line">A skeleton. Deformation. Materials. A control rig.</p>
+      <p class="cw__sub">The Unreal Control Rig picks her up from here.</p>
+    </div>
+    <div class="cw cw--trail cw--top" data-cw="alive">
+      <p class="cw__eyebrow">The creation's creation</p>
+      <p class="cw__line">She moves.</p>
+    </div>
+    <div class="cw cw--centre cw--top" data-cw="doors">
+      <p class="cw__eyebrow">Three ways in</p>
+      <p class="cw__line">Start where your work starts.</p>
+    </div>
+  </div>
+
+  {/* THE BUTTON. A real control, lit to belong to the room. See BringToLife.astro for why
+      it is markup and not a quad in the canvas. */}
+  <div class="cta" data-cta hidden>
+    <BringToLife />
+  </div>
+  <p class="hint" data-hint hidden>Drag her arms and legs.</p>
+
+  {/* THE DOORS. Three real links parked on three points in the room every frame, so they
+      travel with the camera instead of sitting on top of it. */}
+  <div class="doors" data-doors hidden>
+    {DOORS.map((d, i) => (
+      <a class="door" href={d.href} data-door={i}>
+        <span class="door__label">{d.label}</span>
+        <span class="door__note">{d.note}</span>
+      </a>
+    ))}
+  </div>
+
+  <div class="track" data-track aria-hidden="true"></div>
+
+  {/* REDUCED MOTION GETS A PAGE, NOT A BLANK CANVAS. The stage does not boot at all under
+      that setting, so without this the world would be an empty black rectangle. Same words,
+      same doors, in document flow. */}
+  <div class="still">
+    <h1>FabricatorStudio</h1>
+    <p>An idea, held as particles. Brought into simulated reality. A man, made in the image of the universe, has the idea for an animated being.</p>
+    <p>Armature gives her a skeleton, deformation, materials and a control rig. The Unreal Control Rig picks her up from there. She moves.</p>
+    <ul>
+      {DOORS.map((d) => <li><a href={d.href}>{d.label}</a>: {d.note}</li>)}
+    </ul>
+  </div>
+</BaseLayout>
+
+<style>
+  /* ---- the world -------------------------------------------------------------------- */
+  .world {
+    position: fixed;
+    inset: 0;
+    background: var(--carbon);
+    z-index: 0;
+  }
+  .world :global(.ast-canvas) {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+  /* The PS2 half of his reference set, and the ONLY place it touches the world: a scanline
+     interference so faint it reads as the projection being a projection. Everything else
+     retro on this page is typographic, because retro in the world AND in the type at once
+     reads as a filter laid over a photograph rather than as a designed page. */
+  .world__scan {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      0deg, rgba(232, 224, 208, 0.030) 0 1px, rgba(11, 14, 16, 0) 1px 3px);
+    mix-blend-mode: overlay;
+    opacity: 0.55;
+  }
+
+  /* The scroll track. The only thing in document flow, which is the grammar's one
+     structural rule: 11.2 viewport heights of travel, and no sections anywhere. */
+  .track { height: 1120svh; }
+
+  /* ---- the map ---------------------------------------------------------------------- */
+  .map {
+    position: fixed;
+    left: max(1.25rem, env(safe-area-inset-left));
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 3;
+  }
+  .map ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.55rem; }
+  .map button {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    padding: 0.25rem 0.35rem 0.25rem 0;
+    background: none;
+    border: 0;
+    cursor: pointer;
+    color: var(--bone-faint);
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    transition: color var(--t-fast) var(--ease-out);
+  }
+  .map__rule {
+    display: block;
+    width: 18px;
+    height: 1px;
+    background: currentColor;
+    transition: width var(--t-base) var(--ease-out);
+  }
+  .map button:hover { color: var(--bone-dim); }
+  .map button[data-at] { color: var(--plasma); }
+  .map button[data-at] .map__rule { width: 34px; }
+  .map button:focus-visible { outline: 2px solid var(--plasma); outline-offset: 3px; }
+  /* The labels are a map, not a reading column: on a phone the rules alone carry position
+     and the words would eat a third of the frame. */
+  @media (max-width: 700px) {
+    .map__n { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  }
+
+  /* ---- the copy layer --------------------------------------------------------------- */
+  .copy {
+    position: fixed;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .cw {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    /* NARROW ON PURPOSE. She stands centred for most of the page and a 46ch measure ran
+       its last two words across her arm. A copy layer in a continuous world has to clear
+       the subject, which is a harder constraint than a reading measure. */
+    width: min(34ch, 38vw);
+    /* The PS2 quote: a thin outlined box carrying the line, rather than the line floating.
+       Held at low alpha so it frames the words rather than boxing them in. */
+    border: 1px solid rgba(124, 255, 178, 0.22);
+    background: rgba(11, 14, 16, 0.62);
+    backdrop-filter: blur(3px);
+    padding: 1.15rem 1.35rem;
+    opacity: 0;
+    transition: opacity 420ms var(--ease-out);
+  }
+  .cw--lead { left: max(6.5rem, 12vw); transform: translate(0, -50%); }
+  .cw--trail { left: auto; right: max(2rem, 6vw); transform: translate(0, -50%); }
+  .cw--trail.cw--low { transform: none; }
+  .cw--trail.cw--top { transform: none; }
+  .cw--low { top: auto; bottom: 16svh; transform: translate(-50%, 0); }
+  .cw--lead.cw--low { transform: none; }
+  .cw--top { top: 12svh; transform: translate(-50%, 0); }
+  .cw--lead.cw--top { transform: none; }
+  .cw__eyebrow {
+    margin: 0 0 0.5rem;
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--plasma-dim);
+  }
+  .cw__line {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3.4vw, 2.5rem);
+    line-height: 1.15;
+    color: var(--bone);
+  }
+  .cw__sub {
+    margin: 0.7rem 0 0;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.04em;
+    color: var(--bone-dim);
+  }
+  @media (max-width: 700px) {
+    .cw { width: min(32ch, 84vw); }
+    .cw--lead, .cw--trail { left: 50%; right: auto; transform: translate(-50%, -50%); }
+    .cw--lead.cw--low, .cw--trail.cw--low { transform: translate(-50%, 0); }
+    .cw--lead.cw--top, .cw--trail.cw--top { transform: translate(-50%, 0); }
+  }
+
+  /* ---- the button and the hint ------------------------------------------------------ */
+  .cta {
+    position: fixed;
+    left: 50%;
+    /* Under her feet, not across them: the camera creeps in through the hold and at 12svh
+       the plate was printing over her ankles. */
+    bottom: 7svh;
+    transform: translateX(-50%);
+    z-index: 4;
+    opacity: 0;
+    transition: opacity 500ms var(--ease-out), transform 500ms var(--ease-out);
+  }
+  .cta[data-in] { opacity: 1; }
+  .cta[data-spent] { opacity: 0; transform: translateX(-50%) translateY(10px); pointer-events: none; }
+  .hint {
+    position: fixed;
+    /* Bottom RIGHT, not bottom centre: she stands centred for the whole of this beat and
+       the line was printing across her feet. */
+    right: max(2rem, 6vw);
+    bottom: 7svh;
+    margin: 0;
+    z-index: 4;
+    font-family: var(--font-mono);
+    font-size: 0.8125rem;
+    letter-spacing: 0.16em;
+    color: var(--bone-dim);
+    opacity: 0;
+    transition: opacity 700ms var(--ease-out);
+    pointer-events: none;
+  }
+  .hint[data-in] { opacity: 1; }
+
+  /* ---- the doors -------------------------------------------------------------------- */
+  .doors { position: fixed; inset: 0; z-index: 3; pointer-events: none; }
+  /* A DOOR IS A PLATE, lit the way the button is lit, and it is parked on a point in the
+     room rather than on the page. Same trade the button makes: it belongs to the place, and
+     it is still a link with a name a screen reader can read. */
+  .door {
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: grid;
+    gap: 0.15rem;
+    padding: 0.7rem 1.1rem;
+    min-width: 15rem;
+    text-align: left;
+    white-space: nowrap;
+    text-decoration: none;
+    pointer-events: auto;
+    border: 1px solid rgba(124, 255, 178, 0.30);
+    border-radius: var(--radius-sm);
+    background:
+      linear-gradient(180deg, rgba(124, 255, 178, 0.07), rgba(11, 14, 16, 0.80) 62%),
+      rgba(11, 14, 16, 0.82);
+    box-shadow: inset 0 1px 0 rgba(124, 255, 178, 0.22), 0 8px 30px rgba(11, 14, 16, 0.6);
+    opacity: 0;
+    transition: opacity 300ms var(--ease-out), border-color var(--t-fast) var(--ease-out),
+      background var(--t-fast) var(--ease-out);
+  }
+  .door[data-in] { opacity: 1; }
+  .door:hover,
+  .door:focus-visible { border-color: rgba(124, 255, 178, 0.85); }
+  /* PORTRAIT: the doors stack under her instead of being parked in the world beside her.
+     The stage's closing camera retreats and lifts to make the room for them; see
+     narrowOut in ArmatureStage. The script leaves the transform alone at this width. */
+  @media (max-width: 700px) {
+    .doors {
+      display: grid;
+      align-content: end;
+      justify-items: center;
+      gap: 0.5rem;
+      padding: 0 1rem 7svh;
+    }
+    .door { position: static; min-width: 0; width: min(20rem, 100%); }
+  }
+  .door__label {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.8125rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--bone);
+  }
+  .door__note {
+    font-family: var(--font-mono);
+    font-size: 0.6875rem;
+    letter-spacing: 0.1em;
+    color: var(--bone-dim);
+  }
+  .door:focus-visible { outline: 2px solid var(--plasma); outline-offset: 3px; }
+
+  /* ---- the still page --------------------------------------------------------------- */
+  .still { display: none; }
+  @media (prefers-reduced-motion: reduce) {
+    .world, .map, .copy, .cta, .hint, .doors { display: none; }
+    .track { height: 0; }
+    .still {
+      display: block;
+      max-width: 62ch;
+      margin: 0 auto;
+      padding: 12svh 1.5rem;
+      color: var(--bone);
+      font-family: var(--font-mono);
+    }
+    .still h1 { font-family: var(--font-display); font-size: 2.5rem; margin: 0 0 1rem; }
+    .still ul { padding-left: 1.1rem; }
+    .still a { color: var(--plasma); }
+  }
+</style>
+
+<script define:vars={{ WAYPOINTS, CUM, TOTAL, Q_HOLD, Q_ALIVE, Q_DOORS, PLAY_MS }}>
+  (function () {
+    var reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    // THE DRIVER, declared before anything else on the page runs. ArmatureStage reads these
+    // two globals instead of a runway when the first is set, and every beat of her creation
+    // is a pure function of the second. This block is inline rather than a module for
+    // exactly that reason: a module is deferred and would arrive after the stage's own boot.
+    //
+    // VALVE 4: reduced motion takes no lock and no clock. The stage does not boot at all
+    // under it, and the still page below the fold is what that visitor gets.
+    window.__armDriven = true;
+    window.__armQ = 0;
+    if (reduced) { window.__armDriven = false; return; }
+
+    var copyEls = {}, mapBtns = {};
+    // Portrait lays the doors out in the copy layer, so the projection is not applied there.
+    // Read per frame rather than latched, so a rotate recomposes instead of keeping the
+    // wrong close.
+    var narrowDoors = function () { return innerWidth <= 700; };
+    var cta = null, hint = null, doorsWrap = null, doorEls = [];
+
+    // THE FLIGHT. Scroll drives q through waypoints 1 to 4, the button's clock owns
+    // waypoint 5, and waypoints 6 and 7 are scroll again. The one stretch scroll does not
+    // drive is the signature move, which Adrian ruled PLAYS rather than arms.
+    var fired = false, clockQ = Q_HOLD, playT0 = 0;
+    var B_BUILD = CUM[4], B_ALIVE = CUM[5], B_DOORS = CUM[6];
+
+    function trackU() {
+      var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+      return Math.min(1, Math.max(0, scrollY / max)) * TOTAL;
+    }
+
+    function qFor(u) {
+      if (u < B_BUILD) return (u / B_BUILD) * Q_HOLD;
+      if (u < B_ALIVE) return Math.max(clockQ, Q_HOLD);
+      // VALVE 2: scrolling past the sequence fast-forwards it rather than fighting the hand.
+      if (u < B_DOORS) return Q_ALIVE;
+      return Q_ALIVE + ((u - B_DOORS) / (TOTAL - B_DOORS)) * (Q_DOORS - Q_ALIVE);
+    }
+
+    // The window a waypoint's copy is open for: in over the first fifth of its span, out
+    // over the last fifth, so no two are ever fully up at the same time.
+    function windowOf(i, u) {
+      var s = CUM[i], w = WAYPOINTS[i].w, x = (u - s) / w;
+      if (x <= 0) return 0;
+      // THE CLOSE HOLDS. Every other window fades out so no two are ever fully up at once,
+      // but the last one is the last thing on the page: fading it leaves the visitor at the
+      // bottom of a black frame, which is the ending the skill's hard rules forbid outright.
+      if (i === WAYPOINTS.length - 1) return Math.min(1, x / 0.22);
+      if (x >= 1) return 0;
+      return Math.min(1, x / 0.22, (1 - x) / 0.22);
+    }
+
+    function currentIndex(u) {
+      for (var i = WAYPOINTS.length - 1; i >= 0; i--) if (u >= CUM[i]) return i;
+      return 0;
+    }
+
+    var lastIdx = -1;
+    function tick() {
+      requestAnimationFrame(tick);
+      var u = trackU();
+
+      if (fired && clockQ < Q_ALIVE) {
+        var x = Math.min(1, (performance.now() - playT0) / PLAY_MS);
+        // easeInOutCubic: the build starts gently, runs, and settles rather than stopping
+        var e = x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+        clockQ = Q_HOLD + (Q_ALIVE - Q_HOLD) * e;
+      }
+      // VALVE 3: the press is a reward, never a gate. Two thirds into the build stretch
+      // without a press and the sequence starts itself, so arrival is never blocked on an
+      // interaction the visitor did not notice.
+      if (!fired && u > B_BUILD + (B_ALIVE - B_BUILD) * 0.62) {
+        dispatchEvent(new CustomEvent('btl:autofire'));
+      }
+      if (u >= B_ALIVE && clockQ < Q_ALIVE) clockQ = Q_ALIVE;
+
+      window.__armQ = qFor(u);
+
+      for (var i = 0; i < WAYPOINTS.length; i++) {
+        var el = copyEls[WAYPOINTS[i].id];
+        if (el) el.style.opacity = windowOf(i, u).toFixed(3);
+      }
+      var idx = currentIndex(u);
+      if (idx !== lastIdx) {
+        lastIdx = idx;
+        for (var k = 0; k < WAYPOINTS.length; k++) {
+          var b = mapBtns[WAYPOINTS[k].id];
+          if (!b) continue;
+          if (k === idx) b.setAttribute('data-at', '');
+          else b.removeAttribute('data-at');
+        }
+      }
+
+      // the button arrives with the build stretch and leaves the moment it is spent
+      if (cta) {
+        if (!fired && u > B_BUILD - 0.18 && u < B_ALIVE) { cta.hidden = false; cta.setAttribute('data-in', ''); }
+        else cta.removeAttribute('data-in');
+      }
+      if (hint) {
+        if ((window.__armAlive || 0) > 0.6 && u < B_DOORS) {
+          hint.hidden = false;
+          hint.setAttribute('data-in', '');
+        } else hint.removeAttribute('data-in');
+      }
+
+      // THE DOORS RIDE THE WORLD. Their three points are projected by the stage every frame
+      // and the anchors are parked on them, so they belong to the place rather than sitting
+      // in front of it.
+      if (doorsWrap) {
+        if ((window.__armDoorsA || 0) > 0.01) {
+          doorsWrap.hidden = false;
+          var pts = window.__armDoors || [];
+          var narrow = narrowDoors();
+          for (var d = 0; d < doorEls.length; d++) {
+            var pt = pts[d];
+            if (narrow) {
+              doorEls[d].style.transform = '';
+              doorEls[d].setAttribute('data-in', '');
+              continue;
+            }
+            if (!pt) { doorEls[d].removeAttribute('data-in'); continue; }
+            doorEls[d].style.transform =
+              'translate(' + pt[0].toFixed(1) + 'px,' + pt[1].toFixed(1) + 'px)' +
+              ' translate(-50%, -50%) scale(' + pt[2].toFixed(3) + ')';
+            doorEls[d].setAttribute('data-in', '');
+          }
+        } else if (!doorsWrap.hidden) {
+          doorsWrap.hidden = true;
+        }
+      }
+    }
+
+    function boot() {
+      document.querySelectorAll('[data-cw]').forEach(function (el) { copyEls[el.dataset.cw] = el; });
+      document.querySelectorAll('[data-map] button').forEach(function (b) {
+        mapBtns[b.dataset.wp] = b;
+        b.addEventListener('click', function () {
+          var max = Math.max(1, document.documentElement.scrollHeight - innerHeight);
+          // data-goto already lands a fifth INTO the waypoint, where its copy is fully open,
+          // rather than on the boundary, where it has not begun to fade in yet.
+          scrollTo({ top: (Number(b.dataset.goto) / TOTAL) * max, behavior: 'smooth' });
+        });
+      });
+      cta = document.querySelector('[data-cta]');
+      hint = document.querySelector('[data-hint]');
+      doorsWrap = document.querySelector('[data-doors]');
+      doorEls = Array.prototype.slice.call(document.querySelectorAll('[data-door]'));
+      requestAnimationFrame(tick);
+    }
+
+    addEventListener('btl:fire', function () {
+      if (fired) return;
+      fired = true;
+      playT0 = performance.now();
+      if (cta) cta.setAttribute('data-spent', '');
+    });
+
+    if (document.readyState === 'loading') addEventListener('DOMContentLoaded', boot);
+    else boot();
+  })();
+</script>

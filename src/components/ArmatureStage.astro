@@ -28,13 +28,21 @@ interface Props {
      the homepage, where it is a fixed room layer cross-fading with the point cloud's own
      canvas so the two read as ONE continuous scene. See .ast-canvas--room below. */
   variant?: 'page' | 'inline';
+  /** The baked character. 'FSSK' is the welded bake with no UVs, which is x-ray only;
+      'FSK2' is the same plus a UV channel and a material table, so she can carry real
+      textures. The loader below reads either. */
+  skin?: string;
+  /** Folder holding d0..dN and n0..nN, the diffuse and normal map per material range.
+      Empty means no textures AND no materials beat, which is what /armature/ passes, so
+      its clock and its look are untouched by any of this. */
+  tex?: string;
 }
-const { variant = 'page' } = Astro.props;
+const { variant = 'page', skin = '/mesh/superheroin.skin', tex = '' } = Astro.props;
 ---
 
 {variant === 'page'
-  ? <canvas class="ast-canvas" data-armature-stage aria-hidden="true"></canvas>
-  : <div data-armature-host hidden></div>}
+  ? <canvas class="ast-canvas" data-armature-stage data-skin={skin} data-tex={tex} aria-hidden="true"></canvas>
+  : <div data-armature-host data-skin={skin} data-tex={tex} hidden></div>}
 
 <style>
   .ast-canvas {
@@ -59,6 +67,16 @@ const { variant = 'page' } = Astro.props;
 
 <script>
   const canvas = document.querySelector('[data-armature-stage]') as HTMLCanvasElement | null;
+
+  // WHICH CHARACTER, AND WHETHER SHE HAS A SURFACE. Read off the element rather than passed
+  // in through define:vars: this script is TypeScript, and define:vars forces a script to
+  // ship unprocessed, which would leave the type annotations in the browser.
+  const cfgEl = document.querySelector('[data-armature-stage],[data-armature-host]') as HTMLElement | null;
+  const SKIN_URL = cfgEl?.dataset.skin || '/mesh/superheroin.skin';
+  const TEX_DIR = (cfgEl?.dataset.tex || '').replace(/\/$/, '');
+  // Read ONCE, at load, because it decides which buffers get built. The page sets it in an
+  // inline script before this module is evaluated, which is why that script is inline.
+  const DRIVEN0 = (window as any).__armDriven === true;
 
   const clamp01 = (x: number) => Math.min(1, Math.max(0, x));
   const smooth = (x: number) => x * x * (3 - 2 * x);
@@ -160,7 +178,7 @@ const { variant = 'page' } = Astro.props;
       }
       return { p, u };
     };
-    const target = (w: number, h: number, fmt: number) => {
+    const target = (w: number, h: number, fmt: number, depth = false) => {
       const t = gl.createTexture()!;
       gl.bindTexture(gl.TEXTURE_2D, t);
       gl.texImage2D(gl.TEXTURE_2D, 0, fmt, w, h, 0, gl.RGBA, fmt === gl.RGBA16F ? gl.HALF_FLOAT : gl.UNSIGNED_BYTE, null);
@@ -171,8 +189,19 @@ const { variant = 'page' } = Astro.props;
       const f = gl.createFramebuffer()!;
       gl.bindFramebuffer(gl.FRAMEBUFFER, f);
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, t, 0);
+      // DEPTH, ONLY WHERE IT IS NEEDED. Every pass in this scene is additive glow, which
+      // wants no occlusion at all; the materials beat is the one exception, because a
+      // textured body that does not occlude itself reads as a ghost rather than as a
+      // character. So the scene target carries a depth buffer and the bloom chain does not.
+      let d: WebGLRenderbuffer | null = null;
+      if (depth) {
+        d = gl.createRenderbuffer()!;
+        gl.bindRenderbuffer(gl.RENDERBUFFER, d);
+        gl.renderbufferStorage(gl.RENDERBUFFER, gl.DEPTH_COMPONENT16, w, h);
+        gl.framebufferRenderbuffer(gl.FRAMEBUFFER, gl.DEPTH_ATTACHMENT, gl.RENDERBUFFER, d);
+      }
       gl.bindFramebuffer(gl.FRAMEBUFFER, null);
-      return { f, t, w, h };
+      return { f, t, w, h, d };
     };
 
     // ---- shaders
@@ -228,10 +257,17 @@ in vec3 aPos; in vec3 aNor; in float aPhase; in vec3 aRand; in float aYN;
 uniform mat4 uProj, uView;
 uniform float uTime, uSize, uReveal, uFade;
 uniform vec3 uOffset;
+// SCATTER: how far each point sits from where it belongs. Zero is the mesh. Used only by
+// the man's opening, where the page has to show a field of points BEFORE it shows a body:
+// a height-gated reveal assembles a shape, and the brief's first beat is the absence of one.
+uniform float uScatter;
 out float vWave; out float vAlive; out float vEdge;
 void main() {
   float w = sin(uTime * 0.7 + aPhase * 2.0);
-  vec3 p = aPos + aNor * (w * 0.013) + uOffset;
+  vec3 p = aPos + aNor * (w * 0.013) + uOffset
+    + (aRand - 0.5) * uScatter
+    + vec3(sin(uTime * 0.31 + aPhase), sin(uTime * 0.27 + aPhase * 1.7), sin(uTime * 0.23 + aPhase * 2.3))
+      * (uScatter * 0.10);
   vec4 mv = uView * vec4(p, 1.0);
   gl_Position = uProj * mv;
   gl_PointSize = max(0.0356 * uSize * (300.0 / -mv.z), 1.0);
@@ -293,6 +329,72 @@ uniform vec3 uColor; uniform float uAlpha;
 out vec4 frag;
 void main() { frag = vec4(uColor * 1.15, uAlpha); }`;
 
+    // ---- HER SURFACE (Adrian, 2026-09-04): "then her textures and materials materialize".
+    // The one stage of his sequence the scene never had -- she solidified to an x-ray and
+    // never got a skin. Same skinning as the x-ray, then a real shaded surface on top.
+    //
+    // IT REVEALS ROOT-OUTWARD, NOT BOTTOM-UP. Her points already arrive on a height gate and
+    // the homepage mark already sweeps on one, so a third vertical wipe would read as the
+    // page's one trick. aMD is each vertex's chain depth from the root, taken from the joint
+    // it is most weighted to, so the surface floods out along her exactly the way the
+    // skeleton grew into her a beat earlier. The rhyme is the point.
+    const MAT_VS = `#version 300 es
+in vec3 aPos; in vec4 aNor; in vec2 aUV; in vec4 aJ; in vec4 aW; in float aMD;
+uniform mat4 uProj, uView;
+uniform sampler2D uJT;
+out vec3 vN; out vec3 vV; out vec2 vUv; out float vD;
+mat4 jm(float j) {
+  int y = int(j + 0.5);
+  return mat4(
+    texelFetch(uJT, ivec2(0, y), 0),
+    texelFetch(uJT, ivec2(1, y), 0),
+    texelFetch(uJT, ivec2(2, y), 0),
+    texelFetch(uJT, ivec2(3, y), 0));
+}
+void main() {
+  vec4 w = aW / max(aW.x + aW.y + aW.z + aW.w, 1e-5);
+  mat4 S = jm(aJ.x) * w.x + jm(aJ.y) * w.y + jm(aJ.z) * w.z + jm(aJ.w) * w.w;
+  vec4 p = S * vec4(aPos, 1.0);
+  vec4 mv = uView * p;
+  gl_Position = uProj * mv;
+  vN = mat3(uView) * (mat3(S) * aNor.xyz);
+  vV = -mv.xyz;
+  vUv = aUV;
+  vD = aMD;
+}`;
+    // NO TANGENT FRAME, ON PURPOSE. A real one means baking tangents into the file and a
+    // third attribute for something the eye reads at this distance as "the cloth has a
+    // weave". The map is applied as a view-space nudge instead: wrong for a hero render,
+    // right for a character standing three metres off inside a bloom pass, and it costs
+    // nothing in the format.
+    const MAT_FS = `#version 300 es
+precision highp float;
+uniform sampler2D uDiff, uNrm;
+uniform vec3 uPlasma, uBone;
+uniform float uAlpha, uSweep, uBand;
+in vec3 vN; in vec3 vV; in vec2 vUv; in float vD;
+out vec4 frag;
+void main() {
+  float d = vD - uSweep;
+  float on = 1.0 - smoothstep(0.0, uBand, d);
+  if (on < 0.004) discard;
+  vec3 n = normalize(vN);
+  vec3 nt = texture(uNrm, vUv).xyz * 2.0 - 1.0;
+  n = normalize(n + vec3(nt.x, nt.y, 0.0) * 0.5);
+  vec3 V = normalize(vV);
+  vec3 alb = texture(uDiff, vUv).rgb;
+  // One key over the camera's shoulder and up, one cyan rim. The room has no lights in it,
+  // so hers are hers: this is the Iron Man hologram register, a lit figure in a dark volume.
+  float key = 0.5 + 0.5 * dot(n, normalize(vec3(0.42, 0.62, 0.85)));
+  float rim = pow(1.0 - abs(dot(n, V)), 3.0);
+  // EXPOSED FOR THE BLOOM, NOT FOR ITSELF. Her armour is near-white, so a key that reached
+  // 1.08x albedo left the composite clipping and the bloom pass then ate her face. Read the
+  // ceiling as 0.61x: it looks dark in isolation and correct through the chain.
+  vec3 c = alb * (0.115 + key * 0.66) + uPlasma * rim * 0.16;
+  // the frontier burn, the same grammar her points and her skeleton arrive on
+  c += uPlasma * max(0.0, 1.0 - abs(d) / uBand) * 1.15;
+  frag = vec4(c * uAlpha, on * uAlpha);
+}`;
     const STAR_VS = `#version 300 es
 in vec3 aPos; in vec3 aSeed;
 uniform mat4 uProj, uView; uniform float uTime, uSpeed;
@@ -369,6 +471,7 @@ void main() {
 
     const P_XRAY = prog(XRAY_VS, XRAY_FS);
     const P_SKIN = prog(XRAYSKIN_VS, XRAY_FS);
+    const P_MAT = prog(MAT_VS, MAT_FS);
     const P_PT = prog(PT_VS, PT_FS);
     const P_BONE = prog(BONE_VS, BONE_FS);
     const P_CTRL = prog(CTRL_VS, CTRL_FS);
@@ -477,6 +580,7 @@ void main() {
     const manRawNor = new Float32Array(manBuf.slice(mo, mo + manNv * 12)); mo += manNv * 12;
     const manIdx = new Uint16Array(manBuf.slice(mo, mo + manNi * 2));
     const manVao = gl.createVertexArray()!;
+    let manPos = new Float32Array(0);
     {
       const mn = [Infinity, Infinity, Infinity], mx = [-Infinity, -Infinity, -Infinity];
       for (let i = 0; i < manRawPos.length; i += 3)
@@ -503,6 +607,7 @@ void main() {
         gl.enableVertexAttribArray(loc);
         gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
       };
+      manPos = pos;
       battr('aPos', pos, 3);
       battr('aNor', manRawNor, 3);
       const ib = gl.createBuffer();
@@ -510,19 +615,106 @@ void main() {
       gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, manIdx, gl.STATIC_DRAW);
     }
 
-    // ---- HER ('FSSK'): mesh + weights + skeleton, pre-normalised at bake.
-    const skBuf = await (await fetch('/mesh/superheroin.skin')).arrayBuffer();
+    // THE MAN ARRIVES AS PARTICLES TOO (2026-09-04). Adrian's lore opens "brought about from
+    // an idea in the simulated universe (particles) then into simulated reality (hologram)",
+    // and this stage opened with him already solid. That made the new homepage's first two
+    // waypoints the same picture at two camera distances, and feel.md calls two adjacent
+    // legs carrying one feeling a sign that one of them is filler. He assembles now.
+    //
+    // DRIVEN PAGES ONLY. /armature/ opens ON the landing shot, with no scroll in front of it
+    // to assemble him in, so nothing here is built there.
+    const MAN_PT_N = 4200;
+    const manPtVao = gl.createVertexArray()!;
+    if (DRIVEN0) {
+      const tri = manNi / 3;
+      const cum = new Float32Array(tri);
+      let total = 0;
+      for (let t = 0; t < tri; t++) {
+        const a = manIdx[t * 3] * 3, b = manIdx[t * 3 + 1] * 3, c = manIdx[t * 3 + 2] * 3;
+        const ux = manPos[b] - manPos[a], uy = manPos[b + 1] - manPos[a + 1], uz = manPos[b + 2] - manPos[a + 2];
+        const vx = manPos[c] - manPos[a], vy = manPos[c + 1] - manPos[a + 1], vz = manPos[c + 2] - manPos[a + 2];
+        total += 0.5 * Math.hypot(uy * vz - uz * vy, uz * vx - ux * vz, ux * vy - uy * vx);
+        cum[t] = total;
+      }
+      const rnd = mulberry32(19);
+      const pPos = new Float32Array(MAN_PT_N * 3), pNor = new Float32Array(MAN_PT_N * 3);
+      const pPh = new Float32Array(MAN_PT_N), pRnd = new Float32Array(MAN_PT_N * 3), pYN = new Float32Array(MAN_PT_N);
+      let ymin = Infinity, ymax = -Infinity;
+      for (let i = 0; i < MAN_PT_N; i++) {
+        const r = rnd() * total;
+        let lo = 0, hi = tri - 1;
+        while (lo < hi) { const m = (lo + hi) >> 1; if (cum[m] < r) lo = m + 1; else hi = m; }
+        const a = manIdx[lo * 3], b = manIdx[lo * 3 + 1], c = manIdx[lo * 3 + 2];
+        let u = rnd(), v = rnd();
+        if (u + v > 1) { u = 1 - u; v = 1 - v; }
+        const w = 1 - u - v;
+        for (let k = 0; k < 3; k++) {
+          pPos[i * 3 + k] = manPos[a * 3 + k] * w + manPos[b * 3 + k] * u + manPos[c * 3 + k] * v;
+          pNor[i * 3 + k] = manRawNor[a * 3 + k] * w + manRawNor[b * 3 + k] * u + manRawNor[c * 3 + k] * v;
+        }
+        pPh[i] = pPos[i * 3] * 1.7 + pPos[i * 3 + 1] * 2.3 + pPos[i * 3 + 2] * 1.1;
+        pRnd[i * 3] = rnd(); pRnd[i * 3 + 1] = rnd(); pRnd[i * 3 + 2] = rnd();
+        if (pPos[i * 3 + 1] < ymin) ymin = pPos[i * 3 + 1];
+        if (pPos[i * 3 + 1] > ymax) ymax = pPos[i * 3 + 1];
+      }
+      const span = (ymax - ymin) || 1;
+      for (let i = 0; i < MAN_PT_N; i++) pYN[i] = (pPos[i * 3 + 1] - ymin) / span;
+      gl.bindVertexArray(manPtVao);
+      const attr = (name: string, data: Float32Array, sz: number) => {
+        const loc = gl.getAttribLocation(P_PT.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, gl.FLOAT, false, 0, 0);
+      };
+      attr('aPos', pPos, 3);
+      attr('aNor', pNor, 3);
+      attr('aPhase', pPh, 1);
+      attr('aRand', pRnd, 3);
+      attr('aYN', pYN, 1);
+    }
+
+    // ---- HER: mesh + weights + skeleton, pre-normalised at bake. TWO FORMATS.
+    //   'FSSK'  the original bake. Welded, so seam vertices merge, which is right for a
+    //           character who only ever renders as a fresnel and drops UVs to get it.
+    //   'FSK2'  the same file plus a f32[2nv] UV channel after the normals and a material
+    //           table after the indices. Seams legitimately stay split, so the file is
+    //           bigger for the same character; that is the price of having a surface.
+    // The material table's ranges are contiguous because the index buffer is written in
+    // material order, so each material is exactly one drawElements call.
+    const skBuf = await (await fetch(SKIN_URL)).arrayBuffer();
     const sdv = new DataView(skBuf);
-    if (String.fromCharCode(sdv.getUint8(0), sdv.getUint8(1), sdv.getUint8(2), sdv.getUint8(3)) !== 'FSSK')
-      throw new Error('bad skin mesh');
+    const SKMAGIC = String.fromCharCode(sdv.getUint8(0), sdv.getUint8(1), sdv.getUint8(2), sdv.getUint8(3));
+    if (SKMAGIC !== 'FSSK' && SKMAGIC !== 'FSK2') throw new Error('bad skin mesh: ' + SKMAGIC);
     const NV = sdv.getUint32(4, true), NI = sdv.getUint32(8, true), NJ = sdv.getUint32(12, true);
     let so = 16;
     const hPos = new Float32Array(skBuf.slice(so, so + NV * 12)); so += NV * 12;
     const hNor = new Int8Array(skBuf.slice(so, so + NV * 4)); so += NV * 4;
+    let hUV: Float32Array | null = null;
+    if (SKMAGIC === 'FSK2') { hUV = new Float32Array(skBuf.slice(so, so + NV * 8)); so += NV * 8; }
     const hJnt = new Uint8Array(skBuf.slice(so, so + NV * 4)); so += NV * 4;
     const hWgt = new Uint8Array(skBuf.slice(so, so + NV * 4)); so += NV * 4;
     const hIdx = new Uint16Array(skBuf.slice(so, so + NI * 2)); so += NI * 2;
     so = (so + 3) & ~3;
+    const hMats: { first: number; count: number; name: string }[] = [];
+    if (SKMAGIC === 'FSK2') {
+      const nm = sdv.getUint32(so, true); so += 4;
+      for (let m = 0; m < nm; m++) {
+        const first = sdv.getUint32(so, true); so += 4;
+        const count = sdv.getUint32(so, true); so += 4;
+        const ln = sdv.getUint8(so); so += 1;
+        const name = new TextDecoder().decode(new Uint8Array(skBuf, so, ln)); so += ln;
+        hMats.push({ first, count, name });
+      }
+    }
+    if (!hMats.length) hMats.push({ first: 0, count: NI, name: 'default' });
+    // A SURFACE NEEDS ALL THREE: the UVs, a texture folder, and a buffer of our own to put
+    // depth in. HOSTED means the homepage's point cloud owns the framebuffer and it has no
+    // depth attachment, so the materials beat stays off there rather than drawing a body
+    // that cannot occlude itself.
+    const TEXTURED = SKMAGIC === 'FSK2' && TEX_DIR !== '' && !HOSTED;
     const jNames: string[] = [], jParent: number[] = [];
     const jLocal: Float32Array[] = [], jIbm: Float32Array[] = [];
     for (let j = 0; j < NJ; j++) {
@@ -615,6 +807,83 @@ void main() {
     const depth = new Array(NJ).fill(0);
     for (let j = 0; j < NJ; j++) depth[j] = jParent[j] < 0 ? 0 : depth[jParent[j]] + 1;
     const maxDepth = Math.max(...depth);
+
+    // ---- HER SURFACE'S GEOMETRY AND MAPS. Only where the file carries UVs and a texture
+    // folder was named; /armature/ passes neither and none of this is built.
+    const MAT_BAND = 0.22;
+    const matVao = gl.createVertexArray()!;
+    const matTex: { d: WebGLTexture; n: WebGLTexture }[] = [];
+    if (TEXTURED) {
+      // aMD: the chain depth of the joint a vertex is most held by, normalised. It is the
+      // SAME number the skeleton grew on, which is why the surface floods out along her in
+      // the same order the bones arrived.
+      const hMD = new Float32Array(NV);
+      for (let v = 0; v < NV; v++) {
+        let acc = 0, wt = 0;
+        for (let k = 0; k < 4; k++) {
+          const w = hWgt[v * 4 + k];
+          if (!w) continue;
+          acc += (depth[hJnt[v * 4 + k]] || 0) * w; wt += w;
+        }
+        hMD[v] = wt ? acc / wt / maxDepth : 0;
+      }
+      gl.bindVertexArray(matVao);
+      const attr = (name: string, data: ArrayBufferView, sz: number, type: number, normalize: boolean) => {
+        const loc = gl.getAttribLocation(P_MAT.p, name);
+        if (loc < 0) return;
+        const b = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, b);
+        gl.bufferData(gl.ARRAY_BUFFER, data, gl.STATIC_DRAW);
+        gl.enableVertexAttribArray(loc);
+        gl.vertexAttribPointer(loc, sz, type, normalize, 0, 0);
+      };
+      attr('aPos', hPos, 3, gl.FLOAT, false);
+      attr('aNor', hNor, 4, gl.BYTE, true);
+      attr('aUV', hUV!, 2, gl.FLOAT, false);
+      attr('aJ', hJnt, 4, gl.UNSIGNED_BYTE, false);
+      attr('aW', hWgt, 4, gl.UNSIGNED_BYTE, true);
+      attr('aMD', hMD, 1, gl.FLOAT, false);
+      const mib = gl.createBuffer();
+      gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, mib);
+      gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, hIdx, gl.STATIC_DRAW);
+
+      // One diffuse and one normal per material range, named by index. A missing map falls
+      // back to a flat texel rather than throwing: a character with three of her four maps
+      // is a bad frame, a character who never loads is a broken page.
+      const flat = (r: number, g: number, b2: number) => {
+        const t = gl.createTexture()!;
+        gl.bindTexture(gl.TEXTURE_2D, t);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+          new Uint8Array([r, g, b2, 255]));
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        return t;
+      };
+      const FLAT_D = flat(90, 96, 104), FLAT_N = flat(128, 128, 255);
+      const aniso = gl.getExtension('EXT_texture_filter_anisotropic');
+      const load = (url: string, fallback: WebGLTexture) => new Promise<WebGLTexture>((res) => {
+        const img = new Image();
+        img.onload = () => {
+          const t = gl.createTexture()!;
+          gl.bindTexture(gl.TEXTURE_2D, t);
+          // The bake writes UVs in USD's convention, v up. An image decodes top row first.
+          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, true);
+          gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+          gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, false);
+          gl.generateMipmap(gl.TEXTURE_2D);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+          gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+          if (aniso) gl.texParameterf(gl.TEXTURE_2D, aniso.TEXTURE_MAX_ANISOTROPY_EXT, 4);
+          res(t);
+        };
+        img.onerror = () => res(fallback);
+        img.src = url;
+      });
+      const loaded = await Promise.all(hMats.map((_, m) => Promise.all([
+        load(`${TEX_DIR}/d${m}.webp`, FLAT_D),
+        load(`${TEX_DIR}/n${m}.webp`, FLAT_N)])));
+      loaded.forEach(([d, n]) => matTex.push({ d, n }));
+    }
+
     const shown: number[] = [];
     for (let j = 0; j < NJ; j++) {
       const n = jNames[j];
@@ -1018,8 +1287,11 @@ void main() {
       const h = Math.max(1, Math.round(canvas.clientHeight * DPR));
       if (canvas.width === w && canvas.height === h && T) return;
       canvas.width = w; canvas.height = h;
-      if (T) for (const t of [T.scene, T.bright, ...T.mips, ...T.ping]) { gl.deleteTexture(t.t); gl.deleteFramebuffer(t.f); }
-      T = { scene: target(w, h, HDR), bright: target(w >> 1, h >> 1, HDR), mips: [] as any[], ping: [] as any[] };
+      if (T) for (const t of [T.scene, T.bright, ...T.mips, ...T.ping]) {
+        gl.deleteTexture(t.t); gl.deleteFramebuffer(t.f);
+        if (t.d) gl.deleteRenderbuffer(t.d);
+      }
+      T = { scene: target(w, h, HDR, true), bright: target(w >> 1, h >> 1, HDR), mips: [] as any[], ping: [] as any[] };
       let mw = w, mh = h;
       for (let i = 0; i < 5; i++) {
         mw = Math.max(1, mw >> 1); mh = Math.max(1, mh >> 1);
@@ -1040,7 +1312,10 @@ void main() {
     // to the host and sits nowhere near this hero, so closest() returned null: the beats kept
     // display:none because data-stage-live never landed, and the control picking, which
     // listens on this element, never armed either.
-    const hero = document.querySelector('.ast-hero.hero--art') as HTMLElement | null;
+    // ON A PAGE WITH NO HERO, THE CANVAS IS THE SURFACE (2026-09-04). This element is what
+    // arms the control picking, and the new homepage has no .ast-hero at all -- so without
+    // the fallback the whole peak, "you can move her", is unreachable there.
+    const hero = (document.querySelector('.ast-hero.hero--art') as HTMLElement | null) || canvas;
     const teaserVid = document.querySelector('[data-ast-teaser]') as HTMLVideoElement | null;
     const runway = document.querySelector('[data-ast-scroll]') as HTMLElement | null;
     // The animation-ready beat's clip. Scrubbed by the loop below; see the markup for why it
@@ -1169,12 +1444,37 @@ void main() {
     // the same story can be drawn by the homepage's renderer, into the homepage's buffer,
     // through the homepage's bloom. /armature/ takes the identical path with itself as host.
     let manOut = 0, herReveal = 0, grow = 0, solid = 0, alive = 0, growEff = 0, ptFade = 0, skelAlpha = 0;
+    let mat = 0, doors = 0;
+    // The man's own arrival. 1 everywhere but a driven page, where he assembles first.
+    let manIn = 1, manAsm = 1, manPtFade = 0;
+    // WHERE THE THREE DOORS STAND. Objects in the place, not a menu under it: they run away
+    // to her left along the grid, each further back than the last, so the close is a place
+    // with exits rather than a footer. The page projects these three points every frame and
+    // parks its real anchors on them; see __armDoors below.
+    // A COLUMN, NOT A ROW. Three doors receding along the grid was the first arrangement and
+    // it failed twice over: perspective made the near one four times the far one, and at the
+    // depth needed to fit three labels side by side the outer two ran off the left edge. All
+    // three sit at ONE depth now, stacked, on the flank the closing camera opens.
+    const DOOR_PTS: number[][] = [
+      [-2.26, 2.05, 0.74],
+      [-2.26, 1.30, 0.74],
+      [-2.26, 0.55, 0.74],
+    ];
+    // The depth the plates were sized for. The page divides by the measured depth, so the
+    // doors breathe with the camera's creep instead of sitting flat on the glass.
+    const DOOR_REF_D = 4.6;
 
     // Every per-frame job EXCEPT drawing: the clock, the copy beats, the pose, and the
     // story's own camera. Returns that camera, or null when there is nothing to draw.
     function stepScene(now: number) {
+      // DRIVEN MODE (Adrian, 2026-09-04). Her whole creation is a pure function of q, and
+      // q is normally screens scrolled into the runway. The new homepage does not scroll
+      // her: a button starts a clock and the clock sets q. So when a driver is present it
+      // owns the clock outright, and the runway cull is skipped because there is no runway
+      // to be off screen of. Nothing changes for /armature/, which sets no driver.
+      const DRIVEN = (window as any).__armDriven === true;
       const rw = runway ? runway.getBoundingClientRect() : canvas.getBoundingClientRect();
-      if (rw.bottom < 0 || rw.top > innerHeight) return;
+      if (!DRIVEN && (rw.bottom < 0 || rw.top > innerHeight)) return;
       const dt = Math.min(0.05, (now - prev) / 1000 || 0);
       prev = now;
       resize();
@@ -1193,7 +1493,9 @@ void main() {
       const REEL_AT = 0.6;    // the title stanza has finished fading by 0.55
       const REEL_LEN = 1.6;
       const REEL_EDGE = 0.4;  // the fade in and the fade out
-      const raw = runway ? -rw.top / Math.max(1, innerHeight) : 0;
+      const raw = DRIVEN
+        ? ((window as any).__armQ || 0)
+        : (runway ? -rw.top / Math.max(1, innerHeight) : 0);
       let q = raw;
       let teaser = 0;
       if (HOSTED) {
@@ -1215,10 +1517,28 @@ void main() {
       }
       const aland = smooth(clamp01((q - 0.15) / 0.4));
       manOut = smooth(clamp01((q - 2.05) / 0.5));
+      if (DRIVEN0) {
+        // scatter -> his shape -> the hologram. Three states, three legs, and the first of
+        // them is deliberately a field with no body in it.
+        manAsm = smooth(clamp01((q - 0.02) / 0.62));
+        manIn = smooth(clamp01((q - 0.62) / 0.40));
+        manPtFade = (1 - manIn) * (1 - manOut);
+      }
       herReveal = clamp01((q - 1.0) / 1.0) * 1.08;
       grow = clamp01((q - 2.1) / 0.8);
       solid = smooth(clamp01((q - 2.9) / 0.7));
       alive = smooth(clamp01((q - 3.6) / 0.4));
+      // THE MATERIALS BEAT (Adrian, 2026-09-04). His sequence is particles, hologram,
+      // skeleton, skinning, TEXTURES AND MATERIALS, control rig, move her -- and that fifth
+      // stage is the only one the scene never had. It goes between solidify (ends 3.6) and
+      // alive, so alive moves out to 4.35 to make room for it. Only where there is a surface
+      // to reveal: without textures the range does not exist and /armature/'s clock is
+      // exactly the clock it has always been.
+      if (TEXTURED) {
+        mat = smooth(clamp01((q - 3.5) / 0.8));
+        alive = smooth(clamp01((q - 4.35) / 0.45));
+        doors = smooth(clamp01((q - 4.95) / 0.6));
+      }
       // the calisthenics run while the skinning beat holds the stage, then hand off to
       // the stillness the controls pose against
       const romAmp = solid * (1 - alive);
@@ -1259,6 +1579,11 @@ void main() {
 
       // THE TAIL: the three walkthrough reels ride up past the right side, pricing fades
       // in where they passed, then the closing doors. She stays screen left, still alive.
+      // NONE OF THE TAIL BELONGS TO A DRIVEN PAGE. Reels, pricing and the closing doors are
+      // /armature/'s own ending, and they are all keyed to q values the driven clock walks
+      // straight through. The new homepage has its own close, so this whole stretch is
+      // skipped there rather than firing invisibly.
+      if (DRIVEN) { growEff = grow; } else {
       const reel = clamp01((q - 4.6) / 1.9);
       const ungrow = smooth(clamp01((q - 4.75) / 1.2));
       growEff = grow - 1.06 * ungrow;
@@ -1283,6 +1608,7 @@ void main() {
         if (endd > 0.01) endEl.setAttribute('data-active', '');
         else endEl.removeAttribute('data-active');
       }
+      }
 
       // the skeleton stays lit once grown; the points hand off to the solid
       // THE STORY GOES HOME (Adrian, 2026-08-22). On the homepage the act hands the room back
@@ -1303,9 +1629,18 @@ void main() {
       const away = 1 - home;
 
       ptFade = (herReveal > 0 ? 1 : 0) * (1 - solid) * (1 - grow * 0.45) * away;
-      skelAlpha = (grow > 0 ? 0.85 : 0) * away;
-      solid = solid * away;
+      skelAlpha = (grow > 0 ? 0.85 : 0) * away * (1 - mat * 0.6);
+      // The x-ray hands the body over to the surface rather than sitting under it: two
+      // fresnels stacked read as a smear, and she is meant to STOP being a hologram here.
+      solid = solid * away * (1 - mat);
       alive = alive * away;
+      // WHAT THE DRIVING PAGE NEEDS AND CANNOT DERIVE. It owns q, so it knows the input; it
+      // does not know how the beats resolve out of it, and both of these gate real markup --
+      // the "drag her arms and legs" line and the three door anchors.
+      if (DRIVEN) {
+        (window as any).__armAlive = alive;
+        (window as any).__armDoorsA = doors;
+      }
 
       evalPose(time, romAmp, dt);
 
@@ -1315,6 +1650,57 @@ void main() {
       }
       const oy = Math.tanh(orbY / ORB_LIM_Y) * ORB_LIM_Y;
       const op = Math.tanh(orbP / ORB_LIM_P) * ORB_LIM_P;
+
+      // THE DRIVEN CAMERA (Adrian, 2026-09-04). The five marks below were composed for
+      // /armature/, a page with a copy column down one side, which is why every one of them
+      // carries a lateral offset that throws her off centre. Here she is the whole subject
+      // and the copy sits top and bottom, so the flight stays ON HER AXIS and only the
+      // distance, the height and a few degrees of yaw ever change. The legs, in q:
+      //   0.00-1.10  establishing: wide and high, the reference man alone on the grid
+      //   1.10-1.95  push in as her points gather in front of him
+      //   1.95-4.80  the build, holding, creeping in one step across the whole sequence so
+      //              the longest stretch on the page is never a locked-off frame
+      //   4.80-      the pull back for the doors, opening the ground to her left
+      if (DRIVEN) {
+        // PORTRAIT PULLS BACK RATHER THAN RECOMPOSING. A distance dialled for a 34 degree
+        // horizontal half-angle means something else entirely at the 11 degrees a 390 frame
+        // gives you, and at these numbers the reference man's outstretched arms ran off both
+        // edges. The same trade /armature/ makes with FIT_PULLBACK, and the one number to
+        // dial here.
+        const NARROW_PULL = innerWidth <= 700 ? 1.5 : 1;
+        const D_WIDE = { yaw: 0.16, pitch: 0.055, dist: 5.50 * NARROW_PULL, ty: 1.20, tz: 0.30, tx: 0 };
+        const D_FIT = { yaw: 0.30, pitch: 0.010, dist: 4.35 * NARROW_PULL, ty: 1.06, tz: 0.62, tx: 0 };
+        const D_HER = { yaw: 0.05, pitch: -0.015, dist: 3.30 * NARROW_PULL, ty: 1.05, tz: HER_POS[2], tx: 0 };
+        // THE CLOSE HAS NO FLANK ON A PHONE. D_OUT opens the ground to her left for three
+        // door plates, and 2.26 metres of that is simply outside a 390 frame: the doors
+        // projected to x -197 and the whole close was off screen. In portrait the camera
+        // retreats and lifts instead, she sits high and small, and the doors stack under her
+        // in the copy layer. Same place, composed for the frame it is in.
+        const narrowOut = innerWidth <= 700;
+        const D_OUT = narrowOut
+          ? { yaw: 0.04, pitch: 0.055, dist: 5.90, ty: 1.42, tz: HER_POS[2], tx: 0 }
+          : { yaw: -0.20, pitch: 0.030, dist: 4.70, ty: 1.02, tz: HER_POS[2], tx: -0.72 };
+        const d1 = smooth(clamp01((q - 0.30) / 0.80));
+        // THE SWING TO FRONT-ON HAPPENS DURING THE BUILD, NOT BEFORE IT. Arriving front-on
+        // by the hold put her point cloud exactly on top of the reference man, two figures
+        // on one axis reading as one confused shape. Held at the fitting angle she stands
+        // clearly IN FRONT of him, and the camera turns to face her as the skeleton lands.
+        const d2 = smooth(clamp01((q - 1.95) / 0.95));
+        const d3 = smooth(clamp01((q - 4.80) / 0.90));
+        const dl = (a: number, b: number, c2: number, e2: number) =>
+          lerp(lerp(lerp(a, b, d1), c2, d2), e2, d3);
+        const creep = smooth(clamp01((q - 1.95) / 2.85)) * 0.22;
+        return {
+          tgt: [
+            HER_POS[0] + dl(D_WIDE.tx, D_FIT.tx, D_HER.tx, D_OUT.tx),
+            dl(D_WIDE.ty, D_FIT.ty, D_HER.ty, D_OUT.ty),
+            dl(D_WIDE.tz, D_FIT.tz, D_HER.tz, D_OUT.tz)],
+          yaw: dl(D_WIDE.yaw, D_FIT.yaw, D_HER.yaw, D_OUT.yaw) + oy,
+          pitch: dl(D_WIDE.pitch, D_FIT.pitch, D_HER.pitch, D_OUT.pitch) + op,
+          dist: dl(D_WIDE.dist, D_FIT.dist, D_HER.dist, D_OUT.dist) - creep,
+          home: 0,
+        };
+      }
 
       // LAND -> FIT on the first scroll; FIT -> HER as the man leaves.
       const t1 = smooth(clamp01((q - 0.55) / 0.5));
@@ -1430,6 +1816,34 @@ void main() {
     function drawContent(view: any, proj: any, eye: any) {
       lastView = view;
       lastEye = eye;
+
+      // HER SURFACE, first and with depth, so that everything additive after it is occluded
+      // by a body that finally has one. The order is the whole point: while she is a
+      // hologram the skeleton reads THROUGH her, and the moment she has a skin it does not.
+      if (TEXTURED && mat > 0.003) {
+        gl.enable(gl.DEPTH_TEST);
+        gl.depthMask(true);
+        gl.enable(gl.BLEND);
+        gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
+        gl.useProgram(P_MAT.p);
+        gl.uniformMatrix4fv(P_MAT.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_MAT.u.uView, false, view);
+        gl.uniform3fv(P_MAT.u.uPlasma, PLASMA);
+        gl.uniform3fv(P_MAT.u.uBone, BONE);
+        gl.uniform1f(P_MAT.u.uAlpha, 1);
+        gl.uniform1f(P_MAT.u.uBand, MAT_BAND);
+        gl.uniform1f(P_MAT.u.uSweep, -MAT_BAND + mat * (1 + 2 * MAT_BAND));
+        bindTex(P_MAT.u.uJT, jointTex, 6);
+        gl.bindVertexArray(matVao);
+        for (let m = 0; m < hMats.length; m++) {
+          bindTex(P_MAT.u.uDiff, matTex[m].d, 0);
+          bindTex(P_MAT.u.uNrm, matTex[m].n, 1);
+          gl.drawElements(gl.TRIANGLES, hMats[m].count, gl.UNSIGNED_SHORT, hMats[m].first * 2);
+        }
+        // Depth is now hers. Everything below reads it and writes none of its own.
+        gl.depthMask(false);
+      }
+
       gl.enable(gl.BLEND);
       gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
       // the man, yielding the stage
@@ -1439,10 +1853,29 @@ void main() {
         gl.uniformMatrix4fv(P_XRAY.u.uView, false, view);
         gl.uniform3fv(P_XRAY.u.uPlasma, PLASMA);
         gl.uniform3fv(P_XRAY.u.uBone, BONE);
-        gl.uniform1f(P_XRAY.u.uAlpha, 0.5 * (1 - manOut));
+        gl.uniform1f(P_XRAY.u.uAlpha, 0.5 * (1 - manOut) * manIn);
         gl.uniformMatrix4fv(P_XRAY.u.uModel, false, MAN_M);
         gl.bindVertexArray(manVao);
         gl.drawElements(gl.TRIANGLES, manNi, gl.UNSIGNED_SHORT, 0);
+      }
+
+      // the man, assembling out of the field. Same grammar as hers, one beat earlier, so
+      // the page opens on the thing it is about rather than on a finished object.
+      if (DRIVEN0 && manPtFade > 0.003) {
+        gl.useProgram(P_PT.p);
+        gl.uniformMatrix4fv(P_PT.u.uProj, false, proj);
+        gl.uniformMatrix4fv(P_PT.u.uView, false, view);
+        gl.uniform1f(P_PT.u.uTime, time);
+        gl.uniform1f(P_PT.u.uSize, 1.0);
+        gl.uniform1f(P_PT.u.uReveal, 1.2);
+        gl.uniform1f(P_PT.u.uFade, manPtFade);
+        gl.uniform1f(P_PT.u.uScatter, 1.7 * (1 - manAsm));
+        gl.uniform3f(P_PT.u.uOffset, 0, 0, 0);
+        gl.uniform3fv(P_PT.u.uPlasma, PLASMA);
+        gl.uniform3fv(P_PT.u.uEmber, EMBER);
+        gl.uniform3fv(P_PT.u.uBone, BONE);
+        gl.bindVertexArray(manPtVao);
+        gl.drawArrays(gl.POINTS, 0, MAN_PT_N);
       }
 
       // her points, materialising
@@ -1454,6 +1887,7 @@ void main() {
         gl.uniform1f(P_PT.u.uSize, 1.0);
         gl.uniform1f(P_PT.u.uReveal, herReveal);
         gl.uniform1f(P_PT.u.uFade, ptFade);
+        gl.uniform1f(P_PT.u.uScatter, 0);
         gl.uniform3f(P_PT.u.uOffset, HER_POS[0], HER_POS[1], HER_POS[2]);
         gl.uniform3fv(P_PT.u.uPlasma, PLASMA);
         gl.uniform3fv(P_PT.u.uEmber, EMBER);
@@ -1509,6 +1943,10 @@ void main() {
         // THE CONTROLS (Adrian, 2026-08-19): a THICKER single line, solid and glowing --
         // five tightly nested loops read as one heavy stroke through the bloom.
         if (alive > 0.5) {
+          // A CONTROL IS NEVER OCCLUDED BY THE THING IT CONTROLS. Every animation package
+          // draws controls on top, and with depth on, her body cut the horizontal edges off
+          // each square and left a pair of floating vertical bars.
+          gl.disable(gl.DEPTH_TEST);
           gl.bindVertexArray(squareVao);
           gl.uniform1f(P_CTRL.u.uAlpha, alive);
           const pulse = 1 + 0.06 * Math.sin(time * 2.2);
@@ -1524,9 +1962,29 @@ void main() {
               gl.drawArrays(gl.LINE_LOOP, 0, 4);
             }
           }
+          if (TEXTURED && mat > 0.003) gl.enable(gl.DEPTH_TEST);
         }
       }
+
+      // THE THREE DOORS. The stage owns WHERE they are, because the stage owns the world;
+      // the page owns what they look like, because a door carries three words and a
+      // destination and none of that survives being drawn as a quad. So this projects the
+      // three points and the page parks a real link on each -- the same trade the button
+      // makes, and the reason both are reachable by keyboard.
+      //
+      // A DRAWN FRAME WAS TRIED FIRST and dropped: at the size that fits "Maya Pipeline
+      // Tools" the frames covered the map, and at the size that cleared it the words did not
+      // fit inside. One object, drawn once, in the layer that can lay out text.
+      if (doors > 0.003) {
+        (window as any).__armDoors = DOOR_PTS.map((pt) => {
+          const sp = screenOf(pt);
+          return sp ? [sp[0], sp[1], DOOR_REF_D / sp[2]] : null;
+        });
+      }
+
       gl.disable(gl.BLEND);
+      gl.disable(gl.DEPTH_TEST);
+      gl.depthMask(true);
     }
 
     function frame(now: number) {
@@ -1538,7 +1996,7 @@ void main() {
       gl.bindFramebuffer(gl.FRAMEBUFFER, T.scene.f);
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.clearColor(CARBON[0], CARBON[1], CARBON[2], 1);
-      gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
       gl.disable(gl.DEPTH_TEST);
       gl.enable(gl.BLEND);
 
