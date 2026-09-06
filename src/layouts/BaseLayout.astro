@@ -19,6 +19,9 @@ const goat = import.meta.env.PUBLIC_GOATCOUNTER_CODE;
         As a meta tag it applies before the stylesheet loads, so there is no first-paint flash. */}
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#0B0E10" />
+    {/* Google Search Console ownership (Adrian, 2026-09-05). On every page: Google reads
+        the home page for it, and the layout is the one place that is on every page. */}
+    <meta name="google-site-verification" content="HaZURIc9IYTxu3v_PaOUof_Z0iHbt8WZKhJnmGob0SU" />
     {/* Post-purchase and other unlisted pages must never rank or be discoverable via search. */}
     {noindex && <meta name="robots" content="noindex, nofollow" />}
     <title>{title}</title>
