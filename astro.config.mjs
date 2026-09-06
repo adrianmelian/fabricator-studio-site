@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: 'https://fabricator.studio',
@@ -16,4 +17,12 @@ export default defineConfig({
     // page"). The old route stays alive for anyone holding the preview link.
     '/next': '/',
   },
+  // THE SITEMAP (Adrian, 2026-09-05: "how do we get more hits, like on searches"). Written at
+  // build to /sitemap-index.xml and pointed at from robots.txt; Search Console reads it.
+  // The pages that carry noindex stay out of it, as does the /next/ redirect stub.
+  integrations: [
+    sitemap({
+      filter: (page) => !/\/(thank-you|discord|next)\/?$/.test(page),
+    }),
+  ],
 });
