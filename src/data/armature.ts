@@ -35,22 +35,22 @@ export const UPDATE_BASE = 'https://downloads.fabricator.studio/armature/';
 
 // The installer filename is part of the release contract: latest.yml references it, the
 // .sha256 sits beside it, and the SmartScreen copy's Get-FileHash example names it.
-export const INSTALLER_NAME = 'Armature-2.3.0-Setup.exe';
+export const INSTALLER_NAME = 'Armature-2.4.0-Setup.exe';
 
 export const ARMATURE = {
-  version: '2.3.0',
+  version: '2.4.0',
   installer: UPDATE_BASE + INSTALLER_NAME,
   sha256File: UPDATE_BASE + INSTALLER_NAME + '.sha256',
 
-  // The 2026-09-01 build, Armature 2.3.0. Verified before publish: the disk hash was
+  // The 2026-09-07 build, Armature 2.4.0. Verified before publish: the disk hash was
   // recomputed from the installer bytes and matches the .sha256 sidecar, latest.yml's size
-  // (140252074) matches the file's own byte count, and the publish script re-fetched every
+  // (142253555) matches the file's own byte count, and the publish script re-fetched every
   // public URL and compared the served bytes. Prior release hashes retire with their releases;
   // their installers stay on the feed under versioned filenames, which is what keeps older
   // auto-updaters working.
   //
   // Empty renders a "published at release" placeholder instead of a wrong hash.
-  sha256: '8b8d0d40dfba0ea7a245eb401d9cdaf4690815f5a3cc697ce40f54eaf6fb4fd9',
+  sha256: 'e0001845cdd40e510a665a9720b7e4e4d488fe5af1f6d12a284959969f8c3709',
 
   // The LIVE Stripe payment link (R22, seated 2026-07-31). NEVER a test-mode URL: this value
   // is the only place the Commercial picker reads, so a wrong value here ships everywhere.

@@ -32,10 +32,9 @@ import fsLogo from '../assets/fs-logo.png';
 import mayaLogo from '../assets/logos/maya.png';
 import unrealLogo from '../assets/logos/unreal.png';
 import wnSupport from '../assets/whatsnew/notice_support.png';
-import wnMesh from '../assets/whatsnew/notice_mesh_editing.png';
-import wnOverhaul from '../assets/whatsnew/notice_ui_overhaul.png';
 import wnUnreal from '../assets/whatsnew/notice_controlrig_unreal.png';
-import wnMaya from '../assets/whatsnew/notice_auto_skeleton_fit.png';
+import wnMaterial from '../assets/whatsnew/notice_material_editor.png';
+import wnSupportWelcome from '../assets/whatsnew/notice_support_welcome.png';
 
 // THE SCORE. Six waypoints, his names and his sequence (2026-09-05). Weights are viewport
 // heights and they are the only dial on this page. Automation holds the most by far: it is
@@ -121,26 +120,22 @@ const ROWS = [
 // his shortened line. The 'Topic: sentence' headlines are split at render as the app
 // splits them, so the topic word takes its colour.
 const WN = {
-  version: '2.3.0',
-  date: 'Released 1 September 2026',
+  version: '2.4.0',
+  date: 'Released 7 September 2026',
   banner: {
-    title: 'Support: We can’t do this without you',
-    body: 'Please consider donating to the cause. FabricatorStudio is a one person studio and could use your support!',
-    shot: wnSupport,
+    // His shortened ask and its second line, 2026-09-07, verbatim from the app's SUPPORT_BANNER.
+    // The break between the two sentences is his and is preserved.
+    title: 'We can’t do this without you',
+    body: 'Please consider donating to the cause. FabricatorStudio is a one person studio and could use your support!\nWe also offer a Maya Pipeline, Unreal Control Rig Builder, Animator Tools, and more. Check them out.',
+    shot: wnSupportWelcome,
   },
   sections: [
-    { tag: 'Released', tone: 'plasma', scope: 'Unreal', title: 'Unreal: FS Control Rig Builder',
+    { tag: 'New Feature!', tone: 'plasma', scope: 'Armature', title: 'Armature: Material Editor added to Fitting Room',
+      body: 'A simple material editor that includes a section for setting texture files and a base material color override.',
+      shot: wnMaterial },
+    { tag: 'New Tool!', tone: 'plasma', scope: 'Unreal', title: 'Unreal: FS Control Rig Builder',
       body: 'Build a character rig in Unreal in one click, using FS Control Rig Modules. Packed with the latest UE 5.8 features. The rig features auto IK/FK match on the switch, an IK/FK spine, twist joints integration, and much more.',
-      shot: wnUnreal, href: '/control-rig/', cta: 'See the Control Rig' },
-    { tag: 'New', tone: 'plasma', scope: 'Armature', title: 'Armature: Multi-mesh support',
-      body: 'A character can be made of more than one mesh. Import, rename, group, separate, combine and hide them in the Meshes panel, with weights kept per mesh and an export that writes one file, one per group, or one per mesh.',
-      shot: wnMesh },
-    { tag: 'New', tone: 'plasma', scope: 'Armature', title: 'Armature: Full UI/UX Overhaul',
-      body: 'To make the workflow even more Artist-Friendly I have done a full overhaul on the interface, I hope you enjoy it!',
-      shot: wnOverhaul },
-    { tag: 'Coming soon', tone: 'cobalt', scope: 'Maya', title: 'Maya: Auto skeleton placement',
-      body: 'It builds a skeleton and fits it to your character automatically. The final step in full FS rig automation.',
-      shot: wnMaya },
+      shot: wnUnreal, href: '/control-rig/', cta: 'Learn more' },
   ],
 };
 function wnTopic(title) {
@@ -1097,7 +1092,9 @@ const WN_BANNER_TOPIC = wnTopic(WN.banner.title);
   .wn__banner-line { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
   .wn__banner-line .wn__tag { position: relative; top: -1px; }
   .wn__banner-title { font-size: 15px; font-weight: 700; color: var(--bone); line-height: 1.3; }
-  .wn__banner-copy { font-size: 12px; line-height: 1.55; color: var(--bone-dim); }
+  /* `pre-line` so the line break Adrian typed between the ask and the pointer to the rest of
+     the studio survives to the screen, exactly as it does in the app's own card. */
+  .wn__banner-copy { font-size: 12px; line-height: 1.55; color: var(--bone-dim); white-space: pre-line; }
   .wn__banner .wn__coffee { align-self: flex-start; margin-top: 3px; }
   /* the body is the only thing that scrolls */
   .wn__body {

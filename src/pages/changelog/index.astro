@@ -40,6 +40,32 @@ const ARMATURE_RELEASES = [
   // processes/release-publication.md. The site and the What's New card must never tell a user
   // two different stories about the same release.
   {
+    version: '2.4.0',
+    date: '2026-09-07',
+    dateLabel: '2026 · 09 · 07',
+    tag: 'Feature release',
+    lede: 'A material editor in the Fitting Room: every material on the selected mesh, its base color, and a slot for each texture.',
+    groups: [
+      {
+        label: 'NEW',
+        tone: 'plasma',
+        items: [
+          '<b>A material editor in the Fitting Room</b>. Select a mesh and the right wall shows every material on it, its base color, and a slot for each texture.',
+          '<b>Point any texture slot at an image on disk</b>, for a character whose textures did not come through on import or have changed since.',
+          '<b>Override a material’s base color</b>, for a mesh that arrived with a material and no texture at all.',
+          '<b>Rename a material</b>. The new name travels with your export.',
+        ],
+      },
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>A character with colored materials and no textures shows its colors again</b> instead of arriving in grey clay.',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.3.0',
     date: '2026-09-01',
     dateLabel: '2026 · 09 · 01',
