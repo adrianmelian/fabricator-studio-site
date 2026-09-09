@@ -40,6 +40,24 @@ const ARMATURE_RELEASES = [
   // processes/release-publication.md. The site and the What's New card must never tell a user
   // two different stories about the same release.
   {
+    version: '2.4.3',
+    date: '2026-09-09',
+    dateLabel: '2026 · 09 · 09',
+    tag: 'Bug fixes',
+    lede: 'A USD now brings its normal, ambient occlusion and emissive maps in as well as its base color.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>A USD now brings its normal, ambient occlusion and emissive maps in as well as its base color, and its roughness and metalness when they are packed into a single map.</b> Only the base color was arriving.',
+          '<b>An exported USD now carries your ambient occlusion and emissive maps.</b> Both were being dropped on the way out.',
+          '<b>A textured USD no longer arrives darker than the file it came from.</b> Its base color was being dimmed on the way in, and dimmed again every time the file went out and came back.',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.4.2',
     date: '2026-09-09',
     dateLabel: '2026 · 09 · 09',
