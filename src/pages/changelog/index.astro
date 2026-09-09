@@ -40,6 +40,46 @@ const ARMATURE_RELEASES = [
   // processes/release-publication.md. The site and the What's New card must never tell a user
   // two different stories about the same release.
   {
+    version: '2.4.1',
+    date: '2026-09-09',
+    dateLabel: '2026 · 09 · 09',
+    tag: 'Bug fixes',
+    lede: 'Textures inside an FBX now arrive with the mesh, and material edits reach your exported file. Both had been failing silently.',
+    groups: [
+      {
+        label: 'NEW',
+        tone: 'plasma',
+        items: [
+          '<b>Rename a run of joints at once</b>. Select several, right-click, and they are renamed as one numbered series. The joints under a pivot no longer have to be renamed one at a time.',
+          '<b>Delete Skin</b>, under Generate Skin, throws away the weights on the meshes you have selected. The skeleton, the influences and the modules all stay.',
+          '<b>Join the Discord</b> from the What’s New card.',
+        ],
+      },
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Textures inside an FBX or OBJ now arrive with the mesh.</b> Every FBX import was silently dropping them, whether or not the media was embedded.',
+          '<b>Material colors, names and relinked textures now reach your exported file.</b> They had been staying inside the app.',
+          '<b>The Materials panel scrolls</b>, so a character carrying more materials than fit the wall is fully reachable.',
+          '<b>Identical copies of one material are edited together.</b> A file that repeats a material once per mesh no longer asks you to relink the same texture six times.',
+          '<b>Right-click menus open at the pointer and stay on screen</b>, including at the bottom of a long list.',
+          '<b>Toolbar menus draw over an open drawer</b> instead of behind it.',
+        ],
+      },
+      {
+        label: 'CHANGED',
+        tone: 'plasma',
+        items: [
+          '<b>The Bind Skin window opens with the joints you selected</b>, or the joints your template built, instead of every joint in the scene.',
+          '<b>In the Bind Skin panel the green circles show which joints are influencing the skin you have</b>, and stay dark until something is bound. All and None moved into the Bind Skin window, where the choice is made.',
+          '<b>The Bind Skin panel is the two lists and Generate Skin.</b> They fill the wall now and share it on a draggable seam, thirty/seventy in the joints’ favor.',
+          '<b>Buttons, tabs and drawer corners are squared off</b> across the app.',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.4.0',
     date: '2026-09-07',
     dateLabel: '2026 · 09 · 07',
