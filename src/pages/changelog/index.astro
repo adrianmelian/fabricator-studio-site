@@ -40,6 +40,24 @@ const ARMATURE_RELEASES = [
   // processes/release-publication.md. The site and the What's New card must never tell a user
   // two different stories about the same release.
   {
+    version: '2.4.4',
+    date: '2026-09-16',
+    dateLabel: '2026 · 09 · 16',
+    tag: 'Bug fixes',
+    lede: "An FBX or OBJ's UVs and textures no longer come back mirrored after a trip through a skeleton and skin.",
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          "<b>An FBX or OBJ's UVs and textures no longer come back mirrored after you add a skeleton and skin and export to USD.</b>",
+          '<b>An exported USD with many separate faces sharing one material now arrives in Unreal with one material slot per material</b>, not dozens wearing generic names.',
+          '<b>The last two knuckles of an auto-fitted hand now sit centered across the finger</b>, not off to one side.',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.4.3',
     date: '2026-09-09',
     dateLabel: '2026 · 09 · 09',
