@@ -40,6 +40,23 @@ const ARMATURE_RELEASES = [
   // processes/release-publication.md. The site and the What's New card must never tell a user
   // two different stories about the same release.
   {
+    version: '2.4.5',
+    date: '2026-09-21',
+    dateLabel: '2026 · 09 · 21',
+    tag: 'Bug fixes',
+    lede: 'The camera no longer drifts on its own during a weight-paint stroke, and the move manipulator stays out of the way while you paint.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>A weight-paint brush stroke no longer sets the camera spinning on its own for a moment after you release it.</b>',
+          '<b>Selecting a joint from the influences list while weight painting no longer brings up the move manipulator.</b>',
+        ],
+      },
+    ],
+  },
+  {
     version: '2.4.4',
     date: '2026-09-16',
     dateLabel: '2026 · 09 · 16',
