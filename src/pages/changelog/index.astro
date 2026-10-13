@@ -578,6 +578,45 @@ const ARMATURE_RELEASES = [
   },
 ];
 
+// FS Control Rig releases, the Unreal plugin's own version line, in their own band like
+// Armature's. Copy source: the plugin README's "What's new" section, which ships inside the
+// zip, ported with the kind labels added (processes/release-publication.md). The plugin has
+// no in-app What's New, so the README and this entry are the two places the notes live.
+// Started at 1.0.6, 2026-10-13: 1.0.5 shipped to the account page with no public entry.
+const CONTROLRIG_RELEASES = [
+  {
+    version: '1.0.6',
+    date: '2026-10-13',
+    dateLabel: '2026 · 10 · 13',
+    tag: 'Bake fixes, animation picker',
+    lede: 'Bake To Control Rig works end to end: FK chains stay in place, root motion comes through, and the Body control stays on the hips. And a new animation picker.',
+    groups: [
+      {
+        label: 'FIXES',
+        tone: 'ember',
+        items: [
+          '<b>Bug Fix: Bake To Control Rig no longer throws FK controls into space.</b> Clavicles, jaw, fingers and other FK chains bake in place; an animation baked onto the rig and back comes home within 0.01 cm. Rigs you have already built pick this up when they load; no rebuild needed.',
+          '<b>Bug Fix: Bakes keep root motion.</b> The root’s travel and turning land on the Local root control, so walks and runs no longer bake in place.',
+          '<b>Bug Fix: The Body control stays on the hips after a bake.</b> It used to land above the head and pivot from there. Bake again to fix a sequence baked with an earlier version.',
+          '<b>Bug Fix: The Control Center shows the current logo.</b>',
+        ],
+      },
+      {
+        label: 'NEW',
+        tone: 'plasma',
+        items: [
+          '<b>New Feature: The animation picker.</b> Open it from FabricatorStudio &gt; Animation Picker in the main menu bar. One board for every character, built from the rig itself: each control the rig is showing gets a button in its colour (circles for FK, squares for IK), plus the six IK/FK switches and ten selection sets.',
+          '<b>New Feature: Click, shift-click and ctrl-click.</b> Click a button to select that control, shift-click to add it, ctrl-click to remove it, and click empty space to deselect. The selection sets work the same way.',
+          '<b>New Feature: The picker follows the rig.</b> Flip a switch, step to a frame where a switch is keyed, open another sequence or bake again, and the board redraws itself.',
+          '<b>New Feature: A rig dropdown.</b> When a sequence has more than one Control Rig track, the dropdown at the top picks which one the board drives.',
+          '<b>New Feature: Your own buttons.</b> Controls the default layout has no place for, like a jaw, a coat or a hood, are in the ALL set. Select one and press ADD SELECTED to give it a button; DROP SELECTED takes one off. Kept per character.',
+          '<b>Improvement: The neck’s controls have their own names</b>: Neck Base, Neck Mid, Head and Neck Local.',
+        ],
+      },
+    ],
+  },
+];
+
 const RELEASES = [
   // 1.4.0 copy source: the release folder's approved draft, checked against the toolset repo's
   // own CHANGELOG entry. The updater it announces also required a privacy-page disclosure, which
@@ -942,7 +981,7 @@ const RELEASES = [
           error strings and UI labels. Rewriting them would make the history false, so the
           note under this line disambiguates instead. */}
       <p class="dd-summary">What shipped, and when. Bugs we already know about live on the <a href="/known-issues/">known issues page</a>.</p>
-      <p class="dd-summary cl-note">Two products, two version lines. Armature is a standalone app at 2.1.3; the Maya Toolset is at 1.4.0, and its entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
+      <p class="dd-summary cl-note">Three products, three version lines: Armature, the standalone app; FS Control Rig, the Unreal plugin; and the Maya Toolset. The Maya Toolset's entries before August 2026 use <b>Armature</b> for the Maya skeleton stage, which is what it was called at the time. That stage is now <a href="/docs/tools/armature/">Skeleton Building</a>.</p>
     </header>
 
     <div class="cl-band" aria-label="Armature releases">
@@ -955,6 +994,37 @@ const RELEASES = [
           <div class="cl-ver">
             <span class="cl-ver__dot" aria-hidden="true"></span>
             <h2 id={`cl-armature-${rel.version}`} class="cl-ver__num">v{rel.version}</h2>
+          </div>
+          <p class="cl-rail__tag">{rel.tag}</p>
+          <time class="cl-rail__date" datetime={rel.date}>{rel.dateLabel}</time>
+        </div>
+        <div class="cl-body">
+          <p class="cl-lede" set:html={rel.lede} />
+          {rel.groups.map((g) => (
+            <div class={`cl-group cl-group--${g.tone}`}>
+              <div class="cl-group__head">
+                <span class={`cl-group__bar cl-group__bar--${g.tone}`} aria-hidden="true"></span>
+                <h3 class={`cl-group__label cl-group__label--${g.tone}`}>{g.label}</h3>
+              </div>
+              <ul class="cl-list">
+                {g.items.map((item) => <li set:html={item} />)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+    ))}
+
+    <div class="cl-band" aria-label="FS Control Rig releases">
+      <p class="cl-band__label">FS CONTROL RIG &middot; UNREAL</p>
+    </div>
+
+    {CONTROLRIG_RELEASES.map((rel) => (
+      <section class="cl-rel" aria-labelledby={`cl-controlrig-${rel.version}`}>
+        <div class="cl-rail">
+          <div class="cl-ver">
+            <span class="cl-ver__dot" aria-hidden="true"></span>
+            <h2 id={`cl-controlrig-${rel.version}`} class="cl-ver__num">v{rel.version}</h2>
           </div>
           <p class="cl-rail__tag">{rel.tag}</p>
           <time class="cl-rail__date" datetime={rel.date}>{rel.dateLabel}</time>
