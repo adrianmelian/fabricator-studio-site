@@ -43,3 +43,10 @@ export const PLANS: Plan[] = [
   { id: 'enterprise_m', label: 'Monthly', price: '$45', per: '/ month', url: 'https://buy.stripe.com/dRm4gya3rcyOapI4KQ4Rq08' },
   { id: 'enterprise_y', label: 'Yearly', price: '$450', per: '/ year', url: 'https://buy.stripe.com/8x200i5Nb42i1Tc7X24Rq05' },
 ];
+
+// EDUCATION, one price for a whole school (Adrian, 2026-10-13): "$1000 for the year would be
+// great!" and "Hook the students up." Not a Stripe plan and never a buy button: a school is
+// sent a quote and an invoice, and the licensing service has no plan for it on purpose. A
+// Payment Link here would be read as an Armature key purchase (one-time) or a blank seat on
+// the payer's account (recurring). The terms are src/legal/education-license.md.
+export const EDUCATION = { price: '$1,000', per: '/ year', unit: 'per school' };

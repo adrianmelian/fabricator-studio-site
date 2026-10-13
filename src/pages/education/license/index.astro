@@ -1,0 +1,88 @@
+---
+// The Education License page. Same shape as /tools/eula/ and /armature/eula/: the agreement
+// is RENDERED from src/legal/education-license.md, never retyped here, and the quote PDF a
+// school receives is built from the same file (Business/Legal/2026-10-13_education-license/
+// build_pdf.py), so the page and the PDF cannot drift.
+//
+// Written 2026-10-13 on Adrian's word: "$1000 for the year would be great!", "Hook the
+// students up.", and for the rest "I suck at financials, can you figure that out?" The terms
+// beyond the price are Data's on that delegation; the Business/Legal folder's RESULTS.md
+// lists each one so any of them can be changed with one line.
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import NavBar from '../../../components/NavBar.astro';
+import Footer from '../../../components/Footer.astro';
+import '../../../styles/designed-doc.css';
+import { Content as License } from '../../../legal/education-license.md';
+
+const TITLE = 'EDUCATION';
+const TRI = ['t-bone', 't-plasma', 't-ember'];
+let li = 0;
+const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
+
+const UPDATED = 'Version 1.0, 13 October 2026';
+---
+<BaseLayout
+  title="Education License | FabricatorStudio"
+  description="One price for a whole school: every enrolled student and every instructor, FS Control Rig and Armature for teaching, and students keep what they installed."
+>
+  <NavBar />
+
+  <article class="dd eu">
+    <header class="dd-header">
+      <div class="dd-eyebrow">EDUCATION LICENSE AGREEMENT</div>
+      <h1 class="dd-title" aria-label={TITLE}>
+        {titleGlyphs.map((g) => <span class={g.cls}>{g.ch}</span>)}
+      </h1>
+      <p class="dd-summary">One price for the whole school. {UPDATED}.</p>
+      <p class="eu-crumb">
+        The price is on the <a href="/pricing/#education">pricing page</a>. To get a quote, email{' '}
+        <a href="mailto:licensing@fabricator.studio?subject=Education%20License">licensing@fabricator.studio</a>.
+        This is the separate agreement for schools that section 3.8 of the{' '}
+        <a href="/tools/eula/">Studio Pipeline EULA</a> and of the{' '}
+        <a href="/armature/eula/">Armature EULA</a> refer to.
+      </p>
+    </header>
+
+    <div class="eu-body">
+      <License />
+    </div>
+  </article>
+
+  <Footer />
+</BaseLayout>
+
+<style>
+  .eu { padding-bottom: 2rem; }
+  .eu .dd-header { align-items: center; text-align: center; }
+  .eu .dd-title { justify-content: center; }
+  .eu .dd-summary { margin-inline: auto; }
+  .eu-crumb { margin: 0 auto; max-width: 44rem; font-size: 0.875rem; line-height: 1.6; color: var(--bone-faint); }
+  .eu-crumb a { color: var(--bone); }
+
+  .eu-body {
+    width: 100%;
+    max-width: 72rem;
+    margin-inline: auto;
+    color: var(--bone-dim);
+  }
+
+  /* The source opens with its own H1; the designed header carries the page's one. */
+  .eu-body :global(h1) { display: none; }
+
+  .eu-body :global(h3) {
+    margin: 2.25rem 0 0.75rem;
+    font-family: var(--font-mono);
+    font-weight: 800;
+    font-size: 1.125rem;
+    color: var(--bone);
+    scroll-margin-top: 5rem;
+  }
+  .eu-body :global(p) { margin: 0 0 1rem; line-height: 1.75; text-wrap: pretty; }
+  .eu-body :global(strong) { color: var(--bone); }
+  .eu-body :global(a) { color: var(--bone); }
+
+  /* The signature block, for the signed copy a school may return. */
+  .eu-body :global(table) { width: 100%; max-width: 44rem; border-collapse: collapse; margin: 0 0 1.5rem; }
+  .eu-body :global(th), .eu-body :global(td) { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 1px solid var(--iron-2); }
+  .eu-body :global(th) { font-family: var(--font-mono); font-size: 0.8125rem; color: var(--bone); }
+</style>
