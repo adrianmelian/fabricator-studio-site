@@ -1,6 +1,6 @@
 # EDUCATION LICENSE AGREEMENT
 
-**Version 1.0, 13 October 2026. FabricatorStudio LLC, Westminster, Colorado.**
+**Version 1.1, 13 October 2026. FabricatorStudio LLC, Westminster, Colorado.**
 
 This Agreement is between FabricatorStudio LLC ("FabricatorStudio", "we", "us") and the
 educational institution named on the order ("the Institution", "you"). It is the separate
@@ -11,7 +11,7 @@ and section 3.8 of the Armature EULA refer to.
 
 This summary is not the agreement. Sections 2 through 14 are.
 
-**One price for the whole school: USD 1,000 a year.**
+**One yearly fee for the whole school**, stated on the order.
 
 **Every enrolled student and every instructor is covered.** There is no seat count for
 students and no charge to them. They can install FS Control Rig on their own computers as
@@ -114,8 +114,8 @@ survives the end of this Agreement.
 
 ### 7. Fee and payment
 
-**7.1 The fee.** USD 1,000 for each Term, for the whole Institution, whatever the number of
-Authorised Users.
+**7.1 The fee.** The fee stated on the order or invoice, for each Term, for the whole
+Institution, whatever the number of Authorised Users.
 
 **7.2 Invoicing.** We invoice by email. The invoice is payable within thirty days.
 
@@ -130,9 +130,8 @@ change this Agreement.
 **8.1 Start.** The Term starts on the date we receive payment and runs for twelve months.
 
 **8.2 Renewal.** We will email a renewal invoice at least thirty days before the Term ends.
-Paying it renews this Agreement for another twelve months. The renewal fee is the education
-price published at fabricator.studio on the day we send the renewal invoice, and we will say
-so in that email if it has changed. Nothing renews automatically and nothing is charged
+Paying it renews this Agreement for another twelve months. The renewal invoice states the fee
+for the next Term, and its email says so if the fee has changed. Nothing renews automatically and nothing is charged
 without an invoice you pay.
 
 **8.3 When it ends.** If the Term ends without renewal, or this Agreement is terminated, the

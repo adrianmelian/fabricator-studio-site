@@ -17,7 +17,6 @@ import NavBar from '../../components/NavBar.astro';
 import Footer from '../../components/Footer.astro';
 import SubscriptionTiers from '../../components/SubscriptionTiers.astro';
 import Masthead from '../../components/Masthead.astro';
-import { EDUCATION } from '../../data/plans';
 import '../../styles/designed-doc.css';
 
 
@@ -81,17 +80,19 @@ const FAQ = [
         canonical in src/data/licensing.ts (the homepage still renders it; that surface
         is the overhaul's). */}
 
-    {/* EDUCATION (Adrian, 2026-10-13: "$1000 for the year would be great!", "Hook the
-        students up."). A quote and an invoice, never checkout: see EDUCATION in plans.ts
-        for why it has no Payment Link. The terms are /education/license/. */}
+    {/* EDUCATION (Adrian, 2026-10-13: "Hook the students up."). NO PRICE ON THE PAGE, his
+        word the same day: "Maybe we should not put a price there and say contact us." A
+        school emails, gets a quote and an invoice, never checkout: see EDUCATION in
+        plans.ts for the price and why it has no Payment Link. The terms are
+        /education/license/, which states no price either. */}
     <section id="education" class="lc-license" aria-labelledby="lc-edu-t">
       <h2 id="lc-edu-t" class="lc-head__label lc-head__label--plasma">EDUCATION</h2>
       <div class="lc-get">
         <div class="lc-get__copy">
-          <h3 class="lc-get__title">{EDUCATION.price} {EDUCATION.per}, {EDUCATION.unit}</h3>
+          <h3 class="lc-get__title">One license for the whole school</h3>
           <p class="lc-prose">Every enrolled student and every instructor, with no seat count. FS Control Rig on school computers and students' own, Armature in the classroom, and five instructor Pro seats. Students pay nothing, and they keep what they installed for their own portfolio work after the course. <a href="/education/license/">Read the Education License</a>.</p>
         </div>
-        <a class="lc-cta" href="mailto:licensing@fabricator.studio?subject=Education%20License">Request a quote</a>
+        <a class="lc-cta" href="mailto:licensing@fabricator.studio?subject=Education%20License">Contact us</a>
       </div>
     </section>
 

@@ -45,8 +45,11 @@ export const PLANS: Plan[] = [
 ];
 
 // EDUCATION, one price for a whole school (Adrian, 2026-10-13): "$1000 for the year would be
-// great!" and "Hook the students up." Not a Stripe plan and never a buy button: a school is
-// sent a quote and an invoice, and the licensing service has no plan for it on purpose. A
+// great!" and "Hook the students up." NOT RENDERED ANYWHERE, his word the same day: "Maybe we
+// should not put a price there and say contact us." It stays here because this file is the
+// one place a price lives, and it is what a quote says. Not a Stripe plan and never a buy
+// button: a school is sent a quote and an invoice, and the licensing service has no plan for
+// it on purpose. A
 // Payment Link here would be read as an Armature key purchase (one-time) or a blank seat on
 // the payer's account (recurring). The terms are src/legal/education-license.md.
 export const EDUCATION = { price: '$1,000', per: '/ year', unit: 'per school' };

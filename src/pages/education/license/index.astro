@@ -19,7 +19,9 @@ const TRI = ['t-bone', 't-plasma', 't-ember'];
 let li = 0;
 const titleGlyphs = TITLE.split('').map((ch) => ({ ch, cls: ch === ' ' ? 't-gap' : TRI[li++ % 3] }));
 
-const UPDATED = 'Version 1.0, 13 October 2026';
+// 1.1 moved the fee out of the text and onto the order (Adrian, 2026-10-13: no price on the
+// site). 1.0, which named USD 1,000, is the copy AnimSchool's quote carried.
+const UPDATED = 'Version 1.1, 13 October 2026';
 ---
 <BaseLayout
   title="Education License | FabricatorStudio"
@@ -35,7 +37,7 @@ const UPDATED = 'Version 1.0, 13 October 2026';
       </h1>
       <p class="dd-summary">One price for the whole school. {UPDATED}.</p>
       <p class="eu-crumb">
-        The price is on the <a href="/pricing/#education">pricing page</a>. To get a quote, email{' '}
+        To get a quote, email{' '}
         <a href="mailto:licensing@fabricator.studio?subject=Education%20License">licensing@fabricator.studio</a>.
         This is the separate agreement for schools that section 3.8 of the{' '}
         <a href="/tools/eula/">Studio Pipeline EULA</a> and of the{' '}
